@@ -1,0 +1,49 @@
+@extends('layout.create')
+@section('text_modal-title','增加量具')
+
+@section('content_form')
+    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">
+        <label class="form-control-label">器具名称</label>
+        <input type="text" name="instrument" id="instrument" class="form-control">
+    </div>
+    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">
+        <label class="form-control-label">规格型号</label>
+        <input type="text" name="model" id="model" class="form-control">
+    </div>
+    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">
+        <label class="form-control-label">测量范围</label>
+        <input type="text" name="limit" id="limit" class="form-control">
+    </div>
+    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">
+        <label class="form-control-label">精确度</label>
+        <input type="text" name="accuracy" id="accuracy" class="form-control">
+    </div>
+    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">
+        <label class="form-control-label">检定周期</label>
+        <select name="cycle_id" id="cycle_id" class="custom-select form-control">
+            <option value="" selected disabled>请选择...</option>
+            @foreach($cycles as $cycle)
+                <option value={{$cycle->id}}>{{$cycle->name}}</option>
+            @endforeach
+        </select>
+    </div>
+    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">
+        <label class="form-control-label">ABC类</label>
+        <select name="abc_id" id="abc_id" class="custom-select form-control">
+            <option value="" selected disabled>请选择...</option>
+            @foreach($abcs as $abc)
+                <option value={{$abc->id}}>{{$abc->name}}</option>
+            @endforeach
+        </select>
+    </div>
+    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">
+        <label class="form-control-label">检定计划</label>
+        <select name="plan_id" id="plan_id" class="custom-select form-control">
+            <option value="" selected disabled>请选择...</option>
+            @foreach($plans as $plan)
+                <option value={{$plan->id}}>{{$plan->name}}</option>
+            @endforeach
+        </select>
+    </div>
+    <input type="hidden" name="type_id" id="type_id" value="{{$type_id}}">
+@endsection
