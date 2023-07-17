@@ -108,6 +108,8 @@ function load_standard(order) {
 }
 
 $().ready(function () {
+    $("#preloader")[0].style.display = 'block';
+    var eachcount = 0
     $(".factory_text").each(
         function () {
             var order = $(this).text()
@@ -145,6 +147,10 @@ $().ready(function () {
                     } else {
                         number_id_click(order);
                         $("#number_id" + order).val($("#number_text" + order).text())
+                    }
+                    eachcount++
+                    if (eachcount >= $(".factory_text").length) {
+                        $("#preloader").fadeOut();
                     }
                 },
                 error: function (xhr) {
