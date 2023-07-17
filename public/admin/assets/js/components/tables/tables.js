@@ -62,6 +62,7 @@
         if ($('#export-table').length > 0) {
             $('#export-table').DataTable({
                 language: CH,
+                scrollY: $(window).height() - $('#export-table').offset().top - 230,
                 lengthChange: false,
                 paging: false,
                 stateSave: true,
@@ -71,5 +72,23 @@
                 ],
             });
         }
+
+        if ($('#filter-table').length > 0) {
+            $('#filter-table').DataTable({
+                language: CH,
+                lengthChange: false,
+                paging: false,
+                stateSave: true,
+                order: [0, 'desc'],
+            });
+        }
+
+        window.onbeforeunload = function (e) {
+            localStorage.setItem('scrollpos', $('.dataTables_scrollBody').scrollTop());
+        };
+        $(document).ready(function () {
+            // 设置页面滚动位置
+            $('.dataTables_scrollBody').scrollTop(localStorage.getItem('scrollpos'));
+        });
     })
 })(jQuery);

@@ -69,19 +69,23 @@
         <tbody>
         @foreach($permissions as $permission)
             <tr @if($permission->role=='') class="bg-error" @endif>
-                @if($permission->level==1)
+                @switch($permission->level)
+                    @case(1)
                     <td><span class="btn btn-warning btn-sm ripple" onclick="m_edit('permission',{{$permission->id}})">{{$permission->description1}}</span></td>
                     <td><span class="btn btn-outline-secondary btn-sm ripple" onclick="m_add('permission',{{$permission->id}})">增加权限</span></td>
                     <td></td>
-                @elseif($permission->level==2)
+                    @break
+                    @case(2)
                     <td>{{$permission->description2}}</td>
                     <td><span class="btn btn-success btn-sm ripple" onclick="m_edit('permission',{{$permission->id}})">{{$permission->description1}}</span></td>
                     <td><span class="btn btn-outline-secondary btn-sm ripple" onclick="m_add('permission',{{$permission->id}})">增加权限</span></td>
-                @elseif($permission->level==3)
+                    @break
+                    @case(3)
                     <td>{{$permission->description3}}</td>
                     <td>{{$permission->description2}}</td>
                     <td><span class="btn btn-info btn-sm ripple" onclick="m_edit('permission',{{$permission->id}})">{{$permission->description1}}</span></td>
-                @endif
+                    @break
+                @endswitch
                 <td class="d-none d-sm-table-cell">{{$permission->name}}</td>
                 <td class="d-none d-xl-table-cell">{{$permission->role}}</td>
                 <td class="td-actions d-none d-xl-table-cell">

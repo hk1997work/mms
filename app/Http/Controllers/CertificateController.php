@@ -12,7 +12,8 @@ use App\Models\Factory;
 use App\Models\Number;
 use App\Models\Parameter;
 use App\Models\Position;
-use App\Models\Standard;
+use App\Models\PositionsView;
+use App\Models\StandardsView;
 use App\Models\Tool;
 use App\Models\ToolsView;
 use Illuminate\Http\Request;
@@ -24,6 +25,7 @@ class CertificateController extends Controller
 {
     public function index()
     {
+        $types = PositionsView::orderBy('sort')->get();
         switch (\Request::segment(1)) {
             case "active":
                 $position_id = isset($_GET['position_id']) ? $_GET['position_id'] : Position::where('name', '计量器具')->first()->id;
@@ -36,7 +38,7 @@ class CertificateController extends Controller
                         ->orWhere('position_id', $position_id);
                 })->get();
                 $positions = Position::where('sign', 0)->get();
-                return view("certificate.index", compact('certificates', 'position', 'positions'));
+                return view("certificate.index", compact('types', 'certificates', 'position', 'positions'));
             case "invalid":
                 $position_id = isset($_GET['position_id']) ? $_GET['position_id'] : Position::where('name', '计量器具')->first()->id;
                 $position = Position::find($position_id);
@@ -47,22 +49,25 @@ class CertificateController extends Controller
                         ->orWhere('unit4_id', $position_id)
                         ->orWhere('position_id', $position_id);
                 })->orderBy('validity_date')->get();
-                return view("certificate.index", compact('certificates', 'position'));
+                return view("certificate.index", compact('types', 'certificates', 'position'));
             case "deactive":
                 $certificates = CertificatesView::where('state', '封存')->get();
-                return view("certificate.index", compact('certificates'));
+                return view("certificate.index", compact('types', 'certificates'));
             case "scrap":
                 $certificates = CertificatesView::where('state', '报废')->get();
-                return view("certificate.index", compact('certificates'));
+                return view("certificate.index", compact('types', 'certificates'));
         }
     }
 
     public function create()
     {
+        $categories = Parameter::where('pid', Parameter::where('name', '证书类型')->first()->id)->orderBy('sort')->get();
+        $departments = Parameter::where('pid', Parameter::where('name', '检定部门')->first()->id)->orderBy('sort')->get();
         $position = Position::find(isset($_GET['id']) ? $_GET['id'] : Position::where('name', '计量器具')->first()->id);
-        $tools = Tool::where('type_id', ($position->level == 2) ? $position->id : $position->toParent->id)->orderBy('instrument')->get();
-        $standards = Standard::where('level', 1)->orderBy('name')->get();
-        return view('certificate.create', compact('position', 'tools', 'standards'));
+        $positions = PositionsView::where('str', 'like', '%' . $position->id . '%')->whereIn('level', [4, 5])->get();
+        $tools = Tool::where('type_id', ($position->level == 2) ? $position->id : $position->pid)->orderBy('instrument')->get();
+        $standards = StandardsView::where('level', 2)->orderBy('name1')->get();
+        return view('certificate.create', compact('categories', 'departments', 'positions', 'tools', 'standards'));
     }
 
     public function store(CertificateRequest $request)
@@ -124,7 +129,7 @@ class CertificateController extends Controller
             if ($request->hasFile('file_certificate')) {
                 $file = $request->file('file_certificate');
                 $file->storeAs('public/certificate', "$certificate->id.pdf");
-                $this->pdf2png($certificate->id);
+                $this->pdf2jpg($certificate->id);
             }
             return $certificate->id;
         } else {
@@ -134,11 +139,11 @@ class CertificateController extends Controller
 
     public function show(CertificatesView $certificate)
     {
-        $certificates = $certificate->toPositionCertificates()->limit(30)->get();
+        $certificates = CertificatesView::where('position_id', $certificate->position_id)->where('sn', $certificate->sn)->orderBy('verification_date', 'desc')->get();
         foreach ($certificates as $key => $c) {
             $c->path = "storage/jpg/$c->id";
             if (!Storage::exists("\public\jpg\\$c->id" . "/0.jpg")) {
-                $this->pdf2png($c->id);
+                $this->pdf2jpg($c->id);
             }
             $c->files = Storage::files("\public\jpg\\$c->id");
             if ($certificate->id == $c->id) {
@@ -150,9 +155,11 @@ class CertificateController extends Controller
 
     public function edit(CertificatesView $certificate)
     {
-        $standards = Standard::where('level', 1)->orderBy('name')->get();
+        $categories = Parameter::where('pid', Parameter::where('name', '证书类型')->first()->id)->orderBy('sort')->get();
+        $departments = Parameter::where('pid', Parameter::where('name', '检定部门')->first()->id)->orderBy('sort')->get();
+        $standards = StandardsView::where('level', 2)->orderBy('name1')->get();
         $certificate->standard_id = explode(',', $certificate->standard_id);
-        return view('certificate.edit', compact('certificate', 'standards'));
+        return view('certificate.edit', compact('certificate', 'standards', 'categories', 'departments'));
     }
 
     public function update(CertificateRequest $request, Certificate $certificate)
@@ -173,7 +180,7 @@ class CertificateController extends Controller
             if ($request->hasFile('file_certificate')) {
                 $file = $request->file('file_certificate');
                 $file->storeAs('public/certificate', "$certificate->id.pdf");
-                $this->pdf2png($certificate->id);
+                $this->pdf2jpg($certificate->id);
             }
             return true;
         } else {
@@ -203,11 +210,13 @@ class CertificateController extends Controller
 
     public function replace(CertificatesView $certificate)
     {
+        $categories = Parameter::where('pid', Parameter::where('name', '证书类型')->first()->id)->orderBy('sort')->get();
+        $departments = Parameter::where('pid', Parameter::where('name', '检定部门')->first()->id)->orderBy('sort')->get();
         $certificate->standard_id = explode(',', $certificate->standard_id);
-        $standards = Standard::where('level', 1)->orderBy('name')->get();
+        $standards = StandardsView::where('level', 2)->orderBy('name1')->get();
         $tools = ToolsView::where('instrument', $certificate->instrument)->orderBy('instrument')->get();
         $spares = CertificatesView::where('valid', 1)->where('position', '备用')->where('instrument', $certificate->instrument)->orderBy('order')->get();
-        return view('certificate.replace', compact('certificate', 'standards', 'tools', 'spares'));
+        return view('certificate.replace', compact('certificate', 'standards', 'tools', 'spares', 'categories', 'departments'));
     }
 
     public function updateReplace(ReplaceRequest $request, Certificate $certificate)
@@ -256,7 +265,7 @@ class CertificateController extends Controller
             if ($request->hasFile('file_certificate')) {
                 $file = $request->file('file_certificate');
                 $file->storeAs('public/certificate', "$new_certificate->id.pdf");
-                $this->pdf2png($new_certificate->id);
+                $this->pdf2jpg($new_certificate->id);
             }
             return true;
         } else {
@@ -269,8 +278,7 @@ class CertificateController extends Controller
         if (isset($request->position)) {
             $certificate->position_id = $request->position;
             $certificate->remark = $request->remarks;
-            $position = Position::find($request->position);
-            $certificate->sn = $this->getSn($position);
+            $certificate->sn = $this->getSn($request->position);
             $number = Number::find($certificate->number_id);
             $number->state_id = Parameter::where('name', '在用')->first()->id;
             $number->save();

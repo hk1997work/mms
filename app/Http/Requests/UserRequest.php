@@ -17,17 +17,10 @@ class UserRequest extends FormRequest
         $rules = [
             'password' => 'required',
         ];
-        if ($this->method() === "PUT") {
-            $rules['username'] = [
-                'required',
-                Rule::unique('users')->ignore($this->route('user')),
-            ];
-        } else {
-            $rules['username'] = [
-                'required',
-                Rule::unique('users'),
-            ];
-        }
+        $rules['username'] = [
+            'required',
+            Rule::unique('users')->ignore($this->route('user')),
+        ];
         return $rules;
     }
 

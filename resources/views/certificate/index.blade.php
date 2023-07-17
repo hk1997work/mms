@@ -7,12 +7,12 @@
     @if($menu=='active'||$menu=='invalid')
         <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" data-toggle="dropdown">
-                {{$position->level==2?$position->name:$types->find($position->pid)->name}}
+                {{$position->level==2?$position->name:$types->find($position->pid)->name1}}
                 <i class="ion-android-arrow-dropdown"></i>
             </a>
             <div class="dropdown-menu">
                 @foreach($types->where('level',2) as $t)
-                    <a class="dropdown-item" href="?position_id={{$t->id}}">{{$t->name}}</a>
+                    <a class="dropdown-item" href="?position_id={{$t->id}}">{{$t->name1}}</a>
                 @endforeach
             </div>
         </li>
@@ -24,7 +24,7 @@
             <div class="dropdown-menu">
                 <a class="dropdown-item" href="?position_id={{$position->level==2?$position->id:$position->pid}}">全部</a>
                 @foreach($types->where('pid',$position->level==2?$position->id:$position->pid) as $t)
-                    <a class="dropdown-item" href="?position_id={{$t->id}}">{{$t->name}}</a>
+                    <a class="dropdown-item" href="?position_id={{$t->id}}">{{$t->name1}}</a>
                 @endforeach
             </div>
         </li>

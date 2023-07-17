@@ -19,31 +19,36 @@ class PrintController extends Controller
         if (isset($request->cb)) {
             $certificates = CertificatesView::whereIn('id', array_keys($request->cb))->orderBy('order')->get();
             $i = ($request->column - 1) * 2 + 1;
-            $j = ($request->row - 1) * 5;
+            $j = ($request->row - 1) * 6;
 
             $inputFileName = 'storage/mould/标签模板.xls';
             $spreadsheet = IOFactory::load($inputFileName);
             $sheet = $spreadsheet->getActiveSheet();
             if ($request->row > 1) {
-                for ($a = ($request->row - 2) * 5; $a >= 0; $a = $a - 5) {
+                for ($a = ($request->row - 2) * 6; $a >= 0; $a = $a - 6) {
                     $sheet->getRowDimension($a + 1)->setRowHeight(10);
                     $sheet->getRowDimension($a + 2)->setRowHeight(10);
                     $sheet->getRowDimension($a + 3)->setRowHeight(10);
                     $sheet->getRowDimension($a + 4)->setRowHeight(10);
-                    $sheet->getRowDimension($a + 5)->setRowHeight(31);
+                    $sheet->getRowDimension($a + 5)->setRowHeight(10);
+                    $sheet->getRowDimension($a + 6)->setRowHeight(21);
                 }
             }
             foreach ($certificates as $certificate) {
-                $sheet->setCellValueByColumnAndRow($i, $j + 1, $certificate->number);
-                $sheet->setCellValueByColumnAndRow($i, $j + 2, "      " . str_replace('-', '   ', $certificate->verification_date));
-                $sheet->setCellValueByColumnAndRow($i, $j + 3, "      " . str_replace('-', '   ', $certificate->validity_date));
-                $sheet->setCellValueByColumnAndRow($i, $j + 4, "      " . $certificate->department);
+                if (isset($request->check_position)) {
+                    $sheet->setCellValueByColumnAndRow($i, $j + 1, $certificate->position);
+                }
+                $sheet->setCellValueByColumnAndRow($i, $j + 2, $certificate->number);
+                $sheet->setCellValueByColumnAndRow($i, $j + 3, "      " . str_replace('-', '   ', $certificate->verification_date));
+                $sheet->setCellValueByColumnAndRow($i, $j + 4, "      " . str_replace('-', '   ', $certificate->validity_date));
+                $sheet->setCellValueByColumnAndRow($i, $j + 5, "      " . $certificate->department);
                 $sheet->getRowDimension($j + 1)->setRowHeight(10);
                 $sheet->getRowDimension($j + 2)->setRowHeight(10);
                 $sheet->getRowDimension($j + 3)->setRowHeight(10);
                 $sheet->getRowDimension($j + 4)->setRowHeight(10);
-                $sheet->getRowDimension($j + 5)->setRowHeight(31);
-                $i > 8 ? $j = $j + 5 : '';
+                $sheet->getRowDimension($j + 5)->setRowHeight(10);
+                $sheet->getRowDimension($j + 6)->setRowHeight(21);
+                $i > 8 ? $j = $j + 6 : '';
                 $i > 8 ? $i = 1 : $i = $i + 2;
             }
             $styleArray = [
@@ -59,7 +64,7 @@ class PrintController extends Controller
                     'formatCode' => '@'
                 ],
             ];
-            $sheet->getStyle("A1:I" . ($j + 5))->applyFromArray($styleArray);
+            $sheet->getStyle("A1:I" . ($j + 6))->applyFromArray($styleArray);
             @ob_end_clean();
             ob_start();
             header('Content-Type:application/vnd.ms-excel');

@@ -89,6 +89,7 @@ function m_show(p, id, loader) {
             if (xhr.status == 401) {
                 document.location.reload();
             } else {
+                $("#preloader").fadeOut();
                 notifications('查看失败')
             }
         },
@@ -115,7 +116,7 @@ function m_delete(p, id) {
                 </div>
                 <div class="modal-footer">
                     <div id="btn_ok"></div>
-                    <button class="btn btn-primary ripple" data-dismiss="modal">确 定</button>
+                    <button class="btn btn-primary ripple">确 定</button>
                     <button type="button" class="btn btn-secondary ripple" data-dismiss="modal">取 消</button>
                 </div>
             </div>

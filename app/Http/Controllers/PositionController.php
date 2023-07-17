@@ -13,8 +13,8 @@ class PositionController extends Controller
 {
     public function index()
     {
-        $positions = PositionsView::get();
         $type_id = isset($_GET['type_id']) ? $_GET['type_id'] : 0;
+        $positions = PositionsView::get();
         return view('position.index', compact('type_id', 'positions'));
     }
 
@@ -27,14 +27,14 @@ class PositionController extends Controller
 
     public function show(Position $position)
     {
-        $certificates = CertificatesView::where('valid', 1)->where(function ($query) use ($position) {
+        $certificates = CertificatesView::where('valid', 1)->where('sign', 0)->where(function ($query) use ($position) {
             $query->where('unit1_id', $position->id)
                 ->orWhere('unit2_id', $position->id)
                 ->orWhere('unit3_id', $position->id)
                 ->orWhere('unit4_id', $position->id)
                 ->orWhere('position_id', $position->id);
-        })->orderBy('instrument')->orderBy('tool_id')->get();
-        return view('position.show', compact('position','certificates'));
+        })->orderBy('instrument')->orderBy('model')->orderBy('tool_id')->get();
+        return view('position.show', compact('position', 'certificates'));
     }
 
     public function store(PositionRequest $request)
@@ -63,7 +63,7 @@ class PositionController extends Controller
 
     public function destroy(Position $position)
     {
-        if (Certificate::where('position_id', $position->id)->exists() || Position::where('pid', $position->id)->exists() || DB::table("admin_role_position")->where('position_id', $position->id)->exists()) {
+        if (Certificate::where('position_id', $position->id)->exists() || Position::where('pid', $position->id)->exists() || DB::table("role_position")->where('position_id', $position->id)->exists()) {
             return "岗位使用中,无法删除";
         }
         return !!$position->delete();

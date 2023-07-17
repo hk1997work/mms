@@ -40,7 +40,7 @@ Route::group(['namespace' => '\App\Http\Controllers'], function () {
         //工作内容
         Route::group(['middleware' => 'can:work'], function () {
             //符合验证
-            Route::resource('/confirm', 'ConfirmController');
+            Route::view('/confirm', 'confirm.index');
             //打印标签
             Route::resource('/print', 'PrintController');
             //监督检查

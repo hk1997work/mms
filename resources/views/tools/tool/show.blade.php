@@ -9,24 +9,24 @@
         </div>
         <div class="modal-body">
             <div class="row mt-3">
-                <div class="col-xl-2 col-lg-4 col-md-4 col-sm-6">
+                <div class="col-xl-2 col-lg-4 col-md-4 col-sm-6 d-none d-sm-block">
                     <div class="widget widget-16 has-shadow">
                         <div class="widget-body">
                             <div class="row">
                                 <div class="col-xl-12 d-flex flex-column justify-content-center align-items-center">
-                                    <b class="counter text-success">{{$tool->active}}</b>
+                                    <b class="counter text-success">{{$numbers->where('state','在用')->count()}}</b>
                                     <b class="total-visitors text-center">在用</b>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-xl-2 col-lg-4 col-md-4 col-sm-6">
+                <div class="col-xl-2 col-lg-4 col-md-4 col-sm-6 d-none d-sm-block">
                     <div class="widget widget-16 has-shadow">
                         <div class="widget-body">
                             <div class="row">
                                 <div class="col-xl-12 d-flex flex-column justify-content-center align-items-center">
-                                    <b class="counter text-info">{{$tool->standby}}</b>
+                                    <b class="counter text-info">{{$numbers->where('state','备用')->count()}}</b>
                                     <b class="total-visitors text-center">备用</b>
                                 </div>
                             </div>
@@ -38,7 +38,7 @@
                         <div class="widget-body">
                             <div class="row">
                                 <div class="col-xl-12 d-flex flex-column justify-content-center align-items-center">
-                                    <b class="counter text-warning">{{$tool->inactive}}</b>
+                                    <b class="counter text-warning">{{$numbers->where('state','待检')->count()}}</b>
                                     <b class="total-visitors text-center">待检</b>
                                 </div>
                             </div>
@@ -50,7 +50,7 @@
                         <div class="widget-body">
                             <div class="row">
                                 <div class="col-xl-12 d-flex flex-column justify-content-center align-items-center">
-                                    <b class="counter text-primary">{{$tool->deactive}}</b>
+                                    <b class="counter text-primary">{{$numbers->where('state','封存')->count()}}</b>
                                     <b class="total-visitors text-center">封存</b>
                                 </div>
                             </div>
@@ -62,7 +62,7 @@
                         <div class="widget-body">
                             <div class="row">
                                 <div class="col-xl-12 d-flex flex-column justify-content-center align-items-center">
-                                    <b class="counter text-danger">{{$tool->broken}}</b>
+                                    <b class="counter text-danger">{{$numbers->where('state','损坏')->count()}}</b>
                                     <b class="total-visitors text-center">损坏</b>
                                 </div>
                             </div>
@@ -74,7 +74,7 @@
                         <div class="widget-body">
                             <div class="row">
                                 <div class="col-xl-12 d-flex flex-column justify-content-center align-items-center">
-                                    <b class="counter text-dark">{{$tool->scrap}}</b>
+                                    <b class="counter text-dark">{{$numbers->where('state','报废')->count()}}</b>
                                     <b class="total-visitors text-center">报废</b>
                                 </div>
                             </div>
@@ -93,36 +93,38 @@
                     </tr>
                     </thead>
                     <tbody>
-                    @foreach($factories as $factory)
-                        <tr @if($factory->exist) class="bg-error" @endif>
-                            <td>{{$factory->factory}}</td>
-                            <td><span class="btn btn-outline-secondary btn-sm ripple" onclick="m_add('number',{{$factory->id}})">增加编号</span></td>
-                            <td></td>
-                            <td class="td-actions">
-                                <a onclick="m_edit('factory',{{$factory->id}})"><i class="la la-edit edit"></i></a>
-                                <a onclick="m_delete('factory',{{$factory->id}})"><i class="la la-close delete"></i></a>
-                            </td>
-                        </tr>
-                        @foreach($factory->getNumbers as $number)
-                            <tr @if($number->exist) class="bg-error" @endif>
-                                <td>{{$number->toFactory->factory}}</td>
+                    @foreach($numbers as $number)
+                        @if($loop->index==0 or $number->factory_id!= $numbers[$loop->index-1]->factory_id)
+                            <tr @if($number->certificate_id==null) class="bg-error" @endif>
+                                <td>{{$number->factory}}</td>
+                                <td><span class="btn btn-outline-secondary btn-sm ripple" onclick="m_add('number',{{$number->factory_id}})">增加编号</span></td>
+                                <td></td>
+                                <td class="td-actions">
+                                    <a onclick="m_edit('factory',{{$number->factory_id}})"><i class="la la-edit edit"></i></a>
+                                    <a onclick="m_delete('factory',{{$number->factory_id}})"><i class="la la-close delete"></i></a>
+                                </td>
+                            </tr>
+                        @endif
+                        @if($number->id!=null)
+                            <tr @if($number->certificate_id==null) class="bg-error" @endif>
+                                <td>{{$number->factory}}</td>
                                 <td @if($number->overtime) class="bg-error" @endif>{{$number->number}}</td>
-                                <td @if($number->mistake) class="bg-error" @endif><span @if(isset($number->toCertificate->id)) onclick="m_show('certificate',{{$number->toCertificate->id}},1)" @endif class="btn
-                                @switch($states->find($number->state_id)->name)
+                                <td @if($number->mistake) class="bg-error" @endif><span @if(isset($number->certificate_id)) onclick="m_show('certificate',{{$number->certificate_id}},1)" @endif class="btn
+                                @switch($number->state)
                                     @case('在用') btn-outline-success @break
                                     @case('备用') btn-outline-info @break
                                     @case('待检') btn-outline-warning @break
                                     @case('封存') btn-outline-primary @break
                                     @case('损坏') btn-outline-danger @break
                                     @case('报废') btn-outline-dark @break
-                                    @endswitch btn-sm ripple">{{$number->toState->name}}</span>
+                                    @endswitch btn-sm ripple">{{$number->state}}</span>
                                 </td>
                                 <td class="td-actions">
                                     <a onclick="m_edit('number',{{$number->id}})"><i class="la la-edit edit"></i></a>
                                     <a onclick="m_delete('number',{{$number->id}})"><i class="la la-close delete"></i></a>
                                 </td>
                             </tr>
-                        @endforeach
+                        @endif
                     @endforeach
                     </tbody>
                 </table>

@@ -14,17 +14,10 @@ class RoleRequest extends FormRequest
 
     public function rules()
     {
-        if ($this->method() === "PUT") {
-            $rules['name'] = [
-                'required',
-                Rule::unique('admin_roles')->ignore($this->route('role')),
-            ];
-        } else {
-            $rules['name'] = [
-                'required',
-                Rule::unique('admin_roles'),
-            ];
-        }
+        $rules['name'] = [
+            'required',
+            Rule::unique('roles')->ignore($this->route('role')),
+        ];
         return $rules;
     }
 

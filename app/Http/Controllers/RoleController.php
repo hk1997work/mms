@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\RoleRequest;
-use App\Models\AdminPermission;
-use App\Models\AdminRole;
-use App\Models\AdminRolesView;
+use App\Models\Permission;
+use App\Models\Role;
+use App\Models\RolesView;
 use App\Models\Position;
 use Illuminate\Support\Facades\DB;
 
@@ -13,7 +13,7 @@ class RoleController extends Controller
 {
     public function index()
     {
-        $roles = AdminRolesView::get();
+        $roles = RolesView::get();
         return view('users.role.index', compact('roles'));
     }
 
@@ -25,40 +25,40 @@ class RoleController extends Controller
     public function store(RoleRequest $request)
     {
         $role['name'] = $request->name;
-        return !!AdminRole::create($role);
+        return !!Role::create($role);
     }
 
-    public function edit(AdminRole $role)
+    public function edit(Role $role)
     {
         return view('users.role.edit', compact('role'));
     }
 
-    public function update(RoleRequest $request, AdminRole $role)
+    public function update(RoleRequest $request, Role $role)
     {
         $role->name = $request->name;
         return !!$role->save();
     }
 
-    public function destroy(AdminRole $role)
+    public function destroy(Role $role)
     {
-        if (DB::table("admin_role_user")->where('role_id', $role->id)->exists() || DB::table("admin_permission_role")->where('role_id', $role->id)->exists()) {
-            return "权限使用中,无法删除";
+        if (DB::table("role_user")->where('role_id', $role->id)->exists() || DB::table("permission_role")->where('role_id', $role->id)->exists()) {
+            return "角色使用中,无法删除";
         }
         return !!$role->delete();
     }
 
-    public function permission(AdminRole $role)
+    public function permission(Role $role)
     {
-        $permissions = AdminPermission::where('level', 1)->orderBy('sort')->get();
+        $permissions = Permission::orderBy('sort')->get();
         $myPermissions = $role->permissions;
-        $positions = Position::where('level', 1)->orderBy('sort')->get();
+        $positions = Position::orderBy('sort')->get();
         $myPositions = $role->positions;
         return view('users.role.permission', compact('role', 'permissions', 'myPermissions', 'positions', 'myPositions',));
     }
 
-    public function storePermission(AdminRole $role)
+    public function storePermission(Role $role)
     {
-        $permissions = AdminPermission::find(request('permission'));
+        $permissions = Permission::find(request('permission'));
         if (isset($permissions)) {
             $myPermissions = $role->permissions;
             $addPermissions = $permissions->diff($myPermissions);
@@ -70,7 +70,7 @@ class RoleController extends Controller
                 $role->deletePermission($permission);
             }
         } else {
-            DB::table('admin_permission_role')->where('role_id', $role->id)->delete();
+            DB::table('permission_role')->where('role_id', $role->id)->delete();
         }
         $positions = Position::find(request('position'));
         if (isset($positions)) {
@@ -84,7 +84,7 @@ class RoleController extends Controller
                 $role->deletePosition($position);
             }
         } else {
-            DB::table('admin_role_position')->where('role_id', $role->id)->delete();
+            DB::table('role_position')->where('role_id', $role->id)->delete();
         }
         return true;
     }

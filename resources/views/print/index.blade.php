@@ -16,6 +16,12 @@
                 <div class="text-danger">{{$error}}</div>
             @endforeach
         </div>
+        <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12 mb-3">
+            <div class="styled-checkbox mt-3">
+                <input type="checkbox" name="check_position" id="check_position">
+                <label for="check_position">打印岗位信息</label>
+            </div>
+        </div>
         <table id="export-table" class="table table-hover mb-0">
             <thead>
             <tr>

@@ -11,7 +11,7 @@
                 <div class="widget-body">
                     <div class="row">
                         <div class="col-xl-12 d-flex flex-column justify-content-center align-items-center">
-                            <b class="counter">{{$standards->where('level',2)->count()}}</b>
+                            <b class="counter text-primary">{{$standards->where('level',2)->count()}}</b>
                             <b class="text-primary">{{$standards->where('level',1)->count()}}</b>
                             <b class="total-visitors text-center">录入标准</b>
                         </div>
@@ -37,33 +37,28 @@
         <thead>
         <tr>
             <th>标准</th>
-            <th class="d-none d-xl-table-cell">版本名称</th>
-            <th class="d-none d-xl-table-cell">使用次数</th>
-            <th class="d-none d-sm-table-cell">操作</th>
+            <th class="d-none d-sm-table-cell">版本名称</th>
+            <th>使用次数</th>
+            <th class="d-none d-xl-table-cell">操作</th>
         </tr>
         </thead>
         <tbody>
-        @foreach($standards->where('level',1) as $standard_1)
-            <tr @if(!$standard_1->count) class="bg-error" @endif>
-                <td><span class="btn btn-warning btn-sm ripple" onclick="m_edit('standard',{{$standard_1->id}})">{{$standard_1->name}}</span></td>
-                <td class="d-none d-xl-table-cell"><span class="btn btn-outline-secondary btn-sm ripple" onclick="m_add('standard',{{$standard_1->id}})" data-toggle="modal" data-target="#modal">增加标准</span></td>
-                <td class="d-none d-xl-table-cell"><span class="btn btn-outline-secondary btn-sm ripple">{{$standard_1->count}}</span></td>
-                <td class="td-actions d-none d-sm-table-cell">
-                    <a onclick="m_edit('standard',{{$standard_1->id}})"><i class="la la-edit edit"></i></a>
-                    <a onclick="m_delete('standard',{{$standard_1->id}})"><i class="la la-close delete"></i></a>
-                </td>
-            </tr>
-            @foreach($standards->where('pid',$standard_1->id) as $standard_2)
-                <tr @if(!$standard_2->count) class="bg-error" @endif>
-                    <td class="d-none d-xl-table-cell">{{$standard_1->name}}</td>
-                    <td><span class="btn btn-success btn-sm ripple" onclick="m_edit('standard',{{$standard_2->id}})">{{$standard_2->name}}</span></td>
-                    <td class="d-none d-xl-table-cell"><span class="btn btn-outline-secondary btn-sm ripple" onclick="m_show('standard','{{$standard_2->id}}')">{{$standard_2->count}}</span></td>
-                    <td class="td-actions d-none d-sm-table-cell">
-                        <a onclick="m_edit('standard',{{$standard_2->id}})"><i class="la la-edit edit"></i></a>
-                        <a onclick="m_delete({{'standard',$standard_2->id}})"><i class="la la-close delete"></i></a>
+        @foreach($standards as $standard)
+            <tr @if(!$standard->count) class="bg-error" @endif>
+                @if($standard->level==1)
+                    <td><span class="btn btn-warning btn-sm ripple" onclick="m_edit('standard',{{$standard->id}})">{{$standard->name1}}</span></td>
+                    <td class="d-none d-sm-table-cell"><span class="btn btn-outline-secondary btn-sm ripple" onclick="m_add('standard',{{$standard->id}})" data-toggle="modal" data-target="#modal">增加标准</span></td>
+                    <td><span class="btn btn-outline-secondary btn-sm ripple">{{$standard->count}}</span></td>
+                @else
+                    <td class="d-none d-sm-table-cell">{{$standard->name1}}</td>
+                    <td><span class="btn btn-success btn-sm ripple" onclick="m_edit('standard',{{$standard->id}})" title="{{$standard->name2}}">{{Str::limit($standard->name2,40,'...')}}</span></td>
+                    <td><span class="btn btn-outline-secondary btn-sm ripple" onclick="m_show('standard','{{$standard->id}}')">{{$standard->count}}</span></td>
+                @endif
+                    <td class="td-actions d-none d-xl-table-cell">
+                        <a onclick="m_edit('standard',{{$standard->id}})"><i class="la la-edit edit"></i></a>
+                        <a onclick="m_delete('standard',{{$standard->id}})"><i class="la la-close delete"></i></a>
                     </td>
-                </tr>
-            @endforeach
+            </tr>
         @endforeach
         </tbody>
     </table>

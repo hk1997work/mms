@@ -20,7 +20,7 @@
             <th class="d-none d-xl-table-cell">规格型号</th>
             <th class="d-none d-xl-table-cell">出厂编号</th>
             <th class="d-xl-none">证书信息</th>
-            <th>操作</th>
+            <th class="d-none d-sm-table-cell">操作</th>
         </tr>
         </thead>
         <tbody>
@@ -45,7 +45,7 @@
                         <br>{{isset($certificate->ccbh)?$certificate->ccbh=='/'?'':$certificate->ccbh:''}}{{isset($certificate->sbbh)?$certificate->sbbh=='/'?'':$certificate->sbbh:''}}
                         <br>{{$certificate->zsbh}}
                     </td>
-                    <td class="td-actions">
+                    <td class="td-actions d-none d-sm-table-cell">
                         <a href="http://58.213.156.66/cmiims/static/angular/views/plugs/viewer.html?id={{$certificate->pdfDzqzPath}}" target="_blank"><i class="la la-eye edit"></i></a>
                         <a onclick='downItems("{{$certificate->order}}")'><i class="la la-download delete"></i></a>
                         <a onclick="modal_filter('{{$certificate->order}}')" data-toggle="modal" data-target="#filter"><i class="la la-eye-slash edit"></i></a>
@@ -95,7 +95,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="table-responsive" style="max-height:500px;">
-                        <table id="modal-table" class="table table-hover mb-0">
+                        <table id="filter-table" class="table table-hover mb-0">
                             <thead>
                             <tr>
                                 <th>检定日期</th>
@@ -107,8 +107,7 @@
                             @foreach($nanjings as $nanjing)
                                 <tr>
                                     <td>{{$nanjing->verification_date}}</td>
-                                    <td>{{$nanjing->instrument}}<br>{{$nanjing->model}}<br>{{$nanjing->number}}
-                                        <br>{{$nanjing->certificate_no}}<br>{{$nanjing->remark}}</td>
+                                    <td>{{$nanjing->instrument}}<br>{{$nanjing->model}}<br>{{$nanjing->number}}<br>{{$nanjing->certificate_no}}<br>{{$nanjing->remark}}</td>
                                     <td class="td-actions">
                                         <a href="http://58.213.156.66/cmiims/static/angular/views/plugs/viewer.html?id={{$nanjing->pdf}}" target="_blank"><i class="la la-eye edit"></i></a>
                                         <a onclick="m_delete('nanjing',{{$nanjing->id}})" data-toggle="modal" data-target="#delete" data-dismiss="modal"><i class="la la-close delete"></i></a>

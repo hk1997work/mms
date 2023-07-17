@@ -18,22 +18,25 @@
                         <div class="form-group row mb-3">
                             <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 mb-3">
                                 <label class="form-control-label">文件类型</label>
-                                <div><select name="contents[]" class="selectpicker show-menu-arrow show-tick" multiple data-actions-box="true" data-selected-text-format="count"
-                                             required>
+                                <div>
+                                    <select name="contents[]" class="selectpicker show-menu-arrow show-tick" multiple data-actions-box="true" data-selected-text-format="count" required>
                                         <option selected>台账</option>
                                         <option>核对台账</option>
                                         <option>标准台账</option>
                                         <option>计量证书</option>
                                         <option>监理资料</option>
-                                    </select></div>
+                                    </select>
+                                </div>
                             </div>
                             <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 mb-3">
                                 <label class="form-control-label">计量类别</label>
-                                <div><select name="type[]" class="selectpicker show-menu-arrow show-tick" multiple data-actions-box="true" data-selected-text-format="count" required>
+                                <div>
+                                    <select name="type[]" class="selectpicker show-menu-arrow show-tick" multiple data-actions-box="true" data-selected-text-format="count" required>
                                         @foreach($types->where('level',2) as $type)
-                                            <option selected>{{$type->name}}</option>
+                                            <option selected>{{$type->name1}}</option>
                                         @endforeach
-                                    </select></div>
+                                    </select>
+                                </div>
                                 <div class="styled-checkbox mt-3">
                                     <input type="checkbox" name="check_type" id="check_type">
                                     <label for="check_type">导出多个文件</label>
@@ -41,11 +44,13 @@
                             </div>
                             <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 mb-3">
                                 <label class="form-control-label">单位</label>
-                                <div><select name="position[]" class="selectpicker show-menu-arrow show-tick" multiple data-actions-box="true" data-selected-text-format="count" required>
+                                <div>
+                                    <select name="position[]" class="selectpicker show-menu-arrow show-tick" multiple data-actions-box="true" data-selected-text-format="count" required>
                                         @foreach($levels as $level)
                                             <option selected>{{$level->name}}</option>
                                         @endforeach
-                                    </select></div>
+                                    </select>
+                                </div>
                                 <div class="styled-checkbox mt-3">
                                     <input type="checkbox" name="check_position" id="check_position">
                                     <label for="check_position">导出多个文件</label>
@@ -147,7 +152,7 @@
         })
 
         function btn() {
-           b_add('export')
+            b_add('export')
         }
     </script>
 @endpush

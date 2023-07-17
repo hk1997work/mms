@@ -12,7 +12,7 @@
                         onchange="load_info({{$a->order}})">
                     <option title="请选择..." value="" selected>请选择...</option>
                     @foreach($tools as $tool)
-                        <option title="{{$tool->instrument}}" value="{{$tool->id}}">{{$tool->instrument}}--{{$tool->model}}</option>
+                        <option value="{{$tool->id}}">{{$tool->instrument}}--{{$tool->model}}</option>
                     @endforeach
                 </select>
                 <input type="hidden" name="certificate_no[{{$a->order}}]" id="certificate_no{{$a->order}}" value="{{$a->zsbh}}">
@@ -43,15 +43,16 @@
                 <label class="form-control-label">检定标准</label>
                 <select name="standard_id[{{$a->order}}][]" id="standard_id{{$a->order}}" class="form-control selectpicker show-menu-arrow" data-live-search="true" multiple>
                     @foreach($standards as $standard)
-                        @foreach($standard->toChildrens as $s)
-                            <option value="{{$s->id}}">{{$standard->name}}-{{$s->name}}</option>
-                        @endforeach
+                        <option value="{{$standard->id}}">{{$standard->name1}}-{{$standard->name2}}</option>
                     @endforeach
                 </select>
             </div>
             <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
                 <label class="form-control-label">备注</label>
-                <input type="text" name="remark[{{$a->order}}]" id="remark{{$a->order}}" class="form-control">
+                <div class="input-group">
+                    <input type="text" name="remark[{{$a->order}}]" id="remark{{$a->order}}" class="form-control">
+                    <span class="input-group-addon addon-orange" onclick="$(this).parent().parent().parent().remove()">删除</span>
+                </div>
             </div>
             <input type="hidden" name="json[{{$a->order}}]" id="json{{$a->order}}" value="{{json_encode($a)}}">
         </div>

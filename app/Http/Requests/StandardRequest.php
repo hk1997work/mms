@@ -14,18 +14,10 @@ class StandardRequest extends FormRequest
 
     public function rules()
     {
-        if ($this->method() === "PUT") {
-            $rules['name'] = [
-                'required',
-                Rule::unique('standards')->ignore($this->route('standard')),
-            ];
-
-        } else {
-            $rules['name'] = [
-                'required',
-                Rule::unique('standards'),
-            ];
-        }
+        $rules['name'] = [
+            'required',
+            Rule::unique('standards')->ignore($this->route('standard')),
+        ];
         return $rules;
     }
 

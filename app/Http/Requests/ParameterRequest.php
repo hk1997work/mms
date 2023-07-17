@@ -14,17 +14,10 @@ class ParameterRequest extends FormRequest
 
     public function rules()
     {
-        if ($this->method() === "PUT") {
-            $rules['name'] = [
-                'required',
-                Rule::unique('parameters')->ignore($this->route('parameter')),
-            ];
-        } else {
-            $rules['name'] = [
-                'required',
-                Rule::unique('parameters'),
-            ];
-        }
+        $rules['name'] = [
+            'required',
+            Rule::unique('parameters')->ignore($this->route('parameter')),
+        ];
         return $rules;
     }
 

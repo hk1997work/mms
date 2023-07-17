@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ToolRequest;
-use App\Models\FactoriesView;
 use App\Models\Factory;
+use App\Models\NumbersView;
 use App\Models\Parameter;
 use App\Models\Position;
 use App\Models\PositionsView;
@@ -36,6 +36,7 @@ class ToolController extends Controller
         $arr['model'] = $request->model;
         $arr['limit'] = $request->limit;
         $arr['accuracy'] = $request->accuracy;
+        $arr['requirement'] = $request->requirement;
         $arr['type_id'] = $request->type_id;
         $arr['cycle_id'] = $request->cycle_id;
         $arr['abc_id'] = $request->abc_id;
@@ -57,16 +58,17 @@ class ToolController extends Controller
         $tool->model = $request->model;
         $tool->limit = $request->limit;
         $tool->accuracy = $request->accuracy;
+        $tool->requirement = $request->requirement;
         $tool->cycle_id = $request->cycle_id;
         $tool->abc_id = $request->abc_id;
         $tool->plan_id = $request->plan_id;
         return !!$tool->save();
     }
 
-    public function show(ToolsView $tool)
+    public function show(Tool $tool)
     {
-        $factories = FactoriesView::where('tool_id', $tool->id)->orderBy('factory')->get();
-        return view('tools.tool.show', compact('factories', 'tool'));
+        $numbers = NumbersView::where('tool_id', $tool->id)->get();
+        return view('tools.tool.show', compact('numbers', 'tool'));
     }
 
     public function destroy(Tool $tool)

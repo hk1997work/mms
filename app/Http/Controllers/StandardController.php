@@ -12,7 +12,7 @@ class StandardController extends Controller
 {
     public function index()
     {
-        $standards = StandardsView::orderBy('name')->get();
+        $standards = StandardsView::get();
         return view('standard.index', compact('standards'));
     }
 
@@ -45,13 +45,13 @@ class StandardController extends Controller
 
     public function show(Standard $standard)
     {
-        $tools = CertificatesView::select('instrument','model')->where('standard_id','like',','.$standard->id.',')->groupBy('instrument','model')->get();
+        $tools = CertificatesView::select('instrument', 'model')->where('standard_id', 'like', '%,' . $standard->id . ',%')->groupBy('instrument', 'model')->get();
         return view('standard.show', compact('tools'));
     }
 
     public function destroy(Standard $standard)
     {
-        if (Certificate::where('standard_id', $standard->id)->exists()) {
+        if (Certificate::where('standard_id', 'like', '%,' . $standard->id . ',%')->exists() || Standard::where('pid', $standard->id)->exists()) {
             return "标准使用中,无法删除";
         }
         return !!$standard->delete();

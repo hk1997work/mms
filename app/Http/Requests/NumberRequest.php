@@ -17,17 +17,10 @@ class NumberRequest extends FormRequest
         $rules = [
             'state_id' => 'required',
         ];
-        if ($this->method() === "PUT") {
-            $rules['number'] = [
-                'required',
-                Rule::unique('numbers')->where('factory_id', $this->factory_id)->ignore($this->route('number')),
-            ];
-        } else {
-            $rules['number'] = [
-                'required',
-                Rule::unique('numbers')->where('factory_id', $this->factory_id),
-            ];
-        }
+        $rules['number'] = [
+            'required',
+            Rule::unique('numbers')->where('factory_id', $this->factory_id)->ignore($this->route('number')),
+        ];
         return $rules;
     }
 

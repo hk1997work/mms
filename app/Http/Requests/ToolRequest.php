@@ -22,19 +22,11 @@ class ToolRequest extends FormRequest
             'abc_id' => 'required',
             'plan_id' => 'required',
         ];
-        if ($this->method() === "PUT") {
-            $rules['instrument'] = [
-                'required',
-                Rule::unique('tools')->where('model', $this->model)->where('limit', $this->limit)
-                    ->where('accuracy', $this->accuracy)->ignore($this->route('tool')),
-            ];
-        } else {
-            $rules['instrument'] = [
-                'required',
-                Rule::unique('tools')->where('model', $this->model)->where('limit', $this->limit)
-                    ->where('accuracy', $this->accuracy),
-            ];
-        }
+        $rules['instrument'] = [
+            'required',
+            Rule::unique('tools')->where('model', $this->model)->where('limit', $this->limit)
+                ->where('accuracy', $this->accuracy)->ignore($this->route('tool')),
+        ];
         return $rules;
     }
 

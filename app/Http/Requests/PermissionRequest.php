@@ -14,26 +14,14 @@ class PermissionRequest extends FormRequest
 
     public function rules()
     {
-        if ($this->method() === "PUT") {
-            $rules['name'] = [
-                'required',
-                Rule::unique('admin_permissions')->ignore($this->route('permission')),
-            ];
-            $rules['description'] = [
-                'required',
-                Rule::unique('admin_permissions')->where('pid', $this->pid)->ignore($this->route('permission')),
-            ];
-
-        } else {
-            $rules['name'] = [
-                'required',
-                Rule::unique('admin_permissions'),
-            ];
-            $rules['description'] = [
-                'required',
-                Rule::unique('admin_permissions')->where('pid', $this->pid),
-            ];
-        }
+        $rules['name'] = [
+            'required',
+            Rule::unique('permissions')->ignore($this->route('permission')),
+        ];
+        $rules['description'] = [
+            'required',
+            Rule::unique('permissions')->where('pid', $this->pid)->ignore($this->route('permission')),
+        ];
         return $rules;
     }
 

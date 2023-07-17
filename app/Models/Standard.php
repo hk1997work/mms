@@ -12,16 +12,4 @@ class Standard extends Model
     protected $fillable = [
         'name', 'pid', 'level'
     ];
-
-    //获取父级
-    public function toParent()
-    {
-        return $this->belongsTo(Standard::class, 'pid', 'id');
-    }
-
-    //获取子级
-    public function toChildrens()
-    {
-        return $this->hasMany(Standard::class, 'pid', 'id')->orderBy('name','desc');
-    }
 }

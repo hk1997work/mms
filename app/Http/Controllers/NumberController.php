@@ -14,8 +14,9 @@ class NumberController extends Controller
 {
     public function create()
     {
+        $states = Parameter::where('pid', Parameter::where('name', '管理状态')->first()->id)->orderBy('sort')->get();
         $factory_id = $_GET['id'];
-        return view('tools.number.create', compact('factory_id'));
+        return view('tools.number.create', compact('states','factory_id'));
     }
 
     public function store(NumberRequest $request)
@@ -29,7 +30,8 @@ class NumberController extends Controller
 
     public function edit(Number $number)
     {
-        return view('tools.number.edit', compact('number'));
+        $states = Parameter::where('pid', Parameter::where('name', '管理状态')->first()->id)->orderBy('sort')->get();
+        return view('tools.number.edit', compact('number','states'));
     }
 
     public function update(NumberRequest $request, Number $number)

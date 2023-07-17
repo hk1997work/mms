@@ -12,7 +12,7 @@
     @if(isset($result))
         <script>
             $(function () {
-                $.cookie("nanjing", $("#cookie").val(), {expires: 7});
+                $.cookie("nanjing", '{{$out[0]}}', {expires: 7});
                 var parseData = $.base64.decode("{{$result}}", "utf-8");
                 $("#json").val(parseData);
                 $("#form_nanjing").submit();

@@ -20,18 +20,18 @@
                     </thead>
                     <tbody>
                     @foreach($numbers as $number)
-                        <tr @if($number->exist) class="bg-error" @endif>
-                            <td>{{$number->toFactory->factory}}</td>
+                        <tr @if($number->certificate_id==null) class="bg-error" @endif>
+                            <td>{{$number->factory}}</td>
                             <td @if($number->overtime) class="bg-error" @endif>{{$number->number}}</td>
                             <td @if($number->mistake) class="bg-error" @endif><span class="btn
-                                @switch($states->find($number->state_id)->name)
+                                @switch($number->state)
                                 @case('在用') btn-outline-success @break
                                 @case('备用') btn-outline-info @break
                                 @case('待检') btn-outline-warning @break
                                 @case('封存') btn-outline-primary @break
                                 @case('损坏') btn-outline-danger @break
                                 @case('报废') btn-outline-dark @break
-                                @endswitch btn-sm ripple" onclick="m_show('certificate',{{$number->toCertificate->id}},1)">{{$number->toState->name}}</span>
+                                @endswitch btn-sm ripple" onclick="m_show('certificate',{{$number->certificate_id}},1)">{{$number->state}}</span>
                             </td>
                             <td class="td-actions">
                                 <a onclick="m_edit('number',{{$number->id}})"><i class="la la-edit edit"></i></a>

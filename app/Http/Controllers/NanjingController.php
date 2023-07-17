@@ -9,12 +9,10 @@ use App\Models\Factory;
 use App\Models\Nanjing;
 use App\Models\Number;
 use App\Models\Parameter;
-use App\Models\Position;
-use App\Models\Standard;
+use App\Models\StandardsView;
 use App\Models\Tool;
 use GuzzleHttp;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
@@ -34,6 +32,7 @@ class NanjingController extends Controller
                 ]
             ]);
             $result = (string)$res->getBody();
+
             if (mb_substr($result, 0, 1) != "\n") {
                 return view('nanjing.index', compact('result', 'out'));
             }
@@ -67,12 +66,6 @@ class NanjingController extends Controller
         return view('nanjing.show', compact('certificates', 'nanjings', 'json'));
     }
 
-    //删除屏蔽
-    public function destroy(Nanjing $nanjing)
-    {
-        return !!$nanjing->delete();
-    }
-
     //批量录入
     public function create(NanjingRequest $request)
     {
@@ -80,7 +73,7 @@ class NanjingController extends Controller
         $tools = Tool::orderBy('instrument')->get();
         $data = $request->data;
         $idList = $request->idList;
-        $standards = Standard::where('level', 1)->orderBy('name')->get();
+        $standards = StandardsView::where('level', 2)->orderBy('name1')->get();
         return view('nanjing.create', compact('arr', 'tools', 'data', 'idList', 'standards'));
     }
 
@@ -93,7 +86,7 @@ class NanjingController extends Controller
                 'data' => $request->data,
             ],
             'headers' => [
-                'cookie' => Cookie::get('nanjing'),
+                'cookie' => $request->cookie,
             ],
         ]);
         $result = (string)$res->getBody();
@@ -121,7 +114,7 @@ class NanjingController extends Controller
             $certificate = new CertificateRequest();
             $certificate->position_id = DB::table('positions AS p1')->select('p1.*')->leftJoin('positions as p2', 'p2.id', 'p1.pid')->leftJoin('positions as p3', 'p3.id', 'p2.pid')
                 ->where('p1.name', '备用')->where('p1.level', 5)->where('p3.pid', $tool->type_id)->first()->id;
-            $certificate->sn = $this->getSn(Position::find($certificate->position_id));
+            $certificate->sn = $this->getSn($certificate->position_id);
             $certificate->category_id = Parameter::where('name', "$arr->zsType")->first()->id;
             $certificate->tool_id = $request->tool_id[$arr->order];
             $certificate->factory_id = $request->factory_id[$arr->order];
@@ -165,12 +158,18 @@ class NanjingController extends Controller
         return true;
     }
 
+    //删除屏蔽
+    public function destroy(Nanjing $nanjing)
+    {
+        return !!$nanjing->delete();
+    }
+
     public function filter(Request $request)
     {
         $arr['certificate_no'] = $request->certificate_no;
         $arr['instrument'] = $request->instrument;
         $arr['model'] = $request->model;
-        $arr['number'] = $request->number;
+        $arr['number'] = $request->number == 'undefined' ? '' : $request->number;
         $arr['verification_date'] = $request->verification_date;
         $arr['remark'] = isset($request->remark) ? $request->remark : '';
         $arr['pdf'] = $request->pdf;
@@ -184,9 +183,6 @@ class NanjingController extends Controller
             'form_params' => [
                 'idList' => $request->idList,
                 'data' => $request->data,
-            ],
-            'headers' => [
-                'cookie' => Cookie::get('nanjing'),
             ],
         ]);
         $result = (string)$res->getBody();

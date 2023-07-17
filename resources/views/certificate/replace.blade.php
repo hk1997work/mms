@@ -107,9 +107,7 @@
         <label class="form-control-label">检定标准</label>
         <select name="standard_id[]" id="standard_id" class="form-control selectpicker show-menu-arrow" data-live-search="true" multiple>
             @foreach($standards as $standard)
-                @foreach($standard->toChildrens as $s)
-                    <option value="{{$s->id}}" @if(in_array($s->id,$certificate->standard_id)) selected @endif>{{$standard->name}}-{{$s->name}}</option>
-                @endforeach
+                <option value="{{$standard->id}}">{{$standard->name1}}-{{$standard->name2}}</option>
             @endforeach
         </select>
     </div>

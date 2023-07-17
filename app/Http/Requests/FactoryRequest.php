@@ -14,25 +14,14 @@ class FactoryRequest extends FormRequest
 
     public function rules()
     {
-        if ($this->method() === "PUT") {
-            $rules['factory'] = [
-                'required',
-                Rule::unique('factories')->where('tool_id', $this->tool_id)->ignore($this->route('factory')),
-            ];
-            $rules['fullname'] = [
-                'required',
-                Rule::unique('factories')->where('tool_id', $this->tool_id)->ignore($this->route('factory')),
-            ];
-        } else {
-            $rules['factory'] = [
-                'required',
-                Rule::unique('factories')->where('tool_id', $this->tool_id),
-            ];
-            $rules['fullname'] = [
-                'required',
-                Rule::unique('factories')->where('tool_id', $this->tool_id),
-            ];
-        }
+        $rules['factory'] = [
+            'required',
+            Rule::unique('factories')->where('tool_id', $this->tool_id)->ignore($this->route('factory')),
+        ];
+        $rules['fullname'] = [
+            'required',
+            Rule::unique('factories')->where('tool_id', $this->tool_id)->ignore($this->route('factory')),
+        ];
         return $rules;
     }
 

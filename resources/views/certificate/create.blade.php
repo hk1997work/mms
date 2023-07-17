@@ -6,25 +6,13 @@
         <label class="form-control-label">岗位</label>
         <select name="position_id" id="position_id" class="custom-select form-control" onchange="load_sn()">
             <option value="" selected disabled>请选择...</option>
-            @if($position->level==2)
-                @foreach($position->toChildrens as $p1)
-                    @foreach($p1->toChildrens as $p2)
-                        <optgroup label="{{$p2->name}}">
-                            @foreach($p2->toChildrens as $p3)
-                                <option value="{{$p3->id}}">{{$p3->name}}-{{$p3->code}}</option>
-                            @endforeach
-                        </optgroup>
+            @foreach($positions->where('level',4) as $p1)
+                <optgroup label="{{$p1->name1}}">
+                    @foreach($positions->where('pid',$p1->id) as $p2)
+                        <option value="{{$p2->id}}">{{$p2->name1}}-{{$p2->code}}</option>
                     @endforeach
-                @endforeach
-            @else
-                @foreach($position->toChildrens as $p1)
-                    <optgroup label="{{$p1->name}}">
-                        @foreach($p1->toChildrens as $p2)
-                            <option value="{{$p2->id}}">{{$p2->name}}-{{$p2->code}}</option>
-                        @endforeach
-                    </optgroup>
-                @endforeach
-            @endif
+                </optgroup>
+            @endforeach
         </select>
     </div>
     <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
@@ -128,9 +116,7 @@
         <label class="form-control-label">检定标准</label>
         <select name="standard_id[]" id="standard_id" class="form-control selectpicker show-menu-arrow" data-live-search="true" multiple>
             @foreach($standards as $standard)
-                @foreach($standard->toChildrens as $s)
-                    <option value="{{$s->id}}">{{$standard->name}}-{{$s->name}}</option>
-                @endforeach
+                <option value="{{$standard->id}}">{{$standard->name1}}-{{$standard->name2}}</option>
             @endforeach
         </select>
     </div>

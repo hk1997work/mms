@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UserRequest;
-use App\Models\AdminRole;
+use App\Models\Role;
 use App\Models\User;
 use App\Models\UsersView;
 use Illuminate\Support\Facades\DB;
@@ -41,22 +41,22 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
-        if (DB::table("admin_role_user")->where('user_id', $user->id)->exists()) {
-            return "权限使用中,无法删除";
+        if (DB::table("role_user")->where('user_id', $user->id)->exists()) {
+            return "用户使用中,无法删除";
         }
         return !!$user->delete();
     }
 
     public function role(User $user)
     {
-        $roles = AdminRole::orderBy('id')->get();
+        $roles = Role::orderBy('id')->get();
         $myRoles = $user->roles;
         return view('users.user.role', compact('user', 'roles', 'myRoles',));
     }
 
     public function storeRole(User $user)
     {
-        $roles = AdminRole::find(request('roles'));
+        $roles = Role::find(request('roles'));
         if (isset($roles)) {
             $myRoles = $user->roles;
             $addRoles = $roles->diff($myRoles);
@@ -69,7 +69,7 @@ class UserController extends Controller
             }
             return true;
         } else {
-            return !!DB::table('admin_role_user')->where('user_id', $user->id)->delete();
+            return !!DB::table('role_user')->where('user_id', $user->id)->delete();
         }
     }
 }

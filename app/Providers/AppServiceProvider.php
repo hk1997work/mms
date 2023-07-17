@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Models\AdminPermissionsView;
+use App\Models\PermissionsView;
 use App\Models\Parameter;
 use App\Models\PositionsView;
 use Illuminate\Support\ServiceProvider;
@@ -26,7 +26,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $permissions = AdminPermissionsView::get();
+
+        $permissions = PermissionsView::get();
         view()->share('permissions', $permissions);
 
         $types = PositionsView::orderBy('sort')->get();
@@ -43,7 +44,7 @@ class AppServiceProvider extends ServiceProvider
         view()->share('categories', $categories);
         $plans = Parameter::where('pid', Parameter::where('name', '检定计划')->first()->id)->orderBy('sort')->get();
         view()->share('plans', $plans);
-
+        
         $menu = \Request::segment(1);
         view()->share('menu', $menu);
     }

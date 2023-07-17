@@ -45,5 +45,9 @@
             @endforeach
         </select>
     </div>
+    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">
+        <label class="form-control-label">检定要求</label>
+        <input type="text" name="requirement" id="requirement" class="form-control">
+    </div>
     <input type="hidden" name="type_id" id="type_id" value="{{$type_id}}">
 @endsection
