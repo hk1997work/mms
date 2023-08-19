@@ -42,7 +42,7 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         if (DB::table("role_user")->where('user_id', $user->id)->exists()) {
-            return "用户使用中,无法删除";
+            return "用户{$user->username}使用中,无法删除";
         }
         return !!$user->delete();
     }

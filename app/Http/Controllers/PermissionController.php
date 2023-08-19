@@ -49,7 +49,7 @@ class PermissionController extends Controller
     public function destroy(Permission $permission)
     {
         if (DB::table("permission_role")->where('permission_id', $permission->id)->exists() || Permission::where('pid', $permission->id)->exists()) {
-            return "权限使用中,无法删除";
+            return "权限{$permission->description}使用中,无法删除";
         }
         return !!$permission->delete();
     }

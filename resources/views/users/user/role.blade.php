@@ -1,5 +1,5 @@
 @extends('layout.edit')
-@section('text_modal-title','用户权限')
+@section('text_modal-title',"配置角色：$user->username")
 
 @section('content_form')
     @foreach($roles as $role)

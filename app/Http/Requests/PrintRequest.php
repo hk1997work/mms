@@ -14,7 +14,7 @@ class PrintRequest extends FormRequest
     public function rules()
     {
         $rules = [
-            'row' => ['required', 'regex:/^(1[0-1]|[1-9])$/'],
+            'row' => ['required', 'regex:/^(10|[1-9])$/'],
             'column' => 'required|regex:/^[1-5]{1}$/',
         ];
         return $rules;

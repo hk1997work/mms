@@ -41,7 +41,7 @@ class Controller extends BaseController
     function getInfo(ToolsView $tool_id)
     {
         $arr['tool'] = $tool_id;
-        $arr['factories'] = Factory::where('tool_id', $tool_id->id)->get();
+        $arr['factories'] = Factory::where('tool_id', $tool_id->id)->orderBy('factory')->get();
         return $arr;
     }
 
@@ -72,7 +72,7 @@ class Controller extends BaseController
                         return ['nj', explode('?zsId=', $out[0])[1]];
                     case 'https://serv.jsmi.co':
                         return ['js_new', explode('?zsh=', $out[0])[1]];
-                    case 'http://www.jsmi.com.':
+                    case 'https://www.jsmi.com.':
                         return $this->jiangsu_url_old($out[0]);
                     default:
                         return '识别成功,未接入API,请联系管理员.';
@@ -88,48 +88,12 @@ class Controller extends BaseController
         return !!Certificate::where('certificate_no', $certificate_no)->count();
     }
 
-    function getNumber()
+    function getNumber($number)
     {
-        $tool = $_GET['t'];
-        $model = $_GET['m'];
-        $factory = $_GET['f'];
-        $number = $_GET['n'];
-        $n = Number::where('number', $number)->get();
-        if ($n->count() == 1) {
-            $factory = Factory::where('id', $n->first()->factory_id)->first();
-            $arr['number_id'] = $n->first()->id;
-            $arr['factory_id'] = $factory->id;
-            $arr['tool_id'] = $factory->tool_id;
-            return $arr;
-        }
-        $t = NumbersView::where('number', $number)->where('instrument', $tool)->get();
-        if ($t->count() == 1) {
-            $factory = Factory::where('id', $t->first()->factory_id)->first();
-            $arr['number_id'] = $t->first()->id;
-            $arr['factory_id'] = $factory->id;
-            $arr['tool_id'] = $factory->tool_id;
-            return $arr;
-        }
-        $m = NumbersView::where('number', $number)->where('model', $model)->get();
-        if ($m->count() == 1) {
-            $factory = Factory::where('id', $m->first()->factory_id)->first();
-            $arr['number_id'] = $m->first()->id;
-            $arr['factory_id'] = $factory->id;
-            $arr['tool_id'] = $factory->tool_id;
-            return $arr;
-        }
-        $f = NumbersView::where('number', $number)->where('factory', $factory)->get();
-        if ($f->count() == 1) {
-            $factory = Factory::where('id', $f->first()->factory_id)->first();
-            $arr['number_id'] = $f->first()->id;
-            $arr['factory_id'] = $factory->id;
-            $arr['tool_id'] = $factory->tool_id;
-            return $arr;
-        }
-        $ff = NumbersView::where('number', $number)->where('fullname', $factory)->get();
-        if ($ff->count() == 1) {
-            $factory = Factory::where('id', $ff->first()->factory_id)->first();
-            $arr['number_id'] = $ff->first()->id;
+        $number = Number::where('number', $number)->get();
+        if ($number->count() == 1) {
+            $factory = Factory::where('id', $number->first()->factory_id)->first();
+            $arr['number_id'] = $number->first()->id;
             $arr['factory_id'] = $factory->id;
             $arr['tool_id'] = $factory->tool_id;
             return $arr;

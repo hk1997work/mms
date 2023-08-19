@@ -33,6 +33,8 @@
                             <div class="styled-checkbox mt-3">
                                 <input type="checkbox" name="cb" id="{{$certificate->order}}">
                                 <label for="{{$certificate->order}}"></label>
+                                <input type="hidden" id="id{{$certificate->order}}" value="{{$certificate->id}}">
+                                <input type="hidden" id="factory{{$certificate->order}}">
                             </div>
                         @endif
                     </td>
@@ -130,18 +132,104 @@
                 return JSON.parse('{!! $json !!}'.replace('	', '').replace(' ', ''))
             }
 
-            function downItems(index) {
-                var arr = json()
-                var idList = []
-                var data = []
-                if (index) {
-                    idList.push(arr[index].zsbh + "@@" + arr[index].pdfPath);
-                    data.push(arr[index]);
+            function load_factory(order, id, callback) {
+                return new Promise((resolve, reject) => {
+                    let parseData = $.base64.encode(JSON.stringify({"id": id}), "utf-8");
+                    $.ajax({
+                            type: "POST",
+                            url: "https://lims.njsjly.com/cmiims/f/sys/webQuery/inquiryByIdInfo",
+                            headers: {'Content-Type': 'application/json'},
+                            data: parseData,
+                            dataType: "text",
+                            success: function (data) {
+                                let jsonData = JSON.parse($.base64.decode(data, "utf-8"));
+                                $('#factory' + order).val(jsonData.success ? jsonData.certificateInfo.zzcs : '读取失败')
+                                if (typeof callback === 'function') {
+                                    callback();
+                                }
+                                resolve();
+                            }, error: function () {
+                                $("#factory" + order).val("读取失败")
+                                if (typeof callback === 'function') {
+                                    callback();
+                                }
+                                resolve();
+                            }
+                        }
+                    )
+                })
+            }
+
+            async function addItems() {
+                let arr = json()
+                let idList = []
+                let data = []
+                let promises = [];
+                if ($('input[name="cb"]:checked').length == 0) {
+                    notifications('请选择数据!')
+                    return
+                }
+                $("#preloader")[0].style.display = 'block';
+                $('input[name="cb"]:checked').each(function () {
+                    let order = $(this).attr('id');
+                    if ($('#factory' + order).val() == '') {
+                        let id = $("#id" + order).val()
+                        promises.push(load_factory(order, id, function () {
+                            arr[order].factory = $('#factory' + order).val()
+                        }))
+                    } else {
+                        arr[order].factory = $('#factory' + order).val()
+                    }
+                    idList.push(arr[order].zsbh + "@@" + arr[order].pdfPath)
+                    data.push(arr[order]);
+                })
+                await Promise.all(promises);
+                try {
+                    let result = await $.ajax({
+                        url: "/nj/create",
+                        type: "POST",
+                        data: {
+                            "_token": '{{csrf_token()}}',
+                            "json": JSON.stringify(data),
+                            "idList": $.base64.encode(escape(JSON.stringify(idList.join(",")))),
+                            "data": $.base64.encode(escape(JSON.stringify(data)), "utf-8"),
+                        }
+                    });
+                    $("#modal1").html(result);
+                    $("#modal1").find(".btn-primary").attr('onclick', 'b_add("nj")')
+                    $('#modal1').modal('show')
+                    $(".has-danger").find('select').change(function () {
+                        $(this).parents('.has-danger').find('.text-danger').remove()
+                        $(this).parents('.has-danger').removeClass('has-danger')
+                    });
+                    $(".has-danger").find('input').change(function () {
+                        $(this).parents('.has-danger').find('.text-danger').remove()
+                        $(this).parents('.has-danger').removeClass('has-danger')
+                    });
+                } catch (error) {
+                    if (error.status === 401) {
+                        document.location.reload();
+                    } else {
+                        notifications('操作失败');
+                    }
+                }
+                if ($("#preloader").is(':visible')) {
+                    $("#preloader").fadeOut();
+                }
+            }
+
+            function downItems(order) {
+                let arr = json()
+                let idList = []
+                let data = []
+                if (order) {
+                    idList.push(arr[order].zsbh + "@@" + arr[order].pdfPath);
+                    data.push(arr[order]);
                 } else {
                     $('input[name="cb"]:checked').each(function () {
-                        index = $(this).attr('id');
-                        idList.push(arr[index].zsbh + "@@" + arr[index].pdfPath);
-                        data.push(arr[index]);
+                        order = $(this).attr('id');
+                        idList.push(arr[order].zsbh + "@@" + arr[order].pdfPath);
+                        data.push(arr[order]);
                     })
                     if (idList.length == 0) {
                         notifications('请选择数据!')
@@ -153,59 +241,15 @@
                 $("#form_down").submit()
             }
 
-            function addItems() {
-                var arr = json()
-                var idList = []
-                var data = []
-                $('input[name="cb"]:checked').each(function () {
-                    var index = $(this).attr('id');
-                    idList.push(arr[index].zsbh + "@@" + arr[index].pdfPath);
-                    data.push(arr[index]);
-                })
-                if (idList.length == 0) {
-                    notifications('请选择数据!')
-                    return
-                }
-                $.ajax({
-                    url: "/nj/create",
-                    type: "POST",
-                    data: {
-                        "_token": '{{csrf_token()}}',
-                        "json": JSON.stringify(data),
-                        "idList": $.base64.encode(escape(JSON.stringify(idList.join(",")))),
-                        "data": $.base64.encode(escape(JSON.stringify(data)), "utf-8"),
-                    },
-                    success: function (result) {
-                        $("#modal1").html(result);
-                        $("#modal1").find(".btn-primary").attr('onclick', 'b_add("nj")')
-                        $('#modal1').modal('show')
-                        $(".has-danger").find('select').change(function () {
-                            $(this).parents('.has-danger').find('.text-danger').remove()
-                            $(this).parents('.has-danger').removeClass('has-danger')
-                        });
-                        $(".has-danger").find('input').change(function () {
-                            $(this).parents('.has-danger').find('.text-danger').remove()
-                            $(this).parents('.has-danger').removeClass('has-danger')
-                        });
-                    }, error: function (xhr) {
-                        if (xhr.status == 401) {
-                            document.location.reload();
-                        } else {
-                            notifications('操作失败')
-                        }
-                    }
-                });
-            }
-
             //屏蔽模态框
             function modal_filter(order) {
-                var str = "<button class='btn btn-primary ripple' onclick=\"btn_filter('" + order + "')\" data-dismiss='modal'>确 定</button>"
+                let str = "<button class='btn btn-primary ripple' onclick=\"btn_filter('" + order + "')\" data-dismiss='modal'>确 定</button>"
                 $("#btn_filter_ok").html(str);
             }
 
             //屏蔽操作
             function btn_filter(order) {
-                var arr = json()
+                let arr = json()
                 $.ajax({
                         url: "/nj/filter",
                         type: "POST",
@@ -238,3 +282,17 @@
         </script>
     @endif
 @endsection
+
+@push('page-js-after-1')
+    <script>
+        $(document).ready(function () {
+            $('input[type="checkbox"]').on('change', function () {
+                let order = $(this).attr('id')
+                let id = $("#id" + order).val()
+                if ($(this).is(':checked') && $('#factory' + order).val() == '') {
+                    load_factory(order, id)
+                }
+            });
+        });
+    </script>
+@endpush

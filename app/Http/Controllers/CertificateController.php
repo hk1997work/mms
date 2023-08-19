@@ -17,6 +17,7 @@ use App\Models\StandardsView;
 use App\Models\Tool;
 use App\Models\ToolsView;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 
@@ -72,6 +73,7 @@ class CertificateController extends Controller
 
     public function store(CertificateRequest $request)
     {
+        $position = Position::find($request->position_id)->name;
         if (Factory::where('tool_id', $request->tool_id)->where('factory', $request->factory_id)->exists()) {
             $request->factory_id = Factory::where('tool_id', $request->tool_id)->where('factory', $request->factory_id)->first()->id;
         } elseif (Factory::where('tool_id', $request->tool_id)->where('id', $request->factory_id)->exists() == false) {
@@ -85,30 +87,18 @@ class CertificateController extends Controller
         if (Number::where('factory_id', $request->factory_id)->where('number', $request->number_id)->exists()) {
             $number = Number::where('factory_id', $request->factory_id)->where('number', $request->number_id)->first();
             $request->number_id = $number->id;
-            if (Position::find($request->position_id)->name == '备用') {
-                $number->state_id = Parameter::where('name', '备用')->first()->id;
-            } else {
-                $number->state_id = Parameter::where('name', '在用')->first()->id;
-            }
+            $number->state_id = Parameter::where('name', $position == '备用' ? '备用' : '在用')->first()->id;
             $number->save();
         } elseif (Number::where('factory_id', $request->factory_id)->where('id', $request->number_id)->exists() == false) {
             $number_controller = new NumberController;
             $number = new NumberRequest();
             $number->factory_id = $request->factory_id;
             $number->number = $request->number_id;
-            if (Position::find($request->position_id)->name == '备用') {
-                $number->state_id = Parameter::where('name', '备用')->first()->id;
-            } else {
-                $number->state_id = Parameter::where('name', '在用')->first()->id;
-            }
+            $number->state_id = Parameter::where('name', $position == '备用' ? '备用' : '在用')->first()->id;
             $request->number_id = $number_controller->store($number);
         } else {
             $number = Number::find($request->number_id);
-            if (Position::find($request->position_id)->name == '备用') {
-                $number->state_id = Parameter::where('name', '备用')->first()->id;
-            } else {
-                $number->state_id = Parameter::where('name', '在用')->first()->id;
-            }
+            $number->state_id = Parameter::where('name', $position == '备用' ? '备用' : '在用')->first()->id;
             $number->save();
         }
         $arr['sn'] = $request->sn;
@@ -137,9 +127,9 @@ class CertificateController extends Controller
         }
     }
 
-    public function show(CertificatesView $certificate)
+    public function show(Certificate $certificate)
     {
-        $certificates = CertificatesView::where('position_id', $certificate->position_id)->where('sn', $certificate->sn)->orderBy('verification_date', 'desc')->get();
+        $certificates = DB::table('certificates_views1')->where('position_id', $certificate->position_id)->where('sn', $certificate->sn)->orderBy('verification_date', 'desc')->get();
         foreach ($certificates as $key => $c) {
             $c->path = "storage/jpg/$c->id";
             if (!Storage::exists("\public\jpg\\$c->id" . "/0.jpg")) {
@@ -164,18 +154,14 @@ class CertificateController extends Controller
 
     public function update(CertificateRequest $request, Certificate $certificate)
     {
-        $certificate->sn = $request->sn;
         $certificate->certificate_no = $request->certificate_no;
         $certificate->verification_date = $request->verification_date;
         $certificate->validity_date = $request->validity_date;
         $certificate->category_id = $request->category_id;
         $certificate->department_id = $request->department_id;
-        $certificate->start = $request->start;
-        $certificate->times = $request->times;
         $certificate->money = $request->money;
         $certificate->standard_id = "," . implode(',', $request->standard_id) . ",";
         $certificate->remark = $request->remark;
-
         if ($certificate->save()) {
             if ($request->hasFile('file_certificate')) {
                 $file = $request->file('file_certificate');
@@ -212,7 +198,7 @@ class CertificateController extends Controller
     {
         $categories = Parameter::where('pid', Parameter::where('name', '证书类型')->first()->id)->orderBy('sort')->get();
         $departments = Parameter::where('pid', Parameter::where('name', '检定部门')->first()->id)->orderBy('sort')->get();
-        $certificate->standard_id = explode(',', $certificate->standard_id);
+        $certificate->standard_id = explode(',', $this->getStandard($certificate->tool_id));
         $standards = StandardsView::where('level', 2)->orderBy('name1')->get();
         $tools = ToolsView::where('instrument', $certificate->instrument)->orderBy('instrument')->get();
         $spares = CertificatesView::where('valid', 1)->where('position', '备用')->where('instrument', $certificate->instrument)->orderBy('order')->get();
@@ -247,7 +233,7 @@ class CertificateController extends Controller
             $number->state_id = Parameter::where('name', '在用')->first()->id;
             $number->save();
         }
-        $arr['sn'] = $request->sn;
+        $arr['sn'] = $certificate->sn;
         $arr['position_id'] = $certificate->position_id;
         $arr['certificate_no'] = $request->certificate_no;
         $arr['number_id'] = $request->number_id;
@@ -256,8 +242,8 @@ class CertificateController extends Controller
         $arr['valid'] = 1;
         $arr['category_id'] = $request->category_id;
         $arr['department_id'] = $request->department_id;
-        $arr['start'] = $request->start;
-        $arr['times'] = $request->times;
+        $arr['start'] = $certificate->start;
+        $arr['times'] = $certificate->times + 1;
         $arr['money'] = $request->money;
         $arr['standard_id'] = "," . implode(",", $request->standard_id) . ",";
         $arr['remark'] = $request->remark;
@@ -284,14 +270,14 @@ class CertificateController extends Controller
             $number->save();
             return !!$certificate->save();
         }
-        return '请选择使用的岗位';
+        return '请选择使用岗位';
     }
 
     public function displace(Certificate $old, Certificate $new, $cause)
     {
         $old->valid = 0;
         $old_number = Number::find($old->number_id);
-        $old_number->state_id = $cause ? Parameter::where('name', '损坏')->first()->id : Parameter::where('name', '待检')->first()->id;
+        $old_number->state_id = Parameter::where('name', $cause ? '损坏' : '待检')->first()->id;
         $old_number->save();
         $old->save();
 

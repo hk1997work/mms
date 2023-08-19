@@ -7,6 +7,7 @@ use App\Models\Certificate;
 use App\Models\CertificatesView;
 use App\Models\Position;
 use App\Models\PositionsView;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class PositionController extends Controller
@@ -27,13 +28,14 @@ class PositionController extends Controller
 
     public function show(Position $position)
     {
-        $certificates = CertificatesView::where('valid', 1)->where('sign', 0)->where(function ($query) use ($position) {
-            $query->where('unit1_id', $position->id)
-                ->orWhere('unit2_id', $position->id)
-                ->orWhere('unit3_id', $position->id)
-                ->orWhere('unit4_id', $position->id)
-                ->orWhere('position_id', $position->id);
-        })->orderBy('instrument')->orderBy('model')->orderBy('tool_id')->get();
+        $certificates = CertificatesView::selectRaw('sn,`order`,position,position_id,instrument,MAX(valid) AS valid,MAX(start) AS start,MAX(times) AS times,MAX(id) AS id')
+            ->where('position', '<>', '备用')->where(function ($query) use ($position) {
+                $query->where('unit1_id', $position->id)
+                    ->orWhere('unit2_id', $position->id)
+                    ->orWhere('unit3_id', $position->id)
+                    ->orWhere('unit4_id', $position->id)
+                    ->orWhere('position_id', $position->id);
+            })->groupBy('sn', 'order', 'position', 'position_id', 'instrument')->get();
         return view('position.show', compact('position', 'certificates'));
     }
 
@@ -64,7 +66,7 @@ class PositionController extends Controller
     public function destroy(Position $position)
     {
         if (Certificate::where('position_id', $position->id)->exists() || Position::where('pid', $position->id)->exists() || DB::table("role_position")->where('position_id', $position->id)->exists()) {
-            return "岗位使用中,无法删除";
+            return "岗位{$position->name}使用中,无法删除";
         }
         return !!$position->delete();
     }
@@ -81,6 +83,41 @@ class PositionController extends Controller
             $position_exchange->sort = $position->sort;
             $position->sort = $result;
             return !!$position->save() && !!$position_exchange->save();
+        } else return false;
+    }
+
+    public function sn(Certificate $certificate)
+    {
+        return view('position.sn', compact('certificate'));
+    }
+
+    public function updateSn(Request $request, Certificate $certificate)
+    {
+        if (Certificate::where('position_id', $certificate->position_id)->where('sn', $request->sn)->exists()) {
+            return '序号重复';
+        }
+        return !!Certificate::where('position_id', $certificate->position_id)->where('sn', $certificate->sn)->update(['sn' => $request->sn]);
+    }
+
+    public function moveSn(Certificate $certificate, $type)
+    {
+        if ($type) {
+            $result = Certificate::where('position_id', "$certificate->position_id")->where('sn', '<', $certificate->sn)->max('sn');
+        } else {
+            $result = Certificate::where('position_id', "$certificate->position_id")->where('sn', '>', $certificate->sn)->min('sn');
+        }
+        if ($result) {
+            $a = Certificate::where('position_id', $certificate->position_id)->where('sn', $certificate->sn)->get();
+            $b = Certificate::where('position_id', $certificate->position_id)->where('sn', $result)->get();
+            foreach ($a as $itemA) {
+                $itemA->sn = $result;
+                $itemA->save();
+            }
+            foreach ($b as $itemB) {
+                $itemB->sn = $certificate->sn;
+                $itemB->save();
+            }
+            return true;
         } else return false;
     }
 

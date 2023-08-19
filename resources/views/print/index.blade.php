@@ -6,7 +6,7 @@
     <form action="/print" method="post" enctype="multipart/form-data" id="form_print">
         {{csrf_field()}}
         <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12 mb-3">
-            <label class="form-control-label">起始行(1-11)</label>
+            <label class="form-control-label">起始行(1-10)</label>
             <input type="text" name="row" id="row" value="1" class="form-control" required>
         </div>
         <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12 mb-3">

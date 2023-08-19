@@ -1,5 +1,5 @@
 @extends('layout.edit')
-@section('text_modal-title','角色权限')
+@section('text_modal-title',"配置权限：$role->name")
 
 @section('content_form')
     <div class="table-responsive" style="max-height:500px;">

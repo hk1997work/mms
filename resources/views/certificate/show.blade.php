@@ -105,7 +105,7 @@
                 </div>
                 <div class="col-xl-4 col-lg-4 col-md-6 col-sm-6 mt-3">
                     <label class="form-control-label">检定标准</label>
-                    <input type="text" class="form-control" value="{{$certificate->standard}}" readOnly>
+                    <input type="text" class="form-control" value="{{$certificate->standard}}" title="{{$certificate->standard}}" readOnly>
                 </div>
                 <div class="col-xl-4 col-lg-4 col-md-6 col-sm-6 mt-3">
                     <label class="form-control-label">备注</label>

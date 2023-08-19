@@ -1,7 +1,7 @@
 <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
         <div class="modal-header">
-            <h4 class="modal-title">岗位量具配备情况</h4>
+            <h4 class="modal-title">{{$position->name}}岗位量具配备情况</h4>
             <button type="button" class="close" data-dismiss="modal">
                 <span aria-hidden="true">×</span>
                 <span class="sr-only">close</span>
@@ -14,8 +14,8 @@
                         <div class="widget-body">
                             <div class="row">
                                 <div class="col-xl-12 d-flex flex-column justify-content-center align-items-center">
-                                    <b class="counter text-warning">{{$certificates->groupBy('tool_id')->count()}}</b>
-                                    <b class="total-visitors text-center">种类</b>
+                                    <b class="counter text-success">{{$certificates->where('valid',1)->count()}}</b>
+                                    <b class="total-visitors text-center">有效</b>
                                 </div>
                             </div>
                         </div>
@@ -26,8 +26,8 @@
                         <div class="widget-body">
                             <div class="row">
                                 <div class="col-xl-12 d-flex flex-column justify-content-center align-items-center">
-                                    <b class="counter text-success">{{$certificates->count()}}</b>
-                                    <b class="total-visitors text-center">数量</b>
+                                    <b class="counter text-danger">{{$certificates->where('valid',0)->count()}}</b>
+                                    <b class="total-visitors text-center">失效</b>
                                 </div>
                             </div>
                         </div>
@@ -38,41 +38,30 @@
                 <table id="modal-table" class="table table-hover mb-0">
                     <thead>
                     <tr>
+                        <th>序号</th>
+                        <th>岗位</th>
                         <th>器具名称</th>
-                        <th>规格型号</th>
-                        <th>数量</th>
+                        <th>启用时间</th>
+                        <th>检定次数</th>
+                        <th>管理状态</th>
+                        <th>操作</th>
                     </tr>
                     </thead>
                     <tbody>
                     @foreach($certificates as $certificate)
-                        @if($loop->index==0 or $certificate->tool_id!= $certificates[$loop->index-1]->tool_id)
-                            <tr class="info-tool" data-id="{{$certificate->tool_id}}">
-                                <td style="width: 40%">{{$certificate->instrument}}</td>
-                                <td style="width: 35%">{{$certificate->model}}</td>
-                                <td style="width: 25%">
-                                    @if($position->leve==1)
-                                        {{$certificates->where('tool_id',$certificate->tool_id)->where('unit4_id',$certificate->unit4_id)->count()}}
-                                    @elseif($position->level==2)
-                                        {{$certificates->where('tool_id',$certificate->tool_id)->where('unit3_id',$certificate->unit3_id)->count()}}
-                                    @elseif($position->level==3)
-                                        {{$certificates->where('tool_id',$certificate->tool_id)->where('unit2_id',$certificate->unit2_id)->count()}}
-                                    @elseif($position->level==4)
-                                        {{$certificates->where('tool_id',$certificate->tool_id)->where('unit1_id',$certificate->unit1_id)->count()}}
-                                    @elseif($position->level==5)
-                                        {{$certificates->where('tool_id',$certificate->tool_id)->where('position_id',$certificate->position_id)->count()}}
-                                    @endif
-                                </td>
-                            </tr>
-                            <tr class="info-number info-number{{$certificate->tool_id}}" style="display: none ;border-bottom: 1px solid;">
-                                <td class="text-primary">生产厂家</td>
-                                <td class="text-primary">出厂编号</td>
-                                <td></td>
-                            </tr>
-                        @endif
-                        <tr class="info-number info-number{{$certificate->tool_id}}" style="display: none;border-bottom: 1px solid;">
-                            <td>{{$certificate->factory}}</td>
-                            <td>{{$certificate->number}}</td>
-                            <td class="td-actions"><a onclick="m_show('certificate',{{$certificate->id}},1)"><i class="la la-eye delete"></i></a></td>
+                        <tr class="info-tool" data-id="{{$certificate->tool_id}}">
+                            <td>{{$certificate->order}}</td>
+                            <td>{{$certificate->position}}</td>
+                            <td>{{$certificate->instrument}}</td>
+                            <td>{{$certificate->start}}</td>
+                            <td>{{$certificate->times}}</td>
+                            <td>@if($certificate->valid) <div class="text-success">有效</div> @else <div class="text-danger">失效</div> @endif</td>
+                            <td class="td-actions">
+                                <a onclick="up_modal('sn',{{$certificate->id}})"><i class="la la-angle-up edit"></i></a>
+                                <a onclick="down_modal('sn',{{$certificate->id}})"><i class="la la-angle-down edit"></i></a>
+                                <a onclick="m_edit('sn',{{$certificate->id}})"><i class="la la-edit edit"></i></a>
+                                <a onclick="m_show('certificate',{{$certificate->id}},1)"><i class="la la-eye delete"></i></a>
+                            </td>
                         </tr>
                     @endforeach
                     </tbody>
@@ -84,14 +73,3 @@
         </div>
     </div>
 </div>
-<script>
-    $(".info-tool").click(function () {
-        let id = $(this).attr("data-id")
-        if ($(".info-number" + id).is(':hidden')) {
-            $(".info-number").hide()
-            $(".info-number" + id).toggle()
-        } else {
-            $(".info-number").hide()
-        }
-    })
-</script>

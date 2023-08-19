@@ -120,7 +120,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary ripple" onclick="btn()">确 定</button>
+                    <button type="submit" class="btn btn-primary ripple" onclick="b_add('export')">确 定</button>
                     <button type="button" class="btn btn-secondary ripple" data-dismiss="modal">返 回</button>
                 </div>
             </div>
@@ -150,9 +150,5 @@
                 $("#check_valid").prop("disabled", false);
             }
         })
-
-        function btn() {
-            b_add('export')
-        }
     </script>
 @endpush

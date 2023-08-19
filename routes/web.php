@@ -68,6 +68,9 @@ Route::group(['namespace' => '\App\Http\Controllers'], function () {
             Route::resource('/position', 'PositionController');
             Route::post('/move/position/{position}/{type}', 'PositionController@move');
             Route::post('/sign/position/{position}', 'PositionController@sign');
+            Route::get('/sn/{certificate}/edit', 'PositionController@sn');
+            Route::put('/sn/{certificate}', 'PositionController@updateSn');
+            Route::post('/move/sn/{certificate}/{type}', 'PositionController@moveSn');
             //量具管理
             Route::resource('/tool', 'ToolController');
             //厂家管理
@@ -110,7 +113,6 @@ Route::group(['namespace' => '\App\Http\Controllers'], function () {
         Route::get('/certificate_info/{tool_id}', 'Controller@getInfo');
         Route::get('/certificate_numbers/{factory_id}', 'Controller@getNumbers');
         Route::get('/certificate_no/{certificate_no}', 'Controller@getCertificateNo');
-        Route::get('/certificate_number', 'Controller@getNumber');
     });
     //登录页面
     Route::get('/login', 'LoginController@index')->name('login');

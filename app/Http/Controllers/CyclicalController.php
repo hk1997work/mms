@@ -20,27 +20,22 @@ class CyclicalController extends Controller
 
     public function store(Request $request)
     {
-        require_once __DIR__ . '/vendor/autoload.php';
-
         $path = "storage/" . \Auth::user()->username;
         if (File::isDirectory($path)) {
             File::deleteDirectory($path);
         }
 
         foreach ($request->year as $year) {
-            foreach ($request->type as $unit1) {
-                foreach ($request->position as $unit3) {
+            foreach ($request->type as $unit4) {
+                foreach ($request->position as $unit2) {
                     $i = 1;
                     $inputFileName = 'storage/mould/周检通知单模板.xlsx';
                     $spreadsheet = IOFactory::load($inputFileName);
                     $sheet = $spreadsheet->getActiveSheet();
                     $sheet->getDefaultRowDimension()->setRowHeight(25);
-
-                    $months = CertificatesView::selectRaw('month,unit1,unit3')->where('unit1', $unit1)->where('unit3', $unit3)
-                        ->whereRaw("SUBSTR(`month`,1,4) = $year")->groupBy('month', 'unit1', 'unit3')->orderBy('month')->get();
+                    $months = CertificatesView::selectRaw('month,unit2,unit4')->where('unit2', $unit2)->where('unit4', $unit4)->whereRaw("SUBSTR(`month`,1,4) = $year")->groupBy('month', 'unit4', 'unit2')->orderBy('month')->get();
                     foreach ($months as $month) {
-                        $certificates = CertificatesView::where('month', $month->month)->where('unit1', $unit1)->where('unit3', $unit3)->orderBy('order')->get();
-
+                        $certificates = CertificatesView::where('month', $month->month)->where('unit4', $unit4)->where('unit2', $unit2)->orderBy('order')->get();
                         foreach ($certificates as $certificate) {
                             if ($i % 25 == 0) {
                                 $i++;
@@ -86,7 +81,7 @@ class CyclicalController extends Controller
                                     ],
                                 ];
                                 $sheet->getStyle("A$i1")->applyFromArray($styleArray);
-                                $sheet->setCellValueByColumnAndRow(1, $i1, "编号:$unit1-$unit3-$month->month");
+                                $sheet->setCellValueByColumnAndRow(1, $i1, "编号:$unit4-$unit2-$month->month");
                                 //第三行
                                 $styleArray = [
                                     'alignment' => [
@@ -165,9 +160,9 @@ class CyclicalController extends Controller
                                     $drawing->setCoordinates("C$i24");
                                     $drawing->setWorksheet($sheet);
                                 }
-                                if (is_file("storage/sign/$unit1$unit3.png")) {
+                                if (is_file("storage/sign/$unit4$unit2.png")) {
                                     $drawing = new Drawing();
-                                    $drawing->setPath("storage/sign/$unit1$unit3.png");
+                                    $drawing->setPath("storage/sign/$unit4$unit2.png");
                                     $drawing->setHeight(50);
                                     $drawing->setCoordinates("F$i24");
                                     $drawing->setWorksheet($sheet);
@@ -192,13 +187,14 @@ class CyclicalController extends Controller
                         }
                         $i = $i - $i % 25 + 25;
                     }
-
                     @ob_end_clean();
-                    $writer = IOFactory::createWriter($spreadsheet, 'Xls');
-                    if (File::isDirectory($path . '/周检通知单') == false) {
-                        File::makeDirectory($path . '/周检通知单', 0777, true, true);
+                    if ($i > 1) {
+                        $writer = IOFactory::createWriter($spreadsheet, 'Xls');
+                        if (File::isDirectory($path . '/周检通知单') == false) {
+                            File::makeDirectory($path . '/周检通知单', 0777, true, true);
+                        }
+                        $writer->save($path . "/周检通知单/周检通知单$unit4$unit2$year.xls");
                     }
-                    $writer->save($path . "/周检通知单/周检通知单$unit1$unit3$year.xls");
                 }
             }
         }

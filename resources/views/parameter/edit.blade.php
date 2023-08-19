@@ -1,5 +1,5 @@
 @extends('layout.edit')
-@section('text_modal-title','修改参数')
+@section('text_modal-title',"修改参数：$parameter->name")
 
 @section('content_form')
     <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-3">

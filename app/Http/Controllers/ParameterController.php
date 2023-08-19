@@ -48,7 +48,7 @@ class ParameterController extends Controller
     public function destroy(ParametersView $parameter)
     {
         if (!$parameter->count == null) {
-            return "参数使用中,无法删除";
+            return "参数{$parameter->name1}使用中,无法删除";
         }
         return !!Parameter::where('id', $parameter->id)->delete();
     }

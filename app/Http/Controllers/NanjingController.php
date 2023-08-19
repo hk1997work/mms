@@ -32,7 +32,6 @@ class NanjingController extends Controller
                 ]
             ]);
             $result = (string)$res->getBody();
-
             if (mb_substr($result, 0, 1) != "\n") {
                 return view('nanjing.index', compact('result', 'out'));
             }
@@ -74,6 +73,23 @@ class NanjingController extends Controller
         $data = $request->data;
         $idList = $request->idList;
         $standards = StandardsView::where('level', 2)->orderBy('name1')->get();
+        foreach ($arr as $key => $value) {
+            $value->ccbh = isset($value->ccbh) ? $value->ccbh == '/' ? '' : $value->ccbh : '';
+            $value->sbbh = isset($value->sbbh) ? $value->sbbh == '/' ? '' : $value->sbbh : '';
+            $number = Number::where('number', $value->ccbh . $value->sbbh)->get();
+            if ($number->count() == 1) {
+                $factory = Factory::where('id', $number->first()->factory_id)->first();
+                $arr[$key]->number_id = $number->first()->id;
+                $arr[$key]->factory_id = $factory->id;
+                $arr[$key]->tool_id = $factory->tool_id;
+                $arr[$key]->numbers = Number::where('factory_id', $arr[$key]->factory_id)->get();
+                $arr[$key]->factories = Factory::where('tool_id', $arr[$key]->tool_id)->get();
+                $arr[$key]->standard = explode(',', $this->getStandard($arr[$key]->tool_id));
+                $arr[$key]->info = 1;
+            } else {
+                $arr[$key]->info = 0;
+            }
+        }
         return view('nanjing.create', compact('arr', 'tools', 'data', 'idList', 'standards'));
     }
 
@@ -112,7 +128,8 @@ class NanjingController extends Controller
             $add_date = mb_substr($cycle, 0, strlen($cycle) - 3);
             $certificate_controller = new CertificateController;
             $certificate = new CertificateRequest();
-            $certificate->position_id = DB::table('positions AS p1')->select('p1.*')->leftJoin('positions as p2', 'p2.id', 'p1.pid')->leftJoin('positions as p3', 'p3.id', 'p2.pid')
+            $certificate->position_id = DB::table('positions AS p1')->select('p1.*')
+                ->leftJoin('positions as p2', 'p2.id', 'p1.pid')->leftJoin('positions as p3', 'p3.id', 'p2.pid')
                 ->where('p1.name', '备用')->where('p1.level', 5)->where('p3.pid', $tool->type_id)->first()->id;
             $certificate->sn = $this->getSn($certificate->position_id);
             $certificate->category_id = Parameter::where('name', "$arr->zsType")->first()->id;
@@ -128,7 +145,7 @@ class NanjingController extends Controller
             if (mb_substr($cycle, -1, 1) == '月') {
                 $certificate->validity_date = date('Y-m-d', strtotime("-1 day", strtotime("+$add_date month", strtotime($certificate->verification_date))));
             }
-            $certificate->start = date('Y');
+            $certificate->start = substr($certificate->verification_date, 0, 4);
             $certificate->times = 1;
             $certificate->money = 0;
             $certificate->standard_id = $request->standard_id[$arr->order];

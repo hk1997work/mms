@@ -79,7 +79,7 @@
                     <a onclick="up(this,{{$parameter->id}})"><i class="la la-angle-up edit"></i></a>
                     <a onclick="down(this,{{$parameter->id}})"><i class="la la-angle-down edit"></i></a>
                     <a onclick="m_edit('parameter',{{$parameter->id}})"><i class="la la-edit edit"></i></a>
-                    <a onclick="m_delete('parameter',{{$parameter->id}})"><i class="la la-close delete"></i></a>
+                    <a onclick="m_delete('parameter',{{$parameter->id}},'{{$parameter->name1}}')"><i class="la la-close delete"></i></a>
                 </td>
             </tr>
         @endforeach

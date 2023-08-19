@@ -92,7 +92,7 @@
                     <a onclick="up(this,{{$permission->id}})"><i class="la la-angle-up edit"></i></a>
                     <a onclick="down(this,{{$permission->id}})"><i class="la la-angle-down edit"></i></a>
                     <a onclick="m_edit('permission',{{$permission->id}})"><i class="la la-edit edit"></i></a>
-                    <a onclick="m_delete('permission',{{$permission->id}})"><i class="la la-close delete"></i></a>
+                    <a onclick="m_delete('permission',{{$permission->id}},'{{$permission->description1}}')"><i class="la la-close delete"></i></a>
                 </td>
             </tr>
         @endforeach

@@ -1,5 +1,5 @@
 @extends('layout.edit')
-@section('text_modal-title','修改用户')
+@section('text_modal-title',"修改用户：$user->username")
 
 @section('content_form')
     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">

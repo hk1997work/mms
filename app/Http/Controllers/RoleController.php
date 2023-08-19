@@ -42,7 +42,7 @@ class RoleController extends Controller
     public function destroy(Role $role)
     {
         if (DB::table("role_user")->where('role_id', $role->id)->exists() || DB::table("permission_role")->where('role_id', $role->id)->exists()) {
-            return "角色使用中,无法删除";
+            return "角色{$role->name}使用中,无法删除";
         }
         return !!$role->delete();
     }

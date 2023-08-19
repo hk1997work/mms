@@ -39,3 +39,6 @@
         });
     </script>
 @endpush
+@push('page-js-after')
+    @stack('page-js-after-1')
+@endpush

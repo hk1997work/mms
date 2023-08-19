@@ -19,7 +19,6 @@ class SampleController extends Controller
 
     public function store(Request $request)
     {
-        require_once __DIR__ . '/vendor/autoload.php';
         $path = "storage/" . \Auth::user()->username;
         if (File::isDirectory($path)) {
             File::deleteDirectory($path);
@@ -32,10 +31,10 @@ class SampleController extends Controller
         $inputFileName = 'storage/mould/抽检记录模板.xlsx';
         $spreadsheet = IOFactory::load($inputFileName);
         $sheet = $spreadsheet->getActiveSheet();
-        $sheet->getDefaultRowDimension()->setRowHeight(25);
+        $sheet->getDefaultRowDimension()->setRowHeight(24);
 
         foreach ($periods as $period) {
-            $results = CertificatesView::select('id')->where('verification_date', '<=', $period)->where('validity_date', '>=', $period)->where('type', '计量器具')->whereIn('unit3', $request->position)->inRandomOrder()->limit(17);
+            $results = CertificatesView::select('id')->where('verification_date', '<=', $period)->where('validity_date', '>=', $period)->where('type', '计量器具')->whereIn('unit2', $request->position)->inRandomOrder()->limit(17);
             $ids = array_column($results->get()->toArray(), 'id');
             $certificates = CertificatesView::whereIn('id', $ids)->orderBy('order')->get();
             $date = substr($period, 0, 10);
@@ -200,15 +199,15 @@ class SampleController extends Controller
                 }
                 $sheet->setCellValueByColumnAndRow(1, $i, ($i) % 24 - 5);
                 $sheet->setCellValueByColumnAndRow(2, $i, $certificate->position);
-                $sheet->setCellValueByColumnAndRow(3, $i, $certificate->unit4);
+                $sheet->setCellValueByColumnAndRow(3, $i, $certificate->unit1);
                 $sheet->setCellValueByColumnAndRow(4, $i, $certificate->instrument);
                 $sheet->setCellValueByColumnAndRow(5, $i, $certificate->model);
                 $sheet->setCellValueByColumnAndRow(6, $i, $certificate->number);
                 $sheet->setCellValueByColumnAndRow(7, $i, $certificate->limit);
-                $sheet->setCellValueByColumnAndRow(8, $i, Rand(0, 20) > 1 ? '完好' : '轻微磨损');
-                if (is_file("storage/sign/$certificate->unit1$certificate->unit3.png")) {
+                $sheet->setCellValueByColumnAndRow(8, $i, Rand(0, 20) > 1 ? '完好' : '更换');
+                if (is_file("storage/sign/$certificate->unit4$certificate->unit2.png")) {
                     $drawing = new Drawing();
-                    $drawing->setPath("storage/sign/$certificate->unit1$certificate->unit3.png");
+                    $drawing->setPath("storage/sign/$certificate->unit4$certificate->unit2.png");
                     $drawing->setHeight(40);
                     $drawing->setCoordinates("J$i");
                     $drawing->setWorksheet($sheet);
@@ -237,5 +236,4 @@ class SampleController extends Controller
         header("Content-Disposition: attachment; filename=抽检记录" . date('Y-m-d') . ".zip");
         readfile($path . '/抽检记录' . date('Y-m-d') . '.zip');
     }
-
 }

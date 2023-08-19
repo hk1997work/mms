@@ -302,8 +302,11 @@ function load_pdf_info(data) {
                     $("#file_certificate").val('');
                     $("#text_certificate").text('');
                 }
+                $("#tool_id").parents('.col-xl-4').append("<div class='text-info' id='m'>" + data.tool + data.model + "</div>");
+                $("#factory_id").parents('.col-xl-4').append("<div class='text-info' id='f'>" + data.factory + "</div>");
+                $("#number_id").parents('.col-xl-4').append("<div class='text-info' id='n'>" + data.number + "</div>");
             } else {
-                $("#category_id").find("option:contains(" + data.category.substring(0,4) + ")").attr("selected", true);
+                $("#category_id").find("option:contains(" + data.category.substring(0, 4) + ")").attr("selected", true);
                 $("#tool_id").parents('.col-xl-4').append("<div class='text-info' id='t'>" + data.tool + "</div>");
                 $("#tool_id").parents('.col-xl-4').append("<div class='text-info' id='m'>" + data.model + "</div>");
                 $("#factory_id").parents('.col-xl-4').append("<div class='text-info' id='f'>" + data.factory + "</div>");

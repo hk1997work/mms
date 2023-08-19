@@ -4,11 +4,11 @@
 @section('content_form')
     <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
         <label class="form-control-label">岗位</label>
-        <input type="text" name="position" id="position" class="form-control" value="{{$certificate->position}}-{{$certificate->code}}" readonly>
+        <input type="text" name="position" id="position" class="form-control" value="{{$certificate->position}}" readonly>
     </div>
     <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
         <label class="form-control-label">序号</label>
-        <input type="text" name="sn" id="sn" class="form-control" value="{{$certificate->sn}}">
+        <input type="text" name="sn" id="sn" class="form-control" value="{{$certificate->code}}-{{$certificate->sn}}" readonly>
     </div>
     <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
         <label class="form-control-label">证书类型</label>
@@ -75,11 +75,11 @@
     </div>
     <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
         <label class="form-control-label">启用时间</label>
-        <input type="text" name="start" id="start" class="form-control" value="{{$certificate->start}}">
+        <input type="text" name="start" id="start" class="form-control" value="{{$certificate->start}}" readonly>
     </div>
     <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
         <label class="form-control-label">检定次数</label>
-        <input type="text" name="times" id="times" class="form-control" value="{{$certificate->times}}">
+        <input type="text" name="times" id="times" class="form-control" value="{{$certificate->times}}" readonly>
     </div>
     <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
         <label class="form-control-label">送检计划</label>

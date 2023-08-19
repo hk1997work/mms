@@ -102,13 +102,14 @@ function m_show(p, id, loader) {
 }
 
 //删除模态框
-function m_delete(p, id) {
+function m_delete(p, id, s) {
+    if (s == undefined) s = ''
     let modal = get_modal()
     let str = `
         <div class="modal-dialog modal-sm modal-dialog-centered">
             <div class="modal-content">
                  <div class="modal-header">
-                    <h4 class="modal-title">确认删除?</h4>
+                    <h4 class="modal-title">确认删除` + s + `?</h4>
                     <button type="button" class="close" data-dismiss="modal">
                         <span aria-hidden="true">×</span>
                         <span class="sr-only">close</span>
@@ -257,6 +258,54 @@ function down(obj, id) {
         success: function (result) {
             if (result == true) {
                 document.location.reload();
+            } else {
+                notifications('已经是最底层,无法下移');
+            }
+        }, error: function (xhr) {
+            if (xhr.status == 401) {
+                document.location.reload();
+            } else {
+                notifications('下移失败')
+            }
+        }
+    });
+}
+
+// 上移操作
+function up_modal(path, id) {
+    $.ajax({
+        url: '/move/' + path + '/' + id + '/1',
+        type: "POST",
+        data: {"_token": csrf_token},
+        success: function (result) {
+            if (result == true) {
+                let modal = get_modal()
+                $("#modal" + modal).modal('hide')
+                notifications('移动成功');
+            } else {
+                notifications('已经是最顶层,无法上移');
+            }
+        }, error: function (xhr) {
+            if (xhr.status == 401) {
+                document.location.reload();
+            } else {
+                notifications('上移失败')
+            }
+        }
+    });
+}
+
+// 下移操作
+function down_modal(path, id) {
+    $.ajax({
+        url: '/move/' + path + '/' + id + '/0',
+        type: "POST",
+        data: {"_token": csrf_token},
+        success: function (result) {
+            if (result == true) {
+                let modal = get_modal()
+                $("#modal" + modal).modal('hide')
+                notifications('移动成功');
             } else {
                 notifications('已经是最底层,无法下移');
             }

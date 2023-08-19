@@ -24,9 +24,9 @@ class ExportController extends Controller
     public function store(Request $request)
     {
         if (Setting::count()) {
-            return !!Setting::whereRaw('1=1')->update(['order' => implode(',', array_keys($request->cb))]);
+            return !!Setting::whereRaw('1=1')->update(['order' => $request->cb ? implode(',', array_keys($request->cb)) : '']);
         } else {
-            return !!Setting::create(['order' => implode(',', array_keys($request->cb))]);
+            return !!Setting::create(['order' => $request->cb ? implode(',', array_keys($request->cb)) : '']);
         }
     }
 
@@ -89,6 +89,24 @@ class ExportController extends Controller
     {
         $path = "storage/" . \Auth::user()->username;
         $filename = '';
+        $styleArray = [
+            'alignment' => [
+                'horizontal' => 'center',
+                'vertical' => 'center',
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => 'thin',
+                ],
+            ],
+            'font' => [
+                'name' => '宋体',
+                'size' => 10
+            ],
+            'numberFormat' => [
+                'formatCode' => '@'
+            ],
+        ];
         if (is_array($id)) {
             $ids = $id;
         } else {
@@ -106,21 +124,17 @@ class ExportController extends Controller
             $positions[] = $position;
             $filename = $filename . $position;
         }
-
         $certificates = CertificatesView::whereIn('id', $ids)->whereIn('type', $types)->whereIn('unit2', $positions)->orderBy('order')->orderBy('times')->get();
         if ($certificates->count() == 0) {
             return;
         }
         if (in_array("台账", $contents)) {
             $i = 3;
-
             $inputFileName = 'storage/mould/台账模板.xls';
             $spreadsheet = IOFactory::load($inputFileName);
             $sheet = $spreadsheet->getActiveSheet();
-
             foreach ($certificates as $certificate) {
                 $i++;
-
                 $sheet->setCellValueByColumnAndRow(1, $i, $certificate->order);
                 $sheet->setCellValueByColumnAndRow(2, $i, $certificate->category);
                 $sheet->setCellValueByColumnAndRow(3, $i, $certificate->certificate_no);
@@ -136,30 +150,12 @@ class ExportController extends Controller
                 $sheet->setCellValueByColumnAndRow(13, $i, $certificate->cycle);
                 $sheet->setCellValueByColumnAndRow(14, $i, $certificate->abc);
                 $sheet->setCellValueByColumnAndRow(15, $i, $certificate->department);
-                $sheet->setCellValueByColumnAndRow(16, $i, "有效");
+                $sheet->setCellValueByColumnAndRow(16, $i, '有效');
                 $sheet->setCellValueByColumnAndRow(17, $i, $certificate->times);
                 $sheet->setCellValueByColumnAndRow(18, $i, $certificate->start);
                 $sheet->setCellValueByColumnAndRow(19, $i, $certificate->remark);
                 $sheet->getRowDimension($i)->setRowHeight(20);
             }
-            $styleArray = [
-                'alignment' => [
-                    'horizontal' => 'center',
-                    'vertical' => 'center',
-                ],
-                'borders' => [
-                    'allBorders' => [
-                        'borderStyle' => 'thin',
-                    ],
-                ],
-                'font' => [
-                    'name' => '宋体',
-                    'size' => 10
-                ],
-                'numberFormat' => [
-                    'formatCode' => '@'
-                ],
-            ];
             $sheet->getStyle("A4:S$i")->applyFromArray($styleArray);
             @ob_end_clean();
             $writer = IOFactory::createWriter($spreadsheet, 'Xls');
@@ -170,14 +166,11 @@ class ExportController extends Controller
         }
         if (in_array("核对台账", $contents)) {
             $i = 3;
-
             $inputFileName = 'storage/mould/核对台账模板.xls';
             $spreadsheet = IOFactory::load($inputFileName);
             $sheet = $spreadsheet->getActiveSheet();
-
             foreach ($certificates as $certificate) {
                 $i++;
-
                 $sheet->setCellValueByColumnAndRow(1, $i, $certificate->order);
                 $sheet->setCellValueByColumnAndRow(2, $i, $certificate->position);
                 $sheet->setCellValueByColumnAndRow(3, $i, $certificate->instrument);
@@ -189,24 +182,6 @@ class ExportController extends Controller
                 $sheet->setCellValueByColumnAndRow(9, $i, $certificate->remark);
                 $sheet->getRowDimension($i)->setRowHeight(20);
             }
-            $styleArray = [
-                'alignment' => [
-                    'horizontal' => 'center',
-                    'vertical' => 'center',
-                ],
-                'borders' => [
-                    'allBorders' => [
-                        'borderStyle' => 'thin',
-                    ],
-                ],
-                'font' => [
-                    'name' => '宋体',
-                    'size' => 10
-                ],
-                'numberFormat' => [
-                    'formatCode' => '@'
-                ],
-            ];
             $sheet->getStyle("A4:I$i")->applyFromArray($styleArray);
             @ob_end_clean();
             $writer = IOFactory::createWriter($spreadsheet, 'Xls');
@@ -217,14 +192,11 @@ class ExportController extends Controller
         }
         if (in_array("标准台账", $contents)) {
             $i = 4;
-
             $inputFileName = 'storage/mould/标准台账模板.xls';
             $spreadsheet = IOFactory::load($inputFileName);
             $sheet = $spreadsheet->getActiveSheet();
-
             foreach ($certificates as $certificate) {
                 $i++;
-
                 $sheet->setCellValueByColumnAndRow(1, $i, $certificate->order);
                 $sheet->setCellValueByColumnAndRow(2, $i, $certificate->certificate_no);
                 $sheet->setCellValueByColumnAndRow(3, $i, $certificate->position);
@@ -241,7 +213,7 @@ class ExportController extends Controller
                 $sheet->setCellValueByColumnAndRow(14, $i, $certificate->month);
                 $sheet->setCellValueByColumnAndRow(15, $i, $certificate->abc);
                 $sheet->setCellValueByColumnAndRow(16, $i, $certificate->department);
-                $sheet->setCellValueByColumnAndRow(17, $i, "有效");
+                $sheet->setCellValueByColumnAndRow(17, $i, '有效');
                 $sheet->setCellValueByColumnAndRow(18, $i, $certificate->cycle);
                 $sheet->setCellValueByColumnAndRow(19, $i, $certificate->times);
                 $sheet->setCellValueByColumnAndRow(20, $i, $certificate->start);
@@ -249,24 +221,6 @@ class ExportController extends Controller
                 $sheet->setCellValueByColumnAndRow(22, $i, $certificate->remark);
                 $sheet->getRowDimension($i)->setRowHeight(20);
             }
-            $styleArray = [
-                'alignment' => [
-                    'horizontal' => 'center',
-                    'vertical' => 'center',
-                ],
-                'borders' => [
-                    'allBorders' => [
-                        'borderStyle' => 'thin',
-                    ],
-                ],
-                'font' => [
-                    'name' => '宋体',
-                    'size' => 10
-                ],
-                'numberFormat' => [
-                    'formatCode' => '@'
-                ],
-            ];
             $sheet->getStyle("A5:V$i")->applyFromArray($styleArray);
             @ob_end_clean();
             $writer = IOFactory::createWriter($spreadsheet, 'Xls');
@@ -284,7 +238,6 @@ class ExportController extends Controller
         }
         if (in_array("监理资料", $contents)) {
             $i = 3;
-
             $inputFileName = 'storage/mould/台账模板.xls';
             $spreadsheet = IOFactory::load($inputFileName);
             $sheet = $spreadsheet->getActiveSheet();
@@ -295,7 +248,6 @@ class ExportController extends Controller
             }
             foreach ($cers as $cer) {
                 $i++;
-
                 $sheet->setCellValueByColumnAndRow(1, $i, $cer->order);
                 $sheet->setCellValueByColumnAndRow(2, $i, $cer->category);
                 $sheet->setCellValueByColumnAndRow(3, $i, $cer->certificate_no);
@@ -316,29 +268,10 @@ class ExportController extends Controller
                 $sheet->setCellValueByColumnAndRow(18, $i, $cer->start);
                 $sheet->setCellValueByColumnAndRow(19, $i, $cer->remark);
                 $sheet->getRowDimension($i)->setRowHeight(20);
-
                 if (Storage::exists("public/certificate/$cer->id.pdf") && !Storage::exists("public/" . \Auth::user()->username . "/监理资料/$cer->order--$cer->instrument--$cer->number--【" . substr($cer->verification_date, 0, 4) . "年" . substr($cer->verification_date, 5, 2) . "月" . substr($cer->verification_date, 8, 2) . "日-" . substr($cer->validity_date, 0, 4) . "年" . substr($cer->validity_date, 5, 2) . "月" . substr($cer->validity_date, 8, 2) . "日】.pdf")) {
                     Storage::copy("public/certificate/$cer->id.pdf", "public/" . \Auth::user()->username . "/监理资料/$filename/$cer->order--$cer->instrument--$cer->number--【" . substr($cer->verification_date, 0, 4) . "年" . substr($cer->verification_date, 5, 2) . "月" . substr($cer->verification_date, 8, 2) . "日-" . substr($cer->validity_date, 0, 4) . "年" . substr($cer->validity_date, 5, 2) . "月" . substr($cer->validity_date, 8, 2) . "日】.pdf");
                 }
             }
-            $styleArray = [
-                'alignment' => [
-                    'horizontal' => 'center',
-                    'vertical' => 'center',
-                ],
-                'borders' => [
-                    'allBorders' => [
-                        'borderStyle' => 'thin',
-                    ],
-                ],
-                'font' => [
-                    'name' => '宋体',
-                    'size' => 10
-                ],
-                'numberFormat' => [
-                    'formatCode' => '@'
-                ],
-            ];
             $sheet->getStyle("A4:S$i")->applyFromArray($styleArray);
             @ob_end_clean();
             $writer = IOFactory::createWriter($spreadsheet, 'Xls');

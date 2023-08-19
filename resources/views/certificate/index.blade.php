@@ -76,8 +76,7 @@
                     <a onclick="m_edit('certificate',{{$certificate->id}})"><i class="la la-edit edit"></i></a>
                     <a onclick="m_show('certificate',{{$certificate->id}},1)"><i class="la la-eye delete"></i></a>
                     @if(file_exists(storage_path("app\public\certificate\\$certificate->id.pdf")))
-                        <a href="/download/pdf/certificate/{{$certificate->id.'/'.urlencode($certificate->order.'--'.$certificate->instrument.'--'.$certificate->number.'--【'.date('Y年m月d日',strtotime($certificate->verification_date)).'-'.date('Y年m月d日',strtotime($certificate->validity_date)).'】')}}"><i
-                                class="la la-download delete"></i></a>
+                        <a href="/download/pdf/certificate/{{$certificate->id.'/'.urlencode($certificate->order.'--'.$certificate->instrument.'--'.$certificate->number.'--【'.date('Y年m月d日',strtotime($certificate->verification_date)).'-'.date('Y年m月d日',strtotime($certificate->validity_date)).'】')}}"><i class="la la-download delete"></i></a>
                     @endif
                     <a onclick="m_delete('certificate',{{$certificate->id}})"><i class="la la-close delete"></i></a>
                 </td>

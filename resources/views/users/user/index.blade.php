@@ -47,7 +47,7 @@
                 <td class="td-actions d-none d-xl-table-cell">
                     <a onclick="m_edit('user',{{$user->id}})"><i class="la la-edit edit"></i></a>
                     <a onclick="m_edit('roles',{{$user->id}})"><i class="la la-cogs edit"></i></a>
-                    <a onclick="m_delete('user',{{$user->id}})"><i class="la la-close delete"></i></a>
+                    <a onclick="m_delete('user',{{$user->id}},'{{$user->username}}')"><i class="la la-close delete"></i></a>
                 </td>
             </tr>
         @endforeach

@@ -49,7 +49,7 @@
                 <td class="td-actions d-none d-xl-table-cell">
                     <a onclick="m_edit('role',{{$role->id}})"><i class="la la-edit edit"></i></a>
                     <a onclick="m_edit('permissions',{{$role->id}})"><i class="la la-cogs edit"></i></a>
-                    <a onclick="m_delete('role',{{$role->id}})"><i class="la la-close delete"></i></a>
+                    <a onclick="m_delete('role',{{$role->id}},'{{$role->name}}')"><i class="la la-close delete"></i></a>
                 </td>
             </tr>
         @endforeach

@@ -16,7 +16,7 @@
                                 <label class="form-control-label">单位</label>
                                 <div><select name="position[]" class="selectpicker show-menu-arrow show-tick" multiple data-actions-box="true" data-selected-text-format="count" required>
                                         @foreach($types->where('level',3)->where('pid',$types->where('level',3)->first()->pid)->where('sign',0) as $type)
-                                            <option selected>{{$type->name}}</option>
+                                            <option selected>{{$type->name1}}</option>
                                         @endforeach
                                     </select></div>
                             </div>
