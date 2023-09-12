@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CertificatesView;
-use Carbon\CarbonPeriod;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\File;
-use PhpOffice\PhpSpreadsheet\IOFactory;
-use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
+use GuzzleHttp;
 
 class ConfirmController extends Controller
 {
+    public function index()
+    {
+    }
 }

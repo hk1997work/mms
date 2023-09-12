@@ -47,6 +47,10 @@
         </div>
     </div>
     <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
+        <label class="form-control-label">证书名称</label>
+        <input type="text" name="certificate_name" id="certificate_name" class="form-control">
+    </div>
+    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
         <label class="form-control-label">统一编号</label>
         <input type="text" name="certificate_no" id="certificate_no" class="form-control">
     </div>
@@ -96,10 +100,6 @@
         <input type="text" name="times" id="times" class="form-control" value="{{$certificate->times+1}}" readonly>
     </div>
     <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
-        <label class="form-control-label">送检计划</label>
-        <input type="text" name="plan_id" id="plan_id" class="form-control" value="{{$certificate->plan}}" readonly>
-    </div>
-    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
         <label class="form-control-label">检定费用</label>
         <input type="text" name="money" id="money" class="form-control" value="{{$certificate->money}}">
     </div>
@@ -121,6 +121,10 @@
             <option value="0">更换</option>
             <option value="1">损坏</option>
         </select>
+    </div>
+    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
+        <label class="form-control-label">送检计划</label>
+        <input type="text" name="plan_id" id="plan_id" class="form-control" value="{{$certificate->plan}}" readonly>
     </div>
     <input type="hidden" name="position_id" id="position_id" value="{{$certificate->position_id}}">
     <input type="hidden" name="number" id="number" value="{{$certificate->number_id}}">
@@ -181,7 +185,6 @@
         <script src="/admin/assets/js/pages/certificate.js"></script>
         <script>
             $(document).ready(function () {
-                load_info()
                 file()
             })
             $('#tool_id').selectpicker();

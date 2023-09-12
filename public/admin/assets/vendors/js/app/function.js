@@ -34,7 +34,10 @@ function get_modal() {
 }
 
 //增加模态框
-function m_add(p, id) {
+function m_add(p, id, loader) {
+    if (loader) {
+        $("#preloader")[0].style.display = 'block';
+    }
     let modal = get_modal()
     $.ajax({
         url: "/" + p + "/create" + (!!id ? '?id=' + id : ''),
@@ -49,15 +52,20 @@ function m_add(p, id) {
             } else {
                 notifications('增加失败')
             }
+        },
+        complete: function () {
+            if ($("#preloader").is(':visible')) {
+                $("#preloader").fadeOut();
+            }
         }
     })
 }
 
 //修改模态框
-function m_edit(p, id) {
+function m_edit(p, id, str) {
     let modal = get_modal()
     $.ajax({
-        url: "/" + p + "/" + id + "/edit",
+        url: "/" + p + "/" + id + "/edit" + (!!str ? '?str=' + str : ''),
         success: function (data) {
             $("#modal" + modal).html(data);
             $("#modal" + modal).find(".btn-primary").attr('onclick', 'b_edit("' + p + '",' + id + ')')
@@ -74,13 +82,13 @@ function m_edit(p, id) {
 }
 
 //显示模态框
-function m_show(p, id, loader) {
+function m_show(p, id, loader, str) {
     if (loader) {
         $("#preloader")[0].style.display = 'block';
     }
     let modal = get_modal()
     $.ajax({
-        url: "/" + p + "/" + id,
+        url: "/" + p + "/" + id + (!!str ? '?str=' + str : ''),
         success: function (data) {
             $("#modal" + modal).html(data);
             $('#modal' + modal).modal('show')
@@ -94,7 +102,7 @@ function m_show(p, id, loader) {
             }
         },
         complete: function () {
-            if ($("#preloader").is(':visible') && p != 'certificate') {
+            if ($("#preloader").is(':visible')) {
                 $("#preloader").fadeOut();
             }
         }
@@ -152,6 +160,7 @@ function b_add(p) {
             if (xhr.status == 401) {
                 document.location.reload();
             } else {
+                notifications('增加失败');
                 $(".warning-danger").remove();
                 let json = JSON.parse(xhr.responseText);
                 $.each(json.errors, function (idx, obj) {
@@ -183,6 +192,7 @@ function b_edit(p, id) {
             if (xhr.status == 401) {
                 document.location.reload();
             } else {
+                notifications('修改失败');
                 $(".warning-danger").remove();
                 let json = JSON.parse(xhr.responseText);
                 $.each(json.errors, function (idx, obj) {

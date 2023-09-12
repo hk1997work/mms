@@ -65,7 +65,11 @@
     </form>
     <script>
         function submit() {
-            $("#form_print").submit()
+            if ($("#export-table input[type='checkbox']:checked").length > 0) {
+                $("#form_print").submit()
+            } else {
+                notifications('请选择数据!')
+            }
         }
     </script>
 @endsection

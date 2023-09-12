@@ -9,136 +9,103 @@ use App\Models\Factory;
 use App\Models\Nanjing;
 use App\Models\Number;
 use App\Models\Parameter;
+use App\Models\PositionsView;
 use App\Models\StandardsView;
 use App\Models\Tool;
 use GuzzleHttp;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
-use ZipArchive;
+
 
 class NanjingController extends Controller
 {
-    //解析数据
     public function index()
     {
-        exec("python storage/nanjing.py 2>&1", $out, $status);
-        if ($status == 0) {
-            $client = new GuzzleHttp\Client();
-            $res = $client->request('GET', 'http://58.213.156.66/cmiims/a/sys/adminECertQuery/listenceInfo?Bp15yk3ja5mdrgvb99vm0wPu+D8CX+pW9Hsvf3FAnmudfLnJsjdh+T8ZvXOygoXi4gSJYHVMdRojzdteV4Uks5hwQk/+LUGqCJ8d66bdXbvRNB02z4f8uJXZhJTzajDLdgWznY9oqtVRG2pV76SL0w==', [
-                'headers' => [
-                    'cookie' => $out,
-                ]
-            ]);
-            $result = (string)$res->getBody();
-            if (mb_substr($result, 0, 1) != "\n") {
-                return view('nanjing.index', compact('result', 'out'));
-            }
-        } else {
-            return '读取失败';
-        }
-    }
-
-    //获取列表
-    public function update(Request $request)
-    {
-        $nanjings = Nanjing::orderBy('verification_date')->get();
-        $arr = json_decode($request->json)->data->list;
-        $cer = array_column($arr, 'zsbh');
-        $no = array_column(Certificate::select('certificate_no')->where('department_id', Parameter::where('name', '市计量院')->first()->id)->get()->toArray(), 'certificate_no');
-        $result = array_diff(array_diff($cer, array_intersect($cer, $no)), array_column($nanjings->toArray(), 'certificate_no'));
-        $i = 0;
-        foreach ($arr as $a) {
-            if (in_array($a->zsbh, $result)) {
-                $a->order = $i;
-                $i++;
-                $certificates[] = $a;
+        $client = new GuzzleHttp\Client();
+        #登录获取session
+        $res = $client->get('http://58.213.156.66/cmiims/a/api/ajaxLogin?zMOJ96CTV+ZP2z8sI2UlA1OZyrsxdz49Ibgl7nMLnbKANNqUC+fMfTOm1E012HLJL160wCUIYjAE1uRgWUw5mAIqWVp06hAUu4nBjM9765kXkT5G81EIVT+0k3KOc0fZufz8QMUIIhmvdXPAALtpykieWUZPzPTEYwDWt1Wz/hLSvD8bcdcW6D9WLfJtGLzcdgWznY9oqtVRG2pV76SL0w==');
+        $session = str_replace('; Path=/cmiims; HttpOnly', '', str_replace('cmiims.session.id=', '', $res->getHeaders()['Set-Cookie'][0]));
+        $headers = ['headers' => ['Cookie' => "cmiims.session.id=$session",]];
+        #获取证书清单
+        $res = $client->request('GET', 'http://58.213.156.66/cmiims/a/sys/adminECertQuery/listenceInfo?Bp15yk3ja5mdrgvb99vm0wPu+D8CX+pW9Hsvf3FAnmudfLnJsjdh+T8ZvXOygoXi4gSJYHVMdRojzdteV4Uks5hwQk/+LUGqCJ8d66bdXbvRNB02z4f8uJXZhJTzajDLdgWznY9oqtVRG2pV76SL0w==', $headers);
+        $result = json_decode(explode(',"firstResult"', explode('"list":', $this->nanjing_decode((string)$res->getBody()))[1])[0]);
+        $nanjing = Nanjing::orderBy('verification_date')->get();
+        $certificates = [];
+        $sql = array_column(Certificate::select('certificate_no')->where('department_id', Parameter::where('name', '市计量院')->first()->id)->get()->toArray(), 'certificate_no');
+        $certificate_no = array_diff(array_column($result, 'zsbh'), $sql, array_column($nanjing->toArray(), 'certificate_no'));
+        foreach ($result as $r) {
+            if (in_array($r->zsbh, $certificate_no)) {
+                $certificates[] = $r;
             }
         }
-        if (isset($certificates)) {
-            $json = str_replace('<span style=\"font-family: njmindFont;\">', "<span style=\'font-family: njmindFont;\'>", json_encode($certificates));
-        } else {
-            $json = null;
-            $certificates = null;
-        }
-        return view('nanjing.show', compact('certificates', 'nanjings', 'json'));
+        return view('nanjing.index', compact('certificates', 'nanjing'));
     }
 
-    //批量录入
-    public function create(NanjingRequest $request)
+    public function create(Request $request)
     {
-        $arr = json_decode($request->json);
+        $arr = [];
+        $check = explode(',', $request->id);
         $tools = Tool::orderBy('instrument')->get();
-        $data = $request->data;
-        $idList = $request->idList;
         $standards = StandardsView::where('level', 2)->orderBy('name1')->get();
-        foreach ($arr as $key => $value) {
-            $value->ccbh = isset($value->ccbh) ? $value->ccbh == '/' ? '' : $value->ccbh : '';
-            $value->sbbh = isset($value->sbbh) ? $value->sbbh == '/' ? '' : $value->sbbh : '';
-            $number = Number::where('number', $value->ccbh . $value->sbbh)->get();
-            if ($number->count() == 1) {
-                $factory = Factory::where('id', $number->first()->factory_id)->first();
-                $arr[$key]->number_id = $number->first()->id;
-                $arr[$key]->factory_id = $factory->id;
-                $arr[$key]->tool_id = $factory->tool_id;
-                $arr[$key]->numbers = Number::where('factory_id', $arr[$key]->factory_id)->get();
-                $arr[$key]->factories = Factory::where('tool_id', $arr[$key]->tool_id)->get();
-                $arr[$key]->standard = explode(',', $this->getStandard($arr[$key]->tool_id));
-                $arr[$key]->info = 1;
-            } else {
-                $arr[$key]->info = 0;
+        $client = new GuzzleHttp\Client();
+        #登录获取session
+        $res = $client->get('http://58.213.156.66/cmiims/a/api/ajaxLogin?zMOJ96CTV+ZP2z8sI2UlA1OZyrsxdz49Ibgl7nMLnbKANNqUC+fMfTOm1E012HLJL160wCUIYjAE1uRgWUw5mAIqWVp06hAUu4nBjM9765kXkT5G81EIVT+0k3KOc0fZufz8QMUIIhmvdXPAALtpykieWUZPzPTEYwDWt1Wz/hLSvD8bcdcW6D9WLfJtGLzcdgWznY9oqtVRG2pV76SL0w==');
+        $session = str_replace('; Path=/cmiims; HttpOnly', '', str_replace('cmiims.session.id=', '', $res->getHeaders()['Set-Cookie'][0]));
+        $headers = ['headers' => ['Cookie' => "cmiims.session.id=$session",]];
+        #获取证书清单
+        $res = $client->request('GET', 'http://58.213.156.66/cmiims/a/sys/adminECertQuery/listenceInfo?Bp15yk3ja5mdrgvb99vm0wPu+D8CX+pW9Hsvf3FAnmudfLnJsjdh+T8ZvXOygoXi4gSJYHVMdRojzdteV4Uks5hwQk/+LUGqCJ8d66bdXbvRNB02z4f8uJXZhJTzajDLdgWznY9oqtVRG2pV76SL0w==', $headers);
+        $result = json_decode(explode(',"firstResult"', explode('"list":', $this->nanjing_decode((string)$res->getBody()))[1])[0]);
+        foreach ($result as $key => $value) {
+            if (in_array($value->id, $check)) {
+                $value->ccbh = isset($value->ccbh) ? $value->ccbh == '/' ? '' : $value->ccbh : '';
+                $value->sbbh = isset($value->sbbh) ? $value->sbbh == '/' ? '' : $value->sbbh : '';
+                $number = Number::where('number', $value->ccbh . $value->sbbh)->get();
+                #获取证书地址
+                $str = $this->nanjing_encode('{"eCert":' . json_encode($value) . '}');
+                $res = $client->request('GET', "http://58.213.156.66/cmiims/a/sys/adminECertQuery/downloadInfoByPath?$str", $headers);
+                $json = json_decode($this->nanjing_decode((string)$res->getBody()));
+                #获取生产厂家
+                $str = $this->nanjing_encode('{"id":"' . $value->id . '"}');
+                $res = $client->request('GET', "http://lims.njsjly.com/cmiims/f/sys/webQuery/inquiryByIdInfo?$str", $headers);
+                $arr[$key]['factory'] = explode('","', explode('"zzcs":"', $this->nanjing_decode((string)$res->getBody()))[1])[0];
+                $arr[$key]['path'] = "http://58.213.156.66" . $json->data;
+                $arr[$key]['json'] = $value;
+                $arr[$key]['standard'] = explode(',', $this->getStandard($request, $arr[$key]['path'])[0]);
+                if ($number->count() == 1) {
+                    $arr[$key]['info'] = 1;
+                    $factory = Factory::where('id', $number->first()->factory_id)->first();
+                    $arr[$key]['number_id'] = $number->first()->id;
+                    $arr[$key]['factory_id'] = $factory->id;
+                    $arr[$key]['tool_id'] = $factory->tool_id;
+                    $arr[$key]['numbers'] = Number::where('factory_id', $arr[$key]['factory_id'])->get();
+                    $arr[$key]['factories'] = Factory::where('tool_id', $arr[$key]['tool_id'])->get();
+                } else {
+                    $arr[$key]['info'] = 0;
+                }
             }
         }
-        return view('nanjing.create', compact('arr', 'tools', 'data', 'idList', 'standards'));
+        return view('nanjing.create', compact('tools', 'standards', 'arr'));
     }
 
     public function store(NanjingRequest $request)
     {
-        $client = new GuzzleHttp\Client();
-        $res = $client->request('POST', 'http://58.213.156.66/cmiims/a/sys/adminECertQuery/downECert?', [
-            'form_params' => [
-                'idList' => $request->idList,
-                'data' => $request->data,
-            ],
-            'headers' => [
-                'cookie' => $request->cookie,
-            ],
-        ]);
-        $result = (string)$res->getBody();
-        if (File::isDirectory("storage/nanjing")) {
-            File::deleteDirectory("storage/nanjing");
-        }
-        File::makeDirectory("storage/nanjing", 0777, true, true);
-
-        file_put_contents("storage/nanjing/" . \Auth::user()->username . ".zip", $result);
-
-        $zip = new ZipArchive;//新建一个ZipArchive的对象
-        $pic_dir = 'storage/nanjing/'; // 文件所在的绝对路径
-        if ($zip->open('storage/nanjing/' . \Auth::user()->username . ".zip") === TRUE) {
-            // 解压缩到某个位置
-            $zip->extractTo($pic_dir);
-            // 关闭
-            $zip->close();
-        }
-        foreach ($request->json as $json) {
-            $arr = json_decode($json);
-            $tool = Tool::find($request->tool_id[$arr->order]);
+        foreach ($request->certificate_no as $key => $value) {
+            $tool = Tool::find($request->tool_id[$key]);
             $cycle = Parameter::find($tool->cycle_id)->name;
             $add_date = mb_substr($cycle, 0, strlen($cycle) - 3);
             $certificate_controller = new CertificateController;
             $certificate = new CertificateRequest();
-            $certificate->position_id = DB::table('positions AS p1')->select('p1.*')
-                ->leftJoin('positions as p2', 'p2.id', 'p1.pid')->leftJoin('positions as p3', 'p3.id', 'p2.pid')
-                ->where('p1.name', '备用')->where('p1.level', 5)->where('p3.pid', $tool->type_id)->first()->id;
+            $certificate->certificate_name = $request->certificate_name[$key];
+            $certificate->position_id = PositionsView::where('id4', $tool->type_id)->where('name1', '备用')->first()->id;
             $certificate->sn = $this->getSn($certificate->position_id);
-            $certificate->category_id = Parameter::where('name', "$arr->zsType")->first()->id;
-            $certificate->tool_id = $request->tool_id[$arr->order];
-            $certificate->factory_id = $request->factory_id[$arr->order];
-            $certificate->number_id = $request->number_id[$arr->order];
-            $certificate->certificate_no = $arr->zsbh;
+            $certificate->category_id = Parameter::where('name', $request->category[$key])->first()->id;
+            $certificate->tool_id = $request->tool_id[$key];
+            $certificate->factory_id = $request->factory_id[$key];
+            $certificate->number_id = $request->number_id[$key];
+            $certificate->certificate_no = $request->certificate_no[$key];
+            $certificate->certificate_name = $request->certificate_name[$key];
             $certificate->department_id = Parameter::where('name', '市计量院')->first()->id;
-            $certificate->verification_date = $request->verification_date[$arr->order];
+            $certificate->verification_date = $request->verification_date[$key];
             if (mb_substr($cycle, -1, 1) == '天') {
                 $certificate->validity_date = date('Y-m-d', strtotime("-1 day", strtotime("+$add_date day", strtotime($certificate->verification_date))));
             }
@@ -148,10 +115,10 @@ class NanjingController extends Controller
             $certificate->start = substr($certificate->verification_date, 0, 4);
             $certificate->times = 1;
             $certificate->money = 0;
-            $certificate->standard_id = $request->standard_id[$arr->order];
-            $certificate->remark = $request->remark[$arr->order];
+            $certificate->standard_id = $request->standard_id[$key];
+            $certificate->remark = $request->remark[$key];
 
-            $c = Certificate::where('number_id', $request->number_id[$arr->order])->where('valid', 1)->get();
+            $c = Certificate::where('number_id', $request->number_id[$key])->where('valid', 1)->get();
             if ($c->count() == 1) {
                 $c[0]->valid = 0;
                 $c[0]->save();
@@ -162,12 +129,7 @@ class NanjingController extends Controller
                 $certificate->remark = $c[0]->remark;
             }
             if ($cer_id = $certificate_controller->store($certificate)) {
-                if (isset($arr->sbbh) && $arr->sbbh != '/') {
-                    $arr->ccbh = $arr->sbbh;
-                }
-                if (Storage::exists("/public/nanjing/$arr->zsbh" . "_$arr->name" . "_$arr->ccbh" . "_" . str_replace('-', '', $arr->jdrq . ".pdf"))) {
-                    Storage::move("/public/nanjing/$arr->zsbh" . "_$arr->name" . "_$arr->ccbh" . "_" . str_replace('-', '', $arr->jdrq . ".pdf"), "/public/certificate/$cer_id.pdf");
-                }
+                Storage::put("/public/certificate/" . $cer_id . ".pdf", file_get_contents($request->path[$key]));
             } else {
                 return false;
             }
@@ -175,39 +137,50 @@ class NanjingController extends Controller
         return true;
     }
 
+    public function show($type)
+    {
+        $client = new GuzzleHttp\Client();
+        #登录获取session
+        $res = $client->get('http://58.213.156.66/cmiims/a/api/ajaxLogin?zMOJ96CTV+ZP2z8sI2UlA1OZyrsxdz49Ibgl7nMLnbKANNqUC+fMfTOm1E012HLJL160wCUIYjAE1uRgWUw5mAIqWVp06hAUu4nBjM9765kXkT5G81EIVT+0k3KOc0fZufz8QMUIIhmvdXPAALtpykieWUZPzPTEYwDWt1Wz/hLSvD8bcdcW6D9WLfJtGLzcdgWznY9oqtVRG2pV76SL0w==');
+        $session = str_replace('; Path=/cmiims; HttpOnly', '', str_replace('cmiims.session.id=', '', $res->getHeaders()['Set-Cookie'][0]));
+        $headers = ['headers' => ['Cookie' => "cmiims.session.id=$session",]];
+        #获取证书地址
+        $str = $this->nanjing_encode('{"eCert":' . str_replace('@', '#', $_GET['str']) . '}');
+        $res = $client->request('GET', "http://58.213.156.66/cmiims/a/sys/adminECertQuery/downloadInfoByPath?$str", $headers);
+        $json = json_decode($this->nanjing_decode((string)$res->getBody()));
+        if ($type) {
+            return redirect("http://58.213.156.66" . $json->data);
+        } else {
+            header('Content-Type: application/pdf');
+            header("Content-Transfer-Encoding: Binary");
+            header("Content-disposition: attachment; filename=\"" . $json->filename . "\"");
+            readfile("http://58.213.156.66" . $json->data);
+        }
+    }
+
+    public function edit()
+    {
+        $str = isset($_GET['str']) ? $_GET['str'] : '';
+        return view('nanjing.edit', compact('str'));
+    }
+
+    public function update(Request $request)
+    {
+        $info = json_decode(str_replace('@', '#', $request->str));
+        $arr['certificate_no'] = $info->zsbh;
+        $arr['instrument'] = $info->name;
+        $arr['model'] = $info->xhgg;
+        $arr['number'] = (isset($info->ccbh) ? $info->ccbh == '/' ? '' : $info->ccbh : '') . (isset($info->sbbh) ? $info->sbbh == '/' ? '' : $info->sbbh : '');
+        $arr['verification_date'] = $info->jdrq;
+        $arr['remark'] = isset($request->remark) ? $request->remark : '';
+        $arr['pdf'] = str_replace('@', '#', $request->str);
+        return !!Nanjing::create($arr);
+    }
+
     //删除屏蔽
     public function destroy(Nanjing $nanjing)
     {
         return !!$nanjing->delete();
-    }
-
-    public function filter(Request $request)
-    {
-        $arr['certificate_no'] = $request->certificate_no;
-        $arr['instrument'] = $request->instrument;
-        $arr['model'] = $request->model;
-        $arr['number'] = $request->number == 'undefined' ? '' : $request->number;
-        $arr['verification_date'] = $request->verification_date;
-        $arr['remark'] = isset($request->remark) ? $request->remark : '';
-        $arr['pdf'] = $request->pdf;
-        return !!Nanjing::create($arr);
-    }
-
-    public function download(Request $request)
-    {
-        $client = new GuzzleHttp\Client();
-        $res = $client->request('POST', 'http://58.213.156.66/cmiims/a/sys/adminECertQuery/downECert?', [
-            'form_params' => [
-                'idList' => $request->idList,
-                'data' => $request->data,
-            ],
-        ]);
-        $result = (string)$res->getBody();
-        if (File::isDirectory("storage/down") == false) {
-            File::makeDirectory("storage/down", 0777, true, true);
-        }
-        file_put_contents("storage/down/" . \Auth::user()->username . "证书.zip", $result);
-        return Storage::download("public/down/" . \Auth::user()->username . "证书.zip", date('Y-m-d') . "证书.zip");
     }
 
     public function number(Factory $factory_id)

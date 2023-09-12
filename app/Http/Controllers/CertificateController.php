@@ -26,38 +26,28 @@ class CertificateController extends Controller
 {
     public function index()
     {
+        $arr = [
+            "active" => ['valid', '1'],
+            "invalid" => ['valid', '0'],
+            "deactive" => ['state', '封存'],
+            "scrap" => ['state', '报废']
+        ];
+        $path = \Request::segment(1);
         $types = PositionsView::orderBy('sort')->get();
-        switch (\Request::segment(1)) {
-            case "active":
-                $position_id = isset($_GET['position_id']) ? $_GET['position_id'] : Position::where('name', '计量器具')->first()->id;
-                $position = Position::find($position_id);
-                $certificates = CertificatesView::where('valid', 1)->where(function ($query) use ($position_id) {
-                    $query->where('unit1_id', $position_id)
-                        ->orWhere('unit2_id', $position_id)
-                        ->orWhere('unit3_id', $position_id)
-                        ->orWhere('unit4_id', $position_id)
-                        ->orWhere('position_id', $position_id);
-                })->get();
-                $positions = Position::where('sign', 0)->get();
-                return view("certificate.index", compact('types', 'certificates', 'position', 'positions'));
-            case "invalid":
-                $position_id = isset($_GET['position_id']) ? $_GET['position_id'] : Position::where('name', '计量器具')->first()->id;
-                $position = Position::find($position_id);
-                $certificates = CertificatesView::where('valid', 0)->where(function ($query) use ($position_id) {
-                    $query->where('unit1_id', $position_id)
-                        ->orWhere('unit2_id', $position_id)
-                        ->orWhere('unit3_id', $position_id)
-                        ->orWhere('unit4_id', $position_id)
-                        ->orWhere('position_id', $position_id);
-                })->orderBy('validity_date')->get();
-                return view("certificate.index", compact('types', 'certificates', 'position'));
-            case "deactive":
-                $certificates = CertificatesView::where('state', '封存')->get();
-                return view("certificate.index", compact('types', 'certificates'));
-            case "scrap":
-                $certificates = CertificatesView::where('state', '报废')->get();
-                return view("certificate.index", compact('types', 'certificates'));
+        $position_id = isset($_GET['position_id']) ? $_GET['position_id'] : Position::where('name', '计量器具')->first()->id;
+        $position = Position::find($position_id);
+        $certificates = CertificatesView::where($arr[$path][0], $arr[$path][1]);
+        if ($path == 'active' || $path == 'invalid') {
+            $certificates = $certificates->where(function ($query) use ($position_id) {
+                $query->where('unit1_id', $position_id)
+                    ->orWhere('unit2_id', $position_id)
+                    ->orWhere('unit3_id', $position_id)
+                    ->orWhere('unit4_id', $position_id)
+                    ->orWhere('position_id', $position_id);
+            });
         }
+        $certificates = $certificates->orderBy('validity_date')->get();
+        return view("certificate.index", compact('types', 'certificates', 'position'));
     }
 
     public function create()
@@ -104,6 +94,7 @@ class CertificateController extends Controller
         $arr['sn'] = $request->sn;
         $arr['position_id'] = $request->position_id;
         $arr['certificate_no'] = $request->certificate_no;
+        $arr['certificate_name'] = $request->certificate_name;
         $arr['number_id'] = $request->number_id;
         $arr['verification_date'] = $request->verification_date;
         $arr['validity_date'] = $request->validity_date;
@@ -155,6 +146,7 @@ class CertificateController extends Controller
     public function update(CertificateRequest $request, Certificate $certificate)
     {
         $certificate->certificate_no = $request->certificate_no;
+        $certificate->certificate_name = $request->certificate_name;
         $certificate->verification_date = $request->verification_date;
         $certificate->validity_date = $request->validity_date;
         $certificate->category_id = $request->category_id;
@@ -198,7 +190,6 @@ class CertificateController extends Controller
     {
         $categories = Parameter::where('pid', Parameter::where('name', '证书类型')->first()->id)->orderBy('sort')->get();
         $departments = Parameter::where('pid', Parameter::where('name', '检定部门')->first()->id)->orderBy('sort')->get();
-        $certificate->standard_id = explode(',', $this->getStandard($certificate->tool_id));
         $standards = StandardsView::where('level', 2)->orderBy('name1')->get();
         $tools = ToolsView::where('instrument', $certificate->instrument)->orderBy('instrument')->get();
         $spares = CertificatesView::where('valid', 1)->where('position', '备用')->where('instrument', $certificate->instrument)->orderBy('order')->get();
@@ -236,6 +227,7 @@ class CertificateController extends Controller
         $arr['sn'] = $certificate->sn;
         $arr['position_id'] = $certificate->position_id;
         $arr['certificate_no'] = $request->certificate_no;
+        $arr['certificate_name'] = $request->certificate_name;
         $arr['number_id'] = $request->number_id;
         $arr['verification_date'] = $request->verification_date;
         $arr['validity_date'] = $request->validity_date;

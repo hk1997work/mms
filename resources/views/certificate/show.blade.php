@@ -51,6 +51,10 @@
                     <label class="form-control-label">出厂编号</label>
                     <input type="text" class="form-control" value="{{$certificate->number}}" readOnly>
                 </div>
+                <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mt-3">
+                    <label class="form-control-label">证书名称</label>
+                    <input type="text" class="form-control" value="{{$certificate->certificate_name}}" readonly>
+                </div>
                 <div class="col-xl-4 col-lg-4 col-md-6 col-sm-6 mt-3">
                     <label class="form-control-label">统一编号</label>
                     <input type="text" class="form-control" value="{{$certificate->certificate_no}}" readOnly>
@@ -94,10 +98,6 @@
                 <div class="col-xl-4 col-lg-4 col-md-6 col-sm-6 mt-3">
                     <label class="form-control-label">检定次数</label>
                     <input type="text" class="form-control" value="{{$certificate->times}}" readOnly>
-                </div>
-                <div class="col-xl-4 col-lg-4 col-md-6 col-sm-6 mt-3">
-                    <label class="form-control-label">送检计划</label>
-                    <input type="text" class="form-control" value="{{$certificate->plan}}" readOnly>
                 </div>
                 <div class="col-xl-4 col-lg-4 col-md-6 col-sm-6 mt-3">
                     <label class="form-control-label">检定费用</label>

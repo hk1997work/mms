@@ -3,10 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Certificate;
-use App\Models\CertificatesView;
 use App\Models\Factory;
 use App\Models\Number;
-use App\Models\NumbersView;
 use App\Models\Parameter;
 use App\Models\ToolsView;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -29,32 +27,36 @@ class Controller extends BaseController
         return DB::select('SELECT @sn AS sn')[0]->sn;
     }
 
-    function getStandard($tool_id)
+    function getStandard(Request $request, $path = '')
     {
-        $standard = CertificatesView::where('tool_id', $tool_id)->orderBy('updated_at', 'desc')->first();
-        if ($standard) {
-            return $standard->standard_id;
+        if ($request->hasFile('file_certificate')) {
+            $path = $request->file('file_certificate')->path();
         }
-        return null;
+        exec("python storage/get_standard_from_pdf.py 2>&1 " . $path, $out, $status);
+        if ($status == 0) {
+            return $out;
+        } else {
+            return '读取失败';
+        }
     }
 
-    function getInfo(ToolsView $tool_id)
+    function getInfo(ToolsView $tool)
     {
-        $arr['tool'] = $tool_id;
-        $arr['factories'] = Factory::where('tool_id', $tool_id->id)->orderBy('factory')->get();
-        return $arr;
+        return $tool;
+    }
+
+    function getFactories($tool_id)
+    {
+        $factories = Factory::where('tool_id', $tool_id)->orderBy('factory')->get();
+        return $factories;
     }
 
     function getNumbers(Factory $factory_id)
     {
-        if (isset($_GET['number_id'])) {
-            $numbers = Number::where('factory_id', $factory_id->id)->where(function ($query) {
-                $query->where('state_id', Parameter::where('name', '待检')->first()->id)
-                    ->orWhere('id', $_GET['number_id']);
-            })->orderBy('number')->get();
-        } else {
-            $numbers = Number::where('factory_id', $factory_id->id)->where('state_id', Parameter::where('name', '待检')->first()->id)->orderBy('number')->get();
-        }
+        $numbers = Number::where('factory_id', $factory_id->id)->where(function ($query) {
+            $query->where('state_id', Parameter::where('name', '待检')->first()->id)
+                ->orWhere('id', isset($_GET['number_id']) ? $_GET['number_id'] : 0);
+        })->orderBy('number')->get();
         return $numbers;
     }
 
@@ -63,7 +65,7 @@ class Controller extends BaseController
         if ($request->hasFile('file_certificate')) {
             $file = $request->file('file_certificate');
             $file->storeAs('public/' . \Auth::user()->username . '/orc/', "1.pdf");
-            exec("python storage/read_qr_code_from_pdf.py " . \Auth::user()->username . " 2>&1", $out, $status);
+            exec("python storage/get_qr_code_from_pdf.py " . \Auth::user()->username . " 2>&1", $out, $status);
             if ($status == 0 && count($out) > 0) {
                 switch (substr($out[0], 0, 20)) {
                     case '':
@@ -113,7 +115,7 @@ class Controller extends BaseController
             File::deleteDirectory($path);
         }
         File::makeDirectory($path, 0777, true, true);
-        exec("python storage/pdf2jpg.py " . $id . " 2>&1", $out, $status);
+        exec("python storage/get_jpg_form_pdf.py " . $id . " 2>&1", $out, $status);
     }
 
     function addFileToZip($path, $zip)
@@ -141,6 +143,7 @@ class Controller extends BaseController
             'factory' => ['#txtZZC', 'text'],
             'number' => ['#txtCCBH', 'text'],
             'certificate_no' => ['#txtZSH', 'text'],
+            'certificate_name' => ['#txtQJMC', 'text'],
             'model' => ['#txtXHGG', 'text'],
             'verification_date' => ['#txtJDRQ', 'text'],
         );
@@ -149,5 +152,67 @@ class Controller extends BaseController
         $data[1]['department'] = '省计量院';
         //查看采集结果
         return $data;
+    }
+
+    function nanjing_decode($str)
+    {
+        #base64解密
+        $str = base64_decode($str);
+        #AES和HEX解密
+        $key = "njmind.comnjsjly";
+        $str = openssl_decrypt(
+            $str,
+            'aes-128-ecb', // AES 加密算法和模式
+            $key,
+            OPENSSL_RAW_DATA
+        );
+        #base64解密
+        $str = base64_decode($str);
+        return $str;
+    }
+
+    function nanjing_encode($str)
+    {
+        #base64加密
+        $str = base64_encode($str);
+        #AES和HEX加密
+        $key = "njmind.comnjsjly";
+        $str = openssl_encrypt(
+            $str,
+            'aes-128-ecb', // AES 加密算法和模式
+            $key,
+            OPENSSL_RAW_DATA
+        );
+        #base64加密
+        $str = base64_encode($str);
+        return $str;
+    }
+
+    function jiangsu_decode($str,$key)
+    {
+        #base64解密
+        $str = base64_decode($str);
+        #AES和HEX解密
+        $str = openssl_decrypt(
+            $str,
+            'aes-128-ecb', // AES 加密算法和模式
+            $key,
+            OPENSSL_RAW_DATA
+        );
+        return $str;
+    }
+
+    function jiangsu_encode($str,$key)
+    {
+        #AES和HEX加密
+        $str = openssl_encrypt(
+            $str,
+            'aes-128-ecb', // AES 加密算法和模式
+            $key,
+            OPENSSL_RAW_DATA
+        );
+        #base64加密
+        $str = base64_encode($str);
+        return $str;
     }
 }

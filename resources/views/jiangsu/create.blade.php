@@ -5,23 +5,23 @@
     @foreach($arr as $a)
         <div class="form-group row mb-5 mt-5">
             <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3 @if($a['info']==0) has-danger @endif">
-                <a href="{{$a['path']}}" id="tool_text{{$a['json']->id}}" target="_blank" class="form-control-label text-info">{{$a['json']->name}}</a>
-                <label class="form-control-label" id="model_text{{$a['json']->id}}">{{$a['json']->xhgg}}</label>
-                <select name="tool_id[{{$a['json']->id}}]" id="tool_id{{$a['json']->id}}" class="form-control selectpicker show-menu-arrow" data-live-search="true" onchange="load_factories({{$a['json']->id}})">
+                <a href="/jiangsu/1?str={{str_replace('#','@',json_encode($a['json']))}}" id="tool_text{{$a['json']->zsId}}" target="_blank" class="form-control-label text-info">{{$a['json']->zsQjmc}}</a>
+                <label class="form-control-label" id="model_text{{$a['json']->zsId}}">{{$a['json']->zsXhgg}}</label>
+                <select name="tool_id[{{$a['json']->zsId}}]" id="tool_id{{$a['json']->zsId}}" class="form-control selectpicker show-menu-arrow" data-live-search="true" onchange="load_factories({{$a['json']->zsId}})">
                     <option title="请选择..." value="" selected disabled>请选择...</option>
                     @foreach($tools as $tool)
                         <option value="{{$tool->id}}" @if($a['info']&&$a['tool_id']==$tool->id) selected @endif>{{$tool->instrument}}--{{$tool->model}}</option>
                     @endforeach
                 </select>
-                <input type="hidden" name="path[{{$a['json']->id}}]" id="path[{{$a['json']->id}}]" value="{{$a['path']}}">
-                <input type="hidden" name="category[{{$a['json']->id}}]" id="category[{{$a['json']->id}}]" value="{{mb_substr($a['json']->zsType,0,4)}}">
-                <input type="hidden" name="certificate_no[{{$a['json']->id}}]" id="certificate_no{{$a['json']->id}}" value="{{$a['json']->zsbh}}">
-                <input type="hidden" name="certificate_name[{{$a['json']->id}}]" id="certificate_name{{$a['json']->id}}" value="{{$a['json']->name}}">
+                <input type="hidden" name="path[{{$a['json']->zsId}}]" id="path[{{$a['json']->zsId}}]" value="{{$a['path']}}">
+                <input type="hidden" name="category[{{$a['json']->zsId}}]" id="category[{{$a['json']->zsId}}]" value="{{mb_substr($a['category'],0,4)}}">
+                <input type="hidden" name="certificate_no[{{$a['json']->zsId}}]" id="certificate_no{{$a['json']->zsId}}" value="{{$a['json']->zsZsh}}">
+                <input type="hidden" name="certificate_name[{{$a['json']->zsId}}]" id="certificate_name{{$a['json']->zsId}}" value="{{$a['json']->zsQjmc}}">
             </div>
             <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3 @if($a['info']==0) has-danger @endif">
-                <label class="form-control-label factory_text" id="factory_text{{$a['factory']}}">{{$a['factory']}}</label>
+                <label class="form-control-label factory_text" id="factory_text{{$a['json']->zsZzc}}">{{$a['json']->zsZzc}}</label>
                 <div class="input-group">
-                    <select name="factory_id[{{$a['json']->id}}]" id="factory_id{{$a['json']->id}}" class="custom-select form-control" onchange="load_numbers({{$a['json']->id}})">
+                    <select name="factory_id[{{$a['json']->zsId}}]" id="factory_id{{$a['json']->zsId}}" class="custom-select form-control" onchange="load_numbers({{$a['json']->zsId}})">
                         @if($a['info'])
                             <option value='' disabled>请选择...</option>
                             @foreach($a['factories'] as $factory)
@@ -31,17 +31,17 @@
                             <option value="" selected>请选择...</option>
                         @endif
                     </select>
-                    <span class="input-group-addon addon-primary" id="factory_id_btn{{$a['json']->id}}" onclick="factory_id_click({{$a['json']->id}})">增加</span>
+                    <span class="input-group-addon addon-primary" id="factory_id_btn{{$a['json']->zsId}}" onclick="factory_id_click({{$a['json']->zsId}})">增加</span>
                 </div>
             </div>
             <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3 @if($a['info']==0) has-danger @endif">
-                <label class="form-control-label" id="number_text{{$a['json']->id}}">{{isset($a['json']->ccbh)?$a['json']->ccbh=='/'?'':$a['json']->ccbh:''}}{{isset($a['json']->sbbh)?$a['json']->sbbh=='/'?'':$a['json']->sbbh:''}}</label>
+                <label class="form-control-label" id="number_text{{$a['json']->zsId}}">{{isset($a['json']->zsCcbh)?$a['json']->zsCcbh=='/'?'':$a['json']->zsCcbh:''}}{{isset($a['json']->zsSbbh)?$a['json']->zsSbbh=='/'?'':$a['json']->zsSbbh:''}}</label>
                 <div class="input-group">
                     @if($a['info']==0)
-                        <input type='text' name='number_id[{{$a['json']->id}}]' id='number_id{{$a['json']->id}}' class='form-control' value="{{isset($a['json']->ccbh)?$a['json']->ccbh=='/'?'':$a['json']->ccbh:''}}{{isset($a['json']->sbbh)?$a['json']->sbbh=='/'?'':$a['json']->sbbh:''}}">
-                        <span class='input-group-addon addon-orange' id='number_id_btn{{$a['json']->id}}' onclick='number_id_click("{{$a['json']->id}}")'>返回</span>
+                        <input type='text' name='number_id[{{$a['json']->zsId}}]' id='number_id{{$a['json']->zsId}}' class='form-control' value="{{isset($a['json']->zsCcbh)?$a['json']->zsCcbh=='/'?'':$a['json']->zsCcbh:''}}{{isset($a['json']->zsSbbh)?$a['json']->zsSbbh=='/'?'':$a['json']->zsSbbh:''}}">
+                        <span class='input-group-addon addon-orange' id='number_id_btn{{$a['json']->zsId}}' onclick='number_id_click("{{$a['json']->zsId}}")'>返回</span>
                     @else
-                        <select name="number_id[{{$a['json']->id}}]" id="number_id{{$a['json']->id}}" class="custom-select form-control">
+                        <select name="number_id[{{$a['json']->zsId}}]" id="number_id{{$a['json']->zsId}}" class="custom-select form-control">
                             @if($a['info'])
                                 <option value='' disabled>请选择...</option>
                                 @foreach($a['numbers'] as $number)
@@ -51,17 +51,17 @@
                                 <option value="" selected>请选择...</option>
                             @endif
                         </select>
-                        <span class="input-group-addon addon-primary" id="number_id_btn{{$a['json']->id}}" onclick="number_id_click({{$a['json']->id}})">增加</span>
+                        <span class="input-group-addon addon-primary" id="number_id_btn{{$a['json']->zsId}}" onclick="number_id_click({{$a['json']->zsId}})">增加</span>
                     @endif
                 </div>
             </div>
             <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
                 <label class="form-control-label">检定日期</label>
-                <input type="text" name="verification_date[{{$a['json']->id}}]" id="verification_date{{$a['json']->id}}" value="{{$a['json']->jdrq}}" class="form-control datepicker">
+                <input type="text" name="verification_date[{{$a['json']->zsId}}]" id="verification_date{{$a['json']->zsId}}" value="{{$a['json']->zsJdrq}}" class="form-control datepicker">
             </div>
             <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
                 <label class="form-control-label">检定标准</label>
-                <select name="standard_id[{{$a['json']->id}}][]" id="standard_id{{$a['json']->id}}" class="form-control selectpicker show-menu-arrow" data-live-search="true" multiple>
+                <select name="standard_id[{{$a['json']->zsId}}][]" id="standard_id{{$a['json']->zsId}}" class="form-control selectpicker show-menu-arrow" data-live-search="true" multiple>
                     @foreach($standards as $standard)
                         <option value="{{$standard->id}}" @if(in_array($standard->id,$a['standard'])) selected @endif>{{$standard->name1}}-{{$standard->name2}}</option>
                     @endforeach
@@ -70,7 +70,7 @@
             <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
                 <label class="form-control-label">备注</label>
                 <div class="input-group">
-                    <input type="text" name="remark[{{$a['json']->id}}]" id="remark{{$a['json']->id}}" class="form-control">
+                    <input type="text" name="remark[{{$a['json']->zsId}}]" id="remark{{$a['json']->zsId}}" class="form-control">
                     <span class="input-group-addon addon-orange" onclick="$(this).parent().parent().parent().remove()">删除</span>
                 </div>
             </div>
@@ -83,7 +83,7 @@
 <script src="/admin/assets/vendors/js/datepicker/daterangepicker.js"></script>
 <script src="/admin/assets/vendors/js/bootstrap-select/bootstrap-select.min.js"></script>
 
-<script src="/admin/assets/js/pages/nanjing.js"></script>
+<script src="/admin/assets/js/pages/jiangsu.js"></script>
 
 <script>
     $(".selectpicker").selectpicker();

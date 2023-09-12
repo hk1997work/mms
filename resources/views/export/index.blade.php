@@ -12,8 +12,7 @@
                     </ul>
                 </div>
                 <div class="widget-body">
-                    <form action="/export/1" method="post" enctype="multipart/form-data">
-                        {{method_field("put")}}
+                    <form action="/export" method="post" enctype="multipart/form-data">
                         {{csrf_field()}}
                         <div class="form-group row mb-3">
                             <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 mb-3">
@@ -32,8 +31,8 @@
                                 <label class="form-control-label">计量类别</label>
                                 <div>
                                     <select name="type[]" class="selectpicker show-menu-arrow show-tick" multiple data-actions-box="true" data-selected-text-format="count" required>
-                                        @foreach($types->where('level',2) as $type)
-                                            <option selected>{{$type->name1}}</option>
+                                        @foreach($types as $type)
+                                            <option selected>{{$type->name}}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -87,6 +86,7 @@
                 <div class="modal-body">
                     <div class="table-responsive" style="max-height:520px;">
                         <form action="" onsubmit="return false;" id="form">
+                            {{method_field("put")}}
                             {{csrf_field()}}
                             <table class="table table-hover mb-0">
                                 <thead>
@@ -120,7 +120,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary ripple" onclick="b_add('export')">确 定</button>
+                    <button type="submit" class="btn btn-primary ripple" onclick="b_edit('export',1)">确 定</button>
                     <button type="button" class="btn btn-secondary ripple" data-dismiss="modal">返 回</button>
                 </div>
             </div>

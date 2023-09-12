@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CertificatesView;
+use App\Models\PositionsView;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -14,7 +15,8 @@ class SampleController extends Controller
 {
     public function index()
     {
-        return view("sample.index");
+        $levels = PositionsView::select('name1')->where('level', 3)->where('sign', 0)->where('total', '>', 30)->distinct()->get();
+        return view("sample.index",compact('levels'));
     }
 
     public function store(Request $request)

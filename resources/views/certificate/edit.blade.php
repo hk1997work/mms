@@ -33,6 +33,10 @@
         <input type="text" name="number_id" id="number_id" class="form-control" value="{{$certificate->number}}" readonly>
     </div>
     <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
+        <label class="form-control-label">证书名称</label>
+        <input type="text" name="certificate_name" id="certificate_name" class="form-control" value="{{$certificate->certificate_name}}">
+    </div>
+    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
         <label class="form-control-label">统一编号</label>
         <input type="text" name="certificate_no" id="certificate_no" class="form-control" value="{{$certificate->certificate_no}}">
     </div>
@@ -82,10 +86,6 @@
         <input type="text" name="times" id="times" class="form-control" value="{{$certificate->times}}" readonly>
     </div>
     <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
-        <label class="form-control-label">送检计划</label>
-        <input type="text" name="plan_id" id="plan_id" class="form-control" value="{{$certificate->plan}}" readonly>
-    </div>
-    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
         <label class="form-control-label">检定费用</label>
         <input type="text" name="money" id="money" class="form-control" value="{{$certificate->money}}">
     </div>
@@ -100,6 +100,10 @@
     <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
         <label class="form-control-label">备注</label>
         <input type="text" name="remark" id="remark" class="form-control" value="{{$certificate->remark}}">
+    </div>
+    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
+        <label class="form-control-label">送检计划</label>
+        <input type="text" name="plan_id" id="plan_id" class="form-control" value="{{$certificate->plan}}" readonly>
     </div>
     </div>
     <div class="form-group row mb-3">

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CertificatesView;
+use App\Models\PositionsView;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -15,7 +16,8 @@ class CyclicalController extends Controller
     public function index()
     {
         $years = CertificatesView::selectRaw('SUBSTR(`month`,1,4) as `year`')->groupBy('year')->orderBy('year')->havingRaw('COUNT(month) > ?', [100])->get();
-        return view("cyclical.index", compact('years'));
+        $levels = PositionsView::select('name1')->where('level', 3)->where('sign', 0)->where('total', '>', 30)->distinct()->get();
+        return view("cyclical.index", compact('years', 'levels'));
     }
 
     public function store(Request $request)
@@ -210,6 +212,4 @@ class CyclicalController extends Controller
         header("Content-Disposition: attachment; filename=周检通知" . date('Y-m-d') . ".zip");
         readfile($path . '/周检通知' . date('Y-m-d') . '.zip');
     }
-
-
 }

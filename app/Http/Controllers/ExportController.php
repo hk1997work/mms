@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CertificatesView;
 use App\Models\Position;
+use App\Models\PositionsView;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -18,19 +19,11 @@ class ExportController extends Controller
         $certificates = CertificatesView::where('valid', 1)->where('type', '计量器具')->where('sign', 0)->orderBy('order')->get();
         $settings = explode(',', Setting::first()->order);
         $levels = Position::select('name')->where('level', 3)->distinct()->get();
-        return view("export.index", compact('certificates', 'settings', 'levels'));
+        $types = Position::where('level',2)->orderBy('sort')->get();
+        return view("export.index", compact('certificates', 'settings', 'levels','types'));
     }
 
     public function store(Request $request)
-    {
-        if (Setting::count()) {
-            return !!Setting::whereRaw('1=1')->update(['order' => $request->cb ? implode(',', array_keys($request->cb)) : '']);
-        } else {
-            return !!Setting::create(['order' => $request->cb ? implode(',', array_keys($request->cb)) : '']);
-        }
-    }
-
-    public function update(Request $request)
     {
         $result = CertificatesView::whereIn('type', $request->type)->whereIn('unit2', $request->position)->whereNotNull('unit3');
         if (isset($request->daterange)) {
@@ -200,7 +193,7 @@ class ExportController extends Controller
                 $sheet->setCellValueByColumnAndRow(1, $i, $certificate->order);
                 $sheet->setCellValueByColumnAndRow(2, $i, $certificate->certificate_no);
                 $sheet->setCellValueByColumnAndRow(3, $i, $certificate->position);
-                $sheet->setCellValueByColumnAndRow(4, $i, $certificate->unit4);
+                $sheet->setCellValueByColumnAndRow(4, $i, $certificate->unit1);
                 $sheet->setCellValueByColumnAndRow(5, $i, $certificate->instrument);
                 $sheet->setCellValueByColumnAndRow(6, $i, $certificate->model);
                 $sheet->setCellValueByColumnAndRow(7, $i, $certificate->number);
@@ -279,6 +272,15 @@ class ExportController extends Controller
                 File::makeDirectory($path . '/监理资料', 0777, true, true);
             }
             $writer->save($path . "/监理资料/监理资料$filename.xls");
+        }
+    }
+
+    public function update(Request $request)
+    {
+        if (Setting::count()) {
+            return !!Setting::whereRaw('1=1')->update(['order' => $request->cb ? implode(',', array_keys($request->cb)) : '']);
+        } else {
+            return !!Setting::create(['order' => $request->cb ? implode(',', array_keys($request->cb)) : '']);
         }
     }
 }

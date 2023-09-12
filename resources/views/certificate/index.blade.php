@@ -63,8 +63,8 @@
                 <td class="d-none d-xl-table-cell">{{$certificate->validity_date}}</td>
                 <td class="d-none d-xl-table-cell">{{$certificate->department}}</td>
                 <td class="d-none d-xl-table-cell">{{$certificate->remark}}</td>
-                <td class="d-xl-none" onclick="show_btn(this)">{{$certificate->order}}<br>{{$certificate->position}}<br>{{$certificate->instrument}}<br>{{$certificate->model}}</td>
-                <td class="d-xl-none" onclick="show_btn(this)">{{$certificate->number}}<br>{{$certificate->verification_date}}<br>{{$certificate->validity_date}}
+                <td class="d-xl-none">{{$certificate->order}}<br>{{$certificate->position}}<br>{{$certificate->instrument}}<br>{{$certificate->model}}</td>
+                <td class="d-xl-none">{{$certificate->number}}<br>{{$certificate->verification_date}}<br>{{$certificate->validity_date}}
                     <br>{{$certificate->department}}</td>
                 <td class="td-actions d-none d-sm-table-cell">
                     @if($menu=='active'&&($certificate->position=='备用'))
@@ -84,15 +84,6 @@
         @endforeach
         </tbody>
     </table>
-    <script>
-        //点击显示按钮
-        function show_btn(obj) {
-            if (screen.width < 576) {
-                $("#show_btn").remove();
-                $(obj).parent().after('<tr id="show_btn"><td class="td-actions" colspan="3">' + $(obj).parent().find($(".td-actions")).html() + '</td></tr>');
-            }
-        }
-    </script>
     @if($menu=='active')
         <!-- 开始 使用模态框 -->
         <div id="apply" class="modal fade" data-backdrop="static">
@@ -113,14 +104,12 @@
                                 <label class="form-control-label">岗位</label>
                                 <select name="position" id="position" class="custom-select form-control">
                                     <option value="" selected disabled>请选择...</option>
-                                    @foreach($positions->where('pid',($position->level==2?$position->id:$types->find($position->pid)->id)) as $position_2)
-                                        @foreach($positions->where('pid',$position_2->id) as $position_3)
-                                            <optgroup label="{{$position_3->name}}">
-                                                @foreach($positions->where('pid',$position_3->id) as  $position_4)
-                                                    <option value="{{$position_4->id}}">{{$position_4->name}}-{{$position_4->code}}</option>
-                                                @endforeach
-                                            </optgroup>
-                                        @endforeach
+                                    @foreach($types->where('name3',$position->level==2?$position->name:$types->find($position->pid)->name1) as $p1)
+                                        <optgroup label="{{$p1->name1}}">
+                                            @foreach($types->where('pid',$p1->id) as $p2)
+                                                <option value="{{$p2->id}}">{{$p2->name1}}</option>
+                                            @endforeach
+                                        </optgroup>
                                     @endforeach
                                 </select>
                             </div>

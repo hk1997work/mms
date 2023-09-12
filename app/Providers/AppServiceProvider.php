@@ -29,7 +29,7 @@ class AppServiceProvider extends ServiceProvider
 
         $permissions = PermissionsView::get();
         view()->share('permissions', $permissions);
-
+        /**
         $types = PositionsView::orderBy('sort')->get();
         view()->share('types', $types);
         $abcs = Parameter::where('pid', Parameter::where('name', 'ABC类')->first()->id)->orderBy('sort')->get();
@@ -44,7 +44,7 @@ class AppServiceProvider extends ServiceProvider
         view()->share('categories', $categories);
         $plans = Parameter::where('pid', Parameter::where('name', '检定计划')->first()->id)->orderBy('sort')->get();
         view()->share('plans', $plans);
-        
+        **/
         $menu = \Request::segment(1);
         view()->share('menu', $menu);
     }

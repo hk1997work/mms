@@ -49,11 +49,15 @@
     <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
         <label class="form-control-label">出厂编号</label>
         <div class="input-group">
-            <select name="number_id" id="number_id" class="custom-select form-control" onchange="load_validity_date()" disabled>
+            <select name="number_id" id="number_id" class="custom-select form-control" disabled>
                 <option value="" selected disabled>请选择...</option>
             </select>
             <span class="input-group-addon addon-primary" id="number_id_btn" onclick="number_id_click()">增加</span>
         </div>
+    </div>
+    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
+        <label class="form-control-label">证书名称</label>
+        <input type="text" name="certificate_name" id="certificate_name" class="form-control">
     </div>
     <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
         <label class="form-control-label">统一编号</label>
@@ -105,10 +109,6 @@
         <input type="text" name="times" id="times" value="1" class="form-control" readonly>
     </div>
     <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
-        <label class="form-control-label">送检计划</label>
-        <input type="text" name="plan_id" id="plan_id" class="form-control" readonly>
-    </div>
-    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
         <label class="form-control-label">检定费用</label>
         <input type="text" name="money" id="money" value="0" class="form-control">
     </div>
@@ -124,12 +124,14 @@
         <label class="form-control-label">备注</label>
         <input type="text" name="remark" id="remark" class="form-control">
     </div>
-    <div class="form-group row">
-        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
-            <button type="button" id="btn_certificate" class="btn btn-secondary btn-sm ripple">上传计量证书</button>
-            <input type="file" name="file_certificate" id="file_certificate" accept="application/pdf" style="display: none">
-            <label class="form-control-label" id="text_certificate"></label>
-        </div>
+    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
+        <label class="form-control-label">送检计划</label>
+        <input type="text" name="plan_id" id="plan_id" class="form-control" readonly>
+    </div>
+    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 form-group row">
+        <button type="button" id="btn_certificate" class="btn btn-secondary btn-sm ripple">上传计量证书</button>
+        <input type="file" name="file_certificate" id="file_certificate" accept="application/pdf" style="display: none">
+        <label class="form-control-label" id="text_certificate"></label>
     </div>
 @endsection
 <link rel="stylesheet" href="/admin/assets/css/bootstrap-select/bootstrap-select.min.css">

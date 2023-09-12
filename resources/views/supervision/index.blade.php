@@ -1,8 +1,8 @@
 @extends('layout.index')
 @section('content_btn')
     <li class="nav-item"><a onclick="btn_modal()" class="nav-link">获取文本</a></li>
-    <li class="nav-item"><a onclick="btn_open()" class="nav-link">预览证书</a></li>
-    <li class="nav-item"><a onclick="btn_download()" class="nav-link">下载证书</a></li>
+    <li class="nav-item"><a onclick="btn_open()" class="nav-link">批量查看</a></li>
+    <li class="nav-item"><a onclick="btn_download()" class="nav-link">批量下载</a></li>
 @endsection
 @section('content_table')
     <form action="" onsubmit="return false;" id="form_setting">
@@ -62,17 +62,18 @@
 @push('page-js-after-1')
     <script>
         function btn_modal() {
-            $.ajax({
-                url: "/supervision",
-                type: "POST",
-                data: new FormData($("#form_setting")[0]),
-                processData: false,  // 不处理数据
-                contentType: false,   // 不设置内容类型
-                success: function (data) {
-                    if (data == false) {
-                        notifications('请选择数据');
-                    } else {
-                        let str = `
+            if ($("#export-table input[type='checkbox']:checked").length > 0) {
+                $.ajax({
+                    url: "/supervision",
+                    type: "POST",
+                    data: new FormData($("#form_setting")[0]),
+                    processData: false,  // 不处理数据
+                    contentType: false,   // 不设置内容类型
+                    success: function (data) {
+                        if (data == false) {
+                            notifications('请选择数据');
+                        } else {
+                            let str = `
                         <div class="modal-dialog modal-sm modal-dialog-centered">
                             <div class="modal-content">
                                 <div class="modal-header">
@@ -89,18 +90,21 @@
                             </div>
                         </div>
                         `;
-                        $('#modal1').html(str);
-                        $('#modal1').modal('show')
+                            $('#modal1').html(str);
+                            $('#modal1').modal('show')
+                        }
+                    },
+                    error: function (xhr) {
+                        if (xhr.status == 401) {
+                            document.location.reload();
+                        } else {
+                            notifications('提交失败');
+                        }
                     }
-                },
-                error: function (xhr) {
-                    if (xhr.status == 401) {
-                        document.location.reload();
-                    } else {
-                        notifications('提交失败');
-                    }
-                }
-            });
+                });
+            } else {
+                notifications('请选择数据!')
+            }
         }
 
         function btn_open() {

@@ -40,7 +40,7 @@ Route::group(['namespace' => '\App\Http\Controllers'], function () {
         //工作内容
         Route::group(['middleware' => 'can:work'], function () {
             //符合验证
-            Route::view('/confirm', 'confirm.index');
+            Route::resource('/confirm', 'ConfirmController');
             //打印标签
             Route::resource('/print', 'PrintController');
             //监督检查
@@ -55,11 +55,10 @@ Route::group(['namespace' => '\App\Http\Controllers'], function () {
         Route::group(['middleware' => 'can:organization'], function () {
             //南京市
             Route::resource('/nanjing', 'NanjingController');
-            Route::post('/nj/download', 'nanjingController@download');
-            Route::post('/nj/filter', 'nanjingController@filter');
-            Route::post('/nj/create', 'nanjingController@create');
-            Route::post('/nj', 'nanjingController@store');
             Route::get('/nj/number/{factory_id}', 'nanjingController@number');
+            //江苏省
+            Route::resource('/jiangsu', 'JiangsuController');
+            Route::get('/js/number/{factory_id}', 'jiangsuController@number');
         });
 
         //计量管理
@@ -108,11 +107,13 @@ Route::group(['namespace' => '\App\Http\Controllers'], function () {
 
         //API
         //证书参数
-        Route::get('/certificate_standard/{tool_id}', 'Controller@getStandard');
+        Route::any('/certificate_standard', 'Controller@getStandard');
         Route::get('/certificate_sn/{position_id}', 'Controller@getSn');
-        Route::get('/certificate_info/{tool_id}', 'Controller@getInfo');
+        Route::get('/certificate_info/{tool}', 'Controller@getInfo');
+        Route::get('/certificate_factories/{tool_id}', 'Controller@getFactories');
         Route::get('/certificate_numbers/{factory_id}', 'Controller@getNumbers');
         Route::get('/certificate_no/{certificate_no}', 'Controller@getCertificateNo');
+        Route::get('/certificate_number/{number}', 'Controller@getNumber');
     });
     //登录页面
     Route::get('/login', 'LoginController@index')->name('login');

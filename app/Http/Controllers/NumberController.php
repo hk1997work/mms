@@ -65,7 +65,7 @@ class NumberController extends Controller
     {
         $tool = Tool::find(explode('_', $str)[0]);
         $state = explode('_', $str)[1];
-        $numbers = NumbersView::where('tool_id', $tool->id)->where('state_id', Parameter::where('name', $state)->first()->id)->orderBy('factory_id')->get();
+        $numbers = NumbersView::where('tool_id', $tool->id)->where('state_id', Parameter::where('name', $state)->first()->id)->get();
         return view('tools.number.show', compact('numbers', 'state', 'tool'));
     }
 

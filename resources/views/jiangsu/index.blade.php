@@ -6,7 +6,7 @@
     <li class="nav-item"><a class="nav-link" data-toggle="modal" data-target="#filter_modal">屏蔽详情</a></li>
 @endsection
 @section('content_table')
-    <form action="" onsubmit="return false;" id="form_nanjing">
+    <form action="" onsubmit="return false;" id="form_jiangsu">
         {{csrf_field()}}
         <table id="export-table" class="table table-hover mb-0">
             <thead>
@@ -29,29 +29,27 @@
             <tbody>
             @if(isset($certificates))
                 @foreach($certificates as $certificate)
-                    <tr @if($certificate->zsType=='检定结果通知书') class="bg-error" @endif>
+                    <tr>
                         <td>
-                            <div class="d-xl-none">{{$certificate->jdrq}}</div>
-                            @if($certificate->zsType!='检定结果通知书')
-                                <div class="styled-checkbox mt-3">
-                                    <input type="checkbox" name="cb" id="{{$certificate->id}}">
-                                    <label for="{{$certificate->id}}"></label>
-                                </div>
-                            @endif
+                            <div class="d-xl-none">{{$certificate->zsJdrq}}</div>
+                            <div class="styled-checkbox mt-3">
+                                <input type="checkbox" name="cb" id="{{$certificate->zsId}}">
+                                <label for="{{$certificate->zsId}}"></label>
+                            </div>
                         </td>
-                        <td class="d-none d-xl-table-cell">{{$certificate->jdrq}}</td>
-                        <td class="d-none d-xl-table-cell">{{$certificate->zsbh}}</td>
-                        <td class="d-none d-xl-table-cell">{{$certificate->name}}</td>
-                        <td class="d-none d-xl-table-cell">{{$certificate->xhgg}}</td>
-                        <td class="d-none d-xl-table-cell">{{isset($certificate->ccbh)?$certificate->ccbh=='/'?'':$certificate->ccbh:''}}{{isset($certificate->sbbh)?$certificate->sbbh=='/'?'':$certificate->sbbh:''}}</td>
-                        <td class="d-xl-none">{{$certificate->name}}<br>{{$certificate->xhgg}}
-                            <br>{{isset($certificate->ccbh)?$certificate->ccbh=='/'?'':$certificate->ccbh:''}}{{isset($certificate->sbbh)?$certificate->sbbh=='/'?'':$certificate->sbbh:''}}
-                            <br>{{$certificate->zsbh}}
+                        <td class="d-none d-xl-table-cell">{{$certificate->zsJdrq}}</td>
+                        <td class="d-none d-xl-table-cell">{{$certificate->zsZsh}}</td>
+                        <td class="d-none d-xl-table-cell">{{$certificate->zsQjmc}}</td>
+                        <td class="d-none d-xl-table-cell">{{$certificate->zsXhgg}}</td>
+                        <td class="d-none d-xl-table-cell">{{isset($certificate->zsCcbh)?$certificate->zsCcbh=='/'?'':$certificate->zsCcbh:''}}{{isset($certificate->zsSbbh)?$certificate->zsSbbh=='/'?'':$certificate->zsSbbh:''}}</td>
+                        <td class="d-xl-none">{{$certificate->zsQjmc}}<br>{{$certificate->zsXhgg}}
+                            <br>{{isset($certificate->zsCcbh)?$certificate->zsCcbh=='/'?'':$certificate->zsCcbh:''}}{{isset($certificate->zsSbbh)?$certificate->zsSbbh=='/'?'':$certificate->zsSbbh:''}}
+                            <br>{{$certificate->zsZsh}}
                         </td>
                         <td class="td-actions d-none d-sm-table-cell">
-                            <a href="/nanjing/1?str={{str_replace('#','@',json_encode($certificate))}}" target="_blank"><i class="la la-eye edit"></i></a>
-                            <a href="/nanjing/0?str={{str_replace('#','@',json_encode($certificate))}}"><i class="la la-download delete"></i></a>
-                            <a onclick="m_edit('nanjing',{{$certificate->id}},'{{str_replace('#','@',json_encode($certificate))}}')"><i class="la la-eye-slash edit"></i></a>
+                            <a href="/jiangsu/1?str={{str_replace('#','@',json_encode($certificate))}}" target="_blank"><i class="la la-eye edit"></i></a>
+                            <a href="/jiangsu/0?str={{str_replace('#','@',json_encode($certificate))}}"><i class="la la-download delete"></i></a>
+                            <a onclick="m_edit('jiangsu',{{$certificate->zsId}},'{{str_replace('#','@',json_encode($certificate))}}')"><i class="la la-eye-slash edit"></i></a>
                         </td>
                     </tr>
                 @endforeach
@@ -80,13 +78,13 @@
                             </tr>
                             </thead>
                             <tbody>
-                            @foreach($nanjing as $n)
+                            @foreach($jiangsu as $n)
                                 <tr>
                                     <td>{{$n->verification_date}}</td>
                                     <td>{{$n->instrument}}<br>{{$n->model}}<br>{{$n->number}}<br>{{$n->certificate_no}}<br>{{$n->remark}}</td>
                                     <td class="td-actions">
-                                        <a href="/nanjing/1?str={{str_replace('#','@',$n->pdf)}}" target="_blank"><i class="la la-eye edit"></i></a>
-                                        <a onclick="m_delete('nanjing',{{$n->id}})" data-toggle="modal" data-target="#delete" data-dismiss="modal"><i class="la la-close delete"></i></a>
+                                        <a href="/jiangsu/1?str={{str_replace('#','@',$n->pdf)}}" target="_blank"><i class="la la-eye edit"></i></a>
+                                        <a onclick="m_delete('jiangsu',{{$n->id}})" data-toggle="modal" data-target="#delete" data-dismiss="modal"><i class="la la-close delete"></i></a>
                                     </td>
                                 </tr>
                             @endforeach
@@ -110,7 +108,7 @@
                     $("#export-table input[type='checkbox']:checked").each(function () {
                         check.push($(this).attr('id'))
                     });
-                    m_add('nanjing', check.join(','), 1)
+                    m_add('jiangsu', check.join(','), 1)
                 } else {
                     notifications('请选择数据');
                 }
