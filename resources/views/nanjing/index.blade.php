@@ -104,10 +104,10 @@
         <script>
             function btn_add() {
                 let check = []
-                if ($("#export-table input[type='checkbox']:checked").length > 10) {
-                    notifications('最多选择10条数据,当前数据' + $("#export-table input[type='checkbox']:checked").length + '条')
-                } else if ($("#export-table input[type='checkbox']:checked").length > 0) {
-                    $("#export-table input[type='checkbox']:checked").each(function () {
+                if ($("#export-table input[type='checkbox'][name='cb']:checked").length > 10) {
+                    notifications('最多选择10条数据,当前数据' + $("#export-table input[type='checkbox'][name='cb']:checked").length + '条')
+                } else if ($("#export-table input[type='checkbox'][name='cb']:checked").length > 0) {
+                    $("#export-table input[type='checkbox'][name='cb']:checked").each(function () {
                         check.push($(this).attr('id'))
                     });
                     m_add('nanjing', check.join(','), 1)
@@ -117,8 +117,8 @@
             }
 
             function btn_open() {
-                if ($("#export-table input[type='checkbox']:checked").length > 0) {
-                    $("#export-table input[type='checkbox']:checked").each(function () {
+                if ($("#export-table input[type='checkbox'][name='cb']:checked").length > 0) {
+                    $("#export-table input[type='checkbox'][name='cb']:checked").each(function () {
                         window.open($(this).closest('tr').find('.td-actions a:first').attr('href'), '_blank')
                     });
                 } else {
@@ -127,8 +127,8 @@
             }
 
             function btn_download() {
-                if ($("#export-table input[type='checkbox']:checked").length > 0) {
-                    $("#export-table input[type='checkbox']:checked").each(function () {
+                if ($("#export-table input[type='checkbox'][name='cb']:checked").length > 0) {
+                    $("#export-table input[type='checkbox'][name='cb']:checked").each(function () {
                         window.open($(this).closest('tr').find('.td-actions a:eq(1)').attr('href'), '_blank')
                     });
                 } else {

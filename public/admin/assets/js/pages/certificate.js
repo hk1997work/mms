@@ -71,7 +71,7 @@ function load_standard() {
         success: function (data) {
             $('#standard_id option').prop("selected", '');
             if (data) {
-                $('#standard_id').val(data.split(','));
+                $('#standard_id').val(data[0].split(','));
                 $('#standard_id').closest('.col-sm-12').find(".warning-danger").remove()
             }
             $('#standard_id').selectpicker('refresh');

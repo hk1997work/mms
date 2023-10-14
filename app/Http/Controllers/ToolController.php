@@ -27,7 +27,7 @@ class ToolController extends Controller
         $cycles = Parameter::where('pid', Parameter::where('name', '检定周期')->first()->id)->orderBy('sort')->get();
         $abcs = Parameter::where('pid', Parameter::where('name', 'ABC类')->first()->id)->orderBy('sort')->get();
         $plans = Parameter::where('pid', Parameter::where('name', '检定计划')->first()->id)->orderBy('sort')->get();
-        return view('tools.tool.create', compact('type_id','cycles','abcs','plans'));
+        return view('tools.tool.create', compact('type_id', 'cycles', 'abcs', 'plans'));
     }
 
     public function store(ToolRequest $request)
@@ -41,6 +41,7 @@ class ToolController extends Controller
         $arr['cycle_id'] = $request->cycle_id;
         $arr['abc_id'] = $request->abc_id;
         $arr['plan_id'] = $request->plan_id;
+        $arr['vulnerable'] = $request->vulnerable;
         return !!Tool::create($arr);
     }
 
@@ -49,7 +50,7 @@ class ToolController extends Controller
         $cycles = Parameter::where('pid', Parameter::where('name', '检定周期')->first()->id)->orderBy('sort')->get();
         $abcs = Parameter::where('pid', Parameter::where('name', 'ABC类')->first()->id)->orderBy('sort')->get();
         $plans = Parameter::where('pid', Parameter::where('name', '检定计划')->first()->id)->orderBy('sort')->get();
-        return view('tools.tool.edit', compact('tool','cycles','abcs','plans'));
+        return view('tools.tool.edit', compact('tool', 'cycles', 'abcs', 'plans'));
     }
 
     public function update(ToolRequest $request, Tool $tool)
@@ -62,6 +63,7 @@ class ToolController extends Controller
         $tool->cycle_id = $request->cycle_id;
         $tool->abc_id = $request->abc_id;
         $tool->plan_id = $request->plan_id;
+        $tool->vulnerable = $request->vulnerable;
         return !!$tool->save();
     }
 

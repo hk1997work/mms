@@ -2,23 +2,23 @@
 @section('text_modal-title','增加量具')
 
 @section('content_form')
-    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">
+    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
         <label class="form-control-label">器具名称</label>
         <input type="text" name="instrument" id="instrument" class="form-control">
     </div>
-    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">
+    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
         <label class="form-control-label">规格型号</label>
         <input type="text" name="model" id="model" class="form-control">
     </div>
-    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">
+    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
         <label class="form-control-label">测量范围</label>
         <input type="text" name="limit" id="limit" class="form-control">
     </div>
-    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">
+    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
         <label class="form-control-label">精确度</label>
         <input type="text" name="accuracy" id="accuracy" class="form-control">
     </div>
-    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">
+    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
         <label class="form-control-label">检定周期</label>
         <select name="cycle_id" id="cycle_id" class="custom-select form-control">
             <option value="" selected disabled>请选择...</option>
@@ -27,7 +27,7 @@
             @endforeach
         </select>
     </div>
-    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">
+    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
         <label class="form-control-label">ABC类</label>
         <select name="abc_id" id="abc_id" class="custom-select form-control">
             <option value="" selected disabled>请选择...</option>
@@ -36,7 +36,7 @@
             @endforeach
         </select>
     </div>
-    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">
+    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
         <label class="form-control-label">检定计划</label>
         <select name="plan_id" id="plan_id" class="custom-select form-control">
             <option value="" selected disabled>请选择...</option>
@@ -45,9 +45,17 @@
             @endforeach
         </select>
     </div>
-    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">
+    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
         <label class="form-control-label">检定要求</label>
         <input type="text" name="requirement" id="requirement" class="form-control">
+    </div>
+    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
+        <label class="form-control-label">易损量具</label>
+        <select name="vulnerable" id="vulnerable" class="custom-select form-control">
+            <option value="" selected disabled>请选择...</option>
+            <option value="1">是</option>
+            <option value="0">否</option>
+        </select>
     </div>
     <input type="hidden" name="type_id" id="type_id" value="{{$type_id}}">
 @endsection

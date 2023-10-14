@@ -45,19 +45,16 @@ function m_add(p, id, loader) {
             $("#modal" + modal).html(data);
             $("#modal" + modal).find(".btn-primary").attr('onclick', 'b_add("' + p + '")')
             $('#modal' + modal).modal('show')
+            $("#preloader").fadeOut();
         },
         error: function (xhr) {
             if (xhr.status == 401) {
                 document.location.reload();
             } else {
+                $("#preloader").fadeOut();
                 notifications('增加失败')
             }
         },
-        complete: function () {
-            if ($("#preloader").is(':visible')) {
-                $("#preloader").fadeOut();
-            }
-        }
     })
 }
 
@@ -92,6 +89,7 @@ function m_show(p, id, loader, str) {
         success: function (data) {
             $("#modal" + modal).html(data);
             $('#modal' + modal).modal('show')
+            $("#preloader").fadeOut();
         },
         error: function (xhr) {
             if (xhr.status == 401) {
@@ -99,11 +97,6 @@ function m_show(p, id, loader, str) {
             } else {
                 $("#preloader").fadeOut();
                 notifications('查看失败')
-            }
-        },
-        complete: function () {
-            if ($("#preloader").is(':visible')) {
-                $("#preloader").fadeOut();
             }
         }
     })
@@ -144,6 +137,7 @@ function m_delete(p, id, s) {
 
 //增加操作
 function b_add(p) {
+    $("#preloader")[0].style.display = 'block';
     $.ajax({
         url: "/" + p,
         type: "POST",
@@ -154,6 +148,7 @@ function b_add(p) {
             if (result) {
                 document.location.reload();
             } else {
+                $("#preloader").fadeOut();
                 notifications('增加失败');
             }
         }, error: function (xhr) {
@@ -167,6 +162,7 @@ function b_add(p) {
                     let str = "<div class='text-danger warning-danger'>" + obj + "</div>";
                     $("#" + idx.replace(".", "")).closest('.col-sm-12').append(str);
                 });
+                $("#preloader").fadeOut();
             }
         }
     });

@@ -32,7 +32,7 @@ class Controller extends BaseController
         if ($request->hasFile('file_certificate')) {
             $path = $request->file('file_certificate')->path();
         }
-        exec("python storage/get_standard_from_pdf.py 2>&1 " . $path, $out, $status);
+        exec("python F:/phpstudy_pro/WWW/laravel8/python/get_standard_from_pdf.py 2>&1 " . $path, $out, $status);
         if ($status == 0) {
             return $out;
         } else {
@@ -65,7 +65,7 @@ class Controller extends BaseController
         if ($request->hasFile('file_certificate')) {
             $file = $request->file('file_certificate');
             $file->storeAs('public/' . \Auth::user()->username . '/orc/', "1.pdf");
-            exec("python storage/get_qr_code_from_pdf.py " . \Auth::user()->username . " 2>&1", $out, $status);
+            exec("python F:/phpstudy_pro/WWW/laravel8/python/get_qr_code_from_pdf.py " . \Auth::user()->username . " 2>&1", $out, $status);
             if ($status == 0 && count($out) > 0) {
                 switch (substr($out[0], 0, 20)) {
                     case '':
@@ -115,7 +115,7 @@ class Controller extends BaseController
             File::deleteDirectory($path);
         }
         File::makeDirectory($path, 0777, true, true);
-        exec("python storage/get_jpg_form_pdf.py " . $id . " 2>&1", $out, $status);
+        exec("python F:/phpstudy_pro/WWW/laravel8/python/get_jpg_form_pdf.py " . $id . " 2>&1", $out, $status);
     }
 
     function addFileToZip($path, $zip)

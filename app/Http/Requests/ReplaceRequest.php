@@ -33,7 +33,7 @@ class ReplaceRequest extends FormRequest
                     $regex = '/^(\d{8}|\d{8}-\d{3}|\d{8}-\d{3}-\d{3})$/';
                     break;
                 case '省计量院':
-                    $regex = '/^[A-Z]{1}\d{4}-\d{7}$/';
+                    $regex = '/^[A-Z]{1}\d{4}-\d{7}|R[A-Z]{1}\d{4}-\d{7}$/';
                     break;
                 case '上海研究院':
                     $regex = '/^\d{4}[A-Z]{1}\d{2}-\d{2}-\d{10}|\d{4}[A-Z]{1}\d{2}-\d{2}-\d{10}-\d{2}$/';

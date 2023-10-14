@@ -95,7 +95,6 @@ class NanjingController extends Controller
             $add_date = mb_substr($cycle, 0, strlen($cycle) - 3);
             $certificate_controller = new CertificateController;
             $certificate = new CertificateRequest();
-            $certificate->certificate_name = $request->certificate_name[$key];
             $certificate->position_id = PositionsView::where('id4', $tool->type_id)->where('name1', '备用')->first()->id;
             $certificate->sn = $this->getSn($certificate->position_id);
             $certificate->category_id = Parameter::where('name', $request->category[$key])->first()->id;
@@ -130,6 +129,7 @@ class NanjingController extends Controller
             }
             if ($cer_id = $certificate_controller->store($certificate)) {
                 Storage::put("/public/certificate/" . $cer_id . ".pdf", file_get_contents($request->path[$key]));
+                $this->pdf2jpg($cer_id);
             } else {
                 return false;
             }

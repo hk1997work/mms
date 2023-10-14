@@ -88,7 +88,12 @@ class JiangsuController extends Controller
         $result = json_decode((string)$res->getBody())->data->records;
         foreach ($result as $key => $value) {
             if (in_array($value->zsId, $check)) {
-                $res = $client->request('GET', 'https://app.jsmi.com.cn/forms/app-zs/getPath?zsh=' . $value->zsZsh);
+                $res = $client->request('GET', 'https://app.jsmi.com.cn/forms/app-zs/getPath?zsh=' . $value->zsZsh, [
+                    'headers' => [
+                        'Authorization' => 'Bearer 4ba76e7e-3ed4-424a-8200-2cd33886485c',
+                        'TENANT-ID' => '2',
+                    ],
+                ]);
                 $json = json_decode((string)$res->getBody())->data;
                 $arr[$key]['path'] = 'https://app.jsmi.com.cn/file/sys-file/downLoadFile//' . $value->zsZsh . '.pdf?bucket=' . $json->bucket . '@fileName=' . $json->zsdz;
                 $value->zsCcbh = isset($value->zsCcbh) ? $value->zsCcbh == '/' ? '' : $value->zsCcbh : '';
@@ -122,7 +127,6 @@ class JiangsuController extends Controller
             $add_date = mb_substr($cycle, 0, strlen($cycle) - 3);
             $certificate_controller = new CertificateController;
             $certificate = new CertificateRequest();
-            $certificate->certificate_name = $request->certificate_name[$key];
             $certificate->position_id = PositionsView::where('id4', $tool->type_id)->where('name1', '备用')->first()->id;
             $certificate->sn = $this->getSn($certificate->position_id);
             $certificate->category_id = Parameter::where('name', $request->category[$key])->first()->id;
@@ -167,7 +171,12 @@ class JiangsuController extends Controller
     {
         $info = json_decode(str_replace('@', '#', $_GET['str']));
         $client = new GuzzleHttp\Client(['verify' => false]);
-        $res = $client->request('GET', 'https://app.jsmi.com.cn/forms/app-zs/getPath?zsh=' . $info->zsZsh);
+        $res = $client->request('GET', 'https://app.jsmi.com.cn/forms/app-zs/getPath?zsh=' . $info->zsZsh, [
+            'headers' => [
+                'Authorization' => 'Bearer 4ba76e7e-3ed4-424a-8200-2cd33886485c',
+                'TENANT-ID' => '2',
+            ],
+        ]);
         $json = json_decode((string)$res->getBody())->data;
         if ($type) {
             $res = Http::withoutVerifying()->get('https://app.jsmi.com.cn/file/sys-file/downLoadFile//' . $info->zsZsh . '.pdf?bucket=' . $json->bucket . '&fileName=' . $json->zsdz);

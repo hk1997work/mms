@@ -3,7 +3,7 @@
 
 @section('content_form')
     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">
-        <label class="form-control-label">生产编号</label>
+        <label class="form-control-label">出厂编号</label>
         <input type="text" name="number" id="number" class="form-control" value="{{$number->number}}">
     </div>
     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">
