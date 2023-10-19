@@ -33,14 +33,14 @@ class JiangsuController extends Controller
                 'TENANT-ID' => '2',
             ],
         ]);
-        $result = json_decode((string)$res->getBody());
+        $access_token = json_decode((string)$res->getBody())->access_token;
         $res = $client->request('GET', 'https://serv.jsmi.com.cn/forms/zs/list?current=1&size=9999&zsZsh=&zsDdh=&zsWyxh=&zsQjmc=&zsZsdwmc=南京巨龙钢管有限公司&zsXhgg=&zsCcbh=&zsClfw=&zsZqd=&zsSbbh=&zsDyrqStart=2019-09-01', [
             'cookie' => [
-                'Authorization' => $result->access_token,
+                'Authorization' => $access_token,
                 'JSESSIONID' => explode(';', explode('=', $res->getHeaders()['Set-Cookie'][0])[1])[0],
             ],
             'headers' => [
-                'Authorization' => 'Bearer ' . $result->access_token,
+                'Authorization' => 'Bearer ' . $access_token,
                 'TENANT-ID' => '2',
             ],
         ]);
@@ -54,7 +54,7 @@ class JiangsuController extends Controller
                 $certificates[] = $r;
             }
         }
-        return view('jiangsu.index', compact('certificates', 'jiangsu'));
+        return view('jiangsu.index', compact('certificates', 'jiangsu', 'access_token'));
     }
 
     public function create(Request $request)
@@ -74,14 +74,14 @@ class JiangsuController extends Controller
                 'TENANT-ID' => '2',
             ],
         ]);
-        $result = json_decode((string)$res->getBody());
+        $access_token = json_decode((string)$res->getBody())->access_token;
         $res = $client->request('GET', 'https://serv.jsmi.com.cn/forms/zs/list?current=1&size=9999&zsZsh=&zsDdh=&zsWyxh=&zsQjmc=&zsZsdwmc=南京巨龙钢管有限公司&zsXhgg=&zsCcbh=&zsClfw=&zsZqd=&zsSbbh=&zsDyrqStart=2019-09-01', [
             'cookie' => [
-                'Authorization' => $result->access_token,
+                'Authorization' => $access_token,
                 'JSESSIONID' => explode(';', explode('=', $res->getHeaders()['Set-Cookie'][0])[1])[0],
             ],
             'headers' => [
-                'Authorization' => 'Bearer ' . $result->access_token,
+                'Authorization' => 'Bearer ' . $access_token,
                 'TENANT-ID' => '2',
             ],
         ]);
@@ -90,7 +90,7 @@ class JiangsuController extends Controller
             if (in_array($value->zsId, $check)) {
                 $res = $client->request('GET', 'https://app.jsmi.com.cn/forms/app-zs/getPath?zsh=' . $value->zsZsh, [
                     'headers' => [
-                        'Authorization' => 'Bearer 4ba76e7e-3ed4-424a-8200-2cd33886485c',
+                        'Authorization' => "Bearer $access_token",
                         'TENANT-ID' => '2',
                     ],
                 ]);
@@ -173,7 +173,7 @@ class JiangsuController extends Controller
         $client = new GuzzleHttp\Client(['verify' => false]);
         $res = $client->request('GET', 'https://app.jsmi.com.cn/forms/app-zs/getPath?zsh=' . $info->zsZsh, [
             'headers' => [
-                'Authorization' => 'Bearer 4ba76e7e-3ed4-424a-8200-2cd33886485c',
+                'Authorization' => "Bearer " . $_GET["access_token"],
                 'TENANT-ID' => '2',
             ],
         ]);

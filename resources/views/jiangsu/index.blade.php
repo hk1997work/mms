@@ -47,8 +47,8 @@
                             <br>{{$certificate->zsZsh}}
                         </td>
                         <td class="td-actions d-none d-sm-table-cell">
-                            <a href="/jiangsu/1?str={{str_replace('#','@',json_encode($certificate))}}" target="_blank"><i class="la la-eye edit"></i></a>
-                            <a href="/jiangsu/0?str={{str_replace('#','@',json_encode($certificate))}}"><i class="la la-download delete"></i></a>
+                            <a href="/jiangsu/1?str={{str_replace('#','@',json_encode($certificate))}}&access_token={{$access_token}}" target="_blank"><i class="la la-eye edit"></i></a>
+                            <a href="/jiangsu/0?str={{str_replace('#','@',json_encode($certificate))}}&&access_token={{$access_token}}"><i class="la la-download delete"></i></a>
                             <a onclick="m_edit('jiangsu',{{$certificate->zsId}},'{{str_replace('#','@',json_encode($certificate))}}')"><i class="la la-eye-slash edit"></i></a>
                         </td>
                     </tr>
