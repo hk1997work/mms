@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\Pdf2Jpg;
 use App\Models\Certificate;
 use App\Models\Factory;
 use App\Models\Number;
@@ -105,17 +106,7 @@ class Controller extends BaseController
 
     function pdf2jpg($id)
     {
-        $pdf = "storage/certificate/$id.pdf";
-        $path = "storage/jpg/$id";
-
-        if (!file_exists($pdf)) {
-            return '文件不存在';
-        }
-        if (File::isDirectory($path)) {
-            File::deleteDirectory($path);
-        }
-        File::makeDirectory($path, 0777, true, true);
-        exec("python F:/phpstudy_pro/WWW/laravel8/python/get_jpg_form_pdf.py " . $id . " 2>&1", $out, $status);
+        Pdf2Jpg::dispatch($id);
     }
 
     function addFileToZip($path, $zip)

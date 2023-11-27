@@ -4,7 +4,6 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=0.85, maximum-scale=0.85, user-scalable=no">
     <title>计量管理系统</title>
-
     <!-- 网站图标 -->
     <link rel="apple-touch-icon" sizes="180x180" href="/admin/assets/img/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/admin/assets/img/favicon-32x32.png">
@@ -33,7 +32,7 @@
             <div class="navbar-holder d-flex align-items-center align-middle justify-content-between">
                 <!-- 开始 图标 -->
                 <div class="navbar-header">
-                    <a href="db-default.html" class="navbar-brand">
+                    <a href="/" class="navbar-brand">
                         <div class="brand-image brand-big">
                             <img src="/admin/assets/img/logo-big.png" alt="logo" class="logo-big">
                         </div>

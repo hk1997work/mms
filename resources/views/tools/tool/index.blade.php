@@ -34,6 +34,19 @@
                 <div class="widget-body">
                     <div class="row">
                         <div class="col-xl-12 d-flex flex-column justify-content-center align-items-center">
+                            <b class="counter">{{$tools->where('type_id',$type->id)->count()}}</b>
+                            <b class="text-dangers">{{$tools->where('type_id',$type->id)->sum('total')}}</b>
+                            <b class="total-visitors text-center">录入{{$type->name}}</b>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-2 col-lg-2 col-md-4 col-sm-6">
+            <div class="widget widget-16 has-shadow">
+                <div class="widget-body">
+                    <div class="row">
+                        <div class="col-xl-12 d-flex flex-column justify-content-center align-items-center">
                             <b class="counter">{{$tools->where('active','!=',0)->count()}}</b>
                             <b class="text-dangers">{{$tools->sum('active')}}</b>
                             <b class="total-visitors text-center">在用量具</b>
@@ -47,22 +60,9 @@
                 <div class="widget-body">
                     <div class="row">
                         <div class="col-xl-12 d-flex flex-column justify-content-center align-items-center">
-                            <b class="counter">{{$tools->where('type_id',$type->id)->count()}}</b>
-                            <b class="text-dangers">{{$tools->where('type_id',$type->id)->sum('total')}}</b>
-                            <b class="total-visitors text-center">{{$type->name}}</b>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-2 col-lg-2 col-md-4 col-sm-6">
-            <div class="widget widget-16 has-shadow">
-                <div class="widget-body">
-                    <div class="row">
-                        <div class="col-xl-12 d-flex flex-column justify-content-center align-items-center">
                             <b class="counter">{{$tools->where('type_id',$type->id)->where('active','!=',0)->count()}}</b>
                             <b class="text-dangers">{{$tools->where('type_id',$type->id)->sum('active')}}</b>
-                            <b class="total-visitors text-center">{{$type->name}}在用</b>
+                            <b class="total-visitors text-center">在用{{$type->name}}</b>
                         </div>
                     </div>
                 </div>

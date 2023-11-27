@@ -4,24 +4,21 @@
  *
  * To rebuild or modify this file with the latest versions of the included
  * software please visit:
- *   https://datatables.net/download/#bs5/jq-3.6.0/dt-1.13.4
+ *   https://datatables.net/download/#bs5/jq-3.7.0/dt-1.13.8/b-2.4.2/fh-3.4.0/r-2.5.0/rr-1.4.1
  *
  * Included libraries:
- *   jQuery 3 3.6.0, DataTables 1.13.4
+ *   jQuery 3 3.7.0, DataTables 1.13.8, Buttons 2.4.2, FixedHeader 3.4.0, Responsive 2.5.0, RowReorder 1.4.1
  */
 
 /*!
- * jQuery JavaScript Library v3.6.0
+ * jQuery JavaScript Library v3.7.0
  * https://jquery.com/
- *
- * Includes Sizzle.js
- * https://sizzlejs.com/
  *
  * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license
  * https://jquery.org/license
  *
- * Date: 2021-03-02T17:08Z
+ * Date: 2023-05-11T18:29Z
  */
 ( function( global, factory ) {
 
@@ -35,7 +32,7 @@
 		// (such as Node.js), expose a factory as module.exports.
 		// This accentuates the need for the creation of a real `window`.
 		// e.g. var jQuery = require("jquery")(window);
-		// See ticket #14549 for more info.
+		// See ticket trac-14549 for more info.
 		module.exports = global.document ?
 			factory( global, true ) :
 			function( w ) {
@@ -162,8 +159,9 @@ function toType( obj ) {
 
 
 
-var
-	version = "3.6.0",
+var version = "3.7.0",
+
+	rhtmlSuffix = /HTML$/i,
 
 	// Define a local copy of jQuery
 	jQuery = function( selector, context ) {
@@ -409,6 +407,33 @@ jQuery.extend( {
 		return obj;
 	},
 
+
+	// Retrieve the text value of an array of DOM nodes
+	text: function( elem ) {
+		var node,
+			ret = "",
+			i = 0,
+			nodeType = elem.nodeType;
+
+		if ( !nodeType ) {
+
+			// If no nodeType, this is expected to be an array
+			while ( ( node = elem[ i++ ] ) ) {
+
+				// Do not traverse comment nodes
+				ret += jQuery.text( node );
+			}
+		} else if ( nodeType === 1 || nodeType === 9 || nodeType === 11 ) {
+			return elem.textContent;
+		} else if ( nodeType === 3 || nodeType === 4 ) {
+			return elem.nodeValue;
+		}
+
+		// Do not include comment or processing instruction nodes
+
+		return ret;
+	},
+
 	// results is for internal usage only
 	makeArray: function( arr, results ) {
 		var ret = results || [];
@@ -429,6 +454,15 @@ jQuery.extend( {
 
 	inArray: function( elem, arr, i ) {
 		return arr == null ? -1 : indexOf.call( arr, elem, i );
+	},
+
+	isXMLDoc: function( elem ) {
+		var namespace = elem && elem.namespaceURI,
+			docElem = elem && ( elem.ownerDocument || elem ).documentElement;
+
+		// Assume HTML when documentElement doesn't yet exist, such as inside
+		// document fragments.
+		return !rhtmlSuffix.test( namespace || docElem && docElem.nodeName || "HTML" );
 	},
 
 	// Support: Android <=4.0 only, PhantomJS 1 only
@@ -532,43 +566,98 @@ function isArrayLike( obj ) {
 	return type === "array" || length === 0 ||
 		typeof length === "number" && length > 0 && ( length - 1 ) in obj;
 }
-var Sizzle =
-/*!
- * Sizzle CSS Selector Engine v2.3.6
- * https://sizzlejs.com/
- *
- * Copyright JS Foundation and other contributors
- * Released under the MIT license
- * https://js.foundation/
- *
- * Date: 2021-02-16
- */
-( function( window ) {
+
+
+function nodeName( elem, name ) {
+
+	return elem.nodeName && elem.nodeName.toLowerCase() === name.toLowerCase();
+
+}
+var pop = arr.pop;
+
+
+var sort = arr.sort;
+
+
+var splice = arr.splice;
+
+
+var whitespace = "[\\x20\\t\\r\\n\\f]";
+
+
+var rtrimCSS = new RegExp(
+	"^" + whitespace + "+|((?:^|[^\\\\])(?:\\\\.)*)" + whitespace + "+$",
+	"g"
+);
+
+
+
+
+// Note: an element does not contain itself
+jQuery.contains = function( a, b ) {
+	var bup = b && b.parentNode;
+
+	return a === bup || !!( bup && bup.nodeType === 1 && (
+
+		// Support: IE 9 - 11+
+		// IE doesn't have `contains` on SVG.
+		a.contains ?
+			a.contains( bup ) :
+			a.compareDocumentPosition && a.compareDocumentPosition( bup ) & 16
+	) );
+};
+
+
+
+
+// CSS string/identifier serialization
+// https://drafts.csswg.org/cssom/#common-serializing-idioms
+var rcssescape = /([\0-\x1f\x7f]|^-?\d)|^-$|[^\x80-\uFFFF\w-]/g;
+
+function fcssescape( ch, asCodePoint ) {
+	if ( asCodePoint ) {
+
+		// U+0000 NULL becomes U+FFFD REPLACEMENT CHARACTER
+		if ( ch === "\0" ) {
+			return "\uFFFD";
+		}
+
+		// Control characters and (dependent upon position) numbers get escaped as code points
+		return ch.slice( 0, -1 ) + "\\" + ch.charCodeAt( ch.length - 1 ).toString( 16 ) + " ";
+	}
+
+	// Other potentially-special ASCII characters get backslash-escaped
+	return "\\" + ch;
+}
+
+jQuery.escapeSelector = function( sel ) {
+	return ( sel + "" ).replace( rcssescape, fcssescape );
+};
+
+
+
+
+var preferredDoc = document,
+	pushNative = push;
+
+( function() {
+
 var i,
-	support,
 	Expr,
-	getText,
-	isXML,
-	tokenize,
-	compile,
-	select,
 	outermostContext,
 	sortInput,
 	hasDuplicate,
+	push = pushNative,
 
 	// Local document vars
-	setDocument,
 	document,
-	docElem,
+	documentElement,
 	documentIsHTML,
 	rbuggyQSA,
-	rbuggyMatches,
 	matches,
-	contains,
 
 	// Instance-specific data
-	expando = "sizzle" + 1 * new Date(),
-	preferredDoc = window.document,
+	expando = jQuery.expando,
 	dirruns = 0,
 	done = 0,
 	classCache = createCache(),
@@ -582,47 +671,22 @@ var i,
 		return 0;
 	},
 
-	// Instance methods
-	hasOwn = ( {} ).hasOwnProperty,
-	arr = [],
-	pop = arr.pop,
-	pushNative = arr.push,
-	push = arr.push,
-	slice = arr.slice,
-
-	// Use a stripped-down indexOf as it's faster than native
-	// https://jsperf.com/thor-indexof-vs-for/5
-	indexOf = function( list, elem ) {
-		var i = 0,
-			len = list.length;
-		for ( ; i < len; i++ ) {
-			if ( list[ i ] === elem ) {
-				return i;
-			}
-		}
-		return -1;
-	},
-
-	booleans = "checked|selected|async|autofocus|autoplay|controls|defer|disabled|hidden|" +
-		"ismap|loop|multiple|open|readonly|required|scoped",
+	booleans = "checked|selected|async|autofocus|autoplay|controls|defer|disabled|hidden|ismap|" +
+		"loop|multiple|open|readonly|required|scoped",
 
 	// Regular expressions
-
-	// http://www.w3.org/TR/css3-selectors/#whitespace
-	whitespace = "[\\x20\\t\\r\\n\\f]",
 
 	// https://www.w3.org/TR/css-syntax-3/#ident-token-diagram
 	identifier = "(?:\\\\[\\da-fA-F]{1,6}" + whitespace +
 		"?|\\\\[^\\r\\n\\f]|[\\w-]|[^\0-\\x7f])+",
 
-	// Attribute selectors: http://www.w3.org/TR/selectors/#attribute-selectors
+	// Attribute selectors: https://www.w3.org/TR/selectors/#attribute-selectors
 	attributes = "\\[" + whitespace + "*(" + identifier + ")(?:" + whitespace +
 
 		// Operator (capture 2)
 		"*([*^$|!~]?=)" + whitespace +
 
-		// "Attribute values must be CSS identifiers [capture 5]
-		// or strings [capture 3 or capture 4]"
+		// "Attribute values must be CSS identifiers [capture 5] or strings [capture 3 or capture 4]"
 		"*(?:'((?:\\\\.|[^\\\\'])*)'|\"((?:\\\\.|[^\\\\\"])*)\"|(" + identifier + "))|)" +
 		whitespace + "*\\]",
 
@@ -641,40 +705,36 @@ var i,
 
 	// Leading and non-escaped trailing whitespace, capturing some non-whitespace characters preceding the latter
 	rwhitespace = new RegExp( whitespace + "+", "g" ),
-	rtrim = new RegExp( "^" + whitespace + "+|((?:^|[^\\\\])(?:\\\\.)*)" +
-		whitespace + "+$", "g" ),
 
 	rcomma = new RegExp( "^" + whitespace + "*," + whitespace + "*" ),
-	rcombinators = new RegExp( "^" + whitespace + "*([>+~]|" + whitespace + ")" + whitespace +
-		"*" ),
+	rleadingCombinator = new RegExp( "^" + whitespace + "*([>+~]|" + whitespace + ")" +
+		whitespace + "*" ),
 	rdescend = new RegExp( whitespace + "|>" ),
 
 	rpseudo = new RegExp( pseudos ),
 	ridentifier = new RegExp( "^" + identifier + "$" ),
 
 	matchExpr = {
-		"ID": new RegExp( "^#(" + identifier + ")" ),
-		"CLASS": new RegExp( "^\\.(" + identifier + ")" ),
-		"TAG": new RegExp( "^(" + identifier + "|[*])" ),
-		"ATTR": new RegExp( "^" + attributes ),
-		"PSEUDO": new RegExp( "^" + pseudos ),
-		"CHILD": new RegExp( "^:(only|first|last|nth|nth-last)-(child|of-type)(?:\\(" +
-			whitespace + "*(even|odd|(([+-]|)(\\d*)n|)" + whitespace + "*(?:([+-]|)" +
-			whitespace + "*(\\d+)|))" + whitespace + "*\\)|)", "i" ),
-		"bool": new RegExp( "^(?:" + booleans + ")$", "i" ),
+		ID: new RegExp( "^#(" + identifier + ")" ),
+		CLASS: new RegExp( "^\\.(" + identifier + ")" ),
+		TAG: new RegExp( "^(" + identifier + "|[*])" ),
+		ATTR: new RegExp( "^" + attributes ),
+		PSEUDO: new RegExp( "^" + pseudos ),
+		CHILD: new RegExp(
+			"^:(only|first|last|nth|nth-last)-(child|of-type)(?:\\(" +
+				whitespace + "*(even|odd|(([+-]|)(\\d*)n|)" + whitespace + "*(?:([+-]|)" +
+				whitespace + "*(\\d+)|))" + whitespace + "*\\)|)", "i" ),
+		bool: new RegExp( "^(?:" + booleans + ")$", "i" ),
 
 		// For use in libraries implementing .is()
 		// We use this for POS matching in `select`
-		"needsContext": new RegExp( "^" + whitespace +
+		needsContext: new RegExp( "^" + whitespace +
 			"*[>+~]|:(even|odd|eq|gt|lt|nth|first|last)(?:\\(" + whitespace +
 			"*((?:-\\d)?\\d*)" + whitespace + "*\\)|)(?=[^-]|$)", "i" )
 	},
 
-	rhtml = /HTML$/i,
 	rinputs = /^(?:input|select|textarea|button)$/i,
 	rheader = /^h\d$/i,
-
-	rnative = /^[^{]+\{\s*\[native \w/,
 
 	// Easily-parseable/retrievable ID or TAG or CLASS selectors
 	rquickExpr = /^(?:#([\w-]+)|(\w+)|\.([\w-]+))$/,
@@ -682,59 +742,50 @@ var i,
 	rsibling = /[+~]/,
 
 	// CSS escapes
-	// http://www.w3.org/TR/CSS21/syndata.html#escaped-characters
-	runescape = new RegExp( "\\\\[\\da-fA-F]{1,6}" + whitespace + "?|\\\\([^\\r\\n\\f])", "g" ),
+	// https://www.w3.org/TR/CSS21/syndata.html#escaped-characters
+	runescape = new RegExp( "\\\\[\\da-fA-F]{1,6}" + whitespace +
+		"?|\\\\([^\\r\\n\\f])", "g" ),
 	funescape = function( escape, nonHex ) {
 		var high = "0x" + escape.slice( 1 ) - 0x10000;
 
-		return nonHex ?
+		if ( nonHex ) {
 
 			// Strip the backslash prefix from a non-hex escape sequence
-			nonHex :
-
-			// Replace a hexadecimal escape sequence with the encoded Unicode code point
-			// Support: IE <=11+
-			// For values outside the Basic Multilingual Plane (BMP), manually construct a
-			// surrogate pair
-			high < 0 ?
-				String.fromCharCode( high + 0x10000 ) :
-				String.fromCharCode( high >> 10 | 0xD800, high & 0x3FF | 0xDC00 );
-	},
-
-	// CSS string/identifier serialization
-	// https://drafts.csswg.org/cssom/#common-serializing-idioms
-	rcssescape = /([\0-\x1f\x7f]|^-?\d)|^-$|[^\0-\x1f\x7f-\uFFFF\w-]/g,
-	fcssescape = function( ch, asCodePoint ) {
-		if ( asCodePoint ) {
-
-			// U+0000 NULL becomes U+FFFD REPLACEMENT CHARACTER
-			if ( ch === "\0" ) {
-				return "\uFFFD";
-			}
-
-			// Control characters and (dependent upon position) numbers get escaped as code points
-			return ch.slice( 0, -1 ) + "\\" +
-				ch.charCodeAt( ch.length - 1 ).toString( 16 ) + " ";
+			return nonHex;
 		}
 
-		// Other potentially-special ASCII characters get backslash-escaped
-		return "\\" + ch;
+		// Replace a hexadecimal escape sequence with the encoded Unicode code point
+		// Support: IE <=11+
+		// For values outside the Basic Multilingual Plane (BMP), manually construct a
+		// surrogate pair
+		return high < 0 ?
+			String.fromCharCode( high + 0x10000 ) :
+			String.fromCharCode( high >> 10 | 0xD800, high & 0x3FF | 0xDC00 );
 	},
 
-	// Used for iframes
-	// See setDocument()
+	// Used for iframes; see `setDocument`.
+	// Support: IE 9 - 11+, Edge 12 - 18+
 	// Removing the function wrapper causes a "Permission Denied"
-	// error in IE
+	// error in IE/Edge.
 	unloadHandler = function() {
 		setDocument();
 	},
 
 	inDisabledFieldset = addCombinator(
 		function( elem ) {
-			return elem.disabled === true && elem.nodeName.toLowerCase() === "fieldset";
+			return elem.disabled === true && nodeName( elem, "fieldset" );
 		},
 		{ dir: "parentNode", next: "legend" }
 	);
+
+// Support: IE <=9 only
+// Accessing document.activeElement can throw unexpectedly
+// https://bugs.jquery.com/ticket/13393
+function safeActiveElement() {
+	try {
+		return document.activeElement;
+	} catch ( err ) { }
+}
 
 // Optimize for push.apply( _, NodeList )
 try {
@@ -743,32 +794,22 @@ try {
 		preferredDoc.childNodes
 	);
 
-	// Support: Android<4.0
+	// Support: Android <=4.0
 	// Detect silently failing push.apply
 	// eslint-disable-next-line no-unused-expressions
 	arr[ preferredDoc.childNodes.length ].nodeType;
 } catch ( e ) {
-	push = { apply: arr.length ?
-
-		// Leverage slice if possible
-		function( target, els ) {
+	push = {
+		apply: function( target, els ) {
 			pushNative.apply( target, slice.call( els ) );
-		} :
-
-		// Support: IE<9
-		// Otherwise append directly
-		function( target, els ) {
-			var j = target.length,
-				i = 0;
-
-			// Can't trust NodeList.length
-			while ( ( target[ j++ ] = els[ i++ ] ) ) {}
-			target.length = j - 1;
+		},
+		call: function( target ) {
+			pushNative.apply( target, slice.call( arguments, 1 ) );
 		}
 	};
 }
 
-function Sizzle( selector, context, results, seed ) {
+function find( selector, context, results, seed ) {
 	var m, i, elem, nid, match, groups, newSelector,
 		newContext = context && context.ownerDocument,
 
@@ -802,11 +843,10 @@ function Sizzle( selector, context, results, seed ) {
 					if ( nodeType === 9 ) {
 						if ( ( elem = context.getElementById( m ) ) ) {
 
-							// Support: IE, Opera, Webkit
-							// TODO: identify versions
+							// Support: IE 9 only
 							// getElementById can match elements by name instead of ID
 							if ( elem.id === m ) {
-								results.push( elem );
+								push.call( results, elem );
 								return results;
 							}
 						} else {
@@ -816,14 +856,13 @@ function Sizzle( selector, context, results, seed ) {
 					// Element context
 					} else {
 
-						// Support: IE, Opera, Webkit
-						// TODO: identify versions
+						// Support: IE 9 only
 						// getElementById can match elements by name instead of ID
 						if ( newContext && ( elem = newContext.getElementById( m ) ) &&
-							contains( context, elem ) &&
+							find.contains( context, elem ) &&
 							elem.id === m ) {
 
-							results.push( elem );
+							push.call( results, elem );
 							return results;
 						}
 					}
@@ -834,22 +873,15 @@ function Sizzle( selector, context, results, seed ) {
 					return results;
 
 				// Class selector
-				} else if ( ( m = match[ 3 ] ) && support.getElementsByClassName &&
-					context.getElementsByClassName ) {
-
+				} else if ( ( m = match[ 3 ] ) && context.getElementsByClassName ) {
 					push.apply( results, context.getElementsByClassName( m ) );
 					return results;
 				}
 			}
 
 			// Take advantage of querySelectorAll
-			if ( support.qsa &&
-				!nonnativeSelectorCache[ selector + " " ] &&
-				( !rbuggyQSA || !rbuggyQSA.test( selector ) ) &&
-
-				// Support: IE 8 only
-				// Exclude object elements
-				( nodeType !== 1 || context.nodeName.toLowerCase() !== "object" ) ) {
+			if ( !nonnativeSelectorCache[ selector + " " ] &&
+				( !rbuggyQSA || !rbuggyQSA.test( selector ) ) ) {
 
 				newSelector = selector;
 				newContext = context;
@@ -862,7 +894,7 @@ function Sizzle( selector, context, results, seed ) {
 				// as such selectors are not recognized by querySelectorAll.
 				// Thanks to Andrew Dupont for this technique.
 				if ( nodeType === 1 &&
-					( rdescend.test( selector ) || rcombinators.test( selector ) ) ) {
+					( rdescend.test( selector ) || rleadingCombinator.test( selector ) ) ) {
 
 					// Expand context for sibling selectors
 					newContext = rsibling.test( selector ) && testContext( context.parentNode ) ||
@@ -870,11 +902,15 @@ function Sizzle( selector, context, results, seed ) {
 
 					// We can use :scope instead of the ID hack if the browser
 					// supports it & if we're not changing the context.
-					if ( newContext !== context || !support.scope ) {
+					// Support: IE 11+, Edge 17 - 18+
+					// IE/Edge sometimes throw a "Permission denied" error when
+					// strict-comparing two documents; shallow comparisons work.
+					// eslint-disable-next-line eqeqeq
+					if ( newContext != context || !support.scope ) {
 
 						// Capture the context ID, setting it first if necessary
 						if ( ( nid = context.getAttribute( "id" ) ) ) {
-							nid = nid.replace( rcssescape, fcssescape );
+							nid = jQuery.escapeSelector( nid );
 						} else {
 							context.setAttribute( "id", ( nid = expando ) );
 						}
@@ -907,7 +943,7 @@ function Sizzle( selector, context, results, seed ) {
 	}
 
 	// All others
-	return select( selector.replace( rtrim, "$1" ), context, results, seed );
+	return select( selector.replace( rtrimCSS, "$1" ), context, results, seed );
 }
 
 /**
@@ -921,7 +957,8 @@ function createCache() {
 
 	function cache( key, value ) {
 
-		// Use (key + " ") to avoid collision with native prototype properties (see Issue #157)
+		// Use (key + " ") to avoid collision with native prototype properties
+		// (see https://github.com/jquery/sizzle/issues/157)
 		if ( keys.push( key + " " ) > Expr.cacheLength ) {
 
 			// Only keep the most recent entries
@@ -933,7 +970,7 @@ function createCache() {
 }
 
 /**
- * Mark a function for special use by Sizzle
+ * Mark a function for special use by jQuery selector module
  * @param {Function} fn The function to mark
  */
 function markFunction( fn ) {
@@ -965,55 +1002,12 @@ function assert( fn ) {
 }
 
 /**
- * Adds the same handler for all of the specified attrs
- * @param {String} attrs Pipe-separated list of attributes
- * @param {Function} handler The method that will be applied
- */
-function addHandle( attrs, handler ) {
-	var arr = attrs.split( "|" ),
-		i = arr.length;
-
-	while ( i-- ) {
-		Expr.attrHandle[ arr[ i ] ] = handler;
-	}
-}
-
-/**
- * Checks document order of two siblings
- * @param {Element} a
- * @param {Element} b
- * @returns {Number} Returns less than 0 if a precedes b, greater than 0 if a follows b
- */
-function siblingCheck( a, b ) {
-	var cur = b && a,
-		diff = cur && a.nodeType === 1 && b.nodeType === 1 &&
-			a.sourceIndex - b.sourceIndex;
-
-	// Use IE sourceIndex if available on both nodes
-	if ( diff ) {
-		return diff;
-	}
-
-	// Check if b follows a
-	if ( cur ) {
-		while ( ( cur = cur.nextSibling ) ) {
-			if ( cur === b ) {
-				return -1;
-			}
-		}
-	}
-
-	return a ? 1 : -1;
-}
-
-/**
  * Returns a function to use in pseudos for input types
  * @param {String} type
  */
 function createInputPseudo( type ) {
 	return function( elem ) {
-		var name = elem.nodeName.toLowerCase();
-		return name === "input" && elem.type === type;
+		return nodeName( elem, "input" ) && elem.type === type;
 	};
 }
 
@@ -1023,8 +1017,8 @@ function createInputPseudo( type ) {
  */
 function createButtonPseudo( type ) {
 	return function( elem ) {
-		var name = elem.nodeName.toLowerCase();
-		return ( name === "input" || name === "button" ) && elem.type === type;
+		return ( nodeName( elem, "input" ) || nodeName( elem, "button" ) ) &&
+			elem.type === type;
 	};
 }
 
@@ -1060,14 +1054,13 @@ function createDisabledPseudo( disabled ) {
 					}
 				}
 
-				// Support: IE 6 - 11
+				// Support: IE 6 - 11+
 				// Use the isDisabled shortcut property to check for disabled fieldset ancestors
 				return elem.isDisabled === disabled ||
 
 					// Where there is no isDisabled, check manually
-					/* jshint -W018 */
 					elem.isDisabled !== !disabled &&
-					inDisabledFieldset( elem ) === disabled;
+						inDisabledFieldset( elem ) === disabled;
 			}
 
 			return elem.disabled === disabled;
@@ -1107,7 +1100,7 @@ function createPositionalPseudo( fn ) {
 }
 
 /**
- * Checks a node for validity as a Sizzle context
+ * Checks a node for validity as a jQuery selector context
  * @param {Element|Object=} context
  * @returns {Element|Object|Boolean} The input node if acceptable, otherwise a falsy value
  */
@@ -1115,31 +1108,13 @@ function testContext( context ) {
 	return context && typeof context.getElementsByTagName !== "undefined" && context;
 }
 
-// Expose support vars for convenience
-support = Sizzle.support = {};
-
-/**
- * Detects XML nodes
- * @param {Element|Object} elem An element or a document
- * @returns {Boolean} True iff elem is a non-HTML XML node
- */
-isXML = Sizzle.isXML = function( elem ) {
-	var namespace = elem && elem.namespaceURI,
-		docElem = elem && ( elem.ownerDocument || elem ).documentElement;
-
-	// Support: IE <=8
-	// Assume HTML when documentElement doesn't yet exist, such as inside loading iframes
-	// https://bugs.jquery.com/ticket/4833
-	return !rhtml.test( namespace || docElem && docElem.nodeName || "HTML" );
-};
-
 /**
  * Sets document-related variables once based on the current document
- * @param {Element|Object} [doc] An element or document object to use to set the document
+ * @param {Element|Object} [node] An element or document object to use to set the document
  * @returns {Object} Returns the current document
  */
-setDocument = Sizzle.setDocument = function( node ) {
-	var hasCompare, subWindow,
+function setDocument( node ) {
+	var subWindow,
 		doc = node ? node.ownerDocument || node : preferredDoc;
 
 	// Return early if doc is invalid or already selected
@@ -1153,11 +1128,17 @@ setDocument = Sizzle.setDocument = function( node ) {
 
 	// Update global variables
 	document = doc;
-	docElem = document.documentElement;
-	documentIsHTML = !isXML( document );
+	documentElement = document.documentElement;
+	documentIsHTML = !jQuery.isXMLDoc( document );
+
+	// Support: iOS 7 only, IE 9 - 11+
+	// Older browsers didn't support unprefixed `matches`.
+	matches = documentElement.matches ||
+		documentElement.webkitMatchesSelector ||
+		documentElement.msMatchesSelector;
 
 	// Support: IE 9 - 11+, Edge 12 - 18+
-	// Accessing iframe documents after unload throws "permission denied" errors (jQuery #13936)
+	// Accessing iframe documents after unload throws "permission denied" errors (see trac-13936)
 	// Support: IE 11+, Edge 17 - 18+
 	// IE/Edge sometimes throw a "Permission denied" error when strict-comparing
 	// two documents; shallow comparisons work.
@@ -1165,75 +1146,67 @@ setDocument = Sizzle.setDocument = function( node ) {
 	if ( preferredDoc != document &&
 		( subWindow = document.defaultView ) && subWindow.top !== subWindow ) {
 
-		// Support: IE 11, Edge
-		if ( subWindow.addEventListener ) {
-			subWindow.addEventListener( "unload", unloadHandler, false );
-
-		// Support: IE 9 - 10 only
-		} else if ( subWindow.attachEvent ) {
-			subWindow.attachEvent( "onunload", unloadHandler );
-		}
+		// Support: IE 9 - 11+, Edge 12 - 18+
+		subWindow.addEventListener( "unload", unloadHandler );
 	}
 
-	// Support: IE 8 - 11+, Edge 12 - 18+, Chrome <=16 - 25 only, Firefox <=3.6 - 31 only,
-	// Safari 4 - 5 only, Opera <=11.6 - 12.x only
-	// IE/Edge & older browsers don't support the :scope pseudo-class.
-	// Support: Safari 6.0 only
-	// Safari 6.0 supports :scope but it's an alias of :root there.
-	support.scope = assert( function( el ) {
-		docElem.appendChild( el ).appendChild( document.createElement( "div" ) );
-		return typeof el.querySelectorAll !== "undefined" &&
-			!el.querySelectorAll( ":scope fieldset div" ).length;
-	} );
-
-	/* Attributes
-	---------------------------------------------------------------------- */
-
-	// Support: IE<8
-	// Verify that getAttribute really returns attributes and not properties
-	// (excepting IE8 booleans)
-	support.attributes = assert( function( el ) {
-		el.className = "i";
-		return !el.getAttribute( "className" );
-	} );
-
-	/* getElement(s)By*
-	---------------------------------------------------------------------- */
-
-	// Check if getElementsByTagName("*") returns only elements
-	support.getElementsByTagName = assert( function( el ) {
-		el.appendChild( document.createComment( "" ) );
-		return !el.getElementsByTagName( "*" ).length;
-	} );
-
-	// Support: IE<9
-	support.getElementsByClassName = rnative.test( document.getElementsByClassName );
-
-	// Support: IE<10
+	// Support: IE <10
 	// Check if getElementById returns elements by name
 	// The broken getElementById methods don't pick up programmatically-set names,
 	// so use a roundabout getElementsByName test
 	support.getById = assert( function( el ) {
-		docElem.appendChild( el ).id = expando;
-		return !document.getElementsByName || !document.getElementsByName( expando ).length;
+		documentElement.appendChild( el ).id = jQuery.expando;
+		return !document.getElementsByName ||
+			!document.getElementsByName( jQuery.expando ).length;
+	} );
+
+	// Support: IE 9 only
+	// Check to see if it's possible to do matchesSelector
+	// on a disconnected node.
+	support.disconnectedMatch = assert( function( el ) {
+		return matches.call( el, "*" );
+	} );
+
+	// Support: IE 9 - 11+, Edge 12 - 18+
+	// IE/Edge don't support the :scope pseudo-class.
+	support.scope = assert( function() {
+		return document.querySelectorAll( ":scope" );
+	} );
+
+	// Support: Chrome 105 - 111 only, Safari 15.4 - 16.3 only
+	// Make sure the `:has()` argument is parsed unforgivingly.
+	// We include `*` in the test to detect buggy implementations that are
+	// _selectively_ forgiving (specifically when the list includes at least
+	// one valid selector).
+	// Note that we treat complete lack of support for `:has()` as if it were
+	// spec-compliant support, which is fine because use of `:has()` in such
+	// environments will fail in the qSA path and fall back to jQuery traversal
+	// anyway.
+	support.cssHas = assert( function() {
+		try {
+			document.querySelector( ":has(*,:jqfake)" );
+			return false;
+		} catch ( e ) {
+			return true;
+		}
 	} );
 
 	// ID filter and find
 	if ( support.getById ) {
-		Expr.filter[ "ID" ] = function( id ) {
+		Expr.filter.ID = function( id ) {
 			var attrId = id.replace( runescape, funescape );
 			return function( elem ) {
 				return elem.getAttribute( "id" ) === attrId;
 			};
 		};
-		Expr.find[ "ID" ] = function( id, context ) {
+		Expr.find.ID = function( id, context ) {
 			if ( typeof context.getElementById !== "undefined" && documentIsHTML ) {
 				var elem = context.getElementById( id );
 				return elem ? [ elem ] : [];
 			}
 		};
 	} else {
-		Expr.filter[ "ID" ] =  function( id ) {
+		Expr.filter.ID =  function( id ) {
 			var attrId = id.replace( runescape, funescape );
 			return function( elem ) {
 				var node = typeof elem.getAttributeNode !== "undefined" &&
@@ -1244,7 +1217,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 
 		// Support: IE 6 - 7 only
 		// getElementById is not reliable as a find shortcut
-		Expr.find[ "ID" ] = function( id, context ) {
+		Expr.find.ID = function( id, context ) {
 			if ( typeof context.getElementById !== "undefined" && documentIsHTML ) {
 				var node, i, elems,
 					elem = context.getElementById( id );
@@ -1274,40 +1247,18 @@ setDocument = Sizzle.setDocument = function( node ) {
 	}
 
 	// Tag
-	Expr.find[ "TAG" ] = support.getElementsByTagName ?
-		function( tag, context ) {
-			if ( typeof context.getElementsByTagName !== "undefined" ) {
-				return context.getElementsByTagName( tag );
+	Expr.find.TAG = function( tag, context ) {
+		if ( typeof context.getElementsByTagName !== "undefined" ) {
+			return context.getElementsByTagName( tag );
 
-			// DocumentFragment nodes don't have gEBTN
-			} else if ( support.qsa ) {
-				return context.querySelectorAll( tag );
-			}
-		} :
-
-		function( tag, context ) {
-			var elem,
-				tmp = [],
-				i = 0,
-
-				// By happy coincidence, a (broken) gEBTN appears on DocumentFragment nodes too
-				results = context.getElementsByTagName( tag );
-
-			// Filter out possible comments
-			if ( tag === "*" ) {
-				while ( ( elem = results[ i++ ] ) ) {
-					if ( elem.nodeType === 1 ) {
-						tmp.push( elem );
-					}
-				}
-
-				return tmp;
-			}
-			return results;
-		};
+		// DocumentFragment nodes don't have gEBTN
+		} else {
+			return context.querySelectorAll( tag );
+		}
+	};
 
 	// Class
-	Expr.find[ "CLASS" ] = support.getElementsByClassName && function( className, context ) {
+	Expr.find.CLASS = function( className, context ) {
 		if ( typeof context.getElementsByClassName !== "undefined" && documentIsHTML ) {
 			return context.getElementsByClassName( className );
 		}
@@ -1318,177 +1269,94 @@ setDocument = Sizzle.setDocument = function( node ) {
 
 	// QSA and matchesSelector support
 
-	// matchesSelector(:active) reports false when true (IE9/Opera 11.5)
-	rbuggyMatches = [];
-
-	// qSa(:focus) reports false when true (Chrome 21)
-	// We allow this because of a bug in IE8/9 that throws an error
-	// whenever `document.activeElement` is accessed on an iframe
-	// So, we allow :focus to pass through QSA all the time to avoid the IE error
-	// See https://bugs.jquery.com/ticket/13378
 	rbuggyQSA = [];
 
-	if ( ( support.qsa = rnative.test( document.querySelectorAll ) ) ) {
+	// Build QSA regex
+	// Regex strategy adopted from Diego Perini
+	assert( function( el ) {
 
-		// Build QSA regex
-		// Regex strategy adopted from Diego Perini
-		assert( function( el ) {
+		var input;
 
-			var input;
+		documentElement.appendChild( el ).innerHTML =
+			"<a id='" + expando + "' href='' disabled='disabled'></a>" +
+			"<select id='" + expando + "-\r\\' disabled='disabled'>" +
+			"<option selected=''></option></select>";
 
-			// Select is set to empty string on purpose
-			// This is to test IE's treatment of not explicitly
-			// setting a boolean content attribute,
-			// since its presence should be enough
-			// https://bugs.jquery.com/ticket/12359
-			docElem.appendChild( el ).innerHTML = "<a id='" + expando + "'></a>" +
-				"<select id='" + expando + "-\r\\' msallowcapture=''>" +
-				"<option selected=''></option></select>";
+		// Support: iOS <=7 - 8 only
+		// Boolean attributes and "value" are not treated correctly in some XML documents
+		if ( !el.querySelectorAll( "[selected]" ).length ) {
+			rbuggyQSA.push( "\\[" + whitespace + "*(?:value|" + booleans + ")" );
+		}
 
-			// Support: IE8, Opera 11-12.16
-			// Nothing should be selected when empty strings follow ^= or $= or *=
-			// The test attribute must be unknown in Opera but "safe" for WinRT
-			// https://msdn.microsoft.com/en-us/library/ie/hh465388.aspx#attribute_section
-			if ( el.querySelectorAll( "[msallowcapture^='']" ).length ) {
-				rbuggyQSA.push( "[*^$]=" + whitespace + "*(?:''|\"\")" );
-			}
+		// Support: iOS <=7 - 8 only
+		if ( !el.querySelectorAll( "[id~=" + expando + "-]" ).length ) {
+			rbuggyQSA.push( "~=" );
+		}
 
-			// Support: IE8
-			// Boolean attributes and "value" are not treated correctly
-			if ( !el.querySelectorAll( "[selected]" ).length ) {
-				rbuggyQSA.push( "\\[" + whitespace + "*(?:value|" + booleans + ")" );
-			}
+		// Support: iOS 8 only
+		// https://bugs.webkit.org/show_bug.cgi?id=136851
+		// In-page `selector#id sibling-combinator selector` fails
+		if ( !el.querySelectorAll( "a#" + expando + "+*" ).length ) {
+			rbuggyQSA.push( ".#.+[+~]" );
+		}
 
-			// Support: Chrome<29, Android<4.4, Safari<7.0+, iOS<7.0+, PhantomJS<1.9.8+
-			if ( !el.querySelectorAll( "[id~=" + expando + "-]" ).length ) {
-				rbuggyQSA.push( "~=" );
-			}
+		// Support: Chrome <=105+, Firefox <=104+, Safari <=15.4+
+		// In some of the document kinds, these selectors wouldn't work natively.
+		// This is probably OK but for backwards compatibility we want to maintain
+		// handling them through jQuery traversal in jQuery 3.x.
+		if ( !el.querySelectorAll( ":checked" ).length ) {
+			rbuggyQSA.push( ":checked" );
+		}
 
-			// Support: IE 11+, Edge 15 - 18+
-			// IE 11/Edge don't find elements on a `[name='']` query in some cases.
-			// Adding a temporary attribute to the document before the selection works
-			// around the issue.
-			// Interestingly, IE 10 & older don't seem to have the issue.
-			input = document.createElement( "input" );
-			input.setAttribute( "name", "" );
-			el.appendChild( input );
-			if ( !el.querySelectorAll( "[name='']" ).length ) {
-				rbuggyQSA.push( "\\[" + whitespace + "*name" + whitespace + "*=" +
-					whitespace + "*(?:''|\"\")" );
-			}
+		// Support: Windows 8 Native Apps
+		// The type and name attributes are restricted during .innerHTML assignment
+		input = document.createElement( "input" );
+		input.setAttribute( "type", "hidden" );
+		el.appendChild( input ).setAttribute( "name", "D" );
 
-			// Webkit/Opera - :checked should return selected option elements
-			// http://www.w3.org/TR/2011/REC-css3-selectors-20110929/#checked
-			// IE8 throws error here and will not see later tests
-			if ( !el.querySelectorAll( ":checked" ).length ) {
-				rbuggyQSA.push( ":checked" );
-			}
+		// Support: IE 9 - 11+
+		// IE's :disabled selector does not pick up the children of disabled fieldsets
+		// Support: Chrome <=105+, Firefox <=104+, Safari <=15.4+
+		// In some of the document kinds, these selectors wouldn't work natively.
+		// This is probably OK but for backwards compatibility we want to maintain
+		// handling them through jQuery traversal in jQuery 3.x.
+		documentElement.appendChild( el ).disabled = true;
+		if ( el.querySelectorAll( ":disabled" ).length !== 2 ) {
+			rbuggyQSA.push( ":enabled", ":disabled" );
+		}
 
-			// Support: Safari 8+, iOS 8+
-			// https://bugs.webkit.org/show_bug.cgi?id=136851
-			// In-page `selector#id sibling-combinator selector` fails
-			if ( !el.querySelectorAll( "a#" + expando + "+*" ).length ) {
-				rbuggyQSA.push( ".#.+[+~]" );
-			}
+		// Support: IE 11+, Edge 15 - 18+
+		// IE 11/Edge don't find elements on a `[name='']` query in some cases.
+		// Adding a temporary attribute to the document before the selection works
+		// around the issue.
+		// Interestingly, IE 10 & older don't seem to have the issue.
+		input = document.createElement( "input" );
+		input.setAttribute( "name", "" );
+		el.appendChild( input );
+		if ( !el.querySelectorAll( "[name='']" ).length ) {
+			rbuggyQSA.push( "\\[" + whitespace + "*name" + whitespace + "*=" +
+				whitespace + "*(?:''|\"\")" );
+		}
+	} );
 
-			// Support: Firefox <=3.6 - 5 only
-			// Old Firefox doesn't throw on a badly-escaped identifier.
-			el.querySelectorAll( "\\\f" );
-			rbuggyQSA.push( "[\\r\\n\\f]" );
-		} );
+	if ( !support.cssHas ) {
 
-		assert( function( el ) {
-			el.innerHTML = "<a href='' disabled='disabled'></a>" +
-				"<select disabled='disabled'><option/></select>";
-
-			// Support: Windows 8 Native Apps
-			// The type and name attributes are restricted during .innerHTML assignment
-			var input = document.createElement( "input" );
-			input.setAttribute( "type", "hidden" );
-			el.appendChild( input ).setAttribute( "name", "D" );
-
-			// Support: IE8
-			// Enforce case-sensitivity of name attribute
-			if ( el.querySelectorAll( "[name=d]" ).length ) {
-				rbuggyQSA.push( "name" + whitespace + "*[*^$|!~]?=" );
-			}
-
-			// FF 3.5 - :enabled/:disabled and hidden elements (hidden elements are still enabled)
-			// IE8 throws error here and will not see later tests
-			if ( el.querySelectorAll( ":enabled" ).length !== 2 ) {
-				rbuggyQSA.push( ":enabled", ":disabled" );
-			}
-
-			// Support: IE9-11+
-			// IE's :disabled selector does not pick up the children of disabled fieldsets
-			docElem.appendChild( el ).disabled = true;
-			if ( el.querySelectorAll( ":disabled" ).length !== 2 ) {
-				rbuggyQSA.push( ":enabled", ":disabled" );
-			}
-
-			// Support: Opera 10 - 11 only
-			// Opera 10-11 does not throw on post-comma invalid pseudos
-			el.querySelectorAll( "*,:x" );
-			rbuggyQSA.push( ",.*:" );
-		} );
-	}
-
-	if ( ( support.matchesSelector = rnative.test( ( matches = docElem.matches ||
-		docElem.webkitMatchesSelector ||
-		docElem.mozMatchesSelector ||
-		docElem.oMatchesSelector ||
-		docElem.msMatchesSelector ) ) ) ) {
-
-		assert( function( el ) {
-
-			// Check to see if it's possible to do matchesSelector
-			// on a disconnected node (IE 9)
-			support.disconnectedMatch = matches.call( el, "*" );
-
-			// This should fail with an exception
-			// Gecko does not error, returns false instead
-			matches.call( el, "[s!='']:x" );
-			rbuggyMatches.push( "!=", pseudos );
-		} );
+		// Support: Chrome 105 - 110+, Safari 15.4 - 16.3+
+		// Our regular `try-catch` mechanism fails to detect natively-unsupported
+		// pseudo-classes inside `:has()` (such as `:has(:contains("Foo"))`)
+		// in browsers that parse the `:has()` argument as a forgiving selector list.
+		// https://drafts.csswg.org/selectors/#relational now requires the argument
+		// to be parsed unforgivingly, but browsers have not yet fully adjusted.
+		rbuggyQSA.push( ":has" );
 	}
 
 	rbuggyQSA = rbuggyQSA.length && new RegExp( rbuggyQSA.join( "|" ) );
-	rbuggyMatches = rbuggyMatches.length && new RegExp( rbuggyMatches.join( "|" ) );
-
-	/* Contains
-	---------------------------------------------------------------------- */
-	hasCompare = rnative.test( docElem.compareDocumentPosition );
-
-	// Element contains another
-	// Purposefully self-exclusive
-	// As in, an element does not contain itself
-	contains = hasCompare || rnative.test( docElem.contains ) ?
-		function( a, b ) {
-			var adown = a.nodeType === 9 ? a.documentElement : a,
-				bup = b && b.parentNode;
-			return a === bup || !!( bup && bup.nodeType === 1 && (
-				adown.contains ?
-					adown.contains( bup ) :
-					a.compareDocumentPosition && a.compareDocumentPosition( bup ) & 16
-			) );
-		} :
-		function( a, b ) {
-			if ( b ) {
-				while ( ( b = b.parentNode ) ) {
-					if ( b === a ) {
-						return true;
-					}
-				}
-			}
-			return false;
-		};
 
 	/* Sorting
 	---------------------------------------------------------------------- */
 
 	// Document order sorting
-	sortOrder = hasCompare ?
-	function( a, b ) {
+	sortOrder = function( a, b ) {
 
 		// Flag for duplicate removal
 		if ( a === b ) {
@@ -1522,8 +1390,8 @@ setDocument = Sizzle.setDocument = function( node ) {
 			// IE/Edge sometimes throw a "Permission denied" error when strict-comparing
 			// two documents; shallow comparisons work.
 			// eslint-disable-next-line eqeqeq
-			if ( a == document || a.ownerDocument == preferredDoc &&
-				contains( preferredDoc, a ) ) {
+			if ( a === document || a.ownerDocument == preferredDoc &&
+				find.contains( preferredDoc, a ) ) {
 				return -1;
 			}
 
@@ -1531,100 +1399,33 @@ setDocument = Sizzle.setDocument = function( node ) {
 			// IE/Edge sometimes throw a "Permission denied" error when strict-comparing
 			// two documents; shallow comparisons work.
 			// eslint-disable-next-line eqeqeq
-			if ( b == document || b.ownerDocument == preferredDoc &&
-				contains( preferredDoc, b ) ) {
+			if ( b === document || b.ownerDocument == preferredDoc &&
+				find.contains( preferredDoc, b ) ) {
 				return 1;
 			}
 
 			// Maintain original order
 			return sortInput ?
-				( indexOf( sortInput, a ) - indexOf( sortInput, b ) ) :
+				( indexOf.call( sortInput, a ) - indexOf.call( sortInput, b ) ) :
 				0;
 		}
 
 		return compare & 4 ? -1 : 1;
-	} :
-	function( a, b ) {
-
-		// Exit early if the nodes are identical
-		if ( a === b ) {
-			hasDuplicate = true;
-			return 0;
-		}
-
-		var cur,
-			i = 0,
-			aup = a.parentNode,
-			bup = b.parentNode,
-			ap = [ a ],
-			bp = [ b ];
-
-		// Parentless nodes are either documents or disconnected
-		if ( !aup || !bup ) {
-
-			// Support: IE 11+, Edge 17 - 18+
-			// IE/Edge sometimes throw a "Permission denied" error when strict-comparing
-			// two documents; shallow comparisons work.
-			/* eslint-disable eqeqeq */
-			return a == document ? -1 :
-				b == document ? 1 :
-				/* eslint-enable eqeqeq */
-				aup ? -1 :
-				bup ? 1 :
-				sortInput ?
-				( indexOf( sortInput, a ) - indexOf( sortInput, b ) ) :
-				0;
-
-		// If the nodes are siblings, we can do a quick check
-		} else if ( aup === bup ) {
-			return siblingCheck( a, b );
-		}
-
-		// Otherwise we need full lists of their ancestors for comparison
-		cur = a;
-		while ( ( cur = cur.parentNode ) ) {
-			ap.unshift( cur );
-		}
-		cur = b;
-		while ( ( cur = cur.parentNode ) ) {
-			bp.unshift( cur );
-		}
-
-		// Walk down the tree looking for a discrepancy
-		while ( ap[ i ] === bp[ i ] ) {
-			i++;
-		}
-
-		return i ?
-
-			// Do a sibling check if the nodes have a common ancestor
-			siblingCheck( ap[ i ], bp[ i ] ) :
-
-			// Otherwise nodes in our document sort first
-			// Support: IE 11+, Edge 17 - 18+
-			// IE/Edge sometimes throw a "Permission denied" error when strict-comparing
-			// two documents; shallow comparisons work.
-			/* eslint-disable eqeqeq */
-			ap[ i ] == preferredDoc ? -1 :
-			bp[ i ] == preferredDoc ? 1 :
-			/* eslint-enable eqeqeq */
-			0;
 	};
 
 	return document;
+}
+
+find.matches = function( expr, elements ) {
+	return find( expr, null, null, elements );
 };
 
-Sizzle.matches = function( expr, elements ) {
-	return Sizzle( expr, null, null, elements );
-};
-
-Sizzle.matchesSelector = function( elem, expr ) {
+find.matchesSelector = function( elem, expr ) {
 	setDocument( elem );
 
-	if ( support.matchesSelector && documentIsHTML &&
+	if ( documentIsHTML &&
 		!nonnativeSelectorCache[ expr + " " ] &&
-		( !rbuggyMatches || !rbuggyMatches.test( expr ) ) &&
-		( !rbuggyQSA     || !rbuggyQSA.test( expr ) ) ) {
+		( !rbuggyQSA || !rbuggyQSA.test( expr ) ) ) {
 
 		try {
 			var ret = matches.call( elem, expr );
@@ -1632,9 +1433,9 @@ Sizzle.matchesSelector = function( elem, expr ) {
 			// IE 9's matchesSelector returns false on disconnected nodes
 			if ( ret || support.disconnectedMatch ||
 
-				// As well, disconnected nodes are said to be in a document
-				// fragment in IE 9
-				elem.document && elem.document.nodeType !== 11 ) {
+					// As well, disconnected nodes are said to be in a document
+					// fragment in IE 9
+					elem.document && elem.document.nodeType !== 11 ) {
 				return ret;
 			}
 		} catch ( e ) {
@@ -1642,10 +1443,10 @@ Sizzle.matchesSelector = function( elem, expr ) {
 		}
 	}
 
-	return Sizzle( expr, document, null, [ elem ] ).length > 0;
+	return find( expr, document, null, [ elem ] ).length > 0;
 };
 
-Sizzle.contains = function( context, elem ) {
+find.contains = function( context, elem ) {
 
 	// Set document vars if needed
 	// Support: IE 11+, Edge 17 - 18+
@@ -1655,10 +1456,11 @@ Sizzle.contains = function( context, elem ) {
 	if ( ( context.ownerDocument || context ) != document ) {
 		setDocument( context );
 	}
-	return contains( context, elem );
+	return jQuery.contains( context, elem );
 };
 
-Sizzle.attr = function( elem, name ) {
+
+find.attr = function( elem, name ) {
 
 	// Set document vars if needed
 	// Support: IE 11+, Edge 17 - 18+
@@ -1671,25 +1473,19 @@ Sizzle.attr = function( elem, name ) {
 
 	var fn = Expr.attrHandle[ name.toLowerCase() ],
 
-		// Don't get fooled by Object.prototype properties (jQuery #13807)
+		// Don't get fooled by Object.prototype properties (see trac-13807)
 		val = fn && hasOwn.call( Expr.attrHandle, name.toLowerCase() ) ?
 			fn( elem, name, !documentIsHTML ) :
 			undefined;
 
-	return val !== undefined ?
-		val :
-		support.attributes || !documentIsHTML ?
-			elem.getAttribute( name ) :
-			( val = elem.getAttributeNode( name ) ) && val.specified ?
-				val.value :
-				null;
+	if ( val !== undefined ) {
+		return val;
+	}
+
+	return elem.getAttribute( name );
 };
 
-Sizzle.escape = function( sel ) {
-	return ( sel + "" ).replace( rcssescape, fcssescape );
-};
-
-Sizzle.error = function( msg ) {
+find.error = function( msg ) {
 	throw new Error( "Syntax error, unrecognized expression: " + msg );
 };
 
@@ -1697,16 +1493,20 @@ Sizzle.error = function( msg ) {
  * Document sorting and removing duplicates
  * @param {ArrayLike} results
  */
-Sizzle.uniqueSort = function( results ) {
+jQuery.uniqueSort = function( results ) {
 	var elem,
 		duplicates = [],
 		j = 0,
 		i = 0;
 
 	// Unless we *know* we can detect duplicates, assume their presence
-	hasDuplicate = !support.detectDuplicates;
-	sortInput = !support.sortStable && results.slice( 0 );
-	results.sort( sortOrder );
+	//
+	// Support: Android <=4.0+
+	// Testing for detecting duplicates is unpredictable so instead assume we can't
+	// depend on duplicate detection in all browsers without a stable sort.
+	hasDuplicate = !support.sortStable;
+	sortInput = !support.sortStable && slice.call( results, 0 );
+	sort.call( results, sortOrder );
 
 	if ( hasDuplicate ) {
 		while ( ( elem = results[ i++ ] ) ) {
@@ -1715,7 +1515,7 @@ Sizzle.uniqueSort = function( results ) {
 			}
 		}
 		while ( j-- ) {
-			results.splice( duplicates[ j ], 1 );
+			splice.call( results, duplicates[ j ], 1 );
 		}
 	}
 
@@ -1726,47 +1526,11 @@ Sizzle.uniqueSort = function( results ) {
 	return results;
 };
 
-/**
- * Utility function for retrieving the text value of an array of DOM nodes
- * @param {Array|Element} elem
- */
-getText = Sizzle.getText = function( elem ) {
-	var node,
-		ret = "",
-		i = 0,
-		nodeType = elem.nodeType;
-
-	if ( !nodeType ) {
-
-		// If no nodeType, this is expected to be an array
-		while ( ( node = elem[ i++ ] ) ) {
-
-			// Do not traverse comment nodes
-			ret += getText( node );
-		}
-	} else if ( nodeType === 1 || nodeType === 9 || nodeType === 11 ) {
-
-		// Use textContent for elements
-		// innerText usage removed for consistency of new lines (jQuery #11153)
-		if ( typeof elem.textContent === "string" ) {
-			return elem.textContent;
-		} else {
-
-			// Traverse its children
-			for ( elem = elem.firstChild; elem; elem = elem.nextSibling ) {
-				ret += getText( elem );
-			}
-		}
-	} else if ( nodeType === 3 || nodeType === 4 ) {
-		return elem.nodeValue;
-	}
-
-	// Do not include comment or processing instruction nodes
-
-	return ret;
+jQuery.fn.uniqueSort = function() {
+	return this.pushStack( jQuery.uniqueSort( slice.apply( this ) ) );
 };
 
-Expr = Sizzle.selectors = {
+Expr = jQuery.expr = {
 
 	// Can be adjusted by the user
 	cacheLength: 50,
@@ -1787,12 +1551,12 @@ Expr = Sizzle.selectors = {
 	},
 
 	preFilter: {
-		"ATTR": function( match ) {
+		ATTR: function( match ) {
 			match[ 1 ] = match[ 1 ].replace( runescape, funescape );
 
 			// Move the given value to match[3] whether quoted or unquoted
-			match[ 3 ] = ( match[ 3 ] || match[ 4 ] ||
-				match[ 5 ] || "" ).replace( runescape, funescape );
+			match[ 3 ] = ( match[ 3 ] || match[ 4 ] || match[ 5 ] || "" )
+				.replace( runescape, funescape );
 
 			if ( match[ 2 ] === "~=" ) {
 				match[ 3 ] = " " + match[ 3 ] + " ";
@@ -1801,7 +1565,7 @@ Expr = Sizzle.selectors = {
 			return match.slice( 0, 4 );
 		},
 
-		"CHILD": function( match ) {
+		CHILD: function( match ) {
 
 			/* matches from matchExpr["CHILD"]
 				1 type (only|nth|...)
@@ -1819,29 +1583,30 @@ Expr = Sizzle.selectors = {
 
 				// nth-* requires argument
 				if ( !match[ 3 ] ) {
-					Sizzle.error( match[ 0 ] );
+					find.error( match[ 0 ] );
 				}
 
 				// numeric x and y parameters for Expr.filter.CHILD
 				// remember that false/true cast respectively to 0/1
 				match[ 4 ] = +( match[ 4 ] ?
 					match[ 5 ] + ( match[ 6 ] || 1 ) :
-					2 * ( match[ 3 ] === "even" || match[ 3 ] === "odd" ) );
+					2 * ( match[ 3 ] === "even" || match[ 3 ] === "odd" )
+				);
 				match[ 5 ] = +( ( match[ 7 ] + match[ 8 ] ) || match[ 3 ] === "odd" );
 
-				// other types prohibit arguments
+			// other types prohibit arguments
 			} else if ( match[ 3 ] ) {
-				Sizzle.error( match[ 0 ] );
+				find.error( match[ 0 ] );
 			}
 
 			return match;
 		},
 
-		"PSEUDO": function( match ) {
+		PSEUDO: function( match ) {
 			var excess,
 				unquoted = !match[ 6 ] && match[ 2 ];
 
-			if ( matchExpr[ "CHILD" ].test( match[ 0 ] ) ) {
+			if ( matchExpr.CHILD.test( match[ 0 ] ) ) {
 				return null;
 			}
 
@@ -1870,36 +1635,36 @@ Expr = Sizzle.selectors = {
 
 	filter: {
 
-		"TAG": function( nodeNameSelector ) {
-			var nodeName = nodeNameSelector.replace( runescape, funescape ).toLowerCase();
+		TAG: function( nodeNameSelector ) {
+			var expectedNodeName = nodeNameSelector.replace( runescape, funescape ).toLowerCase();
 			return nodeNameSelector === "*" ?
 				function() {
 					return true;
 				} :
 				function( elem ) {
-					return elem.nodeName && elem.nodeName.toLowerCase() === nodeName;
+					return nodeName( elem, expectedNodeName );
 				};
 		},
 
-		"CLASS": function( className ) {
+		CLASS: function( className ) {
 			var pattern = classCache[ className + " " ];
 
 			return pattern ||
-				( pattern = new RegExp( "(^|" + whitespace +
-					")" + className + "(" + whitespace + "|$)" ) ) && classCache(
-						className, function( elem ) {
-							return pattern.test(
-								typeof elem.className === "string" && elem.className ||
-								typeof elem.getAttribute !== "undefined" &&
-									elem.getAttribute( "class" ) ||
-								""
-							);
+				( pattern = new RegExp( "(^|" + whitespace + ")" + className +
+					"(" + whitespace + "|$)" ) ) &&
+				classCache( className, function( elem ) {
+					return pattern.test(
+						typeof elem.className === "string" && elem.className ||
+							typeof elem.getAttribute !== "undefined" &&
+								elem.getAttribute( "class" ) ||
+							""
+					);
 				} );
 		},
 
-		"ATTR": function( name, operator, check ) {
+		ATTR: function( name, operator, check ) {
 			return function( elem ) {
-				var result = Sizzle.attr( elem, name );
+				var result = find.attr( elem, name );
 
 				if ( result == null ) {
 					return operator === "!=";
@@ -1910,22 +1675,34 @@ Expr = Sizzle.selectors = {
 
 				result += "";
 
-				/* eslint-disable max-len */
+				if ( operator === "=" ) {
+					return result === check;
+				}
+				if ( operator === "!=" ) {
+					return result !== check;
+				}
+				if ( operator === "^=" ) {
+					return check && result.indexOf( check ) === 0;
+				}
+				if ( operator === "*=" ) {
+					return check && result.indexOf( check ) > -1;
+				}
+				if ( operator === "$=" ) {
+					return check && result.slice( -check.length ) === check;
+				}
+				if ( operator === "~=" ) {
+					return ( " " + result.replace( rwhitespace, " " ) + " " )
+						.indexOf( check ) > -1;
+				}
+				if ( operator === "|=" ) {
+					return result === check || result.slice( 0, check.length + 1 ) === check + "-";
+				}
 
-				return operator === "=" ? result === check :
-					operator === "!=" ? result !== check :
-					operator === "^=" ? check && result.indexOf( check ) === 0 :
-					operator === "*=" ? check && result.indexOf( check ) > -1 :
-					operator === "$=" ? check && result.slice( -check.length ) === check :
-					operator === "~=" ? ( " " + result.replace( rwhitespace, " " ) + " " ).indexOf( check ) > -1 :
-					operator === "|=" ? result === check || result.slice( 0, check.length + 1 ) === check + "-" :
-					false;
-				/* eslint-enable max-len */
-
+				return false;
 			};
 		},
 
-		"CHILD": function( type, what, _argument, first, last ) {
+		CHILD: function( type, what, _argument, first, last ) {
 			var simple = type.slice( 0, 3 ) !== "nth",
 				forward = type.slice( -4 ) !== "last",
 				ofType = what === "of-type";
@@ -1938,7 +1715,7 @@ Expr = Sizzle.selectors = {
 				} :
 
 				function( elem, _context, xml ) {
-					var cache, uniqueCache, outerCache, node, nodeIndex, start,
+					var cache, outerCache, node, nodeIndex, start,
 						dir = simple !== forward ? "nextSibling" : "previousSibling",
 						parent = elem.parentNode,
 						name = ofType && elem.nodeName.toLowerCase(),
@@ -1953,7 +1730,7 @@ Expr = Sizzle.selectors = {
 								node = elem;
 								while ( ( node = node[ dir ] ) ) {
 									if ( ofType ?
-										node.nodeName.toLowerCase() === name :
+										nodeName( node, name ) :
 										node.nodeType === 1 ) {
 
 										return false;
@@ -1972,17 +1749,8 @@ Expr = Sizzle.selectors = {
 						if ( forward && useCache ) {
 
 							// Seek `elem` from a previously-cached index
-
-							// ...in a gzip-friendly way
-							node = parent;
-							outerCache = node[ expando ] || ( node[ expando ] = {} );
-
-							// Support: IE <9 only
-							// Defend against cloned attroperties (jQuery gh-1709)
-							uniqueCache = outerCache[ node.uniqueID ] ||
-								( outerCache[ node.uniqueID ] = {} );
-
-							cache = uniqueCache[ type ] || [];
+							outerCache = parent[ expando ] || ( parent[ expando ] = {} );
+							cache = outerCache[ type ] || [];
 							nodeIndex = cache[ 0 ] === dirruns && cache[ 1 ];
 							diff = nodeIndex && cache[ 2 ];
 							node = nodeIndex && parent.childNodes[ nodeIndex ];
@@ -1994,7 +1762,7 @@ Expr = Sizzle.selectors = {
 
 								// When found, cache indexes on `parent` and break
 								if ( node.nodeType === 1 && ++diff && node === elem ) {
-									uniqueCache[ type ] = [ dirruns, nodeIndex, diff ];
+									outerCache[ type ] = [ dirruns, nodeIndex, diff ];
 									break;
 								}
 							}
@@ -2003,17 +1771,8 @@ Expr = Sizzle.selectors = {
 
 							// Use previously-cached element index if available
 							if ( useCache ) {
-
-								// ...in a gzip-friendly way
-								node = elem;
-								outerCache = node[ expando ] || ( node[ expando ] = {} );
-
-								// Support: IE <9 only
-								// Defend against cloned attroperties (jQuery gh-1709)
-								uniqueCache = outerCache[ node.uniqueID ] ||
-									( outerCache[ node.uniqueID ] = {} );
-
-								cache = uniqueCache[ type ] || [];
+								outerCache = elem[ expando ] || ( elem[ expando ] = {} );
+								cache = outerCache[ type ] || [];
 								nodeIndex = cache[ 0 ] === dirruns && cache[ 1 ];
 								diff = nodeIndex;
 							}
@@ -2027,7 +1786,7 @@ Expr = Sizzle.selectors = {
 									( diff = nodeIndex = 0 ) || start.pop() ) ) {
 
 									if ( ( ofType ?
-										node.nodeName.toLowerCase() === name :
+										nodeName( node, name ) :
 										node.nodeType === 1 ) &&
 										++diff ) {
 
@@ -2035,13 +1794,7 @@ Expr = Sizzle.selectors = {
 										if ( useCache ) {
 											outerCache = node[ expando ] ||
 												( node[ expando ] = {} );
-
-											// Support: IE <9 only
-											// Defend against cloned attroperties (jQuery gh-1709)
-											uniqueCache = outerCache[ node.uniqueID ] ||
-												( outerCache[ node.uniqueID ] = {} );
-
-											uniqueCache[ type ] = [ dirruns, diff ];
+											outerCache[ type ] = [ dirruns, diff ];
 										}
 
 										if ( node === elem ) {
@@ -2059,19 +1812,19 @@ Expr = Sizzle.selectors = {
 				};
 		},
 
-		"PSEUDO": function( pseudo, argument ) {
+		PSEUDO: function( pseudo, argument ) {
 
 			// pseudo-class names are case-insensitive
-			// http://www.w3.org/TR/selectors/#pseudo-classes
+			// https://www.w3.org/TR/selectors/#pseudo-classes
 			// Prioritize by case sensitivity in case custom pseudos are added with uppercase letters
 			// Remember that setFilters inherits from pseudos
 			var args,
 				fn = Expr.pseudos[ pseudo ] || Expr.setFilters[ pseudo.toLowerCase() ] ||
-					Sizzle.error( "unsupported pseudo: " + pseudo );
+					find.error( "unsupported pseudo: " + pseudo );
 
 			// The user may use createPseudo to indicate that
 			// arguments are needed to create the filter function
-			// just as Sizzle does
+			// just as jQuery does
 			if ( fn[ expando ] ) {
 				return fn( argument );
 			}
@@ -2085,7 +1838,7 @@ Expr = Sizzle.selectors = {
 							matched = fn( seed, argument ),
 							i = matched.length;
 						while ( i-- ) {
-							idx = indexOf( seed, matched[ i ] );
+							idx = indexOf.call( seed, matched[ i ] );
 							seed[ idx ] = !( matches[ idx ] = matched[ i ] );
 						}
 					} ) :
@@ -2101,14 +1854,14 @@ Expr = Sizzle.selectors = {
 	pseudos: {
 
 		// Potentially complex pseudos
-		"not": markFunction( function( selector ) {
+		not: markFunction( function( selector ) {
 
 			// Trim the selector passed to compile
 			// to avoid treating leading and trailing
 			// spaces as combinators
 			var input = [],
 				results = [],
-				matcher = compile( selector.replace( rtrim, "$1" ) );
+				matcher = compile( selector.replace( rtrimCSS, "$1" ) );
 
 			return matcher[ expando ] ?
 				markFunction( function( seed, matches, _context, xml ) {
@@ -2127,22 +1880,23 @@ Expr = Sizzle.selectors = {
 					input[ 0 ] = elem;
 					matcher( input, null, xml, results );
 
-					// Don't keep the element (issue #299)
+					// Don't keep the element
+					// (see https://github.com/jquery/sizzle/issues/299)
 					input[ 0 ] = null;
 					return !results.pop();
 				};
 		} ),
 
-		"has": markFunction( function( selector ) {
+		has: markFunction( function( selector ) {
 			return function( elem ) {
-				return Sizzle( selector, elem ).length > 0;
+				return find( selector, elem ).length > 0;
 			};
 		} ),
 
-		"contains": markFunction( function( text ) {
+		contains: markFunction( function( text ) {
 			text = text.replace( runescape, funescape );
 			return function( elem ) {
-				return ( elem.textContent || getText( elem ) ).indexOf( text ) > -1;
+				return ( elem.textContent || jQuery.text( elem ) ).indexOf( text ) > -1;
 			};
 		} ),
 
@@ -2152,12 +1906,12 @@ Expr = Sizzle.selectors = {
 		// or beginning with the identifier C immediately followed by "-".
 		// The matching of C against the element's language value is performed case-insensitively.
 		// The identifier C does not have to be a valid language name."
-		// http://www.w3.org/TR/selectors/#lang-pseudo
-		"lang": markFunction( function( lang ) {
+		// https://www.w3.org/TR/selectors/#lang-pseudo
+		lang: markFunction( function( lang ) {
 
 			// lang value must be a valid identifier
 			if ( !ridentifier.test( lang || "" ) ) {
-				Sizzle.error( "unsupported lang: " + lang );
+				find.error( "unsupported lang: " + lang );
 			}
 			lang = lang.replace( runescape, funescape ).toLowerCase();
 			return function( elem ) {
@@ -2176,38 +1930,39 @@ Expr = Sizzle.selectors = {
 		} ),
 
 		// Miscellaneous
-		"target": function( elem ) {
+		target: function( elem ) {
 			var hash = window.location && window.location.hash;
 			return hash && hash.slice( 1 ) === elem.id;
 		},
 
-		"root": function( elem ) {
-			return elem === docElem;
+		root: function( elem ) {
+			return elem === documentElement;
 		},
 
-		"focus": function( elem ) {
-			return elem === document.activeElement &&
-				( !document.hasFocus || document.hasFocus() ) &&
+		focus: function( elem ) {
+			return elem === safeActiveElement() &&
+				document.hasFocus() &&
 				!!( elem.type || elem.href || ~elem.tabIndex );
 		},
 
 		// Boolean properties
-		"enabled": createDisabledPseudo( false ),
-		"disabled": createDisabledPseudo( true ),
+		enabled: createDisabledPseudo( false ),
+		disabled: createDisabledPseudo( true ),
 
-		"checked": function( elem ) {
+		checked: function( elem ) {
 
 			// In CSS3, :checked should return both checked and selected elements
-			// http://www.w3.org/TR/2011/REC-css3-selectors-20110929/#checked
-			var nodeName = elem.nodeName.toLowerCase();
-			return ( nodeName === "input" && !!elem.checked ) ||
-				( nodeName === "option" && !!elem.selected );
+			// https://www.w3.org/TR/2011/REC-css3-selectors-20110929/#checked
+			return ( nodeName( elem, "input" ) && !!elem.checked ) ||
+				( nodeName( elem, "option" ) && !!elem.selected );
 		},
 
-		"selected": function( elem ) {
+		selected: function( elem ) {
 
-			// Accessing this property makes selected-by-default
-			// options in Safari work properly
+			// Support: IE <=11+
+			// Accessing the selectedIndex property
+			// forces the browser to treat the default option as
+			// selected when in an optgroup.
 			if ( elem.parentNode ) {
 				// eslint-disable-next-line no-unused-expressions
 				elem.parentNode.selectedIndex;
@@ -2217,9 +1972,9 @@ Expr = Sizzle.selectors = {
 		},
 
 		// Contents
-		"empty": function( elem ) {
+		empty: function( elem ) {
 
-			// http://www.w3.org/TR/selectors/#empty-pseudo
+			// https://www.w3.org/TR/selectors/#empty-pseudo
 			// :empty is negated by element (1) or content nodes (text: 3; cdata: 4; entity ref: 5),
 			//   but not by others (comment: 8; processing instruction: 7; etc.)
 			// nodeType < 6 works because attributes (2) do not appear as children
@@ -2231,49 +1986,49 @@ Expr = Sizzle.selectors = {
 			return true;
 		},
 
-		"parent": function( elem ) {
-			return !Expr.pseudos[ "empty" ]( elem );
+		parent: function( elem ) {
+			return !Expr.pseudos.empty( elem );
 		},
 
 		// Element/input types
-		"header": function( elem ) {
+		header: function( elem ) {
 			return rheader.test( elem.nodeName );
 		},
 
-		"input": function( elem ) {
+		input: function( elem ) {
 			return rinputs.test( elem.nodeName );
 		},
 
-		"button": function( elem ) {
-			var name = elem.nodeName.toLowerCase();
-			return name === "input" && elem.type === "button" || name === "button";
+		button: function( elem ) {
+			return nodeName( elem, "input" ) && elem.type === "button" ||
+				nodeName( elem, "button" );
 		},
 
-		"text": function( elem ) {
+		text: function( elem ) {
 			var attr;
-			return elem.nodeName.toLowerCase() === "input" &&
-				elem.type === "text" &&
+			return nodeName( elem, "input" ) && elem.type === "text" &&
 
-				// Support: IE<8
-				// New HTML5 attribute values (e.g., "search") appear with elem.type === "text"
+				// Support: IE <10 only
+				// New HTML5 attribute values (e.g., "search") appear
+				// with elem.type === "text"
 				( ( attr = elem.getAttribute( "type" ) ) == null ||
 					attr.toLowerCase() === "text" );
 		},
 
 		// Position-in-collection
-		"first": createPositionalPseudo( function() {
+		first: createPositionalPseudo( function() {
 			return [ 0 ];
 		} ),
 
-		"last": createPositionalPseudo( function( _matchIndexes, length ) {
+		last: createPositionalPseudo( function( _matchIndexes, length ) {
 			return [ length - 1 ];
 		} ),
 
-		"eq": createPositionalPseudo( function( _matchIndexes, length, argument ) {
+		eq: createPositionalPseudo( function( _matchIndexes, length, argument ) {
 			return [ argument < 0 ? argument + length : argument ];
 		} ),
 
-		"even": createPositionalPseudo( function( matchIndexes, length ) {
+		even: createPositionalPseudo( function( matchIndexes, length ) {
 			var i = 0;
 			for ( ; i < length; i += 2 ) {
 				matchIndexes.push( i );
@@ -2281,7 +2036,7 @@ Expr = Sizzle.selectors = {
 			return matchIndexes;
 		} ),
 
-		"odd": createPositionalPseudo( function( matchIndexes, length ) {
+		odd: createPositionalPseudo( function( matchIndexes, length ) {
 			var i = 1;
 			for ( ; i < length; i += 2 ) {
 				matchIndexes.push( i );
@@ -2289,19 +2044,24 @@ Expr = Sizzle.selectors = {
 			return matchIndexes;
 		} ),
 
-		"lt": createPositionalPseudo( function( matchIndexes, length, argument ) {
-			var i = argument < 0 ?
-				argument + length :
-				argument > length ?
-					length :
-					argument;
+		lt: createPositionalPseudo( function( matchIndexes, length, argument ) {
+			var i;
+
+			if ( argument < 0 ) {
+				i = argument + length;
+			} else if ( argument > length ) {
+				i = length;
+			} else {
+				i = argument;
+			}
+
 			for ( ; --i >= 0; ) {
 				matchIndexes.push( i );
 			}
 			return matchIndexes;
 		} ),
 
-		"gt": createPositionalPseudo( function( matchIndexes, length, argument ) {
+		gt: createPositionalPseudo( function( matchIndexes, length, argument ) {
 			var i = argument < 0 ? argument + length : argument;
 			for ( ; ++i < length; ) {
 				matchIndexes.push( i );
@@ -2311,7 +2071,7 @@ Expr = Sizzle.selectors = {
 	}
 };
 
-Expr.pseudos[ "nth" ] = Expr.pseudos[ "eq" ];
+Expr.pseudos.nth = Expr.pseudos.eq;
 
 // Add button/input type pseudos
 for ( i in { radio: true, checkbox: true, file: true, password: true, image: true } ) {
@@ -2326,7 +2086,7 @@ function setFilters() {}
 setFilters.prototype = Expr.filters = Expr.pseudos;
 Expr.setFilters = new setFilters();
 
-tokenize = Sizzle.tokenize = function( selector, parseOnly ) {
+function tokenize( selector, parseOnly ) {
 	var matched, match, tokens, type,
 		soFar, groups, preFilters,
 		cached = tokenCache[ selector + " " ];
@@ -2354,13 +2114,13 @@ tokenize = Sizzle.tokenize = function( selector, parseOnly ) {
 		matched = false;
 
 		// Combinators
-		if ( ( match = rcombinators.exec( soFar ) ) ) {
+		if ( ( match = rleadingCombinator.exec( soFar ) ) ) {
 			matched = match.shift();
 			tokens.push( {
 				value: matched,
 
 				// Cast descendant combinators to space
-				type: match[ 0 ].replace( rtrim, " " )
+				type: match[ 0 ].replace( rtrimCSS, " " )
 			} );
 			soFar = soFar.slice( matched.length );
 		}
@@ -2387,14 +2147,16 @@ tokenize = Sizzle.tokenize = function( selector, parseOnly ) {
 	// Return the length of the invalid excess
 	// if we're just parsing
 	// Otherwise, throw an error or return tokens
-	return parseOnly ?
-		soFar.length :
-		soFar ?
-			Sizzle.error( selector ) :
+	if ( parseOnly ) {
+		return soFar.length;
+	}
 
-			// Cache the tokens
-			tokenCache( selector, groups ).slice( 0 );
-};
+	return soFar ?
+		find.error( selector ) :
+
+		// Cache the tokens
+		tokenCache( selector, groups ).slice( 0 );
+}
 
 function toSelector( tokens ) {
 	var i = 0,
@@ -2427,7 +2189,7 @@ function addCombinator( matcher, combinator, base ) {
 
 		// Check against all ancestor/preceding elements
 		function( elem, context, xml ) {
-			var oldCache, uniqueCache, outerCache,
+			var oldCache, outerCache,
 				newCache = [ dirruns, doneName ];
 
 			// We can't set arbitrary data on XML nodes, so they don't benefit from combinator caching
@@ -2444,14 +2206,9 @@ function addCombinator( matcher, combinator, base ) {
 					if ( elem.nodeType === 1 || checkNonElements ) {
 						outerCache = elem[ expando ] || ( elem[ expando ] = {} );
 
-						// Support: IE <9 only
-						// Defend against cloned attroperties (jQuery gh-1709)
-						uniqueCache = outerCache[ elem.uniqueID ] ||
-							( outerCache[ elem.uniqueID ] = {} );
-
-						if ( skip && skip === elem.nodeName.toLowerCase() ) {
+						if ( skip && nodeName( elem, skip ) ) {
 							elem = elem[ dir ] || elem;
-						} else if ( ( oldCache = uniqueCache[ key ] ) &&
+						} else if ( ( oldCache = outerCache[ key ] ) &&
 							oldCache[ 0 ] === dirruns && oldCache[ 1 ] === doneName ) {
 
 							// Assign to newCache so results back-propagate to previous elements
@@ -2459,7 +2216,7 @@ function addCombinator( matcher, combinator, base ) {
 						} else {
 
 							// Reuse newcache so results back-propagate to previous elements
-							uniqueCache[ key ] = newCache;
+							outerCache[ key ] = newCache;
 
 							// A match means we're done; a fail means we have to keep checking
 							if ( ( newCache[ 2 ] = matcher( elem, context, xml ) ) ) {
@@ -2491,7 +2248,7 @@ function multipleContexts( selector, contexts, results ) {
 	var i = 0,
 		len = contexts.length;
 	for ( ; i < len; i++ ) {
-		Sizzle( selector, contexts[ i ], results );
+		find( selector, contexts[ i ], results );
 	}
 	return results;
 }
@@ -2525,38 +2282,37 @@ function setMatcher( preFilter, selector, matcher, postFilter, postFinder, postS
 		postFinder = setMatcher( postFinder, postSelector );
 	}
 	return markFunction( function( seed, results, context, xml ) {
-		var temp, i, elem,
+		var temp, i, elem, matcherOut,
 			preMap = [],
 			postMap = [],
 			preexisting = results.length,
 
 			// Get initial elements from seed or context
-			elems = seed || multipleContexts(
-				selector || "*",
-				context.nodeType ? [ context ] : context,
-				[]
-			),
+			elems = seed ||
+				multipleContexts( selector || "*",
+					context.nodeType ? [ context ] : context, [] ),
 
 			// Prefilter to get matcher input, preserving a map for seed-results synchronization
 			matcherIn = preFilter && ( seed || !selector ) ?
 				condense( elems, preMap, preFilter, context, xml ) :
-				elems,
+				elems;
 
-			matcherOut = matcher ?
-
-				// If we have a postFinder, or filtered seed, or non-seed postFilter or preexisting results,
-				postFinder || ( seed ? preFilter : preexisting || postFilter ) ?
-
-					// ...intermediate processing is necessary
-					[] :
-
-					// ...otherwise use results directly
-					results :
-				matcherIn;
-
-		// Find primary matches
 		if ( matcher ) {
+
+			// If we have a postFinder, or filtered seed, or non-seed postFilter
+			// or preexisting results,
+			matcherOut = postFinder || ( seed ? preFilter : preexisting || postFilter ) ?
+
+				// ...intermediate processing is necessary
+				[] :
+
+				// ...otherwise use results directly
+				results;
+
+			// Find primary matches
 			matcher( matcherIn, matcherOut, context, xml );
+		} else {
+			matcherOut = matcherIn;
 		}
 
 		// Apply postFilter
@@ -2594,7 +2350,7 @@ function setMatcher( preFilter, selector, matcher, postFilter, postFinder, postS
 				i = matcherOut.length;
 				while ( i-- ) {
 					if ( ( elem = matcherOut[ i ] ) &&
-						( temp = postFinder ? indexOf( seed, elem ) : preMap[ i ] ) > -1 ) {
+						( temp = postFinder ? indexOf.call( seed, elem ) : preMap[ i ] ) > -1 ) {
 
 						seed[ temp ] = !( results[ temp ] = elem );
 					}
@@ -2629,15 +2385,21 @@ function matcherFromTokens( tokens ) {
 			return elem === checkContext;
 		}, implicitRelative, true ),
 		matchAnyContext = addCombinator( function( elem ) {
-			return indexOf( checkContext, elem ) > -1;
+			return indexOf.call( checkContext, elem ) > -1;
 		}, implicitRelative, true ),
 		matchers = [ function( elem, context, xml ) {
-			var ret = ( !leadingRelative && ( xml || context !== outermostContext ) ) || (
+
+			// Support: IE 11+, Edge 17 - 18+
+			// IE/Edge sometimes throw a "Permission denied" error when strict-comparing
+			// two documents; shallow comparisons work.
+			// eslint-disable-next-line eqeqeq
+			var ret = ( !leadingRelative && ( xml || context != outermostContext ) ) || (
 				( checkContext = context ).nodeType ?
 					matchContext( elem, context, xml ) :
 					matchAnyContext( elem, context, xml ) );
 
-			// Avoid hanging onto element (issue #299)
+			// Avoid hanging onto element
+			// (see https://github.com/jquery/sizzle/issues/299)
 			checkContext = null;
 			return ret;
 		} ];
@@ -2662,11 +2424,10 @@ function matcherFromTokens( tokens ) {
 					i > 1 && elementMatcher( matchers ),
 					i > 1 && toSelector(
 
-					// If the preceding token was a descendant combinator, insert an implicit any-element `*`
-					tokens
-						.slice( 0, i - 1 )
-						.concat( { value: tokens[ i - 2 ].type === " " ? "*" : "" } )
-					).replace( rtrim, "$1" ),
+						// If the preceding token was a descendant combinator, insert an implicit any-element `*`
+						tokens.slice( 0, i - 1 )
+							.concat( { value: tokens[ i - 2 ].type === " " ? "*" : "" } )
+					).replace( rtrimCSS, "$1" ),
 					matcher,
 					i < j && matcherFromTokens( tokens.slice( i, j ) ),
 					j < len && matcherFromTokens( ( tokens = tokens.slice( j ) ) ),
@@ -2692,7 +2453,7 @@ function matcherFromGroupMatchers( elementMatchers, setMatchers ) {
 				contextBackup = outermostContext,
 
 				// We must always have either seed elements or outermost context
-				elems = seed || byElement && Expr.find[ "TAG" ]( "*", outermost ),
+				elems = seed || byElement && Expr.find.TAG( "*", outermost ),
 
 				// Use integer dirruns iff this is the outermost matcher
 				dirrunsUnique = ( dirruns += contextBackup == null ? 1 : Math.random() || 0.1 ),
@@ -2708,8 +2469,9 @@ function matcherFromGroupMatchers( elementMatchers, setMatchers ) {
 			}
 
 			// Add elements passing elementMatchers directly to results
-			// Support: IE<9, Safari
-			// Tolerate NodeList properties (IE: "length"; Safari: <number>) matching elements by id
+			// Support: iOS <=7 - 9 only
+			// Tolerate NodeList properties (IE: "length"; Safari: <number>) matching
+			// elements by id. (see trac-14142)
 			for ( ; i !== len && ( elem = elems[ i ] ) != null; i++ ) {
 				if ( byElement && elem ) {
 					j = 0;
@@ -2724,7 +2486,7 @@ function matcherFromGroupMatchers( elementMatchers, setMatchers ) {
 					}
 					while ( ( matcher = elementMatchers[ j++ ] ) ) {
 						if ( matcher( elem, context || document, xml ) ) {
-							results.push( elem );
+							push.call( results, elem );
 							break;
 						}
 					}
@@ -2787,7 +2549,7 @@ function matcherFromGroupMatchers( elementMatchers, setMatchers ) {
 				if ( outermost && !seed && setMatched.length > 0 &&
 					( matchedCount + setMatchers.length ) > 1 ) {
 
-					Sizzle.uniqueSort( results );
+					jQuery.uniqueSort( results );
 				}
 			}
 
@@ -2805,7 +2567,7 @@ function matcherFromGroupMatchers( elementMatchers, setMatchers ) {
 		superMatcher;
 }
 
-compile = Sizzle.compile = function( selector, match /* Internal Use Only */ ) {
+function compile( selector, match /* Internal Use Only */ ) {
 	var i,
 		setMatchers = [],
 		elementMatchers = [],
@@ -2828,27 +2590,25 @@ compile = Sizzle.compile = function( selector, match /* Internal Use Only */ ) {
 		}
 
 		// Cache the compiled function
-		cached = compilerCache(
-			selector,
-			matcherFromGroupMatchers( elementMatchers, setMatchers )
-		);
+		cached = compilerCache( selector,
+			matcherFromGroupMatchers( elementMatchers, setMatchers ) );
 
 		// Save selector and tokenization
 		cached.selector = selector;
 	}
 	return cached;
-};
+}
 
 /**
- * A low-level selection function that works with Sizzle's compiled
+ * A low-level selection function that works with jQuery's compiled
  *  selector functions
  * @param {String|Function} selector A selector or a pre-compiled
- *  selector function built with Sizzle.compile
+ *  selector function built with jQuery selector compile
  * @param {Element} context
  * @param {Array} [results]
  * @param {Array} [seed] A set of elements to match against
  */
-select = Sizzle.select = function( selector, context, results, seed ) {
+function select( selector, context, results, seed ) {
 	var i, tokens, token, type, find,
 		compiled = typeof selector === "function" && selector,
 		match = !seed && tokenize( ( selector = compiled.selector || selector ) );
@@ -2862,10 +2622,12 @@ select = Sizzle.select = function( selector, context, results, seed ) {
 		// Reduce context if the leading compound selector is an ID
 		tokens = match[ 0 ] = match[ 0 ].slice( 0 );
 		if ( tokens.length > 2 && ( token = tokens[ 0 ] ).type === "ID" &&
-			context.nodeType === 9 && documentIsHTML && Expr.relative[ tokens[ 1 ].type ] ) {
+				context.nodeType === 9 && documentIsHTML && Expr.relative[ tokens[ 1 ].type ] ) {
 
-			context = ( Expr.find[ "ID" ]( token.matches[ 0 ]
-				.replace( runescape, funescape ), context ) || [] )[ 0 ];
+			context = ( Expr.find.ID(
+				token.matches[ 0 ].replace( runescape, funescape ),
+				context
+			) || [] )[ 0 ];
 			if ( !context ) {
 				return results;
 
@@ -2878,7 +2640,7 @@ select = Sizzle.select = function( selector, context, results, seed ) {
 		}
 
 		// Fetch a seed set for right-to-left matching
-		i = matchExpr[ "needsContext" ].test( selector ) ? 0 : tokens.length;
+		i = matchExpr.needsContext.test( selector ) ? 0 : tokens.length;
 		while ( i-- ) {
 			token = tokens[ i ];
 
@@ -2891,8 +2653,8 @@ select = Sizzle.select = function( selector, context, results, seed ) {
 				// Search, expanding context for leading sibling combinators
 				if ( ( seed = find(
 					token.matches[ 0 ].replace( runescape, funescape ),
-					rsibling.test( tokens[ 0 ].type ) && testContext( context.parentNode ) ||
-						context
+					rsibling.test( tokens[ 0 ].type ) &&
+						testContext( context.parentNode ) || context
 				) ) ) {
 
 					// If seed is empty or no tokens remain, we can return early
@@ -2919,21 +2681,18 @@ select = Sizzle.select = function( selector, context, results, seed ) {
 		!context || rsibling.test( selector ) && testContext( context.parentNode ) || context
 	);
 	return results;
-};
+}
 
 // One-time assignments
 
+// Support: Android <=4.0 - 4.1+
 // Sort stability
 support.sortStable = expando.split( "" ).sort( sortOrder ).join( "" ) === expando;
-
-// Support: Chrome 14-35+
-// Always assume duplicates if they aren't passed to the comparison function
-support.detectDuplicates = !!hasDuplicate;
 
 // Initialize against the default document
 setDocument();
 
-// Support: Webkit<537.32 - Safari 6.0.3/Chrome 25 (fixed in Chrome 27)
+// Support: Android <=4.0 - 4.1+
 // Detached nodes confoundingly follow *each other*
 support.sortDetached = assert( function( el ) {
 
@@ -2941,68 +2700,29 @@ support.sortDetached = assert( function( el ) {
 	return el.compareDocumentPosition( document.createElement( "fieldset" ) ) & 1;
 } );
 
-// Support: IE<8
-// Prevent attribute/property "interpolation"
-// https://msdn.microsoft.com/en-us/library/ms536429%28VS.85%29.aspx
-if ( !assert( function( el ) {
-	el.innerHTML = "<a href='#'></a>";
-	return el.firstChild.getAttribute( "href" ) === "#";
-} ) ) {
-	addHandle( "type|href|height|width", function( elem, name, isXML ) {
-		if ( !isXML ) {
-			return elem.getAttribute( name, name.toLowerCase() === "type" ? 1 : 2 );
-		}
-	} );
-}
-
-// Support: IE<9
-// Use defaultValue in place of getAttribute("value")
-if ( !support.attributes || !assert( function( el ) {
-	el.innerHTML = "<input/>";
-	el.firstChild.setAttribute( "value", "" );
-	return el.firstChild.getAttribute( "value" ) === "";
-} ) ) {
-	addHandle( "value", function( elem, _name, isXML ) {
-		if ( !isXML && elem.nodeName.toLowerCase() === "input" ) {
-			return elem.defaultValue;
-		}
-	} );
-}
-
-// Support: IE<9
-// Use getAttributeNode to fetch booleans when getAttribute lies
-if ( !assert( function( el ) {
-	return el.getAttribute( "disabled" ) == null;
-} ) ) {
-	addHandle( booleans, function( elem, name, isXML ) {
-		var val;
-		if ( !isXML ) {
-			return elem[ name ] === true ? name.toLowerCase() :
-				( val = elem.getAttributeNode( name ) ) && val.specified ?
-					val.value :
-					null;
-		}
-	} );
-}
-
-return Sizzle;
-
-} )( window );
-
-
-
-jQuery.find = Sizzle;
-jQuery.expr = Sizzle.selectors;
+jQuery.find = find;
 
 // Deprecated
 jQuery.expr[ ":" ] = jQuery.expr.pseudos;
-jQuery.uniqueSort = jQuery.unique = Sizzle.uniqueSort;
-jQuery.text = Sizzle.getText;
-jQuery.isXMLDoc = Sizzle.isXML;
-jQuery.contains = Sizzle.contains;
-jQuery.escapeSelector = Sizzle.escape;
+jQuery.unique = jQuery.uniqueSort;
 
+// These have always been private, but they used to be documented
+// as part of Sizzle so let's maintain them in the 3.x line
+// for backwards compatibility purposes.
+find.compile = compile;
+find.select = select;
+find.setDocument = setDocument;
 
+find.escape = jQuery.escapeSelector;
+find.getText = jQuery.text;
+find.isXML = jQuery.isXMLDoc;
+find.selectors = jQuery.expr;
+find.support = jQuery.support;
+find.uniqueSort = jQuery.uniqueSort;
+
+	/* eslint-enable */
+
+} )();
 
 
 var dir = function( elem, dir, until ) {
@@ -3036,13 +2756,6 @@ var siblings = function( n, elem ) {
 
 var rneedsContext = jQuery.expr.match.needsContext;
 
-
-
-function nodeName( elem, name ) {
-
-	return elem.nodeName && elem.nodeName.toLowerCase() === name.toLowerCase();
-
-}
 var rsingleTag = ( /^<([a-z][^\/\0>:\x20\t\r\n\f]*)[\x20\t\r\n\f]*\/?>(?:<\/\1>|)$/i );
 
 
@@ -3141,8 +2854,8 @@ jQuery.fn.extend( {
 var rootjQuery,
 
 	// A simple way to check for HTML strings
-	// Prioritize #id over <tag> to avoid XSS via location.hash (#9521)
-	// Strict HTML recognition (#11290: must start with <)
+	// Prioritize #id over <tag> to avoid XSS via location.hash (trac-9521)
+	// Strict HTML recognition (trac-11290: must start with <)
 	// Shortcut simple #id case for speed
 	rquickExpr = /^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]+))$/,
 
@@ -3293,7 +3006,7 @@ jQuery.fn.extend( {
 					if ( cur.nodeType < 11 && ( targets ?
 						targets.index( cur ) > -1 :
 
-						// Don't pass non-elements to Sizzle
+						// Don't pass non-elements to jQuery#find
 						cur.nodeType === 1 &&
 							jQuery.find.matchesSelector( cur, selectors ) ) ) {
 
@@ -3848,7 +3561,7 @@ jQuery.extend( {
 
 											if ( jQuery.Deferred.exceptionHook ) {
 												jQuery.Deferred.exceptionHook( e,
-													process.stackTrace );
+													process.error );
 											}
 
 											// Support: Promises/A+ section 2.3.3.3.4.1
@@ -3876,10 +3589,17 @@ jQuery.extend( {
 								process();
 							} else {
 
-								// Call an optional hook to record the stack, in case of exception
+								// Call an optional hook to record the error, in case of exception
 								// since it's otherwise lost when execution goes async
-								if ( jQuery.Deferred.getStackHook ) {
-									process.stackTrace = jQuery.Deferred.getStackHook();
+								if ( jQuery.Deferred.getErrorHook ) {
+									process.error = jQuery.Deferred.getErrorHook();
+
+								// The deprecated alias of the above. While the name suggests
+								// returning the stack, not an error instance, jQuery just passes
+								// it directly to `console.warn` so both will work; an instance
+								// just better cooperates with source maps.
+								} else if ( jQuery.Deferred.getStackHook ) {
+									process.error = jQuery.Deferred.getStackHook();
 								}
 								window.setTimeout( process );
 							}
@@ -4054,12 +3774,16 @@ jQuery.extend( {
 // warn about them ASAP rather than swallowing them by default.
 var rerrorNames = /^(Eval|Internal|Range|Reference|Syntax|Type|URI)Error$/;
 
-jQuery.Deferred.exceptionHook = function( error, stack ) {
+// If `jQuery.Deferred.getErrorHook` is defined, `asyncError` is an error
+// captured before the async barrier to get the original error cause
+// which may otherwise be hidden.
+jQuery.Deferred.exceptionHook = function( error, asyncError ) {
 
 	// Support: IE 8 - 9 only
 	// Console exists when dev tools are open, which can happen at any time
 	if ( window.console && window.console.warn && error && rerrorNames.test( error.name ) ) {
-		window.console.warn( "jQuery.Deferred exception: " + error.message, error.stack, stack );
+		window.console.warn( "jQuery.Deferred exception: " + error.message,
+			error.stack, asyncError );
 	}
 };
 
@@ -4099,7 +3823,7 @@ jQuery.extend( {
 	isReady: false,
 
 	// A counter to track how many items to wait for before
-	// the ready event fires. See #6781
+	// the ready event fires. See trac-6781
 	readyWait: 1,
 
 	// Handle when the DOM is ready
@@ -4227,7 +3951,7 @@ function fcamelCase( _all, letter ) {
 
 // Convert dashed to camelCase; used by the css and data modules
 // Support: IE <=9 - 11, Edge 12 - 15
-// Microsoft forgot to hump their vendor prefix (#9572)
+// Microsoft forgot to hump their vendor prefix (trac-9572)
 function camelCase( string ) {
 	return string.replace( rmsPrefix, "ms-" ).replace( rdashAlpha, fcamelCase );
 }
@@ -4263,7 +3987,7 @@ Data.prototype = {
 			value = {};
 
 			// We can accept data for non-element nodes in modern browsers,
-			// but we should not, see #8335.
+			// but we should not, see trac-8335.
 			// Always return an empty object.
 			if ( acceptData( owner ) ) {
 
@@ -4502,7 +4226,7 @@ jQuery.fn.extend( {
 					while ( i-- ) {
 
 						// Support: IE 11 only
-						// The attrs elements can be null (#14894)
+						// The attrs elements can be null (trac-14894)
 						if ( attrs[ i ] ) {
 							name = attrs[ i ].name;
 							if ( name.indexOf( "data-" ) === 0 ) {
@@ -4925,9 +4649,9 @@ var rscriptType = ( /^$|^module$|\/(?:java|ecma)script/i );
 		input = document.createElement( "input" );
 
 	// Support: Android 4.0 - 4.3 only
-	// Check state lost if the name is set (#11217)
+	// Check state lost if the name is set (trac-11217)
 	// Support: Windows Web Apps (WWA)
-	// `name` and `type` must use .setAttribute for WWA (#14901)
+	// `name` and `type` must use .setAttribute for WWA (trac-14901)
 	input.setAttribute( "type", "radio" );
 	input.setAttribute( "checked", "checked" );
 	input.setAttribute( "name", "t" );
@@ -4951,7 +4675,7 @@ var rscriptType = ( /^$|^module$|\/(?:java|ecma)script/i );
 } )();
 
 
-// We have to close these tags to support XHTML (#13200)
+// We have to close these tags to support XHTML (trac-13200)
 var wrapMap = {
 
 	// XHTML parsers do not magically insert elements in the
@@ -4977,7 +4701,7 @@ if ( !support.option ) {
 function getAll( context, tag ) {
 
 	// Support: IE <=9 - 11 only
-	// Use typeof to avoid zero-argument method invocation on host objects (#15151)
+	// Use typeof to avoid zero-argument method invocation on host objects (trac-15151)
 	var ret;
 
 	if ( typeof context.getElementsByTagName !== "undefined" ) {
@@ -5060,7 +4784,7 @@ function buildFragment( elems, context, scripts, selection, ignored ) {
 				// Remember the top-level container
 				tmp = fragment.firstChild;
 
-				// Ensure the created nodes are orphaned (#12392)
+				// Ensure the created nodes are orphaned (trac-12392)
 				tmp.textContent = "";
 			}
 		}
@@ -5113,25 +4837,6 @@ function returnTrue() {
 
 function returnFalse() {
 	return false;
-}
-
-// Support: IE <=9 - 11+
-// focus() and blur() are asynchronous, except when they are no-op.
-// So expect focus to be synchronous when the element is already active,
-// and blur to be synchronous when the element is not already active.
-// (focus and blur are always synchronous in other supported browsers,
-// this just defines when we can count on it).
-function expectSync( elem, type ) {
-	return ( elem === safeActiveElement() ) === ( type === "focus" );
-}
-
-// Support: IE <=9 only
-// Accessing document.activeElement can throw unexpectedly
-// https://bugs.jquery.com/ticket/13393
-function safeActiveElement() {
-	try {
-		return document.activeElement;
-	} catch ( err ) { }
 }
 
 function on( elem, types, selector, data, fn, one ) {
@@ -5481,15 +5186,15 @@ jQuery.event = {
 
 			for ( ; cur !== this; cur = cur.parentNode || this ) {
 
-				// Don't check non-elements (#13208)
-				// Don't process clicks on disabled elements (#6911, #8165, #11382, #11764)
+				// Don't check non-elements (trac-13208)
+				// Don't process clicks on disabled elements (trac-6911, trac-8165, trac-11382, trac-11764)
 				if ( cur.nodeType === 1 && !( event.type === "click" && cur.disabled === true ) ) {
 					matchedHandlers = [];
 					matchedSelectors = {};
 					for ( i = 0; i < delegateCount; i++ ) {
 						handleObj = handlers[ i ];
 
-						// Don't conflict with Object.prototype properties (#13203)
+						// Don't conflict with Object.prototype properties (trac-13203)
 						sel = handleObj.selector + " ";
 
 						if ( matchedSelectors[ sel ] === undefined ) {
@@ -5571,7 +5276,7 @@ jQuery.event = {
 					el.click && nodeName( el, "input" ) ) {
 
 					// dataPriv.set( el, "click", ... )
-					leverageNative( el, "click", returnTrue );
+					leverageNative( el, "click", true );
 				}
 
 				// Return false to allow normal processing in the caller
@@ -5622,10 +5327,10 @@ jQuery.event = {
 // synthetic events by interrupting progress until reinvoked in response to
 // *native* events that it fires directly, ensuring that state changes have
 // already occurred before other listeners are invoked.
-function leverageNative( el, type, expectSync ) {
+function leverageNative( el, type, isSetup ) {
 
-	// Missing expectSync indicates a trigger call, which must force setup through jQuery.event.add
-	if ( !expectSync ) {
+	// Missing `isSetup` indicates a trigger call, which must force setup through jQuery.event.add
+	if ( !isSetup ) {
 		if ( dataPriv.get( el, type ) === undefined ) {
 			jQuery.event.add( el, type, returnTrue );
 		}
@@ -5637,15 +5342,13 @@ function leverageNative( el, type, expectSync ) {
 	jQuery.event.add( el, type, {
 		namespace: false,
 		handler: function( event ) {
-			var notAsync, result,
+			var result,
 				saved = dataPriv.get( this, type );
 
 			if ( ( event.isTrigger & 1 ) && this[ type ] ) {
 
 				// Interrupt processing of the outer synthetic .trigger()ed event
-				// Saved data should be false in such cases, but might be a leftover capture object
-				// from an async native handler (gh-4350)
-				if ( !saved.length ) {
+				if ( !saved ) {
 
 					// Store arguments for use when handling the inner native event
 					// There will always be at least one argument (an event object), so this array
@@ -5654,33 +5357,22 @@ function leverageNative( el, type, expectSync ) {
 					dataPriv.set( this, type, saved );
 
 					// Trigger the native event and capture its result
-					// Support: IE <=9 - 11+
-					// focus() and blur() are asynchronous
-					notAsync = expectSync( this, type );
 					this[ type ]();
 					result = dataPriv.get( this, type );
-					if ( saved !== result || notAsync ) {
-						dataPriv.set( this, type, false );
-					} else {
-						result = {};
-					}
+					dataPriv.set( this, type, false );
+
 					if ( saved !== result ) {
 
 						// Cancel the outer synthetic event
 						event.stopImmediatePropagation();
 						event.preventDefault();
 
-						// Support: Chrome 86+
-						// In Chrome, if an element having a focusout handler is blurred by
-						// clicking outside of it, it invokes the handler synchronously. If
-						// that handler calls `.remove()` on the element, the data is cleared,
-						// leaving `result` undefined. We need to guard against this.
-						return result && result.value;
+						return result;
 					}
 
 				// If this is an inner synthetic event for an event with a bubbling surrogate
-				// (focus or blur), assume that the surrogate already propagated from triggering the
-				// native event and prevent that from happening again here.
+				// (focus or blur), assume that the surrogate already propagated from triggering
+				// the native event and prevent that from happening again here.
 				// This technically gets the ordering wrong w.r.t. to `.trigger()` (in which the
 				// bubbling surrogate propagates *after* the non-bubbling base), but that seems
 				// less bad than duplication.
@@ -5690,22 +5382,25 @@ function leverageNative( el, type, expectSync ) {
 
 			// If this is a native event triggered above, everything is now in order
 			// Fire an inner synthetic event with the original arguments
-			} else if ( saved.length ) {
+			} else if ( saved ) {
 
 				// ...and capture the result
-				dataPriv.set( this, type, {
-					value: jQuery.event.trigger(
+				dataPriv.set( this, type, jQuery.event.trigger(
+					saved[ 0 ],
+					saved.slice( 1 ),
+					this
+				) );
 
-						// Support: IE <=9 - 11+
-						// Extend with the prototype to reset the above stopImmediatePropagation()
-						jQuery.extend( saved[ 0 ], jQuery.Event.prototype ),
-						saved.slice( 1 ),
-						this
-					)
-				} );
-
-				// Abort handling of the native event
-				event.stopImmediatePropagation();
+				// Abort handling of the native event by all jQuery handlers while allowing
+				// native handlers on the same element to run. On target, this is achieved
+				// by stopping immediate propagation just on the jQuery event. However,
+				// the native event is re-wrapped by a jQuery one on each level of the
+				// propagation so the only way to stop it for jQuery is to stop it for
+				// everyone via native `stopPropagation()`. This is not a problem for
+				// focus/blur which don't bubble, but it does also stop click on checkboxes
+				// and radios. We accept this limitation.
+				event.stopPropagation();
+				event.isImmediatePropagationStopped = returnTrue;
 			}
 		}
 	} );
@@ -5743,7 +5438,7 @@ jQuery.Event = function( src, props ) {
 
 		// Create target properties
 		// Support: Safari <=6 - 7 only
-		// Target should not be a text node (#504, #13143)
+		// Target should not be a text node (trac-504, trac-13143)
 		this.target = ( src.target && src.target.nodeType === 3 ) ?
 			src.target.parentNode :
 			src.target;
@@ -5844,18 +5539,73 @@ jQuery.each( {
 }, jQuery.event.addProp );
 
 jQuery.each( { focus: "focusin", blur: "focusout" }, function( type, delegateType ) {
+
+	function focusMappedHandler( nativeEvent ) {
+		if ( document.documentMode ) {
+
+			// Support: IE 11+
+			// Attach a single focusin/focusout handler on the document while someone wants
+			// focus/blur. This is because the former are synchronous in IE while the latter
+			// are async. In other browsers, all those handlers are invoked synchronously.
+
+			// `handle` from private data would already wrap the event, but we need
+			// to change the `type` here.
+			var handle = dataPriv.get( this, "handle" ),
+				event = jQuery.event.fix( nativeEvent );
+			event.type = nativeEvent.type === "focusin" ? "focus" : "blur";
+			event.isSimulated = true;
+
+			// First, handle focusin/focusout
+			handle( nativeEvent );
+
+			// ...then, handle focus/blur
+			//
+			// focus/blur don't bubble while focusin/focusout do; simulate the former by only
+			// invoking the handler at the lower level.
+			if ( event.target === event.currentTarget ) {
+
+				// The setup part calls `leverageNative`, which, in turn, calls
+				// `jQuery.event.add`, so event handle will already have been set
+				// by this point.
+				handle( event );
+			}
+		} else {
+
+			// For non-IE browsers, attach a single capturing handler on the document
+			// while someone wants focusin/focusout.
+			jQuery.event.simulate( delegateType, nativeEvent.target,
+				jQuery.event.fix( nativeEvent ) );
+		}
+	}
+
 	jQuery.event.special[ type ] = {
 
 		// Utilize native event if possible so blur/focus sequence is correct
 		setup: function() {
 
+			var attaches;
+
 			// Claim the first handler
 			// dataPriv.set( this, "focus", ... )
 			// dataPriv.set( this, "blur", ... )
-			leverageNative( this, type, expectSync );
+			leverageNative( this, type, true );
 
-			// Return false to allow normal processing in the caller
-			return false;
+			if ( document.documentMode ) {
+
+				// Support: IE 9 - 11+
+				// We use the same native handler for focusin & focus (and focusout & blur)
+				// so we need to coordinate setup & teardown parts between those events.
+				// Use `delegateType` as the key as `type` is already used by `leverageNative`.
+				attaches = dataPriv.get( this, delegateType );
+				if ( !attaches ) {
+					this.addEventListener( delegateType, focusMappedHandler );
+				}
+				dataPriv.set( this, delegateType, ( attaches || 0 ) + 1 );
+			} else {
+
+				// Return false to allow normal processing in the caller
+				return false;
+			}
 		},
 		trigger: function() {
 
@@ -5866,13 +5616,83 @@ jQuery.each( { focus: "focusin", blur: "focusout" }, function( type, delegateTyp
 			return true;
 		},
 
-		// Suppress native focus or blur as it's already being fired
-		// in leverageNative.
-		_default: function() {
-			return true;
+		teardown: function() {
+			var attaches;
+
+			if ( document.documentMode ) {
+				attaches = dataPriv.get( this, delegateType ) - 1;
+				if ( !attaches ) {
+					this.removeEventListener( delegateType, focusMappedHandler );
+					dataPriv.remove( this, delegateType );
+				} else {
+					dataPriv.set( this, delegateType, attaches );
+				}
+			} else {
+
+				// Return false to indicate standard teardown should be applied
+				return false;
+			}
+		},
+
+		// Suppress native focus or blur if we're currently inside
+		// a leveraged native-event stack
+		_default: function( event ) {
+			return dataPriv.get( event.target, type );
 		},
 
 		delegateType: delegateType
+	};
+
+	// Support: Firefox <=44
+	// Firefox doesn't have focus(in | out) events
+	// Related ticket - https://bugzilla.mozilla.org/show_bug.cgi?id=687787
+	//
+	// Support: Chrome <=48 - 49, Safari <=9.0 - 9.1
+	// focus(in | out) events fire after focus & blur events,
+	// which is spec violation - http://www.w3.org/TR/DOM-Level-3-Events/#events-focusevent-event-order
+	// Related ticket - https://bugs.chromium.org/p/chromium/issues/detail?id=449857
+	//
+	// Support: IE 9 - 11+
+	// To preserve relative focusin/focus & focusout/blur event order guaranteed on the 3.x branch,
+	// attach a single handler for both events in IE.
+	jQuery.event.special[ delegateType ] = {
+		setup: function() {
+
+			// Handle: regular nodes (via `this.ownerDocument`), window
+			// (via `this.document`) & document (via `this`).
+			var doc = this.ownerDocument || this.document || this,
+				dataHolder = document.documentMode ? this : doc,
+				attaches = dataPriv.get( dataHolder, delegateType );
+
+			// Support: IE 9 - 11+
+			// We use the same native handler for focusin & focus (and focusout & blur)
+			// so we need to coordinate setup & teardown parts between those events.
+			// Use `delegateType` as the key as `type` is already used by `leverageNative`.
+			if ( !attaches ) {
+				if ( document.documentMode ) {
+					this.addEventListener( delegateType, focusMappedHandler );
+				} else {
+					doc.addEventListener( type, focusMappedHandler, true );
+				}
+			}
+			dataPriv.set( dataHolder, delegateType, ( attaches || 0 ) + 1 );
+		},
+		teardown: function() {
+			var doc = this.ownerDocument || this.document || this,
+				dataHolder = document.documentMode ? this : doc,
+				attaches = dataPriv.get( dataHolder, delegateType ) - 1;
+
+			if ( !attaches ) {
+				if ( document.documentMode ) {
+					this.removeEventListener( delegateType, focusMappedHandler );
+				} else {
+					doc.removeEventListener( type, focusMappedHandler, true );
+				}
+				dataPriv.remove( dataHolder, delegateType );
+			} else {
+				dataPriv.set( dataHolder, delegateType, attaches );
+			}
+		}
 	};
 } );
 
@@ -5968,7 +5788,8 @@ var
 
 	// checked="checked" or checked
 	rchecked = /checked\s*(?:[^=]|=\s*.checked.)/i,
-	rcleanScript = /^\s*<!(?:\[CDATA\[|--)|(?:\]\]|--)>\s*$/g;
+
+	rcleanScript = /^\s*<!\[CDATA\[|\]\]>\s*$/g;
 
 // Prefer a tbody over its parent table for containing new rows
 function manipulationTarget( elem, content ) {
@@ -6082,7 +5903,7 @@ function domManip( collection, args, callback, ignored ) {
 
 			// Use the original fragment for the last item
 			// instead of the first because it can end up
-			// being emptied incorrectly in certain situations (#8070).
+			// being emptied incorrectly in certain situations (trac-8070).
 			for ( ; i < l; i++ ) {
 				node = fragment;
 
@@ -6123,6 +5944,12 @@ function domManip( collection, args, callback, ignored ) {
 								}, doc );
 							}
 						} else {
+
+							// Unwrap a CDATA section containing script contents. This shouldn't be
+							// needed as in XML documents they're already not visible when
+							// inspecting element contents and in HTML documents they have no
+							// meaning but we're preserving that logic for backwards compatibility.
+							// This will be removed completely in 4.0. See gh-4904.
 							DOMEval( node.textContent.replace( rcleanScript, "" ), node, doc );
 						}
 					}
@@ -6169,7 +5996,8 @@ jQuery.extend( {
 		if ( !support.noCloneChecked && ( elem.nodeType === 1 || elem.nodeType === 11 ) &&
 				!jQuery.isXMLDoc( elem ) ) {
 
-			// We eschew Sizzle here for performance reasons: https://jsperf.com/getall-vs-sizzle/2
+			// We eschew jQuery#find here for performance reasons:
+			// https://jsperf.com/getall-vs-sizzle/2
 			destElements = getAll( clone );
 			srcElements = getAll( elem );
 
@@ -6405,9 +6233,12 @@ jQuery.each( {
 } );
 var rnumnonpx = new RegExp( "^(" + pnum + ")(?!px)[a-z%]+$", "i" );
 
+var rcustomProp = /^--/;
+
+
 var getStyles = function( elem ) {
 
-		// Support: IE <=11 only, Firefox <=30 (#15098, #14150)
+		// Support: IE <=11 only, Firefox <=30 (trac-15098, trac-14150)
 		// IE throws on elements created in popups
 		// FF meanwhile throws on frame elements through "defaultView.getComputedStyle"
 		var view = elem.ownerDocument.defaultView;
@@ -6507,7 +6338,7 @@ var rboxStyle = new RegExp( cssExpand.join( "|" ), "i" );
 	}
 
 	// Support: IE <=9 - 11 only
-	// Style of cloned element affects source element cloned (#8908)
+	// Style of cloned element affects source element cloned (trac-8908)
 	div.style.backgroundClip = "content-box";
 	div.cloneNode( true ).style.backgroundClip = "";
 	support.clearCloneStyle = div.style.backgroundClip === "content-box";
@@ -6587,6 +6418,7 @@ var rboxStyle = new RegExp( cssExpand.join( "|" ), "i" );
 
 function curCSS( elem, name, computed ) {
 	var width, minWidth, maxWidth, ret,
+		isCustomProp = rcustomProp.test( name ),
 
 		// Support: Firefox 51+
 		// Retrieving style before computed somehow
@@ -6597,10 +6429,41 @@ function curCSS( elem, name, computed ) {
 	computed = computed || getStyles( elem );
 
 	// getPropertyValue is needed for:
-	//   .css('filter') (IE 9 only, #12537)
-	//   .css('--customProperty) (#3144)
+	//   .css('filter') (IE 9 only, trac-12537)
+	//   .css('--customProperty) (gh-3144)
 	if ( computed ) {
+
+		// Support: IE <=9 - 11+
+		// IE only supports `"float"` in `getPropertyValue`; in computed styles
+		// it's only available as `"cssFloat"`. We no longer modify properties
+		// sent to `.css()` apart from camelCasing, so we need to check both.
+		// Normally, this would create difference in behavior: if
+		// `getPropertyValue` returns an empty string, the value returned
+		// by `.css()` would be `undefined`. This is usually the case for
+		// disconnected elements. However, in IE even disconnected elements
+		// with no styles return `"none"` for `getPropertyValue( "float" )`
 		ret = computed.getPropertyValue( name ) || computed[ name ];
+
+		if ( isCustomProp && ret ) {
+
+			// Support: Firefox 105+, Chrome <=105+
+			// Spec requires trimming whitespace for custom properties (gh-4926).
+			// Firefox only trims leading whitespace. Chrome just collapses
+			// both leading & trailing whitespace to a single space.
+			//
+			// Fall back to `undefined` if empty string returned.
+			// This collapses a missing definition with property defined
+			// and set to an empty string but there's no standard API
+			// allowing us to differentiate them without a performance penalty
+			// and returning `undefined` aligns with older jQuery.
+			//
+			// rtrimCSS treats U+000D CARRIAGE RETURN and U+000C FORM FEED
+			// as whitespace while CSS does not, but this is not a problem
+			// because CSS preprocessing replaces them with U+000A LINE FEED
+			// (which *is* CSS whitespace)
+			// https://www.w3.org/TR/css-syntax-3/#input-preprocessing
+			ret = ret.replace( rtrimCSS, "$1" ) || undefined;
+		}
 
 		if ( ret === "" && !isAttached( elem ) ) {
 			ret = jQuery.style( elem, name );
@@ -6697,7 +6560,6 @@ var
 	// except "table", "table-cell", or "table-caption"
 	// See here for display values: https://developer.mozilla.org/en-US/docs/CSS/display
 	rdisplayswap = /^(none|table(?!-c[ea]).+)/,
-	rcustomProp = /^--/,
 	cssShow = { position: "absolute", visibility: "hidden", display: "block" },
 	cssNormalTransform = {
 		letterSpacing: "0",
@@ -6719,7 +6581,8 @@ function setPositiveNumber( _elem, value, subtract ) {
 function boxModelAdjustment( elem, dimension, box, isBorderBox, styles, computedVal ) {
 	var i = dimension === "width" ? 1 : 0,
 		extra = 0,
-		delta = 0;
+		delta = 0,
+		marginDelta = 0;
 
 	// Adjustment may not be necessary
 	if ( box === ( isBorderBox ? "border" : "content" ) ) {
@@ -6729,8 +6592,10 @@ function boxModelAdjustment( elem, dimension, box, isBorderBox, styles, computed
 	for ( ; i < 4; i += 2 ) {
 
 		// Both box models exclude margin
+		// Count margin delta separately to only add it after scroll gutter adjustment.
+		// This is needed to make negative margins work with `outerHeight( true )` (gh-3982).
 		if ( box === "margin" ) {
-			delta += jQuery.css( elem, box + cssExpand[ i ], true, styles );
+			marginDelta += jQuery.css( elem, box + cssExpand[ i ], true, styles );
 		}
 
 		// If we get here with a content-box, we're seeking "padding" or "border" or "margin"
@@ -6781,7 +6646,7 @@ function boxModelAdjustment( elem, dimension, box, isBorderBox, styles, computed
 		) ) || 0;
 	}
 
-	return delta;
+	return delta + marginDelta;
 }
 
 function getWidthOrHeight( elem, dimension, extra ) {
@@ -6879,26 +6744,35 @@ jQuery.extend( {
 
 	// Don't automatically add "px" to these possibly-unitless properties
 	cssNumber: {
-		"animationIterationCount": true,
-		"columnCount": true,
-		"fillOpacity": true,
-		"flexGrow": true,
-		"flexShrink": true,
-		"fontWeight": true,
-		"gridArea": true,
-		"gridColumn": true,
-		"gridColumnEnd": true,
-		"gridColumnStart": true,
-		"gridRow": true,
-		"gridRowEnd": true,
-		"gridRowStart": true,
-		"lineHeight": true,
-		"opacity": true,
-		"order": true,
-		"orphans": true,
-		"widows": true,
-		"zIndex": true,
-		"zoom": true
+		animationIterationCount: true,
+		aspectRatio: true,
+		borderImageSlice: true,
+		columnCount: true,
+		flexGrow: true,
+		flexShrink: true,
+		fontWeight: true,
+		gridArea: true,
+		gridColumn: true,
+		gridColumnEnd: true,
+		gridColumnStart: true,
+		gridRow: true,
+		gridRowEnd: true,
+		gridRowStart: true,
+		lineHeight: true,
+		opacity: true,
+		order: true,
+		orphans: true,
+		scale: true,
+		widows: true,
+		zIndex: true,
+		zoom: true,
+
+		// SVG-related
+		fillOpacity: true,
+		floodOpacity: true,
+		stopOpacity: true,
+		strokeMiterlimit: true,
+		strokeOpacity: true
 	},
 
 	// Add in properties whose names you wish to fix before
@@ -6933,15 +6807,15 @@ jQuery.extend( {
 		if ( value !== undefined ) {
 			type = typeof value;
 
-			// Convert "+=" or "-=" to relative numbers (#7345)
+			// Convert "+=" or "-=" to relative numbers (trac-7345)
 			if ( type === "string" && ( ret = rcssNum.exec( value ) ) && ret[ 1 ] ) {
 				value = adjustCSS( elem, name, ret );
 
-				// Fixes bug #9237
+				// Fixes bug trac-9237
 				type = "number";
 			}
 
-			// Make sure that null and NaN values aren't set (#7116)
+			// Make sure that null and NaN values aren't set (trac-7116)
 			if ( value == null || value !== value ) {
 				return;
 			}
@@ -7565,7 +7439,7 @@ function Animation( elem, properties, options ) {
 				remaining = Math.max( 0, animation.startTime + animation.duration - currentTime ),
 
 				// Support: Android 2.3 only
-				// Archaic crash bug won't allow us to use `1 - ( 0.5 || 0 )` (#12497)
+				// Archaic crash bug won't allow us to use `1 - ( 0.5 || 0 )` (trac-12497)
 				temp = remaining / animation.duration || 0,
 				percent = 1 - temp,
 				index = 0,
@@ -7955,7 +7829,6 @@ jQuery.fx.speeds = {
 
 
 // Based off of the plugin by Clint Helfers, with permission.
-// https://web.archive.org/web/20100324014747/http://blindsignals.com/index.php/2009/07/jquery-delay/
 jQuery.fn.delay = function( time, type ) {
 	time = jQuery.fx ? jQuery.fx.speeds[ time ] || time : time;
 	type = type || "fx";
@@ -8180,8 +8053,7 @@ jQuery.extend( {
 				// Support: IE <=9 - 11 only
 				// elem.tabIndex doesn't always return the
 				// correct value when it hasn't been explicitly set
-				// https://web.archive.org/web/20141116233347/http://fluidproject.org/blog/2008/01/09/getting-setting-and-removing-tabindex-values-with-javascript/
-				// Use proper attribute retrieval(#12072)
+				// Use proper attribute retrieval (trac-12072)
 				var tabindex = jQuery.find.attr( elem, "tabindex" );
 
 				if ( tabindex ) {
@@ -8285,8 +8157,7 @@ function classesToArray( value ) {
 
 jQuery.fn.extend( {
 	addClass: function( value ) {
-		var classes, elem, cur, curValue, clazz, j, finalValue,
-			i = 0;
+		var classNames, cur, curValue, className, i, finalValue;
 
 		if ( isFunction( value ) ) {
 			return this.each( function( j ) {
@@ -8294,36 +8165,35 @@ jQuery.fn.extend( {
 			} );
 		}
 
-		classes = classesToArray( value );
+		classNames = classesToArray( value );
 
-		if ( classes.length ) {
-			while ( ( elem = this[ i++ ] ) ) {
-				curValue = getClass( elem );
-				cur = elem.nodeType === 1 && ( " " + stripAndCollapse( curValue ) + " " );
+		if ( classNames.length ) {
+			return this.each( function() {
+				curValue = getClass( this );
+				cur = this.nodeType === 1 && ( " " + stripAndCollapse( curValue ) + " " );
 
 				if ( cur ) {
-					j = 0;
-					while ( ( clazz = classes[ j++ ] ) ) {
-						if ( cur.indexOf( " " + clazz + " " ) < 0 ) {
-							cur += clazz + " ";
+					for ( i = 0; i < classNames.length; i++ ) {
+						className = classNames[ i ];
+						if ( cur.indexOf( " " + className + " " ) < 0 ) {
+							cur += className + " ";
 						}
 					}
 
 					// Only assign if different to avoid unneeded rendering.
 					finalValue = stripAndCollapse( cur );
 					if ( curValue !== finalValue ) {
-						elem.setAttribute( "class", finalValue );
+						this.setAttribute( "class", finalValue );
 					}
 				}
-			}
+			} );
 		}
 
 		return this;
 	},
 
 	removeClass: function( value ) {
-		var classes, elem, cur, curValue, clazz, j, finalValue,
-			i = 0;
+		var classNames, cur, curValue, className, i, finalValue;
 
 		if ( isFunction( value ) ) {
 			return this.each( function( j ) {
@@ -8335,44 +8205,41 @@ jQuery.fn.extend( {
 			return this.attr( "class", "" );
 		}
 
-		classes = classesToArray( value );
+		classNames = classesToArray( value );
 
-		if ( classes.length ) {
-			while ( ( elem = this[ i++ ] ) ) {
-				curValue = getClass( elem );
+		if ( classNames.length ) {
+			return this.each( function() {
+				curValue = getClass( this );
 
 				// This expression is here for better compressibility (see addClass)
-				cur = elem.nodeType === 1 && ( " " + stripAndCollapse( curValue ) + " " );
+				cur = this.nodeType === 1 && ( " " + stripAndCollapse( curValue ) + " " );
 
 				if ( cur ) {
-					j = 0;
-					while ( ( clazz = classes[ j++ ] ) ) {
+					for ( i = 0; i < classNames.length; i++ ) {
+						className = classNames[ i ];
 
 						// Remove *all* instances
-						while ( cur.indexOf( " " + clazz + " " ) > -1 ) {
-							cur = cur.replace( " " + clazz + " ", " " );
+						while ( cur.indexOf( " " + className + " " ) > -1 ) {
+							cur = cur.replace( " " + className + " ", " " );
 						}
 					}
 
 					// Only assign if different to avoid unneeded rendering.
 					finalValue = stripAndCollapse( cur );
 					if ( curValue !== finalValue ) {
-						elem.setAttribute( "class", finalValue );
+						this.setAttribute( "class", finalValue );
 					}
 				}
-			}
+			} );
 		}
 
 		return this;
 	},
 
 	toggleClass: function( value, stateVal ) {
-		var type = typeof value,
+		var classNames, className, i, self,
+			type = typeof value,
 			isValidValue = type === "string" || Array.isArray( value );
-
-		if ( typeof stateVal === "boolean" && isValidValue ) {
-			return stateVal ? this.addClass( value ) : this.removeClass( value );
-		}
 
 		if ( isFunction( value ) ) {
 			return this.each( function( i ) {
@@ -8383,17 +8250,20 @@ jQuery.fn.extend( {
 			} );
 		}
 
-		return this.each( function() {
-			var className, i, self, classNames;
+		if ( typeof stateVal === "boolean" && isValidValue ) {
+			return stateVal ? this.addClass( value ) : this.removeClass( value );
+		}
 
+		classNames = classesToArray( value );
+
+		return this.each( function() {
 			if ( isValidValue ) {
 
 				// Toggle individual class names
-				i = 0;
 				self = jQuery( this );
-				classNames = classesToArray( value );
 
-				while ( ( className = classNames[ i++ ] ) ) {
+				for ( i = 0; i < classNames.length; i++ ) {
+					className = classNames[ i ];
 
 					// Check each className given, space separated list
 					if ( self.hasClass( className ) ) {
@@ -8527,7 +8397,7 @@ jQuery.extend( {
 					val :
 
 					// Support: IE <=10 - 11 only
-					// option.text throws exceptions (#14686, #14858)
+					// option.text throws exceptions (trac-14686, trac-14858)
 					// Strip and collapse whitespace
 					// https://html.spec.whatwg.org/#strip-and-collapse-whitespace
 					stripAndCollapse( jQuery.text( elem ) );
@@ -8554,7 +8424,7 @@ jQuery.extend( {
 					option = options[ i ];
 
 					// Support: IE <=9 only
-					// IE8-9 doesn't update selected after form reset (#2551)
+					// IE8-9 doesn't update selected after form reset (trac-2551)
 					if ( ( option.selected || i === index ) &&
 
 							// Don't return options that are disabled or in a disabled optgroup
@@ -8628,9 +8498,39 @@ jQuery.each( [ "radio", "checkbox" ], function() {
 
 
 // Return jQuery for attributes-only inclusion
+var location = window.location;
+
+var nonce = { guid: Date.now() };
+
+var rquery = ( /\?/ );
 
 
-support.focusin = "onfocusin" in window;
+
+// Cross-browser xml parsing
+jQuery.parseXML = function( data ) {
+	var xml, parserErrorElem;
+	if ( !data || typeof data !== "string" ) {
+		return null;
+	}
+
+	// Support: IE 9 - 11 only
+	// IE throws on parseFromString with invalid input.
+	try {
+		xml = ( new window.DOMParser() ).parseFromString( data, "text/xml" );
+	} catch ( e ) {}
+
+	parserErrorElem = xml && xml.getElementsByTagName( "parsererror" )[ 0 ];
+	if ( !xml || parserErrorElem ) {
+		jQuery.error( "Invalid XML: " + (
+			parserErrorElem ?
+				jQuery.map( parserErrorElem.childNodes, function( el ) {
+					return el.textContent;
+				} ).join( "\n" ) :
+				data
+		) );
+	}
+	return xml;
+};
 
 
 var rfocusMorph = /^(?:focusinfocus|focusoutblur)$/,
@@ -8697,8 +8597,8 @@ jQuery.extend( jQuery.event, {
 			return;
 		}
 
-		// Determine event propagation path in advance, per W3C events spec (#9951)
-		// Bubble up to document, then to window; watch for a global ownerDocument var (#9724)
+		// Determine event propagation path in advance, per W3C events spec (trac-9951)
+		// Bubble up to document, then to window; watch for a global ownerDocument var (trac-9724)
 		if ( !onlyHandlers && !special.noBubble && !isWindow( elem ) ) {
 
 			bubbleType = special.delegateType || type;
@@ -8750,7 +8650,7 @@ jQuery.extend( jQuery.event, {
 				acceptData( elem ) ) {
 
 				// Call a native DOM method on the target with the same name as the event.
-				// Don't do default actions on window, that's where global variables be (#6170)
+				// Don't do default actions on window, that's where global variables be (trac-6170)
 				if ( ontype && isFunction( elem[ type ] ) && !isWindow( elem ) ) {
 
 					// Don't re-trigger an onFOO event when we call its FOO() method
@@ -8816,85 +8716,6 @@ jQuery.fn.extend( {
 		}
 	}
 } );
-
-
-// Support: Firefox <=44
-// Firefox doesn't have focus(in | out) events
-// Related ticket - https://bugzilla.mozilla.org/show_bug.cgi?id=687787
-//
-// Support: Chrome <=48 - 49, Safari <=9.0 - 9.1
-// focus(in | out) events fire after focus & blur events,
-// which is spec violation - http://www.w3.org/TR/DOM-Level-3-Events/#events-focusevent-event-order
-// Related ticket - https://bugs.chromium.org/p/chromium/issues/detail?id=449857
-if ( !support.focusin ) {
-	jQuery.each( { focus: "focusin", blur: "focusout" }, function( orig, fix ) {
-
-		// Attach a single capturing handler on the document while someone wants focusin/focusout
-		var handler = function( event ) {
-			jQuery.event.simulate( fix, event.target, jQuery.event.fix( event ) );
-		};
-
-		jQuery.event.special[ fix ] = {
-			setup: function() {
-
-				// Handle: regular nodes (via `this.ownerDocument`), window
-				// (via `this.document`) & document (via `this`).
-				var doc = this.ownerDocument || this.document || this,
-					attaches = dataPriv.access( doc, fix );
-
-				if ( !attaches ) {
-					doc.addEventListener( orig, handler, true );
-				}
-				dataPriv.access( doc, fix, ( attaches || 0 ) + 1 );
-			},
-			teardown: function() {
-				var doc = this.ownerDocument || this.document || this,
-					attaches = dataPriv.access( doc, fix ) - 1;
-
-				if ( !attaches ) {
-					doc.removeEventListener( orig, handler, true );
-					dataPriv.remove( doc, fix );
-
-				} else {
-					dataPriv.access( doc, fix, attaches );
-				}
-			}
-		};
-	} );
-}
-var location = window.location;
-
-var nonce = { guid: Date.now() };
-
-var rquery = ( /\?/ );
-
-
-
-// Cross-browser xml parsing
-jQuery.parseXML = function( data ) {
-	var xml, parserErrorElem;
-	if ( !data || typeof data !== "string" ) {
-		return null;
-	}
-
-	// Support: IE 9 - 11 only
-	// IE throws on parseFromString with invalid input.
-	try {
-		xml = ( new window.DOMParser() ).parseFromString( data, "text/xml" );
-	} catch ( e ) {}
-
-	parserErrorElem = xml && xml.getElementsByTagName( "parsererror" )[ 0 ];
-	if ( !xml || parserErrorElem ) {
-		jQuery.error( "Invalid XML: " + (
-			parserErrorElem ?
-				jQuery.map( parserErrorElem.childNodes, function( el ) {
-					return el.textContent;
-				} ).join( "\n" ) :
-				data
-		) );
-	}
-	return xml;
-};
 
 
 var
@@ -9024,7 +8845,7 @@ var
 	rantiCache = /([?&])_=[^&]*/,
 	rheaders = /^(.*?):[ \t]*([^\r\n]*)$/mg,
 
-	// #7653, #8125, #8152: local protocol detection
+	// trac-7653, trac-8125, trac-8152: local protocol detection
 	rlocalProtocol = /^(?:about|app|app-storage|.+-extension|file|res|widget):$/,
 	rnoContent = /^(?:GET|HEAD)$/,
 	rprotocol = /^\/\//,
@@ -9047,7 +8868,7 @@ var
 	 */
 	transports = {},
 
-	// Avoid comment-prolog char sequence (#10098); must appease lint and evade compression
+	// Avoid comment-prolog char sequence (trac-10098); must appease lint and evade compression
 	allTypes = "*/".concat( "*" ),
 
 	// Anchor tag for parsing the document origin
@@ -9118,7 +8939,7 @@ function inspectPrefiltersOrTransports( structure, options, originalOptions, jqX
 
 // A special extend for ajax options
 // that takes "flat" options (not to be deep extended)
-// Fixes #9887
+// Fixes trac-9887
 function ajaxExtend( target, src ) {
 	var key, deep,
 		flatOptions = jQuery.ajaxSettings.flatOptions || {};
@@ -9529,12 +9350,12 @@ jQuery.extend( {
 		deferred.promise( jqXHR );
 
 		// Add protocol if not provided (prefilters might expect it)
-		// Handle falsy url in the settings object (#10093: consistency with old signature)
+		// Handle falsy url in the settings object (trac-10093: consistency with old signature)
 		// We also use the url parameter if available
 		s.url = ( ( url || s.url || location.href ) + "" )
 			.replace( rprotocol, location.protocol + "//" );
 
-		// Alias method option to type as per ticket #12004
+		// Alias method option to type as per ticket trac-12004
 		s.type = options.method || options.type || s.method || s.type;
 
 		// Extract dataTypes list
@@ -9577,7 +9398,7 @@ jQuery.extend( {
 		}
 
 		// We can fire global events as of now if asked to
-		// Don't fire events if jQuery.event is undefined in an AMD-usage scenario (#15118)
+		// Don't fire events if jQuery.event is undefined in an AMD-usage scenario (trac-15118)
 		fireGlobals = jQuery.event && s.global;
 
 		// Watch for a new set of requests
@@ -9606,7 +9427,7 @@ jQuery.extend( {
 			if ( s.data && ( s.processData || typeof s.data === "string" ) ) {
 				cacheURL += ( rquery.test( cacheURL ) ? "&" : "?" ) + s.data;
 
-				// #9682: remove data so that it's not used in an eventual retry
+				// trac-9682: remove data so that it's not used in an eventual retry
 				delete s.data;
 			}
 
@@ -9879,7 +9700,7 @@ jQuery._evalUrl = function( url, options, doc ) {
 	return jQuery.ajax( {
 		url: url,
 
-		// Make this explicit, since user can override this through ajaxSetup (#11264)
+		// Make this explicit, since user can override this through ajaxSetup (trac-11264)
 		type: "GET",
 		dataType: "script",
 		cache: true,
@@ -9988,7 +9809,7 @@ var xhrSuccessStatus = {
 		0: 200,
 
 		// Support: IE <=9 only
-		// #1450: sometimes IE returns 1223 when it should be 204
+		// trac-1450: sometimes IE returns 1223 when it should be 204
 		1223: 204
 	},
 	xhrSupported = jQuery.ajaxSettings.xhr();
@@ -10060,7 +9881,7 @@ jQuery.ajaxTransport( function( options ) {
 								} else {
 									complete(
 
-										// File: protocol always yields status 0; see #8605, #14207
+										// File: protocol always yields status 0; see trac-8605, trac-14207
 										xhr.status,
 										xhr.statusText
 									);
@@ -10121,7 +9942,7 @@ jQuery.ajaxTransport( function( options ) {
 					xhr.send( options.hasContent && options.data || null );
 				} catch ( e ) {
 
-					// #14683: Only rethrow if this hasn't been notified as an error yet
+					// trac-14683: Only rethrow if this hasn't been notified as an error yet
 					if ( callback ) {
 						throw e;
 					}
@@ -10765,7 +10586,9 @@ jQuery.each(
 
 // Support: Android <=4.0 only
 // Make sure we trim BOM and NBSP
-var rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
+// Require that the "whitespace run" starts from a non-whitespace
+// to avoid O(N^2) behavior when the engine would try matching "\s+$" at each space position.
+var rtrim = /^[\s\uFEFF\xA0]+|([^\s\uFEFF\xA0])[\s\uFEFF\xA0]+$/g;
 
 // Bind a function to a context, optionally partially applying any
 // arguments.
@@ -10832,7 +10655,7 @@ jQuery.isNumeric = function( obj ) {
 jQuery.trim = function( text ) {
 	return text == null ?
 		"" :
-		( text + "" ).replace( rtrim, "" );
+		( text + "" ).replace( rtrim, "$1" );
 };
 
 
@@ -10880,8 +10703,8 @@ jQuery.noConflict = function( deep ) {
 };
 
 // Expose jQuery and $ identifiers, even in AMD
-// (#7102#comment:10, https://github.com/jquery/jquery/pull/557)
-// and CommonJS for browser emulators (#13566)
+// (trac-7102#comment:10, https://github.com/jquery/jquery/pull/557)
+// and CommonJS for browser emulators (trac-13566)
 if ( typeof noGlobal === "undefined" ) {
 	window.jQuery = window.$ = jQuery;
 }
@@ -10893,26 +10716,26 @@ return jQuery;
 } );
 
 
-/*! DataTables 1.13.4
+/*! DataTables 1.13.8
  * ©2008-2023 SpryMedia Ltd - datatables.net/license
  */
 
 /**
  * @summary     DataTables
  * @description Paginate, search and order HTML tables
- * @version     1.13.4
+ * @version     1.13.8
  * @author      SpryMedia Ltd
  * @contact     www.datatables.net
  * @copyright   SpryMedia Ltd.
  *
  * This source file is free software, available under the following license:
- *   MIT license - http://datatables.net/license
+ *   MIT license - https://datatables.net/license
  *
  * This source file is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE. See the license files for details.
  *
- * For details please refer to: http://www.datatables.net
+ * For details please refer to: https://www.datatables.net
  */
 
 /*jslint evil: true, undef: true, browser: true */
@@ -10933,7 +10756,7 @@ return jQuery;
 		// returns a factory function that expects the window object
 		var jq = require('jquery');
 
-		if (typeof window !== 'undefined') {
+		if (typeof window === 'undefined') {
 			module.exports = function (root, $) {
 				if ( ! root ) {
 					// CommonJS environments without a window global must pass a
@@ -10949,7 +10772,7 @@ return jQuery;
 			};
 		}
 		else {
-			return factory( jq, window, window.document );
+			module.exports = factory( jq, window, window.document );
 		}
 	}
 	else {
@@ -12240,7 +12063,7 @@ return jQuery;
 	// Escape regular expression special characters
 	var _re_escape_regex = new RegExp( '(\\' + [ '/', '.', '*', '+', '?', '|', '(', ')', '[', ']', '{', '}', '\\', '$', '^', '-' ].join('|\\') + ')', 'g' );
 	
-	// http://en.wikipedia.org/wiki/Foreign_exchange_market
+	// https://en.wikipedia.org/wiki/Foreign_exchange_market
 	// - \u20BD - Russian ruble.
 	// - \u20a9 - South Korean Won
 	// - \u20BA - Turkish Lira
@@ -12279,7 +12102,7 @@ return jQuery;
 	
 	
 	var _isNumber = function ( d, decimalPoint, formatted ) {
-		let type = typeof d;
+		var type = typeof d;
 		var strType = type === 'string';
 	
 		if ( type === 'number' || type === 'bigint') {
@@ -12413,7 +12236,9 @@ return jQuery;
 	
 	
 	var _stripHtml = function ( d ) {
-		return d.replace( _re_html, '' );
+		return d
+			.replace( _re_html, '' ) // Complete tags
+			.replace(/<script/i, ''); // Safety for incomplete script tag
 	};
 	
 	
@@ -12787,7 +12612,10 @@ return jQuery;
 								continue;
 							}
 		
-							if ( data === null || data[ a[i] ] === undefined ) {
+							if (data === null || data[ a[i] ] === null) {
+								return null;
+							}
+							else if ( data === undefined || data[ a[i] ] === undefined ) {
 								return undefined;
 							}
 	
@@ -13234,6 +13062,12 @@ return jQuery;
 				oCol.aDataSort = [ oOptions.iDataSort ];
 			}
 			_fnMap( oCol, oOptions, "aDataSort" );
+	
+			// Fall back to the aria-label attribute on the table header if no ariaTitle is
+			// provided.
+			if (! oCol.ariaTitle) {
+				oCol.ariaTitle = th.attr("aria-label");
+			}
 		}
 	
 		/* Cache the data get and set functions for speed */
@@ -14958,11 +14792,16 @@ return jQuery;
 		settings.iDraw++;
 		_fnProcessingDisplay( settings, true );
 	
+		// Keep track of drawHold state to handle scrolling after the Ajax call
+		var drawHold = settings._drawHold;
+	
 		_fnBuildAjax(
 			settings,
 			_fnAjaxParameters( settings ),
 			function(json) {
+				settings._drawHold = drawHold;
 				_fnAjaxUpdateDraw( settings, json );
+				settings._drawHold = false;
 			}
 		);
 	}
@@ -15192,7 +15031,7 @@ return jQuery;
 			/* Update all other filter input elements for the new display */
 			var n = features.f;
 			var val = !this.value ? "" : this.value; // mental IE8 fix :-(
-			if(previousSearch.return && event.key !== "Enter") {
+			if(previousSearch['return'] && event.key !== "Enter") {
 				return;
 			}
 			/* Now do the filter */
@@ -15202,7 +15041,7 @@ return jQuery;
 					"bRegex": previousSearch.bRegex,
 					"bSmart": previousSearch.bSmart ,
 					"bCaseInsensitive": previousSearch.bCaseInsensitive,
-					"return": previousSearch.return
+					"return": previousSearch['return']
 				} );
 	
 				// Need to redraw, without resorting
@@ -15226,7 +15065,7 @@ return jQuery;
 					_fnThrottle( searchFn, searchDelay ) :
 					searchFn
 			)
-			.on( 'mouseup', function(e) {
+			.on( 'mouseup.DT', function(e) {
 				// Edge fix! Edge 17 does not trigger anything other than mouse events when clicking
 				// on the clear icon (Edge bug 17584515). This is safe in other browsers as `searchFn`
 				// checks the value to see if it has changed. In other browsers it won't have.
@@ -15277,7 +15116,7 @@ return jQuery;
 			oPrevSearch.bRegex = oFilter.bRegex;
 			oPrevSearch.bSmart = oFilter.bSmart;
 			oPrevSearch.bCaseInsensitive = oFilter.bCaseInsensitive;
-			oPrevSearch.return = oFilter.return;
+			oPrevSearch['return'] = oFilter['return'];
 		};
 		var fnRegex = function ( o ) {
 			// Backwards compatibility with the bEscapeRegex option
@@ -15292,7 +15131,7 @@ return jQuery;
 		if ( _fnDataSource( oSettings ) != 'ssp' )
 		{
 			/* Global filter */
-			_fnFilter( oSettings, oInput.sSearch, iForce, fnRegex(oInput), oInput.bSmart, oInput.bCaseInsensitive, oInput.return );
+			_fnFilter( oSettings, oInput.sSearch, iForce, fnRegex(oInput), oInput.bSmart, oInput.bCaseInsensitive );
 			fnSaveFilter( oInput );
 	
 			/* Now do the individual column filter */
@@ -15461,9 +15300,13 @@ return jQuery;
 			 * 
 			 * ^(?=.*?\bone\b)(?=.*?\btwo three\b)(?=.*?\bfour\b).*$
 			 */
-			var a = $.map( search.match( /"[^"]+"|[^ ]+/g ) || [''], function ( word ) {
+			var a = $.map( search.match( /["\u201C][^"\u201D]+["\u201D]|[^ ]+/g ) || [''], function ( word ) {
 				if ( word.charAt(0) === '"' ) {
 					var m = word.match( /^"(.*)"$/ );
+					word = m ? m[1] : word;
+				}
+				else if ( word.charAt(0) === '\u201C' ) {
+					var m = word.match( /^\u201C(.*)\u201D$/ );
 					word = m ? m[1] : word;
 				}
 	
@@ -15525,7 +15368,7 @@ return jQuery;
 					// If it looks like there is an HTML entity in the string,
 					// attempt to decode it so sorting works as expected. Note that
 					// we could use a single line of jQuery to do this, but the DOM
-					// method used here is much faster http://jsperf.com/html-decode
+					// method used here is much faster https://jsperf.com/html-decode
 					if ( cellData.indexOf && cellData.indexOf('&') !== -1 ) {
 						__filter_div.innerHTML = cellData;
 						cellData = __filter_div_textContent ?
@@ -16550,11 +16393,13 @@ return jQuery;
 		}
 	
 		/* Convert any user input sizes into pixel sizes */
+		var sizes = _fnConvertToWidth(_pluck(columns, 'sWidthOrig'), tableContainer);
+	
 		for ( i=0 ; i<visibleColumns.length ; i++ ) {
 			column = columns[ visibleColumns[i] ];
 	
 			if ( column.sWidth !== null ) {
-				column.sWidth = _fnConvertToWidth( column.sWidthOrig, tableContainer );
+				column.sWidth = sizes[i];
 	
 				userInputs = true;
 			}
@@ -16757,26 +16602,40 @@ return jQuery;
 	
 	
 	/**
-	 * Convert a CSS unit width to pixels (e.g. 2em)
-	 *  @param {string} width width to be converted
+	 * Convert a set of CSS units width to pixels (e.g. 2em)
+	 *  @param {string[]} widths widths to be converted
 	 *  @param {node} parent parent to get the with for (required for relative widths) - optional
-	 *  @returns {int} width in pixels
+	 *  @returns {int[]} widths in pixels
 	 *  @memberof DataTable#oApi
 	 */
-	function _fnConvertToWidth ( width, parent )
+	function _fnConvertToWidth ( widths, parent )
 	{
-		if ( ! width ) {
-			return 0;
+		var els = [];
+		var results = [];
+	
+		// Add the elements in a single loop so we only need to reflow once
+		for (var i=0 ; i<widths.length ; i++) {
+			if (widths[i]) {
+				els.push(
+					$('<div/>')
+						.css( 'width', _fnStringToCss( widths[i] ) )
+						.appendTo( parent || document.body )
+				)
+			}
+			else {
+				els.push(null);
+			}
 		}
 	
-		var n = $('<div/>')
-			.css( 'width', _fnStringToCss( width ) )
-			.appendTo( parent || document.body );
+		// Get the sizes (will reflow once)
+		for (var i=0 ; i<widths.length ; i++) {
+			results.push(els[i] ? els[i][0].offsetWidth : null);
+		}
 	
-		var val = n[0].offsetWidth;
-		n.remove();
+		// Tidy
+		$(els).remove();
 	
-		return val;
+		return results;
 	}
 	
 	
@@ -17511,7 +17370,7 @@ return jQuery;
 	
 		if ( tn ) {
 			msg += '. For more information about this error, please see '+
-			'http://datatables.net/tn/'+tn;
+			'https://datatables.net/tn/'+tn;
 		}
 	
 		if ( ! level  ) {
@@ -19442,7 +19301,13 @@ return jQuery;
 					row = data[i];
 	
 					if ( row._details ) {
-						row._details.children('td[colspan]').attr('colspan', visible );
+						row._details.each(function () {
+							var el = $(this).children('td');
+	
+							if (el.length == 1) {
+								el.attr('colspan', visible);
+							}
+						});
 					}
 				}
 			} );
@@ -20269,7 +20134,8 @@ return jQuery;
 	 * Set the jQuery or window object to be used by DataTables
 	 *
 	 * @param {*} module Library / container object
-	 * @param {string} type Library or container type `lib` or `win`.
+	 * @param {string} [type] Library or container type `lib`, `win` or `datetime`.
+	 *   If not provided, automatic detection is attempted.
 	 */
 	DataTable.use = function (module, type) {
 		if (type === 'lib' || module.fn) {
@@ -20278,6 +20144,9 @@ return jQuery;
 		else if (type == 'win' || module.document) {
 			window = module;
 			document = module.document;
+		}
+		else if (type === 'datetime' || module.type === 'DateTime') {
+			DataTable.DateTime = module;
 		}
 	}
 	
@@ -20638,17 +20507,19 @@ return jQuery;
 				resolved._;
 		}
 	
-		return resolved.replace( '%d', plural ); // nb: plural might be undefined,
+		return typeof resolved === 'string'
+			? resolved.replace( '%d', plural ) // nb: plural might be undefined,
+			: resolved;
 	} );	
 	/**
 	 * Version string for plug-ins to check compatibility. Allowed format is
 	 * `a.b.c-d` where: a:int, b:int, c:int, d:string(dev|beta|alpha). `d` is used
-	 * only for non-release builds. See http://semver.org/ for more information.
+	 * only for non-release builds. See https://semver.org/ for more information.
 	 *  @member
 	 *  @type string
 	 *  @default Version number
 	 */
-	DataTable.version = "1.13.4";
+	DataTable.version = "1.13.8";
 	
 	/**
 	 * Private data store, containing all of the settings objects that are
@@ -21224,7 +21095,7 @@ return jQuery;
 		 * --------
 		 *
 		 * As an object, the parameters in the object are passed to
-		 * [jQuery.ajax](http://api.jquery.com/jQuery.ajax/) allowing fine control
+		 * [jQuery.ajax](https://api.jquery.com/jQuery.ajax/) allowing fine control
 		 * of the Ajax request. DataTables has a number of default parameters which
 		 * you can override using this option. Please refer to the jQuery
 		 * documentation for a full description of the options available, although
@@ -22932,7 +22803,7 @@ return jQuery;
 			 *    $(document).ready( function() {
 			 *      $('#example').dataTable( {
 			 *        "language": {
-			 *          "url": "http://www.sprymedia.co.uk/dataTables/lang.txt"
+			 *          "url": "https://www.sprymedia.co.uk/dataTables/lang.txt"
 			 *        }
 			 *      } );
 			 *    } );
@@ -25072,7 +24943,7 @@ return jQuery;
 		 *
 		 *  @type string
 		 */
-		build:"bs5/jq-3.6.0/dt-1.13.4",
+		build:"bs5/jq-3.7.0/dt-1.13.8/b-2.4.2/fh-3.4.0/r-2.5.0/rr-1.4.1",
 	
 	
 		/**
@@ -25713,7 +25584,7 @@ return jQuery;
 				var btnDisplay, btnClass;
 	
 				var attach = function( container, buttons ) {
-					var i, ien, node, button, tabIndex;
+					var i, ien, node, button;
 					var disabledClass = classes.sPageButtonDisabled;
 					var clickHandler = function ( e ) {
 						_fnPageChange( settings, e.data.action, true );
@@ -25728,9 +25599,10 @@ return jQuery;
 							attach( inner, button );
 						}
 						else {
+							var disabled = false;
+	
 							btnDisplay = null;
 							btnClass = button;
-							tabIndex = settings.iTabIndex;
 	
 							switch ( button ) {
 								case 'ellipsis':
@@ -25741,8 +25613,7 @@ return jQuery;
 									btnDisplay = lang.sFirst;
 	
 									if ( page === 0 ) {
-										tabIndex = -1;
-										btnClass += ' ' + disabledClass;
+										disabled = true;
 									}
 									break;
 	
@@ -25750,8 +25621,7 @@ return jQuery;
 									btnDisplay = lang.sPrevious;
 	
 									if ( page === 0 ) {
-										tabIndex = -1;
-										btnClass += ' ' + disabledClass;
+										disabled = true;
 									}
 									break;
 	
@@ -25759,8 +25629,7 @@ return jQuery;
 									btnDisplay = lang.sNext;
 	
 									if ( pages === 0 || page === pages-1 ) {
-										tabIndex = -1;
-										btnClass += ' ' + disabledClass;
+										disabled = true;
 									}
 									break;
 	
@@ -25768,8 +25637,7 @@ return jQuery;
 									btnDisplay = lang.sLast;
 	
 									if ( pages === 0 || page === pages-1 ) {
-										tabIndex = -1;
-										btnClass += ' ' + disabledClass;
+										disabled = true;
 									}
 									break;
 	
@@ -25782,18 +25650,20 @@ return jQuery;
 	
 							if ( btnDisplay !== null ) {
 								var tag = settings.oInit.pagingTag || 'a';
-								var disabled = btnClass.indexOf(disabledClass) !== -1;
-			
+	
+								if (disabled) {
+									btnClass += ' ' + disabledClass;
+								}
 	
 								node = $('<'+tag+'>', {
 										'class': classes.sPageButton+' '+btnClass,
 										'aria-controls': settings.sTableId,
 										'aria-disabled': disabled ? 'true' : null,
 										'aria-label': aria[ button ],
-										'aria-role': 'link',
+										'role': 'link',
 										'aria-current': btnClass === classes.sPageButtonActive ? 'page' : null,
 										'data-dt-idx': button,
-										'tabindex': tabIndex,
+										'tabindex': disabled ? -1 : settings.iTabIndex,
 										'id': idx === 0 && typeof button === 'string' ?
 											settings.sTableId +'_'+ button :
 											null
@@ -25924,7 +25794,7 @@ return jQuery;
 			return -Infinity;
 		}
 		
-		let type = typeof d;
+		var type = typeof d;
 	
 		if (type === 'number' || type === 'bigint') {
 			return d;
@@ -26010,7 +25880,7 @@ return jQuery;
 		// string
 		"string-pre": function ( a ) {
 			// This is a little complex, but faster than always calling toString,
-			// http://jsperf.com/tostring-v-check
+			// https://jsperf.com/tostring-v-check
 			return _empty(a) ?
 				'' :
 				typeof a === 'string' ?
@@ -26298,7 +26168,7 @@ return jQuery;
 	var __thousands = ',';
 	var __decimal = '.';
 	
-	if (Intl) {
+	if (window.Intl !== undefined) {
 		try {
 			var num = new Intl.NumberFormat().formatToParts(100000.1);
 		
@@ -26601,7 +26471,7 @@ return jQuery;
 			}
 		};
 
-		if (typeof window !== 'undefined') {
+		if (typeof window === 'undefined') {
 			module.exports = function (root, $) {
 				if ( ! root ) {
 					// CommonJS environments without a window global must pass a
@@ -26637,7 +26507,7 @@ var DataTable = $.fn.dataTable;
  * DataTables 1.10 or newer.
  *
  * This file sets the defaults and adds options to DataTables to style its
- * controls using Bootstrap. See http://datatables.net/manual/styling/bootstrap
+ * controls using Bootstrap. See https://datatables.net/manual/styling/bootstrap
  * for further information.
  */
 
@@ -26739,10 +26609,10 @@ DataTable.ext.renderer.pageButton.bootstrap = function ( settings, host, idx, bu
 								'aria-controls': settings.sTableId,
 								'aria-disabled': disabled ? 'true' : null,
 								'aria-label': aria[ button ],
-								'aria-role': 'link',
+								'role': 'link',
 								'aria-current': btnClass === 'active' ? 'page' : null,
 								'data-dt-idx': button,
-								'tabindex': settings.iTabIndex,
+								'tabindex': disabled ? -1 : settings.iTabIndex,
 								'class': 'page-link'
 							} )
 							.html( btnDisplay )
@@ -26789,6 +26659,6576 @@ DataTable.ext.renderer.pageButton.bootstrap = function ( settings, host, idx, bu
 		hostEl.find('[data-dt-idx='+activeEl+']').trigger('focus');
 	}
 };
+
+
+return DataTable;
+}));
+
+
+/*! Buttons for DataTables 2.4.2
+ * © SpryMedia Ltd - datatables.net/license
+ */
+
+(function( factory ){
+	if ( typeof define === 'function' && define.amd ) {
+		// AMD
+		define( ['jquery', 'datatables.net'], function ( $ ) {
+			return factory( $, window, document );
+		} );
+	}
+	else if ( typeof exports === 'object' ) {
+		// CommonJS
+		var jq = require('jquery');
+		var cjsRequires = function (root, $) {
+			if ( ! $.fn.dataTable ) {
+				require('datatables.net')(root, $);
+			}
+		};
+
+		if (typeof window === 'undefined') {
+			module.exports = function (root, $) {
+				if ( ! root ) {
+					// CommonJS environments without a window global must pass a
+					// root. This will give an error otherwise
+					root = window;
+				}
+
+				if ( ! $ ) {
+					$ = jq( root );
+				}
+
+				cjsRequires( root, $ );
+				return factory( $, root, root.document );
+			};
+		}
+		else {
+			cjsRequires( window, jq );
+			module.exports = factory( jq, window, window.document );
+		}
+	}
+	else {
+		// Browser
+		factory( jQuery, window, document );
+	}
+}(function( $, window, document, undefined ) {
+'use strict';
+var DataTable = $.fn.dataTable;
+
+
+
+// Used for namespacing events added to the document by each instance, so they
+// can be removed on destroy
+var _instCounter = 0;
+
+// Button namespacing counter for namespacing events on individual buttons
+var _buttonCounter = 0;
+
+var _dtButtons = DataTable.ext.buttons;
+
+// Custom entity decoder for data export
+var _entityDecoder = null;
+
+// Allow for jQuery slim
+function _fadeIn(el, duration, fn) {
+	if ($.fn.animate) {
+		el.stop().fadeIn(duration, fn);
+	}
+	else {
+		el.css('display', 'block');
+
+		if (fn) {
+			fn.call(el);
+		}
+	}
+}
+
+function _fadeOut(el, duration, fn) {
+	if ($.fn.animate) {
+		el.stop().fadeOut(duration, fn);
+	}
+	else {
+		el.css('display', 'none');
+
+		if (fn) {
+			fn.call(el);
+		}
+	}
+}
+
+/**
+ * [Buttons description]
+ * @param {[type]}
+ * @param {[type]}
+ */
+var Buttons = function (dt, config) {
+	// If not created with a `new` keyword then we return a wrapper function that
+	// will take the settings object for a DT. This allows easy use of new instances
+	// with the `layout` option - e.g. `topLeft: $.fn.dataTable.Buttons( ... )`.
+	if (!(this instanceof Buttons)) {
+		return function (settings) {
+			return new Buttons(settings, dt).container();
+		};
+	}
+
+	// If there is no config set it to an empty object
+	if (typeof config === 'undefined') {
+		config = {};
+	}
+
+	// Allow a boolean true for defaults
+	if (config === true) {
+		config = {};
+	}
+
+	// For easy configuration of buttons an array can be given
+	if (Array.isArray(config)) {
+		config = { buttons: config };
+	}
+
+	this.c = $.extend(true, {}, Buttons.defaults, config);
+
+	// Don't want a deep copy for the buttons
+	if (config.buttons) {
+		this.c.buttons = config.buttons;
+	}
+
+	this.s = {
+		dt: new DataTable.Api(dt),
+		buttons: [],
+		listenKeys: '',
+		namespace: 'dtb' + _instCounter++
+	};
+
+	this.dom = {
+		container: $('<' + this.c.dom.container.tag + '/>').addClass(this.c.dom.container.className)
+	};
+
+	this._constructor();
+};
+
+$.extend(Buttons.prototype, {
+	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	 * Public methods
+	 */
+
+	/**
+	 * Get the action of a button
+	 * @param  {int|string} Button index
+	 * @return {function}
+	 */ /**
+	 * Set the action of a button
+	 * @param  {node} node Button element
+	 * @param  {function} action Function to set
+	 * @return {Buttons} Self for chaining
+	 */
+	action: function (node, action) {
+		var button = this._nodeToButton(node);
+
+		if (action === undefined) {
+			return button.conf.action;
+		}
+
+		button.conf.action = action;
+
+		return this;
+	},
+
+	/**
+	 * Add an active class to the button to make to look active or get current
+	 * active state.
+	 * @param  {node} node Button element
+	 * @param  {boolean} [flag] Enable / disable flag
+	 * @return {Buttons} Self for chaining or boolean for getter
+	 */
+	active: function (node, flag) {
+		var button = this._nodeToButton(node);
+		var klass = this.c.dom.button.active;
+		var jqNode = $(button.node);
+
+		if (
+			button.inCollection &&
+			this.c.dom.collection.button &&
+			this.c.dom.collection.button.active !== undefined
+		) {
+			klass = this.c.dom.collection.button.active;
+		}
+
+		if (flag === undefined) {
+			return jqNode.hasClass(klass);
+		}
+
+		jqNode.toggleClass(klass, flag === undefined ? true : flag);
+
+		return this;
+	},
+
+	/**
+	 * Add a new button
+	 * @param {object} config Button configuration object, base string name or function
+	 * @param {int|string} [idx] Button index for where to insert the button
+	 * @param {boolean} [draw=true] Trigger a draw. Set a false when adding
+	 *   lots of buttons, until the last button.
+	 * @return {Buttons} Self for chaining
+	 */
+	add: function (config, idx, draw) {
+		var buttons = this.s.buttons;
+
+		if (typeof idx === 'string') {
+			var split = idx.split('-');
+			var base = this.s;
+
+			for (var i = 0, ien = split.length - 1; i < ien; i++) {
+				base = base.buttons[split[i] * 1];
+			}
+
+			buttons = base.buttons;
+			idx = split[split.length - 1] * 1;
+		}
+
+		this._expandButton(
+			buttons,
+			config,
+			config !== undefined ? config.split : undefined,
+			(config === undefined || config.split === undefined || config.split.length === 0) &&
+				base !== undefined,
+			false,
+			idx
+		);
+
+		if (draw === undefined || draw === true) {
+			this._draw();
+		}
+
+		return this;
+	},
+
+	/**
+	 * Clear buttons from a collection and then insert new buttons
+	 */
+	collectionRebuild: function (node, newButtons) {
+		var button = this._nodeToButton(node);
+
+		if (newButtons !== undefined) {
+			var i;
+			// Need to reverse the array
+			for (i = button.buttons.length - 1; i >= 0; i--) {
+				this.remove(button.buttons[i].node);
+			}
+
+			// If the collection has prefix and / or postfix buttons we need to add them in
+			if (button.conf.prefixButtons) {
+				newButtons.unshift.apply(newButtons, button.conf.prefixButtons);
+			}
+
+			if (button.conf.postfixButtons) {
+				newButtons.push.apply(newButtons, button.conf.postfixButtons);
+			}
+
+			for (i = 0; i < newButtons.length; i++) {
+				var newBtn = newButtons[i];
+
+				this._expandButton(
+					button.buttons,
+					newBtn,
+					newBtn !== undefined &&
+						newBtn.config !== undefined &&
+						newBtn.config.split !== undefined,
+					true,
+					newBtn.parentConf !== undefined && newBtn.parentConf.split !== undefined,
+					null,
+					newBtn.parentConf
+				);
+			}
+		}
+
+		this._draw(button.collection, button.buttons);
+	},
+
+	/**
+	 * Get the container node for the buttons
+	 * @return {jQuery} Buttons node
+	 */
+	container: function () {
+		return this.dom.container;
+	},
+
+	/**
+	 * Disable a button
+	 * @param  {node} node Button node
+	 * @return {Buttons} Self for chaining
+	 */
+	disable: function (node) {
+		var button = this._nodeToButton(node);
+
+		$(button.node).addClass(this.c.dom.button.disabled).prop('disabled', true);
+
+		return this;
+	},
+
+	/**
+	 * Destroy the instance, cleaning up event handlers and removing DOM
+	 * elements
+	 * @return {Buttons} Self for chaining
+	 */
+	destroy: function () {
+		// Key event listener
+		$('body').off('keyup.' + this.s.namespace);
+
+		// Individual button destroy (so they can remove their own events if
+		// needed). Take a copy as the array is modified by `remove`
+		var buttons = this.s.buttons.slice();
+		var i, ien;
+
+		for (i = 0, ien = buttons.length; i < ien; i++) {
+			this.remove(buttons[i].node);
+		}
+
+		// Container
+		this.dom.container.remove();
+
+		// Remove from the settings object collection
+		var buttonInsts = this.s.dt.settings()[0];
+
+		for (i = 0, ien = buttonInsts.length; i < ien; i++) {
+			if (buttonInsts.inst === this) {
+				buttonInsts.splice(i, 1);
+				break;
+			}
+		}
+
+		return this;
+	},
+
+	/**
+	 * Enable / disable a button
+	 * @param  {node} node Button node
+	 * @param  {boolean} [flag=true] Enable / disable flag
+	 * @return {Buttons} Self for chaining
+	 */
+	enable: function (node, flag) {
+		if (flag === false) {
+			return this.disable(node);
+		}
+
+		var button = this._nodeToButton(node);
+		$(button.node).removeClass(this.c.dom.button.disabled).prop('disabled', false);
+
+		return this;
+	},
+
+	/**
+	 * Get a button's index
+	 *
+	 * This is internally recursive
+	 * @param {element} node Button to get the index of
+	 * @return {string} Button index
+	 */
+	index: function (node, nested, buttons) {
+		if (!nested) {
+			nested = '';
+			buttons = this.s.buttons;
+		}
+
+		for (var i = 0, ien = buttons.length; i < ien; i++) {
+			var inner = buttons[i].buttons;
+
+			if (buttons[i].node === node) {
+				return nested + i;
+			}
+
+			if (inner && inner.length) {
+				var match = this.index(node, i + '-', inner);
+
+				if (match !== null) {
+					return match;
+				}
+			}
+		}
+
+		return null;
+	},
+
+	/**
+	 * Get the instance name for the button set selector
+	 * @return {string} Instance name
+	 */
+	name: function () {
+		return this.c.name;
+	},
+
+	/**
+	 * Get a button's node of the buttons container if no button is given
+	 * @param  {node} [node] Button node
+	 * @return {jQuery} Button element, or container
+	 */
+	node: function (node) {
+		if (!node) {
+			return this.dom.container;
+		}
+
+		var button = this._nodeToButton(node);
+		return $(button.node);
+	},
+
+	/**
+	 * Set / get a processing class on the selected button
+	 * @param {element} node Triggering button node
+	 * @param  {boolean} flag true to add, false to remove, undefined to get
+	 * @return {boolean|Buttons} Getter value or this if a setter.
+	 */
+	processing: function (node, flag) {
+		var dt = this.s.dt;
+		var button = this._nodeToButton(node);
+
+		if (flag === undefined) {
+			return $(button.node).hasClass('processing');
+		}
+
+		$(button.node).toggleClass('processing', flag);
+
+		$(dt.table().node()).triggerHandler('buttons-processing.dt', [
+			flag,
+			dt.button(node),
+			dt,
+			$(node),
+			button.conf
+		]);
+
+		return this;
+	},
+
+	/**
+	 * Remove a button.
+	 * @param  {node} node Button node
+	 * @return {Buttons} Self for chaining
+	 */
+	remove: function (node) {
+		var button = this._nodeToButton(node);
+		var host = this._nodeToHost(node);
+		var dt = this.s.dt;
+
+		// Remove any child buttons first
+		if (button.buttons.length) {
+			for (var i = button.buttons.length - 1; i >= 0; i--) {
+				this.remove(button.buttons[i].node);
+			}
+		}
+
+		button.conf.destroying = true;
+
+		// Allow the button to remove event handlers, etc
+		if (button.conf.destroy) {
+			button.conf.destroy.call(dt.button(node), dt, $(node), button.conf);
+		}
+
+		this._removeKey(button.conf);
+
+		$(button.node).remove();
+
+		var idx = $.inArray(button, host);
+		host.splice(idx, 1);
+
+		return this;
+	},
+
+	/**
+	 * Get the text for a button
+	 * @param  {int|string} node Button index
+	 * @return {string} Button text
+	 */ /**
+	 * Set the text for a button
+	 * @param  {int|string|function} node Button index
+	 * @param  {string} label Text
+	 * @return {Buttons} Self for chaining
+	 */
+	text: function (node, label) {
+		var button = this._nodeToButton(node);
+		var textNode = button.textNode;
+		var dt = this.s.dt;
+		var jqNode = $(button.node);
+		var text = function (opt) {
+			return typeof opt === 'function' ? opt(dt, jqNode, button.conf) : opt;
+		};
+
+		if (label === undefined) {
+			return text(button.conf.text);
+		}
+
+		button.conf.text = label;
+		textNode.html(text(label));
+
+		return this;
+	},
+
+	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	 * Constructor
+	 */
+
+	/**
+	 * Buttons constructor
+	 * @private
+	 */
+	_constructor: function () {
+		var that = this;
+		var dt = this.s.dt;
+		var dtSettings = dt.settings()[0];
+		var buttons = this.c.buttons;
+
+		if (!dtSettings._buttons) {
+			dtSettings._buttons = [];
+		}
+
+		dtSettings._buttons.push({
+			inst: this,
+			name: this.c.name
+		});
+
+		for (var i = 0, ien = buttons.length; i < ien; i++) {
+			this.add(buttons[i]);
+		}
+
+		dt.on('destroy', function (e, settings) {
+			if (settings === dtSettings) {
+				that.destroy();
+			}
+		});
+
+		// Global key event binding to listen for button keys
+		$('body').on('keyup.' + this.s.namespace, function (e) {
+			if (!document.activeElement || document.activeElement === document.body) {
+				// SUse a string of characters for fast lookup of if we need to
+				// handle this
+				var character = String.fromCharCode(e.keyCode).toLowerCase();
+
+				if (that.s.listenKeys.toLowerCase().indexOf(character) !== -1) {
+					that._keypress(character, e);
+				}
+			}
+		});
+	},
+
+	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	 * Private methods
+	 */
+
+	/**
+	 * Add a new button to the key press listener
+	 * @param {object} conf Resolved button configuration object
+	 * @private
+	 */
+	_addKey: function (conf) {
+		if (conf.key) {
+			this.s.listenKeys += $.isPlainObject(conf.key) ? conf.key.key : conf.key;
+		}
+	},
+
+	/**
+	 * Insert the buttons into the container. Call without parameters!
+	 * @param  {node} [container] Recursive only - Insert point
+	 * @param  {array} [buttons] Recursive only - Buttons array
+	 * @private
+	 */
+	_draw: function (container, buttons) {
+		if (!container) {
+			container = this.dom.container;
+			buttons = this.s.buttons;
+		}
+
+		container.children().detach();
+
+		for (var i = 0, ien = buttons.length; i < ien; i++) {
+			container.append(buttons[i].inserter);
+			container.append(' ');
+
+			if (buttons[i].buttons && buttons[i].buttons.length) {
+				this._draw(buttons[i].collection, buttons[i].buttons);
+			}
+		}
+	},
+
+	/**
+	 * Create buttons from an array of buttons
+	 * @param  {array} attachTo Buttons array to attach to
+	 * @param  {object} button Button definition
+	 * @param  {boolean} inCollection true if the button is in a collection
+	 * @private
+	 */
+	_expandButton: function (
+		attachTo,
+		button,
+		split,
+		inCollection,
+		inSplit,
+		attachPoint,
+		parentConf
+	) {
+		var dt = this.s.dt;
+		var isSplit = false;
+		var domCollection = this.c.dom.collection;
+		var buttons = !Array.isArray(button) ? [button] : button;
+
+		if (button === undefined) {
+			buttons = !Array.isArray(split) ? [split] : split;
+		}
+
+		for (var i = 0, ien = buttons.length; i < ien; i++) {
+			var conf = this._resolveExtends(buttons[i]);
+
+			if (!conf) {
+				continue;
+			}
+
+			isSplit = conf.config && conf.config.split ? true : false;
+
+			// If the configuration is an array, then expand the buttons at this
+			// point
+			if (Array.isArray(conf)) {
+				this._expandButton(
+					attachTo,
+					conf,
+					built !== undefined && built.conf !== undefined ? built.conf.split : undefined,
+					inCollection,
+					parentConf !== undefined && parentConf.split !== undefined,
+					attachPoint,
+					parentConf
+				);
+				continue;
+			}
+
+			var built = this._buildButton(
+				conf,
+				inCollection,
+				conf.split !== undefined ||
+					(conf.config !== undefined && conf.config.split !== undefined),
+				inSplit
+			);
+			if (!built) {
+				continue;
+			}
+
+			if (attachPoint !== undefined && attachPoint !== null) {
+				attachTo.splice(attachPoint, 0, built);
+				attachPoint++;
+			}
+			else {
+				attachTo.push(built);
+			}
+
+			// Create the dropdown for a collection
+			if (built.conf.buttons) {
+				built.collection = $('<' + domCollection.container.content.tag + '/>');
+				built.conf._collection = built.collection;
+
+				$(built.node).append(domCollection.action.dropHtml);
+
+				this._expandButton(
+					built.buttons,
+					built.conf.buttons,
+					built.conf.split,
+					!isSplit,
+					isSplit,
+					attachPoint,
+					built.conf
+				);
+			}
+
+			// And the split collection
+			if (built.conf.split) {
+				built.collection = $('<' + domCollection.container.tag + '/>');
+				built.conf._collection = built.collection;
+
+				for (var j = 0; j < built.conf.split.length; j++) {
+					var item = built.conf.split[j];
+
+					if (typeof item === 'object') {
+						item.parent = parentConf;
+
+						if (item.collectionLayout === undefined) {
+							item.collectionLayout = built.conf.collectionLayout;
+						}
+
+						if (item.dropup === undefined) {
+							item.dropup = built.conf.dropup;
+						}
+
+						if (item.fade === undefined) {
+							item.fade = built.conf.fade;
+						}
+					}
+				}
+
+				this._expandButton(
+					built.buttons,
+					built.conf.buttons,
+					built.conf.split,
+					!isSplit,
+					isSplit,
+					attachPoint,
+					built.conf
+				);
+			}
+
+			built.conf.parent = parentConf;
+
+			// init call is made here, rather than buildButton as it needs to
+			// be selectable, and for that it needs to be in the buttons array
+			if (conf.init) {
+				conf.init.call(dt.button(built.node), dt, $(built.node), conf);
+			}
+		}
+	},
+
+	/**
+	 * Create an individual button
+	 * @param  {object} config            Resolved button configuration
+	 * @param  {boolean} inCollection `true` if a collection button
+	 * @return {object} Completed button description object
+	 * @private
+	 */
+	_buildButton: function (config, inCollection, isSplit, inSplit) {
+		var configDom = this.c.dom;
+		var textNode;
+		var dt = this.s.dt;
+		var text = function (opt) {
+			return typeof opt === 'function' ? opt(dt, button, config) : opt;
+		};
+
+		// Create an object that describes the button which can be in `dom.button`, or
+		// `dom.collection.button` or `dom.split.button` or `dom.collection.split.button`!
+		// Each should extend from `dom.button`.
+		var dom = $.extend(true, {}, configDom.button);
+
+		if (inCollection && isSplit && configDom.collection.split) {
+			$.extend(true, dom, configDom.collection.split.action);
+		}
+		else if (inSplit || inCollection) {
+			$.extend(true, dom, configDom.collection.button);
+		}
+		else if (isSplit) {
+			$.extend(true, dom, configDom.split.button);
+		}
+
+		// Spacers don't do much other than insert an element into the DOM
+		if (config.spacer) {
+			var spacer = $('<' + dom.spacer.tag + '/>')
+				.addClass('dt-button-spacer ' + config.style + ' ' + dom.spacer.className)
+				.html(text(config.text));
+
+			return {
+				conf: config,
+				node: spacer,
+				inserter: spacer,
+				buttons: [],
+				inCollection: inCollection,
+				isSplit: isSplit,
+				collection: null,
+				textNode: spacer
+			};
+		}
+
+		// Make sure that the button is available based on whatever requirements
+		// it has. For example, PDF button require pdfmake
+		if (config.available && !config.available(dt, config) && !config.hasOwnProperty('html')) {
+			return false;
+		}
+
+		var button;
+
+		if (!config.hasOwnProperty('html')) {
+			var action = function (e, dt, button, config) {
+				config.action.call(dt.button(button), e, dt, button, config);
+
+				$(dt.table().node()).triggerHandler('buttons-action.dt', [
+					dt.button(button),
+					dt,
+					button,
+					config
+				]);
+			};
+
+			var tag = config.tag || dom.tag;
+			var clickBlurs = config.clickBlurs === undefined ? true : config.clickBlurs;
+
+			button = $('<' + tag + '/>')
+				.addClass(dom.className)
+				.attr('tabindex', this.s.dt.settings()[0].iTabIndex)
+				.attr('aria-controls', this.s.dt.table().node().id)
+				.on('click.dtb', function (e) {
+					e.preventDefault();
+
+					if (!button.hasClass(dom.disabled) && config.action) {
+						action(e, dt, button, config);
+					}
+
+					if (clickBlurs) {
+						button.trigger('blur');
+					}
+				})
+				.on('keypress.dtb', function (e) {
+					if (e.keyCode === 13) {
+						e.preventDefault();
+
+						if (!button.hasClass(dom.disabled) && config.action) {
+							action(e, dt, button, config);
+						}
+					}
+				});
+
+			// Make `a` tags act like a link
+			if (tag.toLowerCase() === 'a') {
+				button.attr('href', '#');
+			}
+
+			// Button tags should have `type=button` so they don't have any default behaviour
+			if (tag.toLowerCase() === 'button') {
+				button.attr('type', 'button');
+			}
+
+			if (dom.liner.tag) {
+				var liner = $('<' + dom.liner.tag + '/>')
+					.html(text(config.text))
+					.addClass(dom.liner.className);
+
+				if (dom.liner.tag.toLowerCase() === 'a') {
+					liner.attr('href', '#');
+				}
+
+				button.append(liner);
+				textNode = liner;
+			}
+			else {
+				button.html(text(config.text));
+				textNode = button;
+			}
+
+			if (config.enabled === false) {
+				button.addClass(dom.disabled);
+			}
+
+			if (config.className) {
+				button.addClass(config.className);
+			}
+
+			if (config.titleAttr) {
+				button.attr('title', text(config.titleAttr));
+			}
+
+			if (config.attr) {
+				button.attr(config.attr);
+			}
+
+			if (!config.namespace) {
+				config.namespace = '.dt-button-' + _buttonCounter++;
+			}
+
+			if (config.config !== undefined && config.config.split) {
+				config.split = config.config.split;
+			}
+		}
+		else {
+			button = $(config.html);
+		}
+
+		var buttonContainer = this.c.dom.buttonContainer;
+		var inserter;
+		if (buttonContainer && buttonContainer.tag) {
+			inserter = $('<' + buttonContainer.tag + '/>')
+				.addClass(buttonContainer.className)
+				.append(button);
+		}
+		else {
+			inserter = button;
+		}
+
+		this._addKey(config);
+
+		// Style integration callback for DOM manipulation
+		// Note that this is _not_ documented. It is currently
+		// for style integration only
+		if (this.c.buttonCreated) {
+			inserter = this.c.buttonCreated(config, inserter);
+		}
+
+		var splitDiv;
+
+		if (isSplit) {
+			var dropdownConf = inCollection
+				? $.extend(true, this.c.dom.split, this.c.dom.collection.split)
+				: this.c.dom.split;
+			var wrapperConf = dropdownConf.wrapper;
+
+			splitDiv = $('<' + wrapperConf.tag + '/>')
+				.addClass(wrapperConf.className)
+				.append(button);
+
+			var dropButtonConfig = $.extend(config, {
+				align: dropdownConf.dropdown.align,
+				attr: {
+					'aria-haspopup': 'dialog',
+					'aria-expanded': false
+				},
+				className: dropdownConf.dropdown.className,
+				closeButton: false,
+				splitAlignClass: dropdownConf.dropdown.splitAlignClass,
+				text: dropdownConf.dropdown.text
+			});
+
+			this._addKey(dropButtonConfig);
+
+			var splitAction = function (e, dt, button, config) {
+				_dtButtons.split.action.call(dt.button(splitDiv), e, dt, button, config);
+
+				$(dt.table().node()).triggerHandler('buttons-action.dt', [
+					dt.button(button),
+					dt,
+					button,
+					config
+				]);
+				button.attr('aria-expanded', true);
+			};
+
+			var dropButton = $(
+				'<button class="' + dropdownConf.dropdown.className + ' dt-button"></button>'
+			)
+				.html(dropdownConf.dropdown.dropHtml)
+				.on('click.dtb', function (e) {
+					e.preventDefault();
+					e.stopPropagation();
+
+					if (!dropButton.hasClass(dom.disabled)) {
+						splitAction(e, dt, dropButton, dropButtonConfig);
+					}
+					if (clickBlurs) {
+						dropButton.trigger('blur');
+					}
+				})
+				.on('keypress.dtb', function (e) {
+					if (e.keyCode === 13) {
+						e.preventDefault();
+
+						if (!dropButton.hasClass(dom.disabled)) {
+							splitAction(e, dt, dropButton, dropButtonConfig);
+						}
+					}
+				});
+
+			if (config.split.length === 0) {
+				dropButton.addClass('dtb-hide-drop');
+			}
+
+			splitDiv.append(dropButton).attr(dropButtonConfig.attr);
+		}
+
+		return {
+			conf: config,
+			node: isSplit ? splitDiv.get(0) : button.get(0),
+			inserter: isSplit ? splitDiv : inserter,
+			buttons: [],
+			inCollection: inCollection,
+			isSplit: isSplit,
+			inSplit: inSplit,
+			collection: null,
+			textNode: textNode
+		};
+	},
+
+	/**
+	 * Get the button object from a node (recursive)
+	 * @param  {node} node Button node
+	 * @param  {array} [buttons] Button array, uses base if not defined
+	 * @return {object} Button object
+	 * @private
+	 */
+	_nodeToButton: function (node, buttons) {
+		if (!buttons) {
+			buttons = this.s.buttons;
+		}
+
+		for (var i = 0, ien = buttons.length; i < ien; i++) {
+			if (buttons[i].node === node) {
+				return buttons[i];
+			}
+
+			if (buttons[i].buttons.length) {
+				var ret = this._nodeToButton(node, buttons[i].buttons);
+
+				if (ret) {
+					return ret;
+				}
+			}
+		}
+	},
+
+	/**
+	 * Get container array for a button from a button node (recursive)
+	 * @param  {node} node Button node
+	 * @param  {array} [buttons] Button array, uses base if not defined
+	 * @return {array} Button's host array
+	 * @private
+	 */
+	_nodeToHost: function (node, buttons) {
+		if (!buttons) {
+			buttons = this.s.buttons;
+		}
+
+		for (var i = 0, ien = buttons.length; i < ien; i++) {
+			if (buttons[i].node === node) {
+				return buttons;
+			}
+
+			if (buttons[i].buttons.length) {
+				var ret = this._nodeToHost(node, buttons[i].buttons);
+
+				if (ret) {
+					return ret;
+				}
+			}
+		}
+	},
+
+	/**
+	 * Handle a key press - determine if any button's key configured matches
+	 * what was typed and trigger the action if so.
+	 * @param  {string} character The character pressed
+	 * @param  {object} e Key event that triggered this call
+	 * @private
+	 */
+	_keypress: function (character, e) {
+		// Check if this button press already activated on another instance of Buttons
+		if (e._buttonsHandled) {
+			return;
+		}
+
+		var run = function (conf, node) {
+			if (!conf.key) {
+				return;
+			}
+
+			if (conf.key === character) {
+				e._buttonsHandled = true;
+				$(node).click();
+			}
+			else if ($.isPlainObject(conf.key)) {
+				if (conf.key.key !== character) {
+					return;
+				}
+
+				if (conf.key.shiftKey && !e.shiftKey) {
+					return;
+				}
+
+				if (conf.key.altKey && !e.altKey) {
+					return;
+				}
+
+				if (conf.key.ctrlKey && !e.ctrlKey) {
+					return;
+				}
+
+				if (conf.key.metaKey && !e.metaKey) {
+					return;
+				}
+
+				// Made it this far - it is good
+				e._buttonsHandled = true;
+				$(node).click();
+			}
+		};
+
+		var recurse = function (a) {
+			for (var i = 0, ien = a.length; i < ien; i++) {
+				run(a[i].conf, a[i].node);
+
+				if (a[i].buttons.length) {
+					recurse(a[i].buttons);
+				}
+			}
+		};
+
+		recurse(this.s.buttons);
+	},
+
+	/**
+	 * Remove a key from the key listener for this instance (to be used when a
+	 * button is removed)
+	 * @param  {object} conf Button configuration
+	 * @private
+	 */
+	_removeKey: function (conf) {
+		if (conf.key) {
+			var character = $.isPlainObject(conf.key) ? conf.key.key : conf.key;
+
+			// Remove only one character, as multiple buttons could have the
+			// same listening key
+			var a = this.s.listenKeys.split('');
+			var idx = $.inArray(character, a);
+			a.splice(idx, 1);
+			this.s.listenKeys = a.join('');
+		}
+	},
+
+	/**
+	 * Resolve a button configuration
+	 * @param  {string|function|object} conf Button config to resolve
+	 * @return {object} Button configuration
+	 * @private
+	 */
+	_resolveExtends: function (conf) {
+		var that = this;
+		var dt = this.s.dt;
+		var i, ien;
+		var toConfObject = function (base) {
+			var loop = 0;
+
+			// Loop until we have resolved to a button configuration, or an
+			// array of button configurations (which will be iterated
+			// separately)
+			while (!$.isPlainObject(base) && !Array.isArray(base)) {
+				if (base === undefined) {
+					return;
+				}
+
+				if (typeof base === 'function') {
+					base = base.call(that, dt, conf);
+
+					if (!base) {
+						return false;
+					}
+				}
+				else if (typeof base === 'string') {
+					if (!_dtButtons[base]) {
+						return { html: base };
+					}
+
+					base = _dtButtons[base];
+				}
+
+				loop++;
+				if (loop > 30) {
+					// Protect against misconfiguration killing the browser
+					throw 'Buttons: Too many iterations';
+				}
+			}
+
+			return Array.isArray(base) ? base : $.extend({}, base);
+		};
+
+		conf = toConfObject(conf);
+
+		while (conf && conf.extend) {
+			// Use `toConfObject` in case the button definition being extended
+			// is itself a string or a function
+			if (!_dtButtons[conf.extend]) {
+				throw 'Cannot extend unknown button type: ' + conf.extend;
+			}
+
+			var objArray = toConfObject(_dtButtons[conf.extend]);
+			if (Array.isArray(objArray)) {
+				return objArray;
+			}
+			else if (!objArray) {
+				// This is a little brutal as it might be possible to have a
+				// valid button without the extend, but if there is no extend
+				// then the host button would be acting in an undefined state
+				return false;
+			}
+
+			// Stash the current class name
+			var originalClassName = objArray.className;
+
+			if (conf.config !== undefined && objArray.config !== undefined) {
+				conf.config = $.extend({}, objArray.config, conf.config);
+			}
+
+			conf = $.extend({}, objArray, conf);
+
+			// The extend will have overwritten the original class name if the
+			// `conf` object also assigned a class, but we want to concatenate
+			// them so they are list that is combined from all extended buttons
+			if (originalClassName && conf.className !== originalClassName) {
+				conf.className = originalClassName + ' ' + conf.className;
+			}
+
+			// Although we want the `conf` object to overwrite almost all of
+			// the properties of the object being extended, the `extend`
+			// property should come from the object being extended
+			conf.extend = objArray.extend;
+		}
+
+		// Buttons to be added to a collection  -gives the ability to define
+		// if buttons should be added to the start or end of a collection
+		var postfixButtons = conf.postfixButtons;
+		if (postfixButtons) {
+			if (!conf.buttons) {
+				conf.buttons = [];
+			}
+
+			for (i = 0, ien = postfixButtons.length; i < ien; i++) {
+				conf.buttons.push(postfixButtons[i]);
+			}
+		}
+
+		var prefixButtons = conf.prefixButtons;
+		if (prefixButtons) {
+			if (!conf.buttons) {
+				conf.buttons = [];
+			}
+
+			for (i = 0, ien = prefixButtons.length; i < ien; i++) {
+				conf.buttons.splice(i, 0, prefixButtons[i]);
+			}
+		}
+
+		return conf;
+	},
+
+	/**
+	 * Display (and replace if there is an existing one) a popover attached to a button
+	 * @param {string|node} content Content to show
+	 * @param {DataTable.Api} hostButton DT API instance of the button
+	 * @param {object} inOpts Options (see object below for all options)
+	 */
+	_popover: function (content, hostButton, inOpts, e) {
+		var dt = hostButton;
+		var c = this.c;
+		var closed = false;
+		var options = $.extend(
+			{
+				align: 'button-left', // button-right, dt-container, split-left, split-right
+				autoClose: false,
+				background: true,
+				backgroundClassName: 'dt-button-background',
+				closeButton: true,
+				containerClassName: c.dom.collection.container.className,
+				contentClassName: c.dom.collection.container.content.className,
+				collectionLayout: '',
+				collectionTitle: '',
+				dropup: false,
+				fade: 400,
+				popoverTitle: '',
+				rightAlignClassName: 'dt-button-right',
+				tag: c.dom.collection.container.tag
+			},
+			inOpts
+		);
+
+		var containerSelector = options.tag + '.' + options.containerClassName.replace(/ /g, '.');
+		var hostNode = hostButton.node();
+
+		var close = function () {
+			closed = true;
+
+			_fadeOut($(containerSelector), options.fade, function () {
+				$(this).detach();
+			});
+
+			$(dt.buttons('[aria-haspopup="dialog"][aria-expanded="true"]').nodes()).attr(
+				'aria-expanded',
+				'false'
+			);
+
+			$('div.dt-button-background').off('click.dtb-collection');
+			Buttons.background(false, options.backgroundClassName, options.fade, hostNode);
+
+			$(window).off('resize.resize.dtb-collection');
+			$('body').off('.dtb-collection');
+			dt.off('buttons-action.b-internal');
+			dt.off('destroy');
+		};
+
+		if (content === false) {
+			close();
+			return;
+		}
+
+		var existingExpanded = $(
+			dt.buttons('[aria-haspopup="dialog"][aria-expanded="true"]').nodes()
+		);
+		if (existingExpanded.length) {
+			// Reuse the current position if the button that was triggered is inside an existing collection
+			if (hostNode.closest(containerSelector).length) {
+				hostNode = existingExpanded.eq(0);
+			}
+
+			close();
+		}
+
+		// Try to be smart about the layout
+		var cnt = $('.dt-button', content).length;
+		var mod = '';
+
+		if (cnt === 3) {
+			mod = 'dtb-b3';
+		}
+		else if (cnt === 2) {
+			mod = 'dtb-b2';
+		}
+		else if (cnt === 1) {
+			mod = 'dtb-b1';
+		}
+
+		var display = $('<' + options.tag + '/>')
+			.addClass(options.containerClassName)
+			.addClass(options.collectionLayout)
+			.addClass(options.splitAlignClass)
+			.addClass(mod)
+			.css('display', 'none')
+			.attr({
+				'aria-modal': true,
+				role: 'dialog'
+			});
+
+		content = $(content)
+			.addClass(options.contentClassName)
+			.attr('role', 'menu')
+			.appendTo(display);
+
+		hostNode.attr('aria-expanded', 'true');
+
+		if (hostNode.parents('body')[0] !== document.body) {
+			hostNode = document.body.lastChild;
+		}
+
+		if (options.popoverTitle) {
+			display.prepend(
+				'<div class="dt-button-collection-title">' + options.popoverTitle + '</div>'
+			);
+		}
+		else if (options.collectionTitle) {
+			display.prepend(
+				'<div class="dt-button-collection-title">' + options.collectionTitle + '</div>'
+			);
+		}
+
+		if (options.closeButton) {
+			display
+				.prepend('<div class="dtb-popover-close">&times;</div>')
+				.addClass('dtb-collection-closeable');
+		}
+
+		_fadeIn(display.insertAfter(hostNode), options.fade);
+
+		var tableContainer = $(hostButton.table().container());
+		var position = display.css('position');
+
+		if (options.span === 'container' || options.align === 'dt-container') {
+			hostNode = hostNode.parent();
+			display.css('width', tableContainer.width());
+		}
+
+		// Align the popover relative to the DataTables container
+		// Useful for wide popovers such as SearchPanes
+		if (position === 'absolute') {
+			// Align relative to the host button
+			var offsetParent = $(hostNode[0].offsetParent);
+			var buttonPosition = hostNode.position();
+			var buttonOffset = hostNode.offset();
+			var tableSizes = offsetParent.offset();
+			var containerPosition = offsetParent.position();
+			var computed = window.getComputedStyle(offsetParent[0]);
+
+			tableSizes.height = offsetParent.outerHeight();
+			tableSizes.width = offsetParent.width() + parseFloat(computed.paddingLeft);
+			tableSizes.right = tableSizes.left + tableSizes.width;
+			tableSizes.bottom = tableSizes.top + tableSizes.height;
+
+			// Set the initial position so we can read height / width
+			var top = buttonPosition.top + hostNode.outerHeight();
+			var left = buttonPosition.left;
+
+			display.css({
+				top: top,
+				left: left
+			});
+
+			// Get the popover position
+			computed = window.getComputedStyle(display[0]);
+			var popoverSizes = display.offset();
+
+			popoverSizes.height = display.outerHeight();
+			popoverSizes.width = display.outerWidth();
+			popoverSizes.right = popoverSizes.left + popoverSizes.width;
+			popoverSizes.bottom = popoverSizes.top + popoverSizes.height;
+			popoverSizes.marginTop = parseFloat(computed.marginTop);
+			popoverSizes.marginBottom = parseFloat(computed.marginBottom);
+
+			// First position per the class requirements - pop up and right align
+			if (options.dropup) {
+				top =
+					buttonPosition.top -
+					popoverSizes.height -
+					popoverSizes.marginTop -
+					popoverSizes.marginBottom;
+			}
+
+			if (options.align === 'button-right' || display.hasClass(options.rightAlignClassName)) {
+				left = buttonPosition.left - popoverSizes.width + hostNode.outerWidth();
+			}
+
+			// Container alignment - make sure it doesn't overflow the table container
+			if (options.align === 'dt-container' || options.align === 'container') {
+				if (left < buttonPosition.left) {
+					left = -buttonPosition.left;
+				}
+
+				if (left + popoverSizes.width > tableSizes.width) {
+					left = tableSizes.width - popoverSizes.width;
+				}
+			}
+
+			// Window adjustment
+			if (containerPosition.left + left + popoverSizes.width > $(window).width()) {
+				// Overflowing the document to the right
+				left = $(window).width() - popoverSizes.width - containerPosition.left;
+			}
+
+			if (buttonOffset.left + left < 0) {
+				// Off to the left of the document
+				left = -buttonOffset.left;
+			}
+
+			if (
+				containerPosition.top + top + popoverSizes.height >
+				$(window).height() + $(window).scrollTop()
+			) {
+				// Pop up if otherwise we'd need the user to scroll down
+				top =
+					buttonPosition.top -
+					popoverSizes.height -
+					popoverSizes.marginTop -
+					popoverSizes.marginBottom;
+			}
+
+			if (containerPosition.top + top < $(window).scrollTop()) {
+				// Correction for when the top is beyond the top of the page
+				top = buttonPosition.top + hostNode.outerHeight();
+			}
+
+			// Calculations all done - now set it
+			display.css({
+				top: top,
+				left: left
+			});
+		}
+		else {
+			// Fix position - centre on screen
+			var position = function () {
+				var half = $(window).height() / 2;
+
+				var top = display.height() / 2;
+				if (top > half) {
+					top = half;
+				}
+
+				display.css('marginTop', top * -1);
+			};
+
+			position();
+
+			$(window).on('resize.dtb-collection', function () {
+				position();
+			});
+		}
+
+		if (options.background) {
+			Buttons.background(
+				true,
+				options.backgroundClassName,
+				options.fade,
+				options.backgroundHost || hostNode
+			);
+		}
+
+		// This is bonkers, but if we don't have a click listener on the
+		// background element, iOS Safari will ignore the body click
+		// listener below. An empty function here is all that is
+		// required to make it work...
+		$('div.dt-button-background').on('click.dtb-collection', function () {});
+
+		if (options.autoClose) {
+			setTimeout(function () {
+				dt.on('buttons-action.b-internal', function (e, btn, dt, node) {
+					if (node[0] === hostNode[0]) {
+						return;
+					}
+					close();
+				});
+			}, 0);
+		}
+
+		$(display).trigger('buttons-popover.dt');
+
+		dt.on('destroy', close);
+
+		setTimeout(function () {
+			closed = false;
+			$('body')
+				.on('click.dtb-collection', function (e) {
+					if (closed) {
+						return;
+					}
+
+					// andSelf is deprecated in jQ1.8, but we want 1.7 compat
+					var back = $.fn.addBack ? 'addBack' : 'andSelf';
+					var parent = $(e.target).parent()[0];
+
+					if (
+						(!$(e.target).parents()[back]().filter(content).length &&
+							!$(parent).hasClass('dt-buttons')) ||
+						$(e.target).hasClass('dt-button-background')
+					) {
+						close();
+					}
+				})
+				.on('keyup.dtb-collection', function (e) {
+					if (e.keyCode === 27) {
+						close();
+					}
+				})
+				.on('keydown.dtb-collection', function (e) {
+					// Focus trap for tab key
+					var elements = $('a, button', content);
+					var active = document.activeElement;
+
+					if (e.keyCode !== 9) {
+						// tab
+						return;
+					}
+
+					if (elements.index(active) === -1) {
+						// If current focus is not inside the popover
+						elements.first().focus();
+						e.preventDefault();
+					}
+					else if (e.shiftKey) {
+						// Reverse tabbing order when shift key is pressed
+						if (active === elements[0]) {
+							elements.last().focus();
+							e.preventDefault();
+						}
+					}
+					else {
+						if (active === elements.last()[0]) {
+							elements.first().focus();
+							e.preventDefault();
+						}
+					}
+				});
+		}, 0);
+	}
+});
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * Statics
+ */
+
+/**
+ * Show / hide a background layer behind a collection
+ * @param  {boolean} Flag to indicate if the background should be shown or
+ *   hidden
+ * @param  {string} Class to assign to the background
+ * @static
+ */
+Buttons.background = function (show, className, fade, insertPoint) {
+	if (fade === undefined) {
+		fade = 400;
+	}
+	if (!insertPoint) {
+		insertPoint = document.body;
+	}
+
+	if (show) {
+		_fadeIn(
+			$('<div/>').addClass(className).css('display', 'none').insertAfter(insertPoint),
+			fade
+		);
+	}
+	else {
+		_fadeOut($('div.' + className), fade, function () {
+			$(this).removeClass(className).remove();
+		});
+	}
+};
+
+/**
+ * Instance selector - select Buttons instances based on an instance selector
+ * value from the buttons assigned to a DataTable. This is only useful if
+ * multiple instances are attached to a DataTable.
+ * @param  {string|int|array} Instance selector - see `instance-selector`
+ *   documentation on the DataTables site
+ * @param  {array} Button instance array that was attached to the DataTables
+ *   settings object
+ * @return {array} Buttons instances
+ * @static
+ */
+Buttons.instanceSelector = function (group, buttons) {
+	if (group === undefined || group === null) {
+		return $.map(buttons, function (v) {
+			return v.inst;
+		});
+	}
+
+	var ret = [];
+	var names = $.map(buttons, function (v) {
+		return v.name;
+	});
+
+	// Flatten the group selector into an array of single options
+	var process = function (input) {
+		if (Array.isArray(input)) {
+			for (var i = 0, ien = input.length; i < ien; i++) {
+				process(input[i]);
+			}
+			return;
+		}
+
+		if (typeof input === 'string') {
+			if (input.indexOf(',') !== -1) {
+				// String selector, list of names
+				process(input.split(','));
+			}
+			else {
+				// String selector individual name
+				var idx = $.inArray(input.trim(), names);
+
+				if (idx !== -1) {
+					ret.push(buttons[idx].inst);
+				}
+			}
+		}
+		else if (typeof input === 'number') {
+			// Index selector
+			ret.push(buttons[input].inst);
+		}
+		else if (typeof input === 'object') {
+			// Actual instance selector
+			ret.push(input);
+		}
+	};
+
+	process(group);
+
+	return ret;
+};
+
+/**
+ * Button selector - select one or more buttons from a selector input so some
+ * operation can be performed on them.
+ * @param  {array} Button instances array that the selector should operate on
+ * @param  {string|int|node|jQuery|array} Button selector - see
+ *   `button-selector` documentation on the DataTables site
+ * @return {array} Array of objects containing `inst` and `idx` properties of
+ *   the selected buttons so you know which instance each button belongs to.
+ * @static
+ */
+Buttons.buttonSelector = function (insts, selector) {
+	var ret = [];
+	var nodeBuilder = function (a, buttons, baseIdx) {
+		var button;
+		var idx;
+
+		for (var i = 0, ien = buttons.length; i < ien; i++) {
+			button = buttons[i];
+
+			if (button) {
+				idx = baseIdx !== undefined ? baseIdx + i : i + '';
+
+				a.push({
+					node: button.node,
+					name: button.conf.name,
+					idx: idx
+				});
+
+				if (button.buttons) {
+					nodeBuilder(a, button.buttons, idx + '-');
+				}
+			}
+		}
+	};
+
+	var run = function (selector, inst) {
+		var i, ien;
+		var buttons = [];
+		nodeBuilder(buttons, inst.s.buttons);
+
+		var nodes = $.map(buttons, function (v) {
+			return v.node;
+		});
+
+		if (Array.isArray(selector) || selector instanceof $) {
+			for (i = 0, ien = selector.length; i < ien; i++) {
+				run(selector[i], inst);
+			}
+			return;
+		}
+
+		if (selector === null || selector === undefined || selector === '*') {
+			// Select all
+			for (i = 0, ien = buttons.length; i < ien; i++) {
+				ret.push({
+					inst: inst,
+					node: buttons[i].node
+				});
+			}
+		}
+		else if (typeof selector === 'number') {
+			// Main button index selector
+			if (inst.s.buttons[selector]) {
+				ret.push({
+					inst: inst,
+					node: inst.s.buttons[selector].node
+				});
+			}
+		}
+		else if (typeof selector === 'string') {
+			if (selector.indexOf(',') !== -1) {
+				// Split
+				var a = selector.split(',');
+
+				for (i = 0, ien = a.length; i < ien; i++) {
+					run(a[i].trim(), inst);
+				}
+			}
+			else if (selector.match(/^\d+(\-\d+)*$/)) {
+				// Sub-button index selector
+				var indexes = $.map(buttons, function (v) {
+					return v.idx;
+				});
+
+				ret.push({
+					inst: inst,
+					node: buttons[$.inArray(selector, indexes)].node
+				});
+			}
+			else if (selector.indexOf(':name') !== -1) {
+				// Button name selector
+				var name = selector.replace(':name', '');
+
+				for (i = 0, ien = buttons.length; i < ien; i++) {
+					if (buttons[i].name === name) {
+						ret.push({
+							inst: inst,
+							node: buttons[i].node
+						});
+					}
+				}
+			}
+			else {
+				// jQuery selector on the nodes
+				$(nodes)
+					.filter(selector)
+					.each(function () {
+						ret.push({
+							inst: inst,
+							node: this
+						});
+					});
+			}
+		}
+		else if (typeof selector === 'object' && selector.nodeName) {
+			// Node selector
+			var idx = $.inArray(selector, nodes);
+
+			if (idx !== -1) {
+				ret.push({
+					inst: inst,
+					node: nodes[idx]
+				});
+			}
+		}
+	};
+
+	for (var i = 0, ien = insts.length; i < ien; i++) {
+		var inst = insts[i];
+
+		run(selector, inst);
+	}
+
+	return ret;
+};
+
+/**
+ * Default function used for formatting output data.
+ * @param {*} str Data to strip
+ */
+Buttons.stripData = function (str, config) {
+	if (typeof str !== 'string') {
+		return str;
+	}
+
+	// Always remove script tags
+	str = str.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+
+	// Always remove comments
+	str = str.replace(/<!\-\-.*?\-\->/g, '');
+
+	if (!config || config.stripHtml) {
+		str = str.replace(/<[^>]*>/g, '');
+	}
+
+	if (!config || config.trim) {
+		str = str.replace(/^\s+|\s+$/g, '');
+	}
+
+	if (!config || config.stripNewlines) {
+		str = str.replace(/\n/g, ' ');
+	}
+
+	if (!config || config.decodeEntities) {
+		if (_entityDecoder) {
+			str = _entityDecoder(str);
+		}
+		else {
+			_exportTextarea.innerHTML = str;
+			str = _exportTextarea.value;
+		}
+	}
+
+	return str;
+};
+
+/**
+ * Provide a custom entity decoding function - e.g. a regex one, which can be
+ * much faster than the built in DOM option, but also larger code size.
+ * @param {function} fn
+ */
+Buttons.entityDecoder = function (fn) {
+	_entityDecoder = fn;
+}
+
+/**
+ * Buttons defaults. For full documentation, please refer to the docs/option
+ * directory or the DataTables site.
+ * @type {Object}
+ * @static
+ */
+Buttons.defaults = {
+	buttons: ['copy', 'excel', 'csv', 'pdf', 'print'],
+	name: 'main',
+	tabIndex: 0,
+	dom: {
+		container: {
+			tag: 'div',
+			className: 'dt-buttons'
+		},
+		collection: {
+			action: {
+				// action button
+				dropHtml: '<span class="dt-button-down-arrow">&#x25BC;</span>'
+			},
+			container: {
+				// The element used for the dropdown
+				className: 'dt-button-collection',
+				content: {
+					className: '',
+					tag: 'div'
+				},
+				tag: 'div'
+			}
+			// optionally
+			// , button: IButton - buttons inside the collection container
+			// , split: ISplit - splits inside the collection container
+		},
+		button: {
+			tag: 'button',
+			className: 'dt-button',
+			active: 'dt-button-active', // class name
+			disabled: 'disabled', // class name
+			spacer: {
+				className: 'dt-button-spacer',
+				tag: 'span'
+			},
+			liner: {
+				tag: 'span',
+				className: ''
+			}
+		},
+		split: {
+			action: {
+				// action button
+				className: 'dt-button-split-drop-button dt-button',
+				tag: 'button'
+			},
+			dropdown: {
+				// button to trigger the dropdown
+				align: 'split-right',
+				className: 'dt-button-split-drop',
+				dropHtml: '<span class="dt-button-down-arrow">&#x25BC;</span>',
+				splitAlignClass: 'dt-button-split-left',
+				tag: 'button'
+			},
+			wrapper: {
+				// wrap around both
+				className: 'dt-button-split',
+				tag: 'div'
+			}
+		}
+	}
+};
+
+/**
+ * Version information
+ * @type {string}
+ * @static
+ */
+Buttons.version = '2.4.2';
+
+$.extend(_dtButtons, {
+	collection: {
+		text: function (dt) {
+			return dt.i18n('buttons.collection', 'Collection');
+		},
+		className: 'buttons-collection',
+		closeButton: false,
+		init: function (dt, button, config) {
+			button.attr('aria-expanded', false);
+		},
+		action: function (e, dt, button, config) {
+			if (config._collection.parents('body').length) {
+				this.popover(false, config);
+			}
+			else {
+				this.popover(config._collection, config);
+			}
+
+			// When activated using a key - auto focus on the
+			// first item in the popover
+			if (e.type === 'keypress') {
+				$('a, button', config._collection).eq(0).focus();
+			}
+		},
+		attr: {
+			'aria-haspopup': 'dialog'
+		}
+		// Also the popover options, defined in Buttons.popover
+	},
+	split: {
+		text: function (dt) {
+			return dt.i18n('buttons.split', 'Split');
+		},
+		className: 'buttons-split',
+		closeButton: false,
+		init: function (dt, button, config) {
+			return button.attr('aria-expanded', false);
+		},
+		action: function (e, dt, button, config) {
+			this.popover(config._collection, config);
+		},
+		attr: {
+			'aria-haspopup': 'dialog'
+		}
+		// Also the popover options, defined in Buttons.popover
+	},
+	copy: function (dt, conf) {
+		if (_dtButtons.copyHtml5) {
+			return 'copyHtml5';
+		}
+	},
+	csv: function (dt, conf) {
+		if (_dtButtons.csvHtml5 && _dtButtons.csvHtml5.available(dt, conf)) {
+			return 'csvHtml5';
+		}
+	},
+	excel: function (dt, conf) {
+		if (_dtButtons.excelHtml5 && _dtButtons.excelHtml5.available(dt, conf)) {
+			return 'excelHtml5';
+		}
+	},
+	pdf: function (dt, conf) {
+		if (_dtButtons.pdfHtml5 && _dtButtons.pdfHtml5.available(dt, conf)) {
+			return 'pdfHtml5';
+		}
+	},
+	pageLength: function (dt) {
+		var lengthMenu = dt.settings()[0].aLengthMenu;
+		var vals = [];
+		var lang = [];
+		var text = function (dt) {
+			return dt.i18n(
+				'buttons.pageLength',
+				{
+					'-1': 'Show all rows',
+					_: 'Show %d rows'
+				},
+				dt.page.len()
+			);
+		};
+
+		// Support for DataTables 1.x 2D array
+		if (Array.isArray(lengthMenu[0])) {
+			vals = lengthMenu[0];
+			lang = lengthMenu[1];
+		}
+		else {
+			for (var i = 0; i < lengthMenu.length; i++) {
+				var option = lengthMenu[i];
+
+				// Support for DataTables 2 object in the array
+				if ($.isPlainObject(option)) {
+					vals.push(option.value);
+					lang.push(option.label);
+				}
+				else {
+					vals.push(option);
+					lang.push(option);
+				}
+			}
+		}
+
+		return {
+			extend: 'collection',
+			text: text,
+			className: 'buttons-page-length',
+			autoClose: true,
+			buttons: $.map(vals, function (val, i) {
+				return {
+					text: lang[i],
+					className: 'button-page-length',
+					action: function (e, dt) {
+						dt.page.len(val).draw();
+					},
+					init: function (dt, node, conf) {
+						var that = this;
+						var fn = function () {
+							that.active(dt.page.len() === val);
+						};
+
+						dt.on('length.dt' + conf.namespace, fn);
+						fn();
+					},
+					destroy: function (dt, node, conf) {
+						dt.off('length.dt' + conf.namespace);
+					}
+				};
+			}),
+			init: function (dt, node, conf) {
+				var that = this;
+				dt.on('length.dt' + conf.namespace, function () {
+					that.text(conf.text);
+				});
+			},
+			destroy: function (dt, node, conf) {
+				dt.off('length.dt' + conf.namespace);
+			}
+		};
+	},
+	spacer: {
+		style: 'empty',
+		spacer: true,
+		text: function (dt) {
+			return dt.i18n('buttons.spacer', '');
+		}
+	}
+});
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * DataTables API
+ *
+ * For complete documentation, please refer to the docs/api directory or the
+ * DataTables site
+ */
+
+// Buttons group and individual button selector
+DataTable.Api.register('buttons()', function (group, selector) {
+	// Argument shifting
+	if (selector === undefined) {
+		selector = group;
+		group = undefined;
+	}
+
+	this.selector.buttonGroup = group;
+
+	var res = this.iterator(
+		true,
+		'table',
+		function (ctx) {
+			if (ctx._buttons) {
+				return Buttons.buttonSelector(
+					Buttons.instanceSelector(group, ctx._buttons),
+					selector
+				);
+			}
+		},
+		true
+	);
+
+	res._groupSelector = group;
+	return res;
+});
+
+// Individual button selector
+DataTable.Api.register('button()', function (group, selector) {
+	// just run buttons() and truncate
+	var buttons = this.buttons(group, selector);
+
+	if (buttons.length > 1) {
+		buttons.splice(1, buttons.length);
+	}
+
+	return buttons;
+});
+
+// Active buttons
+DataTable.Api.registerPlural('buttons().active()', 'button().active()', function (flag) {
+	if (flag === undefined) {
+		return this.map(function (set) {
+			return set.inst.active(set.node);
+		});
+	}
+
+	return this.each(function (set) {
+		set.inst.active(set.node, flag);
+	});
+});
+
+// Get / set button action
+DataTable.Api.registerPlural('buttons().action()', 'button().action()', function (action) {
+	if (action === undefined) {
+		return this.map(function (set) {
+			return set.inst.action(set.node);
+		});
+	}
+
+	return this.each(function (set) {
+		set.inst.action(set.node, action);
+	});
+});
+
+// Collection control
+DataTable.Api.registerPlural(
+	'buttons().collectionRebuild()',
+	'button().collectionRebuild()',
+	function (buttons) {
+		return this.each(function (set) {
+			for (var i = 0; i < buttons.length; i++) {
+				if (typeof buttons[i] === 'object') {
+					buttons[i].parentConf = set;
+				}
+			}
+			set.inst.collectionRebuild(set.node, buttons);
+		});
+	}
+);
+
+// Enable / disable buttons
+DataTable.Api.register(['buttons().enable()', 'button().enable()'], function (flag) {
+	return this.each(function (set) {
+		set.inst.enable(set.node, flag);
+	});
+});
+
+// Disable buttons
+DataTable.Api.register(['buttons().disable()', 'button().disable()'], function () {
+	return this.each(function (set) {
+		set.inst.disable(set.node);
+	});
+});
+
+// Button index
+DataTable.Api.register('button().index()', function () {
+	var idx = null;
+
+	this.each(function (set) {
+		var res = set.inst.index(set.node);
+
+		if (res !== null) {
+			idx = res;
+		}
+	});
+
+	return idx;
+});
+
+// Get button nodes
+DataTable.Api.registerPlural('buttons().nodes()', 'button().node()', function () {
+	var jq = $();
+
+	// jQuery will automatically reduce duplicates to a single entry
+	$(
+		this.each(function (set) {
+			jq = jq.add(set.inst.node(set.node));
+		})
+	);
+
+	return jq;
+});
+
+// Get / set button processing state
+DataTable.Api.registerPlural('buttons().processing()', 'button().processing()', function (flag) {
+	if (flag === undefined) {
+		return this.map(function (set) {
+			return set.inst.processing(set.node);
+		});
+	}
+
+	return this.each(function (set) {
+		set.inst.processing(set.node, flag);
+	});
+});
+
+// Get / set button text (i.e. the button labels)
+DataTable.Api.registerPlural('buttons().text()', 'button().text()', function (label) {
+	if (label === undefined) {
+		return this.map(function (set) {
+			return set.inst.text(set.node);
+		});
+	}
+
+	return this.each(function (set) {
+		set.inst.text(set.node, label);
+	});
+});
+
+// Trigger a button's action
+DataTable.Api.registerPlural('buttons().trigger()', 'button().trigger()', function () {
+	return this.each(function (set) {
+		set.inst.node(set.node).trigger('click');
+	});
+});
+
+// Button resolver to the popover
+DataTable.Api.register('button().popover()', function (content, options) {
+	return this.map(function (set) {
+		return set.inst._popover(content, this.button(this[0].node), options);
+	});
+});
+
+// Get the container elements
+DataTable.Api.register('buttons().containers()', function () {
+	var jq = $();
+	var groupSelector = this._groupSelector;
+
+	// We need to use the group selector directly, since if there are no buttons
+	// the result set will be empty
+	this.iterator(true, 'table', function (ctx) {
+		if (ctx._buttons) {
+			var insts = Buttons.instanceSelector(groupSelector, ctx._buttons);
+
+			for (var i = 0, ien = insts.length; i < ien; i++) {
+				jq = jq.add(insts[i].container());
+			}
+		}
+	});
+
+	return jq;
+});
+
+DataTable.Api.register('buttons().container()', function () {
+	// API level of nesting is `buttons()` so we can zip into the containers method
+	return this.containers().eq(0);
+});
+
+// Add a new button
+DataTable.Api.register('button().add()', function (idx, conf, draw) {
+	var ctx = this.context;
+
+	// Don't use `this` as it could be empty - select the instances directly
+	if (ctx.length) {
+		var inst = Buttons.instanceSelector(this._groupSelector, ctx[0]._buttons);
+
+		if (inst.length) {
+			inst[0].add(conf, idx, draw);
+		}
+	}
+
+	return this.button(this._groupSelector, idx);
+});
+
+// Destroy the button sets selected
+DataTable.Api.register('buttons().destroy()', function () {
+	this.pluck('inst')
+		.unique()
+		.each(function (inst) {
+			inst.destroy();
+		});
+
+	return this;
+});
+
+// Remove a button
+DataTable.Api.registerPlural('buttons().remove()', 'buttons().remove()', function () {
+	this.each(function (set) {
+		set.inst.remove(set.node);
+	});
+
+	return this;
+});
+
+// Information box that can be used by buttons
+var _infoTimer;
+DataTable.Api.register('buttons.info()', function (title, message, time) {
+	var that = this;
+
+	if (title === false) {
+		this.off('destroy.btn-info');
+		_fadeOut($('#datatables_buttons_info'), 400, function () {
+			$(this).remove();
+		});
+		clearTimeout(_infoTimer);
+		_infoTimer = null;
+
+		return this;
+	}
+
+	if (_infoTimer) {
+		clearTimeout(_infoTimer);
+	}
+
+	if ($('#datatables_buttons_info').length) {
+		$('#datatables_buttons_info').remove();
+	}
+
+	title = title ? '<h2>' + title + '</h2>' : '';
+
+	_fadeIn(
+		$('<div id="datatables_buttons_info" class="dt-button-info"/>')
+			.html(title)
+			.append($('<div/>')[typeof message === 'string' ? 'html' : 'append'](message))
+			.css('display', 'none')
+			.appendTo('body')
+	);
+
+	if (time !== undefined && time !== 0) {
+		_infoTimer = setTimeout(function () {
+			that.buttons.info(false);
+		}, time);
+	}
+
+	this.on('destroy.btn-info', function () {
+		that.buttons.info(false);
+	});
+
+	return this;
+});
+
+// Get data from the table for export - this is common to a number of plug-in
+// buttons so it is included in the Buttons core library
+DataTable.Api.register('buttons.exportData()', function (options) {
+	if (this.context.length) {
+		return _exportData(new DataTable.Api(this.context[0]), options);
+	}
+});
+
+// Get information about the export that is common to many of the export data
+// types (DRY)
+DataTable.Api.register('buttons.exportInfo()', function (conf) {
+	if (!conf) {
+		conf = {};
+	}
+
+	return {
+		filename: _filename(conf),
+		title: _title(conf),
+		messageTop: _message(this, conf.message || conf.messageTop, 'top'),
+		messageBottom: _message(this, conf.messageBottom, 'bottom')
+	};
+});
+
+/**
+ * Get the file name for an exported file.
+ *
+ * @param {object}	config Button configuration
+ * @param {boolean} incExtension Include the file name extension
+ */
+var _filename = function (config) {
+	// Backwards compatibility
+	var filename =
+		config.filename === '*' &&
+		config.title !== '*' &&
+		config.title !== undefined &&
+		config.title !== null &&
+		config.title !== ''
+			? config.title
+			: config.filename;
+
+	if (typeof filename === 'function') {
+		filename = filename();
+	}
+
+	if (filename === undefined || filename === null) {
+		return null;
+	}
+
+	if (filename.indexOf('*') !== -1) {
+		filename = filename.replace('*', $('head > title').text()).trim();
+	}
+
+	// Strip characters which the OS will object to
+	filename = filename.replace(/[^a-zA-Z0-9_\u00A1-\uFFFF\.,\-_ !\(\)]/g, '');
+
+	var extension = _stringOrFunction(config.extension);
+	if (!extension) {
+		extension = '';
+	}
+
+	return filename + extension;
+};
+
+/**
+ * Simply utility method to allow parameters to be given as a function
+ *
+ * @param {undefined|string|function} option Option
+ * @return {null|string} Resolved value
+ */
+var _stringOrFunction = function (option) {
+	if (option === null || option === undefined) {
+		return null;
+	}
+	else if (typeof option === 'function') {
+		return option();
+	}
+	return option;
+};
+
+/**
+ * Get the title for an exported file.
+ *
+ * @param {object} config	Button configuration
+ */
+var _title = function (config) {
+	var title = _stringOrFunction(config.title);
+
+	return title === null
+		? null
+		: title.indexOf('*') !== -1
+		? title.replace('*', $('head > title').text() || 'Exported data')
+		: title;
+};
+
+var _message = function (dt, option, position) {
+	var message = _stringOrFunction(option);
+	if (message === null) {
+		return null;
+	}
+
+	var caption = $('caption', dt.table().container()).eq(0);
+	if (message === '*') {
+		var side = caption.css('caption-side');
+		if (side !== position) {
+			return null;
+		}
+
+		return caption.length ? caption.text() : '';
+	}
+
+	return message;
+};
+
+var _exportTextarea = $('<textarea/>')[0];
+var _exportData = function (dt, inOpts) {
+	var config = $.extend(
+		true,
+		{},
+		{
+			rows: null,
+			columns: '',
+			modifier: {
+				search: 'applied',
+				order: 'applied'
+			},
+			orthogonal: 'display',
+			stripHtml: true,
+			stripNewlines: true,
+			decodeEntities: true,
+			trim: true,
+			format: {
+				header: function (d) {
+					return Buttons.stripData(d, config);
+				},
+				footer: function (d) {
+					return Buttons.stripData(d, config);
+				},
+				body: function (d) {
+					return Buttons.stripData(d, config);
+				}
+			},
+			customizeData: null
+		},
+		inOpts
+	);
+
+	var header = dt
+		.columns(config.columns)
+		.indexes()
+		.map(function (idx) {
+			var el = dt.column(idx).header();
+			return config.format.header(el.innerHTML, idx, el);
+		})
+		.toArray();
+
+	var footer = dt.table().footer()
+		? dt
+				.columns(config.columns)
+				.indexes()
+				.map(function (idx) {
+					var el = dt.column(idx).footer();
+					return config.format.footer(el ? el.innerHTML : '', idx, el);
+				})
+				.toArray()
+		: null;
+
+	// If Select is available on this table, and any rows are selected, limit the export
+	// to the selected rows. If no rows are selected, all rows will be exported. Specify
+	// a `selected` modifier to control directly.
+	var modifier = $.extend({}, config.modifier);
+	if (dt.select && typeof dt.select.info === 'function' && modifier.selected === undefined) {
+		if (dt.rows(config.rows, $.extend({ selected: true }, modifier)).any()) {
+			$.extend(modifier, { selected: true });
+		}
+	}
+
+	var rowIndexes = dt.rows(config.rows, modifier).indexes().toArray();
+	var selectedCells = dt.cells(rowIndexes, config.columns);
+	var cells = selectedCells.render(config.orthogonal).toArray();
+	var cellNodes = selectedCells.nodes().toArray();
+
+	var columns = header.length;
+	var rows = columns > 0 ? cells.length / columns : 0;
+	var body = [];
+	var cellCounter = 0;
+
+	for (var i = 0, ien = rows; i < ien; i++) {
+		var row = [columns];
+
+		for (var j = 0; j < columns; j++) {
+			row[j] = config.format.body(cells[cellCounter], i, j, cellNodes[cellCounter]);
+			cellCounter++;
+		}
+
+		body[i] = row;
+	}
+
+	var data = {
+		header: header,
+		footer: footer,
+		body: body
+	};
+
+	if (config.customizeData) {
+		config.customizeData(data);
+	}
+
+	return data;
+};
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * DataTables interface
+ */
+
+// Attach to DataTables objects for global access
+$.fn.dataTable.Buttons = Buttons;
+$.fn.DataTable.Buttons = Buttons;
+
+// DataTables creation - check if the buttons have been defined for this table,
+// they will have been if the `B` option was used in `dom`, otherwise we should
+// create the buttons instance here so they can be inserted into the document
+// using the API. Listen for `init` for compatibility with pre 1.10.10, but to
+// be removed in future.
+$(document).on('init.dt plugin-init.dt', function (e, settings) {
+	if (e.namespace !== 'dt') {
+		return;
+	}
+
+	var opts = settings.oInit.buttons || DataTable.defaults.buttons;
+
+	if (opts && !settings._buttons) {
+		new Buttons(settings, opts).container();
+	}
+});
+
+function _init(settings, options) {
+	var api = new DataTable.Api(settings);
+	var opts = options ? options : api.init().buttons || DataTable.defaults.buttons;
+
+	return new Buttons(api, opts).container();
+}
+
+// DataTables `dom` feature option
+DataTable.ext.feature.push({
+	fnInit: _init,
+	cFeature: 'B'
+});
+
+// DataTables 2 layout feature
+if (DataTable.ext.features) {
+	DataTable.ext.features.register('buttons', _init);
+}
+
+
+return DataTable;
+}));
+
+
+/*! Bootstrap integration for DataTables' Buttons
+ * © SpryMedia Ltd - datatables.net/license
+ */
+
+(function( factory ){
+	if ( typeof define === 'function' && define.amd ) {
+		// AMD
+		define( ['jquery', 'datatables.net-bs5', 'datatables.net-buttons'], function ( $ ) {
+			return factory( $, window, document );
+		} );
+	}
+	else if ( typeof exports === 'object' ) {
+		// CommonJS
+		var jq = require('jquery');
+		var cjsRequires = function (root, $) {
+			if ( ! $.fn.dataTable ) {
+				require('datatables.net-bs5')(root, $);
+			}
+
+			if ( ! $.fn.dataTable.Buttons ) {
+				require('datatables.net-buttons')(root, $);
+			}
+		};
+
+		if (typeof window === 'undefined') {
+			module.exports = function (root, $) {
+				if ( ! root ) {
+					// CommonJS environments without a window global must pass a
+					// root. This will give an error otherwise
+					root = window;
+				}
+
+				if ( ! $ ) {
+					$ = jq( root );
+				}
+
+				cjsRequires( root, $ );
+				return factory( $, root, root.document );
+			};
+		}
+		else {
+			cjsRequires( window, jq );
+			module.exports = factory( jq, window, window.document );
+		}
+	}
+	else {
+		// Browser
+		factory( jQuery, window, document );
+	}
+}(function( $, window, document, undefined ) {
+'use strict';
+var DataTable = $.fn.dataTable;
+
+
+
+$.extend(true, DataTable.Buttons.defaults, {
+	dom: {
+		container: {
+			className: 'dt-buttons btn-group flex-wrap'
+		},
+		button: {
+			className: 'btn btn-secondary',
+			active: 'active'
+		},
+		collection: {
+			action: {
+				dropHtml: ''
+			},
+			container: {
+				tag: 'div',
+				className: 'dropdown-menu dt-button-collection'
+			},
+			closeButton: false,
+			button: {
+				tag: 'a',
+				className: 'dt-button dropdown-item',
+				active: 'dt-button-active',
+				disabled: 'disabled',
+				spacer: {
+					className: 'dropdown-divider',
+					tag: 'hr'
+				}
+			}
+		},
+		split: {
+			action: {
+				tag: 'a',
+				className: 'btn btn-secondary dt-button-split-drop-button',
+				closeButton: false
+			},
+			dropdown: {
+				tag: 'button',
+				dropHtml: '',
+				className:
+					'btn btn-secondary dt-button-split-drop dropdown-toggle dropdown-toggle-split',
+				closeButton: false,
+				align: 'split-left',
+				splitAlignClass: 'dt-button-split-left'
+			},
+			wrapper: {
+				tag: 'div',
+				className: 'dt-button-split btn-group',
+				closeButton: false
+			}
+		}
+	},
+	buttonCreated: function (config, button) {
+		return config.buttons ? $('<div class="btn-group"/>').append(button) : button;
+	}
+});
+
+DataTable.ext.buttons.collection.className += ' dropdown-toggle';
+DataTable.ext.buttons.collection.rightAlignClassName = 'dropdown-menu-right';
+
+
+return DataTable;
+}));
+
+
+/*! FixedHeader 3.4.0
+ * © SpryMedia Ltd - datatables.net/license
+ */
+
+(function( factory ){
+	if ( typeof define === 'function' && define.amd ) {
+		// AMD
+		define( ['jquery', 'datatables.net'], function ( $ ) {
+			return factory( $, window, document );
+		} );
+	}
+	else if ( typeof exports === 'object' ) {
+		// CommonJS
+		var jq = require('jquery');
+		var cjsRequires = function (root, $) {
+			if ( ! $.fn.dataTable ) {
+				require('datatables.net')(root, $);
+			}
+		};
+
+		if (typeof window === 'undefined') {
+			module.exports = function (root, $) {
+				if ( ! root ) {
+					// CommonJS environments without a window global must pass a
+					// root. This will give an error otherwise
+					root = window;
+				}
+
+				if ( ! $ ) {
+					$ = jq( root );
+				}
+
+				cjsRequires( root, $ );
+				return factory( $, root, root.document );
+			};
+		}
+		else {
+			cjsRequires( window, jq );
+			module.exports = factory( jq, window, window.document );
+		}
+	}
+	else {
+		// Browser
+		factory( jQuery, window, document );
+	}
+}(function( $, window, document, undefined ) {
+'use strict';
+var DataTable = $.fn.dataTable;
+
+
+
+/**
+ * @summary     FixedHeader
+ * @description Fix a table's header or footer, so it is always visible while
+ *              scrolling
+ * @version     3.4.0
+ * @author      SpryMedia Ltd (www.sprymedia.co.uk)
+ * @contact     www.sprymedia.co.uk
+ * @copyright   SpryMedia Ltd.
+ *
+ * This source file is free software, available under the following license:
+ *   MIT license - http://datatables.net/license/mit
+ *
+ * This source file is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the license files for details.
+ *
+ * For details please refer to: http://www.datatables.net
+ */
+
+var _instCounter = 0;
+
+var FixedHeader = function (dt, config) {
+	// Sanity check - you just know it will happen
+	if (!(this instanceof FixedHeader)) {
+		throw "FixedHeader must be initialised with the 'new' keyword.";
+	}
+
+	// Allow a boolean true for defaults
+	if (config === true) {
+		config = {};
+	}
+
+	dt = new DataTable.Api(dt);
+
+	this.c = $.extend(true, {}, FixedHeader.defaults, config);
+
+	this.s = {
+		dt: dt,
+		position: {
+			theadTop: 0,
+			tbodyTop: 0,
+			tfootTop: 0,
+			tfootBottom: 0,
+			width: 0,
+			left: 0,
+			tfootHeight: 0,
+			theadHeight: 0,
+			windowHeight: $(window).height(),
+			visible: true
+		},
+		headerMode: null,
+		footerMode: null,
+		autoWidth: dt.settings()[0].oFeatures.bAutoWidth,
+		namespace: '.dtfc' + _instCounter++,
+		scrollLeft: {
+			header: -1,
+			footer: -1
+		},
+		enable: true,
+		autoDisable: false
+	};
+
+	this.dom = {
+		floatingHeader: null,
+		thead: $(dt.table().header()),
+		tbody: $(dt.table().body()),
+		tfoot: $(dt.table().footer()),
+		header: {
+			host: null,
+			floating: null,
+			floatingParent: $('<div class="dtfh-floatingparent">'),
+			placeholder: null
+		},
+		footer: {
+			host: null,
+			floating: null,
+			floatingParent: $('<div class="dtfh-floatingparent">'),
+			placeholder: null
+		}
+	};
+
+	this.dom.header.host = this.dom.thead.parent();
+	this.dom.footer.host = this.dom.tfoot.parent();
+
+	var dtSettings = dt.settings()[0];
+	if (dtSettings._fixedHeader) {
+		throw 'FixedHeader already initialised on table ' + dtSettings.nTable.id;
+	}
+
+	dtSettings._fixedHeader = this;
+
+	this._constructor();
+};
+
+/*
+ * Variable: FixedHeader
+ * Purpose:  Prototype for FixedHeader
+ * Scope:    global
+ */
+$.extend(FixedHeader.prototype, {
+	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	 * API methods
+	 */
+
+	/**
+	 * Kill off FH and any events
+	 */
+	destroy: function () {
+		var dom = this.dom;
+
+		this.s.dt.off('.dtfc');
+		$(window).off(this.s.namespace);
+
+		// Remove clones of FC blockers
+		if (dom.header.rightBlocker) {
+			dom.header.rightBlocker.remove();
+		}
+		if (dom.header.leftBlocker) {
+			dom.header.leftBlocker.remove();
+		}
+		if (dom.footer.rightBlocker) {
+			dom.footer.rightBlocker.remove();
+		}
+		if (dom.footer.leftBlocker) {
+			dom.footer.leftBlocker.remove();
+		}
+
+		if (this.c.header) {
+			this._modeChange('in-place', 'header', true);
+		}
+
+		if (this.c.footer && dom.tfoot.length) {
+			this._modeChange('in-place', 'footer', true);
+		}
+	},
+
+	/**
+	 * Enable / disable the fixed elements
+	 *
+	 * @param  {boolean} enable `true` to enable, `false` to disable
+	 */
+	enable: function (enable, update, type) {
+		this.s.enable = enable;
+
+		this.s.enableType = type;
+
+		if (update || update === undefined) {
+			this._positions();
+			this._scroll(true);
+		}
+	},
+
+	/**
+	 * Get enabled status
+	 */
+	enabled: function () {
+		return this.s.enable;
+	},
+
+	/**
+	 * Set header offset
+	 *
+	 * @param  {int} new value for headerOffset
+	 */
+	headerOffset: function (offset) {
+		if (offset !== undefined) {
+			this.c.headerOffset = offset;
+			this.update();
+		}
+
+		return this.c.headerOffset;
+	},
+
+	/**
+	 * Set footer offset
+	 *
+	 * @param  {int} new value for footerOffset
+	 */
+	footerOffset: function (offset) {
+		if (offset !== undefined) {
+			this.c.footerOffset = offset;
+			this.update();
+		}
+
+		return this.c.footerOffset;
+	},
+
+	/**
+	 * Recalculate the position of the fixed elements and force them into place
+	 */
+	update: function (force) {
+		var table = this.s.dt.table().node();
+
+		// Update should only do something if enabled by the dev.
+		if (!this.s.enable && !this.s.autoDisable) {
+			return;
+		}
+
+		if ($(table).is(':visible')) {
+			this.s.autoDisable = false;
+			this.enable(true, false);
+		}
+		else {
+			this.s.autoDisable = true;
+			this.enable(false, false);
+		}
+
+		// Don't update if header is not in the document atm (due to
+		// async events)
+		if ($(table).children('thead').length === 0) {
+			return;
+		}
+
+		this._positions();
+		this._scroll(force !== undefined ? force : true);
+	},
+
+	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	 * Constructor
+	 */
+
+	/**
+	 * FixedHeader constructor - adding the required event listeners and
+	 * simple initialisation
+	 *
+	 * @private
+	 */
+	_constructor: function () {
+		var that = this;
+		var dt = this.s.dt;
+
+		$(window)
+			.on('scroll' + this.s.namespace, function () {
+				that._scroll();
+			})
+			.on(
+				'resize' + this.s.namespace,
+				DataTable.util.throttle(function () {
+					that.s.position.windowHeight = $(window).height();
+					that.update();
+				}, 50)
+			);
+
+		var autoHeader = $('.fh-fixedHeader');
+		if (!this.c.headerOffset && autoHeader.length) {
+			this.c.headerOffset = autoHeader.outerHeight();
+		}
+
+		var autoFooter = $('.fh-fixedFooter');
+		if (!this.c.footerOffset && autoFooter.length) {
+			this.c.footerOffset = autoFooter.outerHeight();
+		}
+
+		dt.on(
+			'column-reorder.dt.dtfc column-visibility.dt.dtfc column-sizing.dt.dtfc responsive-display.dt.dtfc',
+			function (e, ctx) {
+				that.update();
+			}
+		).on('draw.dt.dtfc', function (e, ctx) {
+			// For updates from our own table, don't reclone, but for all others, do
+			that.update(ctx === dt.settings()[0] ? false : true);
+		});
+
+		dt.on('destroy.dtfc', function () {
+			that.destroy();
+		});
+
+		this._positions();
+		this._scroll();
+	},
+
+	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	 * Private methods
+	 */
+
+	/**
+	 * Clone a fixed item to act as a place holder for the original element
+	 * which is moved into a clone of the table element, and moved around the
+	 * document to give the fixed effect.
+	 *
+	 * @param  {string}  item  'header' or 'footer'
+	 * @param  {boolean} force Force the clone to happen, or allow automatic
+	 *   decision (reuse existing if available)
+	 * @private
+	 */
+	_clone: function (item, force) {
+		var that = this;
+		var dt = this.s.dt;
+		var itemDom = this.dom[item];
+		var itemElement = item === 'header' ? this.dom.thead : this.dom.tfoot;
+
+		// If footer and scrolling is enabled then we don't clone
+		// Instead the table's height is decreased accordingly - see `_scroll()`
+		if (item === 'footer' && this._scrollEnabled()) {
+			return;
+		}
+
+		if (!force && itemDom.floating) {
+			// existing floating element - reuse it
+			itemDom.floating.removeClass('fixedHeader-floating fixedHeader-locked');
+		}
+		else {
+			if (itemDom.floating) {
+				if (itemDom.placeholder !== null) {
+					itemDom.placeholder.remove();
+				}
+				this._unsize(item);
+				itemDom.floating.children().detach();
+				itemDom.floating.remove();
+			}
+
+			var tableNode = $(dt.table().node());
+			var scrollBody = $(tableNode.parent());
+			var scrollEnabled = this._scrollEnabled();
+
+			itemDom.floating = $(dt.table().node().cloneNode(false))
+				.attr('aria-hidden', 'true')
+				.css({
+					'table-layout': 'fixed',
+					top: 0,
+					left: 0
+				})
+				.removeAttr('id')
+				.append(itemElement);
+
+			itemDom.floatingParent
+				.css({
+					width: scrollBody.width(),
+					overflow: 'hidden',
+					height: 'fit-content',
+					position: 'fixed',
+					left: scrollEnabled ? tableNode.offset().left + scrollBody.scrollLeft() : 0
+				})
+				.css(
+					item === 'header'
+						? {
+								top: this.c.headerOffset,
+								bottom: ''
+						  }
+						: {
+								top: '',
+								bottom: this.c.footerOffset
+						  }
+				)
+				.addClass(item === 'footer' ? 'dtfh-floatingparentfoot' : 'dtfh-floatingparenthead')
+				.append(itemDom.floating)
+				.appendTo('body');
+
+			this._stickyPosition(itemDom.floating, '-');
+
+			var scrollLeftUpdate = function () {
+				var scrollLeft = scrollBody.scrollLeft();
+				that.s.scrollLeft = { footer: scrollLeft, header: scrollLeft };
+				itemDom.floatingParent.scrollLeft(that.s.scrollLeft.header);
+			};
+
+			scrollLeftUpdate();
+			scrollBody.off('scroll.dtfh').on('scroll.dtfh', scrollLeftUpdate);
+
+			// Insert a fake thead/tfoot into the DataTable to stop it jumping around
+			itemDom.placeholder = itemElement.clone(false);
+			itemDom.placeholder.find('*[id]').removeAttr('id');
+
+			itemDom.host.prepend(itemDom.placeholder);
+
+			// Clone widths
+			this._matchWidths(itemDom.placeholder, itemDom.floating);
+		}
+	},
+
+	/**
+	 * This method sets the sticky position of the header elements to match fixed columns
+	 * @param {JQuery<HTMLElement>} el
+	 * @param {string} sign
+	 */
+	_stickyPosition: function (el, sign) {
+		if (this._scrollEnabled()) {
+			var that = this;
+			var rtl = $(that.s.dt.table().node()).css('direction') === 'rtl';
+
+			el.find('th').each(function () {
+				// Find out if fixed header has previously set this column
+				if ($(this).css('position') === 'sticky') {
+					var right = $(this).css('right');
+					var left = $(this).css('left');
+					if (right !== 'auto' && !rtl) {
+						// New position either adds or dismisses the barWidth
+						var potential =
+							+right.replace(/px/g, '') +
+							(sign === '-' ? -1 : 1) * that.s.dt.settings()[0].oBrowser.barWidth;
+						$(this).css('right', potential > 0 ? potential : 0);
+					}
+					else if (left !== 'auto' && rtl) {
+						var potential =
+							+left.replace(/px/g, '') +
+							(sign === '-' ? -1 : 1) * that.s.dt.settings()[0].oBrowser.barWidth;
+						$(this).css('left', potential > 0 ? potential : 0);
+					}
+				}
+			});
+		}
+	},
+
+	/**
+	 * Copy widths from the cells in one element to another. This is required
+	 * for the footer as the footer in the main table takes its sizes from the
+	 * header columns. That isn't present in the footer so to have it still
+	 * align correctly, the sizes need to be copied over. It is also required
+	 * for the header when auto width is not enabled
+	 *
+	 * @param  {jQuery} from Copy widths from
+	 * @param  {jQuery} to   Copy widths to
+	 * @private
+	 */
+	_matchWidths: function (from, to) {
+		var get = function (name) {
+			return $(name, from)
+				.map(function () {
+					return (
+						$(this)
+							.css('width')
+							.replace(/[^\d\.]/g, '') * 1
+					);
+				})
+				.toArray();
+		};
+
+		var set = function (name, toWidths) {
+			$(name, to).each(function (i) {
+				$(this).css({
+					width: toWidths[i],
+					minWidth: toWidths[i]
+				});
+			});
+		};
+
+		var thWidths = get('th');
+		var tdWidths = get('td');
+
+		set('th', thWidths);
+		set('td', tdWidths);
+	},
+
+	/**
+	 * Remove assigned widths from the cells in an element. This is required
+	 * when inserting the footer back into the main table so the size is defined
+	 * by the header columns and also when auto width is disabled in the
+	 * DataTable.
+	 *
+	 * @param  {string} item The `header` or `footer`
+	 * @private
+	 */
+	_unsize: function (item) {
+		var el = this.dom[item].floating;
+
+		if (el && (item === 'footer' || (item === 'header' && !this.s.autoWidth))) {
+			$('th, td', el).css({
+				width: '',
+				minWidth: ''
+			});
+		}
+		else if (el && item === 'header') {
+			$('th, td', el).css('min-width', '');
+		}
+	},
+
+	/**
+	 * Reposition the floating elements to take account of horizontal page
+	 * scroll
+	 *
+	 * @param  {string} item       The `header` or `footer`
+	 * @param  {int}    scrollLeft Document scrollLeft
+	 * @private
+	 */
+	_horizontal: function (item, scrollLeft) {
+		var itemDom = this.dom[item];
+		var position = this.s.position;
+		var lastScrollLeft = this.s.scrollLeft;
+
+		if (itemDom.floating && lastScrollLeft[item] !== scrollLeft) {
+			// If scrolling is enabled we need to match the floating header to the body
+			if (this._scrollEnabled()) {
+				var newScrollLeft = $($(this.s.dt.table().node()).parent()).scrollLeft();
+				itemDom.floating.scrollLeft(newScrollLeft);
+				itemDom.floatingParent.scrollLeft(newScrollLeft);
+			}
+
+			lastScrollLeft[item] = scrollLeft;
+		}
+	},
+
+	/**
+	 * Change from one display mode to another. Each fixed item can be in one
+	 * of:
+	 *
+	 * * `in-place` - In the main DataTable
+	 * * `in` - Floating over the DataTable
+	 * * `below` - (Header only) Fixed to the bottom of the table body
+	 * * `above` - (Footer only) Fixed to the top of the table body
+	 *
+	 * @param  {string}  mode        Mode that the item should be shown in
+	 * @param  {string}  item        'header' or 'footer'
+	 * @param  {boolean} forceChange Force a redraw of the mode, even if already
+	 *     in that mode.
+	 * @private
+	 */
+	_modeChange: function (mode, item, forceChange) {
+		var dt = this.s.dt;
+		var itemDom = this.dom[item];
+		var position = this.s.position;
+
+		// Just determine if scroll is enabled once
+		var scrollEnabled = this._scrollEnabled();
+
+		// If footer and scrolling is enabled then we don't clone
+		// Instead the table's height is decreased accordingly - see `_scroll()`
+		if (item === 'footer' && scrollEnabled) {
+			return;
+		}
+
+		// It isn't trivial to add a !important css attribute...
+		var importantWidth = function (w) {
+			itemDom.floating.attr('style', function (i, s) {
+				return (s || '') + 'width: ' + w + 'px !important;';
+			});
+
+			// If not scrolling also have to update the floatingParent
+			if (!scrollEnabled) {
+				itemDom.floatingParent.attr('style', function (i, s) {
+					return (s || '') + 'width: ' + w + 'px !important;';
+				});
+			}
+		};
+
+		// Record focus. Browser's will cause input elements to loose focus if
+		// they are inserted else where in the doc
+		var tablePart = this.dom[item === 'footer' ? 'tfoot' : 'thead'];
+		var focus = $.contains(tablePart[0], document.activeElement)
+			? document.activeElement
+			: null;
+		var scrollBody = $($(this.s.dt.table().node()).parent());
+
+		if (mode === 'in-place') {
+			// Insert the header back into the table's real header
+			if (itemDom.placeholder) {
+				itemDom.placeholder.remove();
+				itemDom.placeholder = null;
+			}
+
+			this._unsize(item);
+
+			if (item === 'header') {
+				itemDom.host.prepend(tablePart);
+			}
+			else {
+				itemDom.host.append(tablePart);
+			}
+
+			if (itemDom.floating) {
+				itemDom.floating.remove();
+				itemDom.floating = null;
+				this._stickyPosition(itemDom.host, '+');
+			}
+
+			if (itemDom.floatingParent) {
+				itemDom.floatingParent.remove();
+			}
+
+			$($(itemDom.host.parent()).parent()).scrollLeft(scrollBody.scrollLeft());
+		}
+		else if (mode === 'in') {
+			// Remove the header from the read header and insert into a fixed
+			// positioned floating table clone
+			this._clone(item, forceChange);
+
+			// Get useful position values
+			var scrollOffset = scrollBody.offset();
+			var windowTop = $(document).scrollTop();
+			var windowHeight = $(window).height();
+			var windowBottom = windowTop + windowHeight;
+			var bodyTop = scrollEnabled ? scrollOffset.top : position.tbodyTop;
+			var bodyBottom = scrollEnabled
+				? scrollOffset.top + scrollBody.outerHeight()
+				: position.tfootTop;
+
+			// Calculate the amount that the footer or header needs to be shuffled
+			var shuffle =
+				item === 'footer'
+					? // footer and top of body isn't on screen
+					  bodyTop > windowBottom
+						? // Yes - push the footer below
+						  position.tfootHeight
+						: // No - bottom set to the gap between the top of the body and the bottom of the window
+						  bodyTop + position.tfootHeight - windowBottom
+					: // Otherwise must be a header so get the difference from the bottom of the
+					  //  desired floating header and the bottom of the table body
+					  windowTop + this.c.headerOffset + position.theadHeight - bodyBottom;
+
+			// Set the top or bottom based off of the offset and the shuffle value
+			var prop = item === 'header' ? 'top' : 'bottom';
+			var val = this.c[item + 'Offset'] - (shuffle > 0 ? shuffle : 0);
+
+			itemDom.floating.addClass('fixedHeader-floating');
+			itemDom.floatingParent
+				.css(prop, val)
+				.css({
+					left: position.left,
+					height: item === 'header' ? position.theadHeight : position.tfootHeight,
+					'z-index': 2
+				})
+				.append(itemDom.floating);
+
+			importantWidth(position.width);
+
+			if (item === 'footer') {
+				itemDom.floating.css('top', '');
+			}
+		}
+		else if (mode === 'below') {
+			// only used for the header
+			// Fix the position of the floating header at base of the table body
+			this._clone(item, forceChange);
+
+			itemDom.floating.addClass('fixedHeader-locked');
+			itemDom.floatingParent.css({
+				position: 'absolute',
+				top: position.tfootTop - position.theadHeight,
+				left: position.left + 'px'
+			});
+
+			importantWidth(position.width);
+		}
+		else if (mode === 'above') {
+			// only used for the footer
+			// Fix the position of the floating footer at top of the table body
+			this._clone(item, forceChange);
+
+			itemDom.floating.addClass('fixedHeader-locked');
+			itemDom.floatingParent.css({
+				position: 'absolute',
+				top: position.tbodyTop,
+				left: position.left + 'px'
+			});
+
+			importantWidth(position.width);
+		}
+
+		// Restore focus if it was lost
+		if (focus && focus !== document.activeElement) {
+			setTimeout(function () {
+				focus.focus();
+			}, 10);
+		}
+
+		this.s.scrollLeft.header = -1;
+		this.s.scrollLeft.footer = -1;
+		this.s[item + 'Mode'] = mode;
+	},
+
+	/**
+	 * Cache the positional information that is required for the mode
+	 * calculations that FixedHeader performs.
+	 *
+	 * @private
+	 */
+	_positions: function () {
+		var dt = this.s.dt;
+		var table = dt.table();
+		var position = this.s.position;
+		var dom = this.dom;
+		var tableNode = $(table.node());
+		var scrollEnabled = this._scrollEnabled();
+
+		// Need to use the header and footer that are in the main table,
+		// regardless of if they are clones, since they hold the positions we
+		// want to measure from
+		var thead = $(dt.table().header());
+		var tfoot = $(dt.table().footer());
+		var tbody = dom.tbody;
+		var scrollBody = tableNode.parent();
+
+		position.visible = tableNode.is(':visible');
+		position.width = tableNode.outerWidth();
+		position.left = tableNode.offset().left;
+		position.theadTop = thead.offset().top;
+		position.tbodyTop = scrollEnabled ? scrollBody.offset().top : tbody.offset().top;
+		position.tbodyHeight = scrollEnabled ? scrollBody.outerHeight() : tbody.outerHeight();
+		position.theadHeight = thead.outerHeight();
+		position.theadBottom = position.theadTop + position.theadHeight;
+
+		if (tfoot.length) {
+			position.tfootTop = position.tbodyTop + position.tbodyHeight; //tfoot.offset().top;
+			position.tfootBottom = position.tfootTop + tfoot.outerHeight();
+			position.tfootHeight = tfoot.outerHeight();
+		}
+		else {
+			position.tfootTop = position.tbodyTop + tbody.outerHeight();
+			position.tfootBottom = position.tfootTop;
+			position.tfootHeight = position.tfootTop;
+		}
+	},
+
+	/**
+	 * Mode calculation - determine what mode the fixed items should be placed
+	 * into.
+	 *
+	 * @param  {boolean} forceChange Force a redraw of the mode, even if already
+	 *     in that mode.
+	 * @private
+	 */
+	_scroll: function (forceChange) {
+		if (this.s.dt.settings()[0].bDestroying) {
+			return;
+		}
+
+		// ScrollBody details
+		var scrollEnabled = this._scrollEnabled();
+		var scrollBody = $(this.s.dt.table().node()).parent();
+		var scrollOffset = scrollBody.offset();
+		var scrollHeight = scrollBody.outerHeight();
+
+		// Window details
+		var windowLeft = $(document).scrollLeft();
+		var windowTop = $(document).scrollTop();
+		var windowHeight = $(window).height();
+		var windowBottom = windowHeight + windowTop;
+
+		var position = this.s.position;
+		var headerMode, footerMode;
+
+		// Body Details
+		var bodyTop = scrollEnabled ? scrollOffset.top : position.tbodyTop;
+		var bodyLeft = scrollEnabled ? scrollOffset.left : position.left;
+		var bodyBottom = scrollEnabled ? scrollOffset.top + scrollHeight : position.tfootTop;
+		var bodyWidth = scrollEnabled ? scrollBody.outerWidth() : position.tbodyWidth;
+
+		var windowBottom = windowTop + windowHeight;
+
+		if (this.c.header) {
+			if (!this.s.enable) {
+				headerMode = 'in-place';
+			}
+			// The header is in it's normal place if the body top is lower than
+			//  the scroll of the window plus the headerOffset and the height of the header
+			else if (
+				!position.visible ||
+				windowTop + this.c.headerOffset + position.theadHeight <= bodyTop
+			) {
+				headerMode = 'in-place';
+			}
+			// The header should be floated if
+			else if (
+				// The scrolling plus the header offset plus the height of the header is lower than the top of the body
+				windowTop + this.c.headerOffset + position.theadHeight > bodyTop &&
+				// And the scrolling at the top plus the header offset is above the bottom of the body
+				windowTop + this.c.headerOffset + position.theadHeight < bodyBottom
+			) {
+				headerMode = 'in';
+				var scrollBody = $($(this.s.dt.table().node()).parent());
+
+				// Further to the above, If the scrolling plus the header offset plus the header height is lower
+				// than the bottom of the table a shuffle is required so have to force the calculation
+				if (
+					windowTop + this.c.headerOffset + position.theadHeight > bodyBottom ||
+					this.dom.header.floatingParent === undefined
+				) {
+					forceChange = true;
+				}
+				else {
+					this.dom.header.floatingParent
+						.css({
+							top: this.c.headerOffset,
+							position: 'fixed'
+						})
+						.append(this.dom.header.floating);
+				}
+			}
+			// Anything else and the view is below the table
+			else {
+				headerMode = 'below';
+			}
+
+			if (forceChange || headerMode !== this.s.headerMode) {
+				this._modeChange(headerMode, 'header', forceChange);
+			}
+
+			this._horizontal('header', windowLeft);
+		}
+
+		var header = {
+			offset: { top: 0, left: 0 },
+			height: 0
+		};
+		var footer = {
+			offset: { top: 0, left: 0 },
+			height: 0
+		};
+
+		if (this.c.footer && this.dom.tfoot.length) {
+			if (!this.s.enable) {
+				footerMode = 'in-place';
+			}
+			else if (
+				!position.visible ||
+				position.tfootBottom + this.c.footerOffset <= windowBottom
+			) {
+				footerMode = 'in-place';
+			}
+			else if (
+				bodyBottom + position.tfootHeight + this.c.footerOffset > windowBottom &&
+				bodyTop + this.c.footerOffset < windowBottom
+			) {
+				footerMode = 'in';
+				forceChange = true;
+			}
+			else {
+				footerMode = 'above';
+			}
+
+			if (forceChange || footerMode !== this.s.footerMode) {
+				this._modeChange(footerMode, 'footer', forceChange);
+			}
+
+			this._horizontal('footer', windowLeft);
+
+			var getOffsetHeight = function (el) {
+				return {
+					offset: el.offset(),
+					height: el.outerHeight()
+				};
+			};
+
+			header = this.dom.header.floating
+				? getOffsetHeight(this.dom.header.floating)
+				: getOffsetHeight(this.dom.thead);
+			footer = this.dom.footer.floating
+				? getOffsetHeight(this.dom.footer.floating)
+				: getOffsetHeight(this.dom.tfoot);
+
+			// If scrolling is enabled and the footer is off the screen
+			if (scrollEnabled && footer.offset.top > windowTop) {
+				// && footer.offset.top >= windowBottom) {
+				// Calculate the gap between the top of the scrollBody and the top of the window
+				var overlap = windowTop - scrollOffset.top;
+				// The new height is the bottom of the window
+				var newHeight =
+					windowBottom +
+					// If the gap between the top of the scrollbody and the window is more than
+					//  the height of the header then the top of the table is still visible so add that gap
+					// Doing this has effectively calculated the height from the top of the table to the bottom of the current page
+					(overlap > -header.height ? overlap : 0) -
+					// Take from that
+					// The top of the header plus
+					(header.offset.top +
+						// The header height if the standard header is present
+						(overlap < -header.height ? header.height : 0) +
+						// And the height of the footer
+						footer.height);
+
+				// Don't want a negative height
+				if (newHeight < 0) {
+					newHeight = 0;
+				}
+
+				// At the end of the above calculation the space between the header (top of the page if floating)
+				// and the point just above the footer should be the new value for the height of the table.
+				scrollBody.outerHeight(newHeight);
+
+				// Need some rounding here as sometimes very small decimal places are encountered
+				// If the actual height is bigger or equal to the height we just applied then the footer is "Floating"
+				if (Math.round(scrollBody.outerHeight()) >= Math.round(newHeight)) {
+					$(this.dom.tfoot.parent()).addClass('fixedHeader-floating');
+				}
+				// Otherwise max-width has kicked in so it is not floating
+				else {
+					$(this.dom.tfoot.parent()).removeClass('fixedHeader-floating');
+				}
+			}
+		}
+
+		if (this.dom.header.floating) {
+			this.dom.header.floatingParent.css('left', bodyLeft - windowLeft);
+		}
+		if (this.dom.footer.floating) {
+			this.dom.footer.floatingParent.css('left', bodyLeft - windowLeft);
+		}
+
+		// If fixed columns is being used on this table then the blockers need to be copied across
+		// Cloning these is cleaner than creating as our own as it will keep consistency with fixedColumns automatically
+		// ASSUMING that the class remains the same
+		if (this.s.dt.settings()[0]._fixedColumns !== undefined) {
+			var adjustBlocker = function (side, end, el) {
+				if (el === undefined) {
+					var blocker = $('div.dtfc-' + side + '-' + end + '-blocker');
+
+					el = blocker.length === 0 ? null : blocker.clone().css('z-index', 1);
+				}
+
+				if (el !== null) {
+					if (headerMode === 'in' || headerMode === 'below') {
+						el.appendTo('body').css({
+							top: end === 'top' ? header.offset.top : footer.offset.top,
+							left: side === 'right' ? bodyLeft + bodyWidth - el.width() : bodyLeft
+						});
+					}
+					else {
+						el.detach();
+					}
+				}
+
+				return el;
+			};
+
+			// Adjust all blockers
+			this.dom.header.rightBlocker = adjustBlocker(
+				'right',
+				'top',
+				this.dom.header.rightBlocker
+			);
+			this.dom.header.leftBlocker = adjustBlocker('left', 'top', this.dom.header.leftBlocker);
+			this.dom.footer.rightBlocker = adjustBlocker(
+				'right',
+				'bottom',
+				this.dom.footer.rightBlocker
+			);
+			this.dom.footer.leftBlocker = adjustBlocker(
+				'left',
+				'bottom',
+				this.dom.footer.leftBlocker
+			);
+		}
+	},
+
+	/**
+	 * Function to check if scrolling is enabled on the table or not
+	 * @returns Boolean value indicating if scrolling on the table is enabled or not
+	 */
+	_scrollEnabled: function () {
+		var oScroll = this.s.dt.settings()[0].oScroll;
+		if (oScroll.sY !== '' || oScroll.sX !== '') {
+			return true;
+		}
+		return false;
+	}
+});
+
+/**
+ * Version
+ * @type {String}
+ * @static
+ */
+FixedHeader.version = '3.4.0';
+
+/**
+ * Defaults
+ * @type {Object}
+ * @static
+ */
+FixedHeader.defaults = {
+	header: true,
+	footer: false,
+	headerOffset: 0,
+	footerOffset: 0
+};
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * DataTables interfaces
+ */
+
+// Attach for constructor access
+$.fn.dataTable.FixedHeader = FixedHeader;
+$.fn.DataTable.FixedHeader = FixedHeader;
+
+// DataTables creation - check if the FixedHeader option has been defined on the
+// table and if so, initialise
+$(document).on('init.dt.dtfh', function (e, settings, json) {
+	if (e.namespace !== 'dt') {
+		return;
+	}
+
+	var init = settings.oInit.fixedHeader;
+	var defaults = DataTable.defaults.fixedHeader;
+
+	if ((init || defaults) && !settings._fixedHeader) {
+		var opts = $.extend({}, defaults, init);
+
+		if (init !== false) {
+			new FixedHeader(settings, opts);
+		}
+	}
+});
+
+// DataTables API methods
+DataTable.Api.register('fixedHeader()', function () {});
+
+DataTable.Api.register('fixedHeader.adjust()', function () {
+	return this.iterator('table', function (ctx) {
+		var fh = ctx._fixedHeader;
+
+		if (fh) {
+			fh.update();
+		}
+	});
+});
+
+DataTable.Api.register('fixedHeader.enable()', function (flag) {
+	return this.iterator('table', function (ctx) {
+		var fh = ctx._fixedHeader;
+
+		flag = flag !== undefined ? flag : true;
+		if (fh && flag !== fh.enabled()) {
+			fh.enable(flag);
+		}
+	});
+});
+
+DataTable.Api.register('fixedHeader.enabled()', function () {
+	if (this.context.length) {
+		var fh = this.context[0]._fixedHeader;
+
+		if (fh) {
+			return fh.enabled();
+		}
+	}
+
+	return false;
+});
+
+DataTable.Api.register('fixedHeader.disable()', function () {
+	return this.iterator('table', function (ctx) {
+		var fh = ctx._fixedHeader;
+
+		if (fh && fh.enabled()) {
+			fh.enable(false);
+		}
+	});
+});
+
+$.each(['header', 'footer'], function (i, el) {
+	DataTable.Api.register('fixedHeader.' + el + 'Offset()', function (offset) {
+		var ctx = this.context;
+
+		if (offset === undefined) {
+			return ctx.length && ctx[0]._fixedHeader
+				? ctx[0]._fixedHeader[el + 'Offset']()
+				: undefined;
+		}
+
+		return this.iterator('table', function (ctx) {
+			var fh = ctx._fixedHeader;
+
+			if (fh) {
+				fh[el + 'Offset'](offset);
+			}
+		});
+	});
+});
+
+
+return DataTable;
+}));
+
+
+/*! Responsive 2.5.0
+ * © SpryMedia Ltd - datatables.net/license
+ */
+
+(function( factory ){
+	if ( typeof define === 'function' && define.amd ) {
+		// AMD
+		define( ['jquery', 'datatables.net'], function ( $ ) {
+			return factory( $, window, document );
+		} );
+	}
+	else if ( typeof exports === 'object' ) {
+		// CommonJS
+		var jq = require('jquery');
+		var cjsRequires = function (root, $) {
+			if ( ! $.fn.dataTable ) {
+				require('datatables.net')(root, $);
+			}
+		};
+
+		if (typeof window === 'undefined') {
+			module.exports = function (root, $) {
+				if ( ! root ) {
+					// CommonJS environments without a window global must pass a
+					// root. This will give an error otherwise
+					root = window;
+				}
+
+				if ( ! $ ) {
+					$ = jq( root );
+				}
+
+				cjsRequires( root, $ );
+				return factory( $, root, root.document );
+			};
+		}
+		else {
+			cjsRequires( window, jq );
+			module.exports = factory( jq, window, window.document );
+		}
+	}
+	else {
+		// Browser
+		factory( jQuery, window, document );
+	}
+}(function( $, window, document, undefined ) {
+'use strict';
+var DataTable = $.fn.dataTable;
+
+
+
+/**
+ * @summary     Responsive
+ * @description Responsive tables plug-in for DataTables
+ * @version     2.5.0
+ * @author      SpryMedia Ltd
+ * @copyright   SpryMedia Ltd.
+ *
+ * This source file is free software, available under the following license:
+ *   MIT license - http://datatables.net/license/mit
+ *
+ * This source file is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the license files for details.
+ *
+ * For details please refer to: http://www.datatables.net
+ */
+
+/**
+ * Responsive is a plug-in for the DataTables library that makes use of
+ * DataTables' ability to change the visibility of columns, changing the
+ * visibility of columns so the displayed columns fit into the table container.
+ * The end result is that complex tables will be dynamically adjusted to fit
+ * into the viewport, be it on a desktop, tablet or mobile browser.
+ *
+ * Responsive for DataTables has two modes of operation, which can used
+ * individually or combined:
+ *
+ * * Class name based control - columns assigned class names that match the
+ *   breakpoint logic can be shown / hidden as required for each breakpoint.
+ * * Automatic control - columns are automatically hidden when there is no
+ *   room left to display them. Columns removed from the right.
+ *
+ * In additional to column visibility control, Responsive also has built into
+ * options to use DataTables' child row display to show / hide the information
+ * from the table that has been hidden. There are also two modes of operation
+ * for this child row display:
+ *
+ * * Inline - when the control element that the user can use to show / hide
+ *   child rows is displayed inside the first column of the table.
+ * * Column - where a whole column is dedicated to be the show / hide control.
+ *
+ * Initialisation of Responsive is performed by:
+ *
+ * * Adding the class `responsive` or `dt-responsive` to the table. In this case
+ *   Responsive will automatically be initialised with the default configuration
+ *   options when the DataTable is created.
+ * * Using the `responsive` option in the DataTables configuration options. This
+ *   can also be used to specify the configuration options, or simply set to
+ *   `true` to use the defaults.
+ *
+ *  @class
+ *  @param {object} settings DataTables settings object for the host table
+ *  @param {object} [opts] Configuration options
+ *  @requires jQuery 1.7+
+ *  @requires DataTables 1.10.3+
+ *
+ *  @example
+ *      $('#example').DataTable( {
+ *        responsive: true
+ *      } );
+ *    } );
+ */
+var Responsive = function (settings, opts) {
+	// Sanity check that we are using DataTables 1.10 or newer
+	if (!DataTable.versionCheck || !DataTable.versionCheck('1.10.10')) {
+		throw 'DataTables Responsive requires DataTables 1.10.10 or newer';
+	}
+
+	this.s = {
+		childNodeStore: {},
+		columns: [],
+		current: [],
+		dt: new DataTable.Api(settings)
+	};
+
+	// Check if responsive has already been initialised on this table
+	if (this.s.dt.settings()[0].responsive) {
+		return;
+	}
+
+	// details is an object, but for simplicity the user can give it as a string
+	// or a boolean
+	if (opts && typeof opts.details === 'string') {
+		opts.details = { type: opts.details };
+	}
+	else if (opts && opts.details === false) {
+		opts.details = { type: false };
+	}
+	else if (opts && opts.details === true) {
+		opts.details = { type: 'inline' };
+	}
+
+	this.c = $.extend(true, {}, Responsive.defaults, DataTable.defaults.responsive, opts);
+	settings.responsive = this;
+	this._constructor();
+};
+
+$.extend(Responsive.prototype, {
+	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	 * Constructor
+	 */
+
+	/**
+	 * Initialise the Responsive instance
+	 *
+	 * @private
+	 */
+	_constructor: function () {
+		var that = this;
+		var dt = this.s.dt;
+		var dtPrivateSettings = dt.settings()[0];
+		var oldWindowWidth = $(window).innerWidth();
+
+		dt.settings()[0]._responsive = this;
+
+		// Use DataTables' throttle function to avoid processor thrashing on
+		// resize
+		$(window).on(
+			'resize.dtr orientationchange.dtr',
+			DataTable.util.throttle(function () {
+				// iOS has a bug whereby resize can fire when only scrolling
+				// See: http://stackoverflow.com/questions/8898412
+				var width = $(window).innerWidth();
+
+				if (width !== oldWindowWidth) {
+					that._resize();
+					oldWindowWidth = width;
+				}
+			})
+		);
+
+		// DataTables doesn't currently trigger an event when a row is added, so
+		// we need to hook into its private API to enforce the hidden rows when
+		// new data is added
+		dtPrivateSettings.oApi._fnCallbackReg(
+			dtPrivateSettings,
+			'aoRowCreatedCallback',
+			function (tr, data, idx) {
+				if ($.inArray(false, that.s.current) !== -1) {
+					$('>td, >th', tr).each(function (i) {
+						var idx = dt.column.index('toData', i);
+
+						if (that.s.current[idx] === false) {
+							$(this).css('display', 'none');
+						}
+					});
+				}
+			}
+		);
+
+		// Destroy event handler
+		dt.on('destroy.dtr', function () {
+			dt.off('.dtr');
+			$(dt.table().body()).off('.dtr');
+			$(window).off('resize.dtr orientationchange.dtr');
+			dt.cells('.dtr-control').nodes().to$().removeClass('dtr-control');
+
+			// Restore the columns that we've hidden
+			$.each(that.s.current, function (i, val) {
+				if (val === false) {
+					that._setColumnVis(i, true);
+				}
+			});
+		});
+
+		// Reorder the breakpoints array here in case they have been added out
+		// of order
+		this.c.breakpoints.sort(function (a, b) {
+			return a.width < b.width ? 1 : a.width > b.width ? -1 : 0;
+		});
+
+		this._classLogic();
+		this._resizeAuto();
+
+		// Details handler
+		var details = this.c.details;
+
+		if (details.type !== false) {
+			that._detailsInit();
+
+			// DataTables will trigger this event on every column it shows and
+			// hides individually
+			dt.on('column-visibility.dtr', function () {
+				// Use a small debounce to allow multiple columns to be set together
+				if (that._timer) {
+					clearTimeout(that._timer);
+				}
+
+				that._timer = setTimeout(function () {
+					that._timer = null;
+
+					that._classLogic();
+					that._resizeAuto();
+					that._resize(true);
+
+					that._redrawChildren();
+				}, 100);
+			});
+
+			// Redraw the details box on each draw which will happen if the data
+			// has changed. This is used until DataTables implements a native
+			// `updated` event for rows
+			dt.on('draw.dtr', function () {
+				that._redrawChildren();
+			});
+
+			$(dt.table().node()).addClass('dtr-' + details.type);
+		}
+
+		dt.on('column-reorder.dtr', function (e, settings, details) {
+			that._classLogic();
+			that._resizeAuto();
+			that._resize(true);
+		});
+
+		// Change in column sizes means we need to calc
+		dt.on('column-sizing.dtr', function () {
+			that._resizeAuto();
+			that._resize();
+		});
+
+		// DT2 let's us tell it if we are hiding columns
+		dt.on('column-calc.dt', function (e, d) {
+			var curr = that.s.current;
+
+			for (var i = 0; i < curr.length; i++) {
+				var idx = d.visible.indexOf(i);
+
+				if (curr[i] === false && idx >= 0) {
+					d.visible.splice(idx, 1);
+				}
+			}
+		});
+
+		// On Ajax reload we want to reopen any child rows which are displayed
+		// by responsive
+		dt.on('preXhr.dtr', function () {
+			var rowIds = [];
+			dt.rows().every(function () {
+				if (this.child.isShown()) {
+					rowIds.push(this.id(true));
+				}
+			});
+
+			dt.one('draw.dtr', function () {
+				that._resizeAuto();
+				that._resize();
+
+				dt.rows(rowIds).every(function () {
+					that._detailsDisplay(this, false);
+				});
+			});
+		});
+
+		dt.on('draw.dtr', function () {
+			that._controlClass();
+		}).on('init.dtr', function (e, settings, details) {
+			if (e.namespace !== 'dt') {
+				return;
+			}
+
+			that._resizeAuto();
+			that._resize();
+
+			// If columns were hidden, then DataTables needs to adjust the
+			// column sizing
+			if ($.inArray(false, that.s.current)) {
+				dt.columns.adjust();
+			}
+		});
+
+		// First pass - draw the table for the current viewport size
+		this._resize();
+	},
+
+	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	 * Private methods
+	 */
+
+	/**
+	 * Get and store nodes from a cell - use for node moving renderers
+	 *
+	 * @param {*} dt DT instance
+	 * @param {*} row Row index
+	 * @param {*} col Column index
+	 */
+	_childNodes: function (dt, row, col) {
+		var name = row + '-' + col;
+
+		if (this.s.childNodeStore[name]) {
+			return this.s.childNodeStore[name];
+		}
+
+		// https://jsperf.com/childnodes-array-slice-vs-loop
+		var nodes = [];
+		var children = dt.cell(row, col).node().childNodes;
+		for (var i = 0, ien = children.length; i < ien; i++) {
+			nodes.push(children[i]);
+		}
+
+		this.s.childNodeStore[name] = nodes;
+
+		return nodes;
+	},
+
+	/**
+	 * Restore nodes from the cache to a table cell
+	 *
+	 * @param {*} dt DT instance
+	 * @param {*} row Row index
+	 * @param {*} col Column index
+	 */
+	_childNodesRestore: function (dt, row, col) {
+		var name = row + '-' + col;
+
+		if (!this.s.childNodeStore[name]) {
+			return;
+		}
+
+		var node = dt.cell(row, col).node();
+		var store = this.s.childNodeStore[name];
+		var parent = store[0].parentNode;
+		var parentChildren = parent.childNodes;
+		var a = [];
+
+		for (var i = 0, ien = parentChildren.length; i < ien; i++) {
+			a.push(parentChildren[i]);
+		}
+
+		for (var j = 0, jen = a.length; j < jen; j++) {
+			node.appendChild(a[j]);
+		}
+
+		this.s.childNodeStore[name] = undefined;
+	},
+
+	/**
+	 * Calculate the visibility for the columns in a table for a given
+	 * breakpoint. The result is pre-determined based on the class logic if
+	 * class names are used to control all columns, but the width of the table
+	 * is also used if there are columns which are to be automatically shown
+	 * and hidden.
+	 *
+	 * @param  {string} breakpoint Breakpoint name to use for the calculation
+	 * @return {array} Array of boolean values initiating the visibility of each
+	 *   column.
+	 *  @private
+	 */
+	_columnsVisiblity: function (breakpoint) {
+		var dt = this.s.dt;
+		var columns = this.s.columns;
+		var i, ien;
+
+		// Create an array that defines the column ordering based first on the
+		// column's priority, and secondly the column index. This allows the
+		// columns to be removed from the right if the priority matches
+		var order = columns
+			.map(function (col, idx) {
+				return {
+					columnIdx: idx,
+					priority: col.priority
+				};
+			})
+			.sort(function (a, b) {
+				if (a.priority !== b.priority) {
+					return a.priority - b.priority;
+				}
+				return a.columnIdx - b.columnIdx;
+			});
+
+		// Class logic - determine which columns are in this breakpoint based
+		// on the classes. If no class control (i.e. `auto`) then `-` is used
+		// to indicate this to the rest of the function
+		var display = $.map(columns, function (col, i) {
+			if (dt.column(i).visible() === false) {
+				return 'not-visible';
+			}
+			return col.auto && col.minWidth === null
+				? false
+				: col.auto === true
+				? '-'
+				: $.inArray(breakpoint, col.includeIn) !== -1;
+		});
+
+		// Auto column control - first pass: how much width is taken by the
+		// ones that must be included from the non-auto columns
+		var requiredWidth = 0;
+		for (i = 0, ien = display.length; i < ien; i++) {
+			if (display[i] === true) {
+				requiredWidth += columns[i].minWidth;
+			}
+		}
+
+		// Second pass, use up any remaining width for other columns. For
+		// scrolling tables we need to subtract the width of the scrollbar. It
+		// may not be requires which makes this sub-optimal, but it would
+		// require another full redraw to make complete use of those extra few
+		// pixels
+		var scrolling = dt.settings()[0].oScroll;
+		var bar = scrolling.sY || scrolling.sX ? scrolling.iBarWidth : 0;
+		var widthAvailable = dt.table().container().offsetWidth - bar;
+		var usedWidth = widthAvailable - requiredWidth;
+
+		// Control column needs to always be included. This makes it sub-
+		// optimal in terms of using the available with, but to stop layout
+		// thrashing or overflow. Also we need to account for the control column
+		// width first so we know how much width is available for the other
+		// columns, since the control column might not be the first one shown
+		for (i = 0, ien = display.length; i < ien; i++) {
+			if (columns[i].control) {
+				usedWidth -= columns[i].minWidth;
+			}
+		}
+
+		// Allow columns to be shown (counting by priority and then right to
+		// left) until we run out of room
+		var empty = false;
+		for (i = 0, ien = order.length; i < ien; i++) {
+			var colIdx = order[i].columnIdx;
+
+			if (display[colIdx] === '-' && !columns[colIdx].control && columns[colIdx].minWidth) {
+				// Once we've found a column that won't fit we don't let any
+				// others display either, or columns might disappear in the
+				// middle of the table
+				if (empty || usedWidth - columns[colIdx].minWidth < 0) {
+					empty = true;
+					display[colIdx] = false;
+				}
+				else {
+					display[colIdx] = true;
+				}
+
+				usedWidth -= columns[colIdx].minWidth;
+			}
+		}
+
+		// Determine if the 'control' column should be shown (if there is one).
+		// This is the case when there is a hidden column (that is not the
+		// control column). The two loops look inefficient here, but they are
+		// trivial and will fly through. We need to know the outcome from the
+		// first , before the action in the second can be taken
+		var showControl = false;
+
+		for (i = 0, ien = columns.length; i < ien; i++) {
+			if (!columns[i].control && !columns[i].never && display[i] === false) {
+				showControl = true;
+				break;
+			}
+		}
+
+		for (i = 0, ien = columns.length; i < ien; i++) {
+			if (columns[i].control) {
+				display[i] = showControl;
+			}
+
+			// Replace not visible string with false from the control column detection above
+			if (display[i] === 'not-visible') {
+				display[i] = false;
+			}
+		}
+
+		// Finally we need to make sure that there is at least one column that
+		// is visible
+		if ($.inArray(true, display) === -1) {
+			display[0] = true;
+		}
+
+		return display;
+	},
+
+	/**
+	 * Create the internal `columns` array with information about the columns
+	 * for the table. This includes determining which breakpoints the column
+	 * will appear in, based upon class names in the column, which makes up the
+	 * vast majority of this method.
+	 *
+	 * @private
+	 */
+	_classLogic: function () {
+		var that = this;
+		var calc = {};
+		var breakpoints = this.c.breakpoints;
+		var dt = this.s.dt;
+		var columns = dt
+			.columns()
+			.eq(0)
+			.map(function (i) {
+				var column = this.column(i);
+				var className = column.header().className;
+				var priority = dt.settings()[0].aoColumns[i].responsivePriority;
+				var dataPriority = column.header().getAttribute('data-priority');
+
+				if (priority === undefined) {
+					priority =
+						dataPriority === undefined || dataPriority === null
+							? 10000
+							: dataPriority * 1;
+				}
+
+				return {
+					className: className,
+					includeIn: [],
+					auto: false,
+					control: false,
+					never: className.match(/\b(dtr\-)?never\b/) ? true : false,
+					priority: priority
+				};
+			});
+
+		// Simply add a breakpoint to `includeIn` array, ensuring that there are
+		// no duplicates
+		var add = function (colIdx, name) {
+			var includeIn = columns[colIdx].includeIn;
+
+			if ($.inArray(name, includeIn) === -1) {
+				includeIn.push(name);
+			}
+		};
+
+		var column = function (colIdx, name, operator, matched) {
+			var size, i, ien;
+
+			if (!operator) {
+				columns[colIdx].includeIn.push(name);
+			}
+			else if (operator === 'max-') {
+				// Add this breakpoint and all smaller
+				size = that._find(name).width;
+
+				for (i = 0, ien = breakpoints.length; i < ien; i++) {
+					if (breakpoints[i].width <= size) {
+						add(colIdx, breakpoints[i].name);
+					}
+				}
+			}
+			else if (operator === 'min-') {
+				// Add this breakpoint and all larger
+				size = that._find(name).width;
+
+				for (i = 0, ien = breakpoints.length; i < ien; i++) {
+					if (breakpoints[i].width >= size) {
+						add(colIdx, breakpoints[i].name);
+					}
+				}
+			}
+			else if (operator === 'not-') {
+				// Add all but this breakpoint
+				for (i = 0, ien = breakpoints.length; i < ien; i++) {
+					if (breakpoints[i].name.indexOf(matched) === -1) {
+						add(colIdx, breakpoints[i].name);
+					}
+				}
+			}
+		};
+
+		// Loop over each column and determine if it has a responsive control
+		// class
+		columns.each(function (col, i) {
+			var classNames = col.className.split(' ');
+			var hasClass = false;
+
+			// Split the class name up so multiple rules can be applied if needed
+			for (var k = 0, ken = classNames.length; k < ken; k++) {
+				var className = classNames[k].trim();
+
+				if (className === 'all' || className === 'dtr-all') {
+					// Include in all
+					hasClass = true;
+					col.includeIn = $.map(breakpoints, function (a) {
+						return a.name;
+					});
+					return;
+				}
+				else if (className === 'none' || className === 'dtr-none' || col.never) {
+					// Include in none (default) and no auto
+					hasClass = true;
+					return;
+				}
+				else if (className === 'control' || className === 'dtr-control') {
+					// Special column that is only visible, when one of the other
+					// columns is hidden. This is used for the details control
+					hasClass = true;
+					col.control = true;
+					return;
+				}
+
+				$.each(breakpoints, function (j, breakpoint) {
+					// Does this column have a class that matches this breakpoint?
+					var brokenPoint = breakpoint.name.split('-');
+					var re = new RegExp(
+						'(min\\-|max\\-|not\\-)?(' + brokenPoint[0] + ')(\\-[_a-zA-Z0-9])?'
+					);
+					var match = className.match(re);
+
+					if (match) {
+						hasClass = true;
+
+						if (match[2] === brokenPoint[0] && match[3] === '-' + brokenPoint[1]) {
+							// Class name matches breakpoint name fully
+							column(i, breakpoint.name, match[1], match[2] + match[3]);
+						}
+						else if (match[2] === brokenPoint[0] && !match[3]) {
+							// Class name matched primary breakpoint name with no qualifier
+							column(i, breakpoint.name, match[1], match[2]);
+						}
+					}
+				});
+			}
+
+			// If there was no control class, then automatic sizing is used
+			if (!hasClass) {
+				col.auto = true;
+			}
+		});
+
+		this.s.columns = columns;
+	},
+
+	/**
+	 * Update the cells to show the correct control class / button
+	 * @private
+	 */
+	_controlClass: function () {
+		if (this.c.details.type === 'inline') {
+			var dt = this.s.dt;
+			var columnsVis = this.s.current;
+			var firstVisible = $.inArray(true, columnsVis);
+
+			// Remove from any cells which shouldn't have it
+			dt.cells(
+				null,
+				function (idx) {
+					return idx !== firstVisible;
+				},
+				{ page: 'current' }
+			)
+				.nodes()
+				.to$()
+				.filter('.dtr-control')
+				.removeClass('dtr-control');
+
+			dt.cells(null, firstVisible, { page: 'current' }).nodes().to$().addClass('dtr-control');
+		}
+	},
+
+	/**
+	 * Show the details for the child row
+	 *
+	 * @param  {DataTables.Api} row    API instance for the row
+	 * @param  {boolean}        update Update flag
+	 * @private
+	 */
+	_detailsDisplay: function (row, update) {
+		var that = this;
+		var dt = this.s.dt;
+		var details = this.c.details;
+		var event = function (res) {
+			$(row.node()).toggleClass('parent', res !== false);
+			$(dt.table().node()).triggerHandler('responsive-display.dt', [dt, row, res, update]);
+		};
+
+		if (details && details.type !== false) {
+			var renderer =
+				typeof details.renderer === 'string'
+					? Responsive.renderer[details.renderer]()
+					: details.renderer;
+
+			var res = details.display(
+				row,
+				update,
+				function () {
+					return renderer.call(that, dt, row[0], that._detailsObj(row[0]));
+				},
+				function () {
+					event(false);
+				}
+			);
+
+			if (typeof res === 'boolean') {
+				event(res);
+			}
+		}
+	},
+
+	/**
+	 * Initialisation for the details handler
+	 *
+	 * @private
+	 */
+	_detailsInit: function () {
+		var that = this;
+		var dt = this.s.dt;
+		var details = this.c.details;
+
+		// The inline type always uses the first child as the target
+		if (details.type === 'inline') {
+			details.target = 'td.dtr-control, th.dtr-control';
+		}
+
+		// Keyboard accessibility
+		dt.on('draw.dtr', function () {
+			that._tabIndexes();
+		});
+		that._tabIndexes(); // Initial draw has already happened
+
+		$(dt.table().body()).on('keyup.dtr', 'td, th', function (e) {
+			if (e.keyCode === 13 && $(this).data('dtr-keyboard')) {
+				$(this).click();
+			}
+		});
+
+		// type.target can be a string jQuery selector or a column index
+		var target = details.target;
+		var selector = typeof target === 'string' ? target : 'td, th';
+
+		if (target !== undefined || target !== null) {
+			// Click handler to show / hide the details rows when they are available
+			$(dt.table().body()).on('click.dtr mousedown.dtr mouseup.dtr', selector, function (e) {
+				// If the table is not collapsed (i.e. there is no hidden columns)
+				// then take no action
+				if (!$(dt.table().node()).hasClass('collapsed')) {
+					return;
+				}
+
+				// Check that the row is actually a DataTable's controlled node
+				if ($.inArray($(this).closest('tr').get(0), dt.rows().nodes().toArray()) === -1) {
+					return;
+				}
+
+				// For column index, we determine if we should act or not in the
+				// handler - otherwise it is already okay
+				if (typeof target === 'number') {
+					var targetIdx = target < 0 ? dt.columns().eq(0).length + target : target;
+
+					if (dt.cell(this).index().column !== targetIdx) {
+						return;
+					}
+				}
+
+				// $().closest() includes itself in its check
+				var row = dt.row($(this).closest('tr'));
+
+				// Check event type to do an action
+				if (e.type === 'click') {
+					// The renderer is given as a function so the caller can execute it
+					// only when they need (i.e. if hiding there is no point is running
+					// the renderer)
+					that._detailsDisplay(row, false);
+				}
+				else if (e.type === 'mousedown') {
+					// For mouse users, prevent the focus ring from showing
+					$(this).css('outline', 'none');
+				}
+				else if (e.type === 'mouseup') {
+					// And then re-allow at the end of the click
+					$(this).trigger('blur').css('outline', '');
+				}
+			});
+		}
+	},
+
+	/**
+	 * Get the details to pass to a renderer for a row
+	 * @param  {int} rowIdx Row index
+	 * @private
+	 */
+	_detailsObj: function (rowIdx) {
+		var that = this;
+		var dt = this.s.dt;
+
+		return $.map(this.s.columns, function (col, i) {
+			// Never and control columns should not be passed to the renderer
+			if (col.never || col.control) {
+				return;
+			}
+
+			var dtCol = dt.settings()[0].aoColumns[i];
+
+			return {
+				className: dtCol.sClass,
+				columnIndex: i,
+				data: dt.cell(rowIdx, i).render(that.c.orthogonal),
+				hidden: dt.column(i).visible() && !that.s.current[i],
+				rowIndex: rowIdx,
+				title: dtCol.sTitle !== null ? dtCol.sTitle : $(dt.column(i).header()).text()
+			};
+		});
+	},
+
+	/**
+	 * Find a breakpoint object from a name
+	 *
+	 * @param  {string} name Breakpoint name to find
+	 * @return {object}      Breakpoint description object
+	 * @private
+	 */
+	_find: function (name) {
+		var breakpoints = this.c.breakpoints;
+
+		for (var i = 0, ien = breakpoints.length; i < ien; i++) {
+			if (breakpoints[i].name === name) {
+				return breakpoints[i];
+			}
+		}
+	},
+
+	/**
+	 * Re-create the contents of the child rows as the display has changed in
+	 * some way.
+	 *
+	 * @private
+	 */
+	_redrawChildren: function () {
+		var that = this;
+		var dt = this.s.dt;
+
+		dt.rows({ page: 'current' }).iterator('row', function (settings, idx) {
+			that._detailsDisplay(dt.row(idx), true);
+		});
+	},
+
+	/**
+	 * Alter the table display for a resized viewport. This involves first
+	 * determining what breakpoint the window currently is in, getting the
+	 * column visibilities to apply and then setting them.
+	 *
+	 * @param  {boolean} forceRedraw Force a redraw
+	 * @private
+	 */
+	_resize: function (forceRedraw) {
+		var that = this;
+		var dt = this.s.dt;
+		var width = $(window).innerWidth();
+		var breakpoints = this.c.breakpoints;
+		var breakpoint = breakpoints[0].name;
+		var columns = this.s.columns;
+		var i, ien;
+		var oldVis = this.s.current.slice();
+
+		// Determine what breakpoint we are currently at
+		for (i = breakpoints.length - 1; i >= 0; i--) {
+			if (width <= breakpoints[i].width) {
+				breakpoint = breakpoints[i].name;
+				break;
+			}
+		}
+
+		// Show the columns for that break point
+		var columnsVis = this._columnsVisiblity(breakpoint);
+		this.s.current = columnsVis;
+
+		// Set the class before the column visibility is changed so event
+		// listeners know what the state is. Need to determine if there are
+		// any columns that are not visible but can be shown
+		var collapsedClass = false;
+
+		for (i = 0, ien = columns.length; i < ien; i++) {
+			if (
+				columnsVis[i] === false &&
+				!columns[i].never &&
+				!columns[i].control &&
+				!dt.column(i).visible() === false
+			) {
+				collapsedClass = true;
+				break;
+			}
+		}
+
+		$(dt.table().node()).toggleClass('collapsed', collapsedClass);
+
+		var changed = false;
+		var visible = 0;
+
+		dt.columns()
+			.eq(0)
+			.each(function (colIdx, i) {
+				if (columnsVis[i] === true) {
+					visible++;
+				}
+
+				if (forceRedraw || columnsVis[i] !== oldVis[i]) {
+					changed = true;
+					that._setColumnVis(colIdx, columnsVis[i]);
+				}
+			});
+
+		// Always need to update the display, regardless of if it has changed or not, so nodes
+		// can be re-inserted for listHiddenNodes
+		this._redrawChildren();
+
+		if (changed) {
+			// Inform listeners of the change
+			$(dt.table().node()).trigger('responsive-resize.dt', [dt, this.s.current]);
+
+			// If no records, update the "No records" display element
+			if (dt.page.info().recordsDisplay === 0) {
+				$('td', dt.table().body()).eq(0).attr('colspan', visible);
+			}
+		}
+
+		that._controlClass();
+	},
+
+	/**
+	 * Determine the width of each column in the table so the auto column hiding
+	 * has that information to work with. This method is never going to be 100%
+	 * perfect since column widths can change slightly per page, but without
+	 * seriously compromising performance this is quite effective.
+	 *
+	 * @private
+	 */
+	_resizeAuto: function () {
+		var dt = this.s.dt;
+		var columns = this.s.columns;
+		var that = this;
+
+		// Are we allowed to do auto sizing?
+		if (!this.c.auto) {
+			return;
+		}
+
+		// Are there any columns that actually need auto-sizing, or do they all
+		// have classes defined
+		if (
+			$.inArray(
+				true,
+				$.map(columns, function (c) {
+					return c.auto;
+				})
+			) === -1
+		) {
+			return;
+		}
+
+		// Need to restore all children. They will be reinstated by a re-render
+		if (!$.isEmptyObject(this.s.childNodeStore)) {
+			$.each(this.s.childNodeStore, function (key) {
+				var idx = key.split('-');
+
+				that._childNodesRestore(dt, idx[0] * 1, idx[1] * 1);
+			});
+		}
+
+		// Clone the table with the current data in it
+		var tableWidth = dt.table().node().offsetWidth;
+		var columnWidths = dt.columns;
+		var clonedTable = dt.table().node().cloneNode(false);
+		var clonedHeader = $(dt.table().header().cloneNode(false)).appendTo(clonedTable);
+		var clonedBody = $(dt.table().body()).clone(false, false).empty().appendTo(clonedTable); // use jQuery because of IE8
+
+		clonedTable.style.width = 'auto';
+
+		// Header
+		var headerCells = dt
+			.columns()
+			.header()
+			.filter(function (idx) {
+				return dt.column(idx).visible();
+			})
+			.to$()
+			.clone(false)
+			.css('display', 'table-cell')
+			.css('width', 'auto')
+			.css('min-width', 0);
+
+		// Body rows - we don't need to take account of DataTables' column
+		// visibility since we implement our own here (hence the `display` set)
+		$(clonedBody)
+			.append($(dt.rows({ page: 'current' }).nodes()).clone(false))
+			.find('th, td')
+			.css('display', '');
+
+		// Footer
+		var footer = dt.table().footer();
+		if (footer) {
+			var clonedFooter = $(footer.cloneNode(false)).appendTo(clonedTable);
+			var footerCells = dt
+				.columns()
+				.footer()
+				.filter(function (idx) {
+					return dt.column(idx).visible();
+				})
+				.to$()
+				.clone(false)
+				.css('display', 'table-cell');
+
+			$('<tr/>').append(footerCells).appendTo(clonedFooter);
+		}
+
+		$('<tr/>').append(headerCells).appendTo(clonedHeader);
+
+		// In the inline case extra padding is applied to the first column to
+		// give space for the show / hide icon. We need to use this in the
+		// calculation
+		if (this.c.details.type === 'inline') {
+			$(clonedTable).addClass('dtr-inline collapsed');
+		}
+
+		// It is unsafe to insert elements with the same name into the DOM
+		// multiple times. For example, cloning and inserting a checked radio
+		// clears the chcecked state of the original radio.
+		$(clonedTable).find('[name]').removeAttr('name');
+
+		// A position absolute table would take the table out of the flow of
+		// our container element, bypassing the height and width (Scroller)
+		$(clonedTable).css('position', 'relative');
+
+		var inserted = $('<div/>')
+			.css({
+				width: 1,
+				height: 1,
+				overflow: 'hidden',
+				clear: 'both'
+			})
+			.append(clonedTable);
+
+		inserted.insertBefore(dt.table().node());
+
+		// The cloned header now contains the smallest that each column can be
+		headerCells.each(function (i) {
+			var idx = dt.column.index('fromVisible', i);
+			columns[idx].minWidth = this.offsetWidth || 0;
+		});
+
+		inserted.remove();
+	},
+
+	/**
+	 * Get the state of the current hidden columns - controlled by Responsive only
+	 */
+	_responsiveOnlyHidden: function () {
+		var dt = this.s.dt;
+
+		return $.map(this.s.current, function (v, i) {
+			// If the column is hidden by DataTables then it can't be hidden by
+			// Responsive!
+			if (dt.column(i).visible() === false) {
+				return true;
+			}
+			return v;
+		});
+	},
+
+	/**
+	 * Set a column's visibility.
+	 *
+	 * We don't use DataTables' column visibility controls in order to ensure
+	 * that column visibility can Responsive can no-exist. Since only IE8+ is
+	 * supported (and all evergreen browsers of course) the control of the
+	 * display attribute works well.
+	 *
+	 * @param {integer} col      Column index
+	 * @param {boolean} showHide Show or hide (true or false)
+	 * @private
+	 */
+	_setColumnVis: function (col, showHide) {
+		var that = this;
+		var dt = this.s.dt;
+		var display = showHide ? '' : 'none'; // empty string will remove the attr
+
+		$(dt.column(col).header()).css('display', display).toggleClass('dtr-hidden', !showHide);
+
+		$(dt.column(col).footer()).css('display', display).toggleClass('dtr-hidden', !showHide);
+
+		dt.column(col).nodes().to$().css('display', display).toggleClass('dtr-hidden', !showHide);
+
+		// If the are child nodes stored, we might need to reinsert them
+		if (!$.isEmptyObject(this.s.childNodeStore)) {
+			dt.cells(null, col)
+				.indexes()
+				.each(function (idx) {
+					that._childNodesRestore(dt, idx.row, idx.column);
+				});
+		}
+	},
+
+	/**
+	 * Update the cell tab indexes for keyboard accessibility. This is called on
+	 * every table draw - that is potentially inefficient, but also the least
+	 * complex option given that column visibility can change on the fly. Its a
+	 * shame user-focus was removed from CSS 3 UI, as it would have solved this
+	 * issue with a single CSS statement.
+	 *
+	 * @private
+	 */
+	_tabIndexes: function () {
+		var dt = this.s.dt;
+		var cells = dt.cells({ page: 'current' }).nodes().to$();
+		var ctx = dt.settings()[0];
+		var target = this.c.details.target;
+
+		cells.filter('[data-dtr-keyboard]').removeData('[data-dtr-keyboard]');
+
+		if (typeof target === 'number') {
+			dt.cells(null, target, { page: 'current' })
+				.nodes()
+				.to$()
+				.attr('tabIndex', ctx.iTabIndex)
+				.data('dtr-keyboard', 1);
+		}
+		else {
+			// This is a bit of a hack - we need to limit the selected nodes to just
+			// those of this table
+			if (target === 'td:first-child, th:first-child') {
+				target = '>td:first-child, >th:first-child';
+			}
+
+			$(target, dt.rows({ page: 'current' }).nodes())
+				.attr('tabIndex', ctx.iTabIndex)
+				.data('dtr-keyboard', 1);
+		}
+	}
+});
+
+/**
+ * List of default breakpoints. Each item in the array is an object with two
+ * properties:
+ *
+ * * `name` - the breakpoint name.
+ * * `width` - the breakpoint width
+ *
+ * @name Responsive.breakpoints
+ * @static
+ */
+Responsive.breakpoints = [
+	{ name: 'desktop', width: Infinity },
+	{ name: 'tablet-l', width: 1024 },
+	{ name: 'tablet-p', width: 768 },
+	{ name: 'mobile-l', width: 480 },
+	{ name: 'mobile-p', width: 320 }
+];
+
+/**
+ * Display methods - functions which define how the hidden data should be shown
+ * in the table.
+ *
+ * @namespace
+ * @name Responsive.defaults
+ * @static
+ */
+Responsive.display = {
+	childRow: function (row, update, render) {
+		if (update) {
+			if ($(row.node()).hasClass('parent')) {
+				row.child(render(), 'child').show();
+
+				return true;
+			}
+		}
+		else {
+			if (!row.child.isShown()) {
+				row.child(render(), 'child').show();
+
+				return true;
+			}
+			else {
+				row.child(false);
+
+				return false;
+			}
+		}
+	},
+
+	childRowImmediate: function (row, update, render) {
+		if ((!update && row.child.isShown()) || !row.responsive.hasHidden()) {
+			// User interaction and the row is show, or nothing to show
+			row.child(false);
+
+			return false;
+		}
+		else {
+			// Display
+			row.child(render(), 'child').show();
+
+			return true;
+		}
+	},
+
+	// This is a wrapper so the modal options for Bootstrap and jQuery UI can
+	// have options passed into them. This specific one doesn't need to be a
+	// function but it is for consistency in the `modal` name
+	modal: function (options) {
+		return function (row, update, render, closeCallback) {
+			if (!update) {
+				// Show a modal
+				var close = function () {
+					modal.remove(); // will tidy events for us
+					$(document).off('keypress.dtr');
+					$(row.node()).removeClass('parent');
+
+					closeCallback();
+				};
+
+				var modal = $('<div class="dtr-modal"/>')
+					.append(
+						$('<div class="dtr-modal-display"/>')
+							.append(
+								$('<div class="dtr-modal-content"/>')
+									.data('dtr-row-idx', row.index())
+									.append(render())
+							)
+							.append(
+								$('<div class="dtr-modal-close">&times;</div>').click(function () {
+									close();
+								})
+							)
+					)
+					.append(
+						$('<div class="dtr-modal-background"/>').click(function () {
+							close();
+						})
+					)
+					.appendTo('body');
+
+				$(row.node()).addClass('parent');
+
+				$(document).on('keyup.dtr', function (e) {
+					if (e.keyCode === 27) {
+						e.stopPropagation();
+
+						close();
+					}
+				});
+			}
+			else {
+				var modal = $('div.dtr-modal-content');
+
+				if (modal.length && row.index() === modal.data('dtr-row-idx')) {
+					modal.empty().append(render());
+				}
+				else {
+					// Modal not shown, nothing to update
+					return null;
+				}
+			}
+
+			if (options && options.header) {
+				$('div.dtr-modal-content').prepend('<h2>' + options.header(row) + '</h2>');
+			}
+
+			return true;
+		};
+	}
+};
+
+/**
+ * Display methods - functions which define how the hidden data should be shown
+ * in the table.
+ *
+ * @namespace
+ * @name Responsive.defaults
+ * @static
+ */
+Responsive.renderer = {
+	listHiddenNodes: function () {
+		return function (api, rowIdx, columns) {
+			var that = this;
+			var ul = $('<ul data-dtr-index="' + rowIdx + '" class="dtr-details"/>');
+			var found = false;
+
+			var data = $.each(columns, function (i, col) {
+				if (col.hidden) {
+					var klass = col.className ? 'class="' + col.className + '"' : '';
+
+					$(
+						'<li ' +
+							klass +
+							' data-dtr-index="' +
+							col.columnIndex +
+							'" data-dt-row="' +
+							col.rowIndex +
+							'" data-dt-column="' +
+							col.columnIndex +
+							'">' +
+							'<span class="dtr-title">' +
+							col.title +
+							'</span> ' +
+							'</li>'
+					)
+						.append(
+							$('<span class="dtr-data"/>').append(
+								that._childNodes(api, col.rowIndex, col.columnIndex)
+							)
+						) // api.cell( col.rowIndex, col.columnIndex ).node().childNodes ) )
+						.appendTo(ul);
+
+					found = true;
+				}
+			});
+
+			return found ? ul : false;
+		};
+	},
+
+	listHidden: function () {
+		return function (api, rowIdx, columns) {
+			var data = $.map(columns, function (col) {
+				var klass = col.className ? 'class="' + col.className + '"' : '';
+
+				return col.hidden
+					? '<li ' +
+							klass +
+							' data-dtr-index="' +
+							col.columnIndex +
+							'" data-dt-row="' +
+							col.rowIndex +
+							'" data-dt-column="' +
+							col.columnIndex +
+							'">' +
+							'<span class="dtr-title">' +
+							col.title +
+							'</span> ' +
+							'<span class="dtr-data">' +
+							col.data +
+							'</span>' +
+							'</li>'
+					: '';
+			}).join('');
+
+			return data
+				? $('<ul data-dtr-index="' + rowIdx + '" class="dtr-details"/>').append(data)
+				: false;
+		};
+	},
+
+	tableAll: function (options) {
+		options = $.extend(
+			{
+				tableClass: ''
+			},
+			options
+		);
+
+		return function (api, rowIdx, columns) {
+			var data = $.map(columns, function (col) {
+				var klass = col.className ? 'class="' + col.className + '"' : '';
+
+				return (
+					'<tr ' +
+					klass +
+					' data-dt-row="' +
+					col.rowIndex +
+					'" data-dt-column="' +
+					col.columnIndex +
+					'">' +
+					'<td>' +
+					col.title +
+					':' +
+					'</td> ' +
+					'<td>' +
+					col.data +
+					'</td>' +
+					'</tr>'
+				);
+			}).join('');
+
+			return $('<table class="' + options.tableClass + ' dtr-details" width="100%"/>').append(
+				data
+			);
+		};
+	}
+};
+
+/**
+ * Responsive default settings for initialisation
+ *
+ * @namespace
+ * @name Responsive.defaults
+ * @static
+ */
+Responsive.defaults = {
+	/**
+	 * List of breakpoints for the instance. Note that this means that each
+	 * instance can have its own breakpoints. Additionally, the breakpoints
+	 * cannot be changed once an instance has been creased.
+	 *
+	 * @type {Array}
+	 * @default Takes the value of `Responsive.breakpoints`
+	 */
+	breakpoints: Responsive.breakpoints,
+
+	/**
+	 * Enable / disable auto hiding calculations. It can help to increase
+	 * performance slightly if you disable this option, but all columns would
+	 * need to have breakpoint classes assigned to them
+	 *
+	 * @type {Boolean}
+	 * @default  `true`
+	 */
+	auto: true,
+
+	/**
+	 * Details control. If given as a string value, the `type` property of the
+	 * default object is set to that value, and the defaults used for the rest
+	 * of the object - this is for ease of implementation.
+	 *
+	 * The object consists of the following properties:
+	 *
+	 * * `display` - A function that is used to show and hide the hidden details
+	 * * `renderer` - function that is called for display of the child row data.
+	 *   The default function will show the data from the hidden columns
+	 * * `target` - Used as the selector for what objects to attach the child
+	 *   open / close to
+	 * * `type` - `false` to disable the details display, `inline` or `column`
+	 *   for the two control types
+	 *
+	 * @type {Object|string}
+	 */
+	details: {
+		display: Responsive.display.childRow,
+
+		renderer: Responsive.renderer.listHidden(),
+
+		target: 0,
+
+		type: 'inline'
+	},
+
+	/**
+	 * Orthogonal data request option. This is used to define the data type
+	 * requested when Responsive gets the data to show in the child row.
+	 *
+	 * @type {String}
+	 */
+	orthogonal: 'display'
+};
+
+/*
+ * API
+ */
+var Api = $.fn.dataTable.Api;
+
+// Doesn't do anything - work around for a bug in DT... Not documented
+Api.register('responsive()', function () {
+	return this;
+});
+
+Api.register('responsive.index()', function (li) {
+	li = $(li);
+
+	return {
+		column: li.data('dtr-index'),
+		row: li.parent().data('dtr-index')
+	};
+});
+
+Api.register('responsive.rebuild()', function () {
+	return this.iterator('table', function (ctx) {
+		if (ctx._responsive) {
+			ctx._responsive._classLogic();
+		}
+	});
+});
+
+Api.register('responsive.recalc()', function () {
+	return this.iterator('table', function (ctx) {
+		if (ctx._responsive) {
+			ctx._responsive._resizeAuto();
+			ctx._responsive._resize();
+		}
+	});
+});
+
+Api.register('responsive.hasHidden()', function () {
+	var ctx = this.context[0];
+
+	return ctx._responsive
+		? $.inArray(false, ctx._responsive._responsiveOnlyHidden()) !== -1
+		: false;
+});
+
+Api.registerPlural('columns().responsiveHidden()', 'column().responsiveHidden()', function () {
+	return this.iterator(
+		'column',
+		function (settings, column) {
+			return settings._responsive
+				? settings._responsive._responsiveOnlyHidden()[column]
+				: false;
+		},
+		1
+	);
+});
+
+/**
+ * Version information
+ *
+ * @name Responsive.version
+ * @static
+ */
+Responsive.version = '2.5.0';
+
+$.fn.dataTable.Responsive = Responsive;
+$.fn.DataTable.Responsive = Responsive;
+
+// Attach a listener to the document which listens for DataTables initialisation
+// events so we can automatically initialise
+$(document).on('preInit.dt.dtr', function (e, settings, json) {
+	if (e.namespace !== 'dt') {
+		return;
+	}
+
+	if (
+		$(settings.nTable).hasClass('responsive') ||
+		$(settings.nTable).hasClass('dt-responsive') ||
+		settings.oInit.responsive ||
+		DataTable.defaults.responsive
+	) {
+		var init = settings.oInit.responsive;
+
+		if (init !== false) {
+			new Responsive(settings, $.isPlainObject(init) ? init : {});
+		}
+	}
+});
+
+
+return DataTable;
+}));
+
+
+/*! Bootstrap 5 integration for DataTables' Responsive
+ * © SpryMedia Ltd - datatables.net/license
+ */
+
+(function( factory ){
+	if ( typeof define === 'function' && define.amd ) {
+		// AMD
+		define( ['jquery', 'datatables.net-bs5', 'datatables.net-responsive'], function ( $ ) {
+			return factory( $, window, document );
+		} );
+	}
+	else if ( typeof exports === 'object' ) {
+		// CommonJS
+		var jq = require('jquery');
+		var cjsRequires = function (root, $) {
+			if ( ! $.fn.dataTable ) {
+				require('datatables.net-bs5')(root, $);
+			}
+
+			if ( ! $.fn.dataTable.Responsive ) {
+				require('datatables.net-responsive')(root, $);
+			}
+		};
+
+		if (typeof window === 'undefined') {
+			module.exports = function (root, $) {
+				if ( ! root ) {
+					// CommonJS environments without a window global must pass a
+					// root. This will give an error otherwise
+					root = window;
+				}
+
+				if ( ! $ ) {
+					$ = jq( root );
+				}
+
+				cjsRequires( root, $ );
+				return factory( $, root, root.document );
+			};
+		}
+		else {
+			cjsRequires( window, jq );
+			module.exports = factory( jq, window, window.document );
+		}
+	}
+	else {
+		// Browser
+		factory( jQuery, window, document );
+	}
+}(function( $, window, document, undefined ) {
+'use strict';
+var DataTable = $.fn.dataTable;
+
+
+
+var _display = DataTable.Responsive.display;
+var _original = _display.modal;
+var _modal = $(
+	'<div class="modal fade dtr-bs-modal" role="dialog">' +
+		'<div class="modal-dialog" role="document">' +
+		'<div class="modal-content">' +
+		'<div class="modal-header">' +
+		'<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>' +
+		'</div>' +
+		'<div class="modal-body"/>' +
+		'</div>' +
+		'</div>' +
+		'</div>'
+);
+var modal;
+
+// Note this could be undefined at the time of initialisation - the
+// DataTable.Responsive.bootstrap function can be used to set a different
+// bootstrap object
+var _bs = window.bootstrap;
+
+DataTable.Responsive.bootstrap = function (bs) {
+	_bs = bs;
+};
+
+_display.modal = function (options) {
+	if (!modal) {
+		modal = new _bs.Modal(_modal[0]);
+	}
+
+	return function (row, update, render, closeCallback) {
+		if (!$.fn.modal) {
+			return _original(row, update, render, closeCallback);
+		}
+		else {
+			if (!update) {
+				if (options && options.header) {
+					var header = _modal.find('div.modal-header');
+					var button = header.find('button').detach();
+
+					header
+						.empty()
+						.append('<h4 class="modal-title">' + options.header(row) + '</h4>')
+						.append(button);
+				}
+
+				_modal.find('div.modal-body').empty().append(render());
+
+				_modal
+					.data('dtr-row-idx', row.index())
+					.one('hidden.bs.modal', closeCallback)
+					.appendTo('body')
+					.modal();
+
+				modal.show();
+			}
+			else {
+				if ($.contains(document, _modal[0]) && row.index() === _modal.data('dtr-row-idx')) {
+					_modal.find('div.modal-body').empty().append(render());
+				}
+				else {
+					// Modal not shown for this row - do nothing
+					return null;
+				}
+			}
+
+			return true;
+		}
+	};
+};
+
+
+return DataTable;
+}));
+
+
+/*! RowReorder 1.4.1
+ * © SpryMedia Ltd - datatables.net/license
+ */
+
+(function( factory ){
+	if ( typeof define === 'function' && define.amd ) {
+		// AMD
+		define( ['jquery', 'datatables.net'], function ( $ ) {
+			return factory( $, window, document );
+		} );
+	}
+	else if ( typeof exports === 'object' ) {
+		// CommonJS
+		var jq = require('jquery');
+		var cjsRequires = function (root, $) {
+			if ( ! $.fn.dataTable ) {
+				require('datatables.net')(root, $);
+			}
+		};
+
+		if (typeof window === 'undefined') {
+			module.exports = function (root, $) {
+				if ( ! root ) {
+					// CommonJS environments without a window global must pass a
+					// root. This will give an error otherwise
+					root = window;
+				}
+
+				if ( ! $ ) {
+					$ = jq( root );
+				}
+
+				cjsRequires( root, $ );
+				return factory( $, root, root.document );
+			};
+		}
+		else {
+			cjsRequires( window, jq );
+			module.exports = factory( jq, window, window.document );
+		}
+	}
+	else {
+		// Browser
+		factory( jQuery, window, document );
+	}
+}(function( $, window, document, undefined ) {
+'use strict';
+var DataTable = $.fn.dataTable;
+
+
+
+/**
+ * @summary     RowReorder
+ * @description Row reordering extension for DataTables
+ * @version     1.4.1
+ * @file        dataTables.rowReorder.js
+ * @author      SpryMedia Ltd
+ * @contact     datatables.net
+ * @copyright   Copyright 2015-2023 SpryMedia Ltd.
+ *
+ * This source file is free software, available under the following license:
+ *   MIT license - http://datatables.net/license/mit
+ *
+ * This source file is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the license files for details.
+ *
+ * For details please refer to: http://www.datatables.net
+ */
+
+/**
+ * RowReorder provides the ability in DataTables to click and drag rows to
+ * reorder them. When a row is dropped the data for the rows effected will be
+ * updated to reflect the change. Normally this data point should also be the
+ * column being sorted upon in the DataTable but this does not need to be the
+ * case. RowReorder implements a "data swap" method - so the rows being
+ * reordered take the value of the data point from the row that used to occupy
+ * the row's new position.
+ *
+ * Initialisation is done by either:
+ *
+ * * `rowReorder` parameter in the DataTable initialisation object
+ * * `new $.fn.dataTable.RowReorder( table, opts )` after DataTables
+ *   initialisation.
+ *
+ *  @class
+ *  @param {object} settings DataTables settings object for the host table
+ *  @param {object} [opts] Configuration options
+ *  @requires jQuery 1.7+
+ *  @requires DataTables 1.10.7+
+ */
+var RowReorder = function (dt, opts) {
+	// Sanity check that we are using DataTables 1.10 or newer
+	if (!DataTable.versionCheck || !DataTable.versionCheck('1.10.8')) {
+		throw 'DataTables RowReorder requires DataTables 1.10.8 or newer';
+	}
+
+	// User and defaults configuration object
+	this.c = $.extend(true, {}, DataTable.defaults.rowReorder, RowReorder.defaults, opts);
+
+	// Internal settings
+	this.s = {
+		/** @type {integer} Scroll body top cache */
+		bodyTop: null,
+
+		/** @type {DataTable.Api} DataTables' API instance */
+		dt: new DataTable.Api(dt),
+
+		/** @type {function} Data fetch function */
+		getDataFn: DataTable.ext.oApi._fnGetObjectDataFn(this.c.dataSrc),
+
+		/** @type {array} Pixel positions for row insertion calculation */
+		middles: null,
+
+		/** @type {Object} Cached dimension information for use in the mouse move event handler */
+		scroll: {},
+
+		/** @type {integer} Interval object used for smooth scrolling */
+		scrollInterval: null,
+
+		/** @type {function} Data set function */
+		setDataFn: DataTable.ext.oApi._fnSetObjectDataFn(this.c.dataSrc),
+
+		/** @type {Object} Mouse down information */
+		start: {
+			top: 0,
+			left: 0,
+			offsetTop: 0,
+			offsetLeft: 0,
+			nodes: [],
+			rowIndex: 0
+		},
+
+		/** @type {integer} Window height cached value */
+		windowHeight: 0,
+
+		/** @type {integer} Document outer height cached value */
+		documentOuterHeight: 0,
+
+		/** @type {integer} DOM clone outer height cached value */
+		domCloneOuterHeight: 0,
+
+		/** @type {integer} Flag used for signing if the drop is enabled or not */
+		dropAllowed: true
+	};
+
+	// DOM items
+	this.dom = {
+		/** @type {jQuery} Cloned row being moved around */
+		clone: null,
+		cloneParent: null,
+
+		/** @type {jQuery} DataTables scrolling container */
+		dtScroll: $('div.dataTables_scrollBody', this.s.dt.table().container())
+	};
+
+	// Check if row reorder has already been initialised on this table
+	var settings = this.s.dt.settings()[0];
+	var exisiting = settings.rowreorder;
+
+	if (exisiting) {
+		return exisiting;
+	}
+
+	if (!this.dom.dtScroll.length) {
+		this.dom.dtScroll = $(this.s.dt.table().container(), 'tbody');
+	}
+
+	settings.rowreorder = this;
+	this._constructor();
+};
+
+$.extend(RowReorder.prototype, {
+	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	 * Constructor
+	 */
+
+	/**
+	 * Initialise the RowReorder instance
+	 *
+	 * @private
+	 */
+	_constructor: function () {
+		var that = this;
+		var dt = this.s.dt;
+		var table = $(dt.table().node());
+
+		// Need to be able to calculate the row positions relative to the table
+		if (table.css('position') === 'static') {
+			table.css('position', 'relative');
+		}
+
+		// listen for mouse down on the target column - we have to implement
+		// this rather than using HTML5 drag and drop as drag and drop doesn't
+		// appear to work on table rows at this time. Also mobile browsers are
+		// not supported.
+		// Use `table().container()` rather than just the table node for IE8 -
+		// otherwise it only works once...
+		$(dt.table().container()).on(
+			'mousedown.rowReorder touchstart.rowReorder',
+			this.c.selector,
+			function (e) {
+				if (!that.c.enable) {
+					return;
+				}
+
+				// Ignore excluded children of the selector
+				if ($(e.target).is(that.c.excludedChildren)) {
+					return true;
+				}
+
+				var tr = $(this).closest('tr');
+				var row = dt.row(tr);
+
+				// Double check that it is a DataTable row
+				if (row.any()) {
+					that._emitEvent('pre-row-reorder', {
+						node: row.node(),
+						index: row.index()
+					});
+
+					that._mouseDown(e, tr);
+					return false;
+				}
+			}
+		);
+
+		dt.on('destroy.rowReorder', function () {
+			$(dt.table().container()).off('.rowReorder');
+			dt.off('.rowReorder');
+		});
+
+		this._keyup = this._keyup.bind(this);
+	},
+
+	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	 * Private methods
+	 */
+
+	/**
+	 * Cache the measurements that RowReorder needs in the mouse move handler
+	 * to attempt to speed things up, rather than reading from the DOM.
+	 *
+	 * @private
+	 */
+	_cachePositions: function () {
+		var dt = this.s.dt;
+
+		// Frustratingly, if we add `position:relative` to the tbody, the
+		// position is still relatively to the parent. So we need to adjust
+		// for that
+		var headerHeight = $(dt.table().node()).find('thead').outerHeight();
+
+		// Need to pass the nodes through jQuery to get them in document order,
+		// not what DataTables thinks it is, since we have been altering the
+		// order
+		var nodes = $.unique(dt.rows({ page: 'current' }).nodes().toArray());
+		var middles = $.map(nodes, function (node, i) {
+			var top = $(node).position().top - headerHeight;
+
+			return (top + top + $(node).outerHeight()) / 2;
+		});
+
+		this.s.middles = middles;
+		this.s.bodyTop = $(dt.table().body()).offset().top;
+		this.s.windowHeight = $(window).height();
+		this.s.documentOuterHeight = $(document).outerHeight();
+		this.s.bodyArea = this._calcBodyArea();
+	},
+
+	/**
+	 * Clone a row so it can be floated around the screen
+	 *
+	 * @param  {jQuery} target Node to be cloned
+	 * @private
+	 */
+	_clone: function (target) {
+		var dt = this.s.dt;
+		var clone = $(dt.table().node().cloneNode(false))
+			.addClass('dt-rowReorder-float')
+			.append('<tbody/>')
+			.append(target.clone(false));
+
+		// Match the table and column widths - read all sizes before setting
+		// to reduce reflows
+		var tableWidth = target.outerWidth();
+		var tableHeight = target.outerHeight();
+		var scrollBody = $($(this.s.dt.table().node()).parent());
+		var scrollWidth = scrollBody.width();
+		var scrollLeft = scrollBody.scrollLeft();
+		var sizes = target.children().map(function () {
+			return $(this).width();
+		});
+
+		clone
+			.width(tableWidth)
+			.height(tableHeight)
+			.find('tr')
+			.children()
+			.each(function (i) {
+				this.style.width = sizes[i] + 'px';
+			});
+
+		var cloneParent = $('<div>')
+			.addClass('dt-rowReorder-float-parent')
+			.width(scrollWidth)
+			.append(clone)
+			.appendTo('body')
+			.scrollLeft(scrollLeft);
+
+		// Insert into the document to have it floating around
+
+		this.dom.clone = clone;
+		this.dom.cloneParent = cloneParent;
+		this.s.domCloneOuterHeight = clone.outerHeight();
+	},
+
+	/**
+	 * Update the cloned item's position in the document
+	 *
+	 * @param  {object} e Event giving the mouse's position
+	 * @private
+	 */
+	_clonePosition: function (e) {
+		var start = this.s.start;
+		var topDiff = this._eventToPage(e, 'Y') - start.top;
+		var leftDiff = this._eventToPage(e, 'X') - start.left;
+		var snap = this.c.snapX;
+		var left;
+		var top = topDiff + start.offsetTop;
+
+		if (snap === true) {
+			left = start.offsetLeft;
+		}
+		else if (typeof snap === 'number') {
+			left = start.offsetLeft + snap;
+		}
+		else {
+			left = leftDiff + start.offsetLeft + this.dom.cloneParent.scrollLeft();
+		}
+
+		if (top < 0) {
+			top = 0;
+		}
+		else if (top + this.s.domCloneOuterHeight > this.s.documentOuterHeight) {
+			top = this.s.documentOuterHeight - this.s.domCloneOuterHeight;
+		}
+
+		this.dom.cloneParent.css({
+			top: top,
+			left: left
+		});
+	},
+
+	/**
+	 * Emit an event on the DataTable for listeners
+	 *
+	 * @param  {string} name Event name
+	 * @param  {array} args Event arguments
+	 * @private
+	 */
+	_emitEvent: function ( name, args )
+	{
+		var ret;
+
+		this.s.dt.iterator( 'table', function ( ctx, i ) {
+			var innerRet = $(ctx.nTable).triggerHandler( name+'.dt', args );
+
+			if (innerRet !== undefined) {
+				ret = innerRet;
+			}
+		} );
+
+		return ret;
+	},
+
+	/**
+	 * Get pageX/Y position from an event, regardless of if it is a mouse or
+	 * touch event.
+	 *
+	 * @param  {object} e Event
+	 * @param  {string} pos X or Y (must be a capital)
+	 * @private
+	 */
+	_eventToPage: function (e, pos) {
+		if (e.type.indexOf('touch') !== -1) {
+			return e.originalEvent.touches[0]['page' + pos];
+		}
+
+		return e['page' + pos];
+	},
+
+	/**
+	 * Mouse down event handler. Read initial positions and add event handlers
+	 * for the move.
+	 *
+	 * @param  {object} e      Mouse event
+	 * @param  {jQuery} target TR element that is to be moved
+	 * @private
+	 */
+	_mouseDown: function (e, target) {
+		var that = this;
+		var dt = this.s.dt;
+		var start = this.s.start;
+		var cancelable = this.c.cancelable;
+
+		var offset = target.offset();
+		start.top = this._eventToPage(e, 'Y');
+		start.left = this._eventToPage(e, 'X');
+		start.offsetTop = offset.top;
+		start.offsetLeft = offset.left;
+		start.nodes = $.unique(dt.rows({ page: 'current' }).nodes().toArray());
+
+		this._cachePositions();
+		this._clone(target);
+		this._clonePosition(e);
+
+		var bodyY = this._eventToPage(e, 'Y') - this.s.bodyTop;
+		start.rowIndex = this._calcRowIndexByPos(bodyY);
+
+		this.dom.target = target;
+		target.addClass('dt-rowReorder-moving');
+
+		$(document)
+			.on('mouseup.rowReorder touchend.rowReorder', function (e) {
+				that._mouseUp(e);
+			})
+			.on('mousemove.rowReorder touchmove.rowReorder', function (e) {
+				that._mouseMove(e);
+			});
+
+		// Check if window is x-scrolling - if not, disable it for the duration
+		// of the drag
+		if ($(window).width() === $(document).width()) {
+			$(document.body).addClass('dt-rowReorder-noOverflow');
+		}
+
+		// Cache scrolling information so mouse move doesn't need to read.
+		// This assumes that the window and DT scroller will not change size
+		// during an row drag, which I think is a fair assumption
+		var scrollWrapper = this.dom.dtScroll;
+		this.s.scroll = {
+			windowHeight: $(window).height(),
+			windowWidth: $(window).width(),
+			dtTop: scrollWrapper.length ? scrollWrapper.offset().top : null,
+			dtLeft: scrollWrapper.length ? scrollWrapper.offset().left : null,
+			dtHeight: scrollWrapper.length ? scrollWrapper.outerHeight() : null,
+			dtWidth: scrollWrapper.length ? scrollWrapper.outerWidth() : null
+		};
+
+		// Add keyup handler if dragging is cancelable
+		if (cancelable) {
+			$(document).on('keyup', this._keyup);
+		}
+	},
+
+	/**
+	 * Mouse move event handler - move the cloned row and shuffle the table's
+	 * rows if required.
+	 *
+	 * @param  {object} e Mouse event
+	 * @private
+	 */
+	_mouseMove: function (e) {
+		this._clonePosition(e);
+
+		var start = this.s.start;
+		var cancelable = this.c.cancelable;
+
+		if (cancelable) {
+			var bodyArea = this.s.bodyArea;
+			var cloneArea = this._calcCloneParentArea();
+			this.s.dropAllowed = this._rectanglesIntersect(bodyArea, cloneArea);
+
+			this.s.dropAllowed
+				? $(this.dom.cloneParent).removeClass('drop-not-allowed')
+				: $(this.dom.cloneParent).addClass('drop-not-allowed');
+		}
+
+		// Transform the mouse position into a position in the table's body
+		var bodyY = this._eventToPage(e, 'Y') - this.s.bodyTop;
+		var middles = this.s.middles;
+		var insertPoint = null;
+
+		// Determine where the row should be inserted based on the mouse
+		// position
+		for (var i = 0, ien = middles.length; i < ien; i++) {
+			if (bodyY < middles[i]) {
+				insertPoint = i;
+				break;
+			}
+		}
+
+		if (insertPoint === null) {
+			insertPoint = middles.length;
+		}
+
+		if (cancelable) {
+			if (!this.s.dropAllowed) {
+				// Move the row back to its original position becasuse the drop is not allowed
+				insertPoint =
+					start.rowIndex > this.s.lastInsert ? start.rowIndex + 1 : start.rowIndex;
+			}
+
+			this.dom.target.toggleClass('dt-rowReorder-moving', this.s.dropAllowed);
+		}
+
+		this._moveTargetIntoPosition(insertPoint);
+
+		this._shiftScroll(e);
+	},
+
+	/**
+	 * Mouse up event handler - release the event handlers and perform the
+	 * table updates
+	 *
+	 * @param  {object} e Mouse event
+	 * @private
+	 */
+	_mouseUp: function (e) {
+		var that = this;
+		var dt = this.s.dt;
+		var i, ien;
+		var dataSrc = this.c.dataSrc;
+		var dropAllowed = this.s.dropAllowed;
+
+		if (!dropAllowed) {
+			that._cancel();
+			return;
+		}
+
+		// Calculate the difference
+		var startNodes = this.s.start.nodes;
+		var endNodes = $.unique(dt.rows({ page: 'current' }).nodes().toArray());
+		var idDiff = {};
+		var fullDiff = [];
+		var diffNodes = [];
+		var getDataFn = this.s.getDataFn;
+		var setDataFn = this.s.setDataFn;
+
+		for (i = 0, ien = startNodes.length; i < ien; i++) {
+			if (startNodes[i] !== endNodes[i]) {
+				var id = dt.row(endNodes[i]).id();
+				var endRowData = dt.row(endNodes[i]).data();
+				var startRowData = dt.row(startNodes[i]).data();
+
+				if (id) {
+					idDiff[id] = getDataFn(startRowData);
+				}
+
+				fullDiff.push({
+					node: endNodes[i],
+					oldData: getDataFn(endRowData),
+					newData: getDataFn(startRowData),
+					newPosition: i,
+					oldPosition: $.inArray(endNodes[i], startNodes)
+				});
+
+				diffNodes.push(endNodes[i]);
+			}
+		}
+
+		// Create event args
+		var eventArgs = [
+			fullDiff,
+			{
+				dataSrc: dataSrc,
+				nodes: diffNodes,
+				values: idDiff,
+				triggerRow: dt.row(this.dom.target),
+				originalEvent: e
+			}
+		];
+
+		// Emit event
+		var eventResult = this._emitEvent( 'row-reorder', eventArgs );
+
+		if (eventResult === false) {
+			that._cancel();
+			return;
+		}
+
+		// Remove cloned elements, handlers, etc
+		this._cleanupDragging();
+
+		var update = function () {
+			if (that.c.update) {
+				for (i = 0, ien = fullDiff.length; i < ien; i++) {
+					var row = dt.row(fullDiff[i].node);
+					var rowData = row.data();
+
+					setDataFn(rowData, fullDiff[i].newData);
+
+					// Invalidate the cell that has the same data source as the dataSrc
+					dt.columns().every(function () {
+						if (this.dataSrc() === dataSrc) {
+							dt.cell(fullDiff[i].node, this.index()).invalidate('data');
+						}
+					});
+				}
+
+				// Trigger row reordered event
+				that._emitEvent('row-reordered', eventArgs);
+
+				dt.draw(false);
+			}
+		};
+
+		// Editor interface
+		if (this.c.editor) {
+			// Disable user interaction while Editor is submitting
+			this.c.enable = false;
+
+			this.c.editor
+				.edit(diffNodes, false, $.extend({ submit: 'changed' }, this.c.formOptions))
+				.multiSet(dataSrc, idDiff)
+				.one('preSubmitCancelled.rowReorder', function () {
+					that.c.enable = true;
+					that.c.editor.off('.rowReorder');
+					dt.draw(false);
+				})
+				.one('submitUnsuccessful.rowReorder', function () {
+					dt.draw(false);
+				})
+				.one('submitSuccess.rowReorder', function () {
+					update();
+				})
+				.one('submitComplete', function () {
+					that.c.enable = true;
+					that.c.editor.off('.rowReorder');
+				})
+				.submit();
+		}
+		else {
+			update();
+		}
+	},
+
+	/**
+	 * Moves the current target into the given position within the table
+	 * and caches the new positions
+	 *
+	 * @param  {integer} insertPoint Position
+	 * @private
+	 */
+	_moveTargetIntoPosition: function (insertPoint) {
+		var dt = this.s.dt;
+
+		// Perform the DOM shuffle if it has changed from last time
+		if (this.s.lastInsert === null || this.s.lastInsert !== insertPoint) {
+			var nodes = $.unique(dt.rows({ page: 'current' }).nodes().toArray());
+			var insertPlacement = '';
+
+			if (insertPoint > this.s.lastInsert) {
+				this.dom.target.insertAfter(nodes[insertPoint - 1]);
+				insertPlacement = 'after';
+			}
+			else {
+				this.dom.target.insertBefore(nodes[insertPoint]);
+				insertPlacement = 'before';
+			}
+
+			this._cachePositions();
+
+			this.s.lastInsert = insertPoint;
+
+			this._emitEvent('row-reorder-changed', {
+				insertPlacement,
+				insertPoint,
+				row: dt.row(this.dom.target)
+			});
+		}
+	},
+
+	/**
+	 * Removes the cloned elements, event handlers, scrolling intervals, etc
+	 *
+	 * @private
+	 */
+	_cleanupDragging: function () {
+		var cancelable = this.c.cancelable;
+
+		this.dom.clone.remove();
+		this.dom.cloneParent.remove();
+		this.dom.clone = null;
+		this.dom.cloneParent = null;
+
+		this.dom.target.removeClass('dt-rowReorder-moving');
+		//this.dom.target = null;
+
+		$(document).off('.rowReorder');
+		$(document.body).removeClass('dt-rowReorder-noOverflow');
+
+		clearInterval(this.s.scrollInterval);
+		this.s.scrollInterval = null;
+
+		if (cancelable) {
+			$(document).off('keyup', this._keyup);
+		}
+	},
+
+	/**
+	 * Move the window and DataTables scrolling during a drag to scroll new
+	 * content into view.
+	 *
+	 * This matches the `_shiftScroll` method used in AutoFill, but only
+	 * horizontal scrolling is considered here.
+	 *
+	 * @param  {object} e Mouse move event object
+	 * @private
+	 */
+	_shiftScroll: function (e) {
+		var that = this;
+		var dt = this.s.dt;
+		var scroll = this.s.scroll;
+		var runInterval = false;
+		var scrollSpeed = 5;
+		var buffer = 65;
+		var windowY = e.pageY - document.body.scrollTop,
+			windowVert,
+			dtVert;
+
+		// Window calculations - based on the mouse position in the window,
+		// regardless of scrolling
+		if (windowY < $(window).scrollTop() + buffer) {
+			windowVert = scrollSpeed * -1;
+		}
+		else if (windowY > scroll.windowHeight + $(window).scrollTop() - buffer) {
+			windowVert = scrollSpeed;
+		}
+
+		// DataTables scrolling calculations - based on the table's position in
+		// the document and the mouse position on the page
+		if (scroll.dtTop !== null && e.pageY < scroll.dtTop + buffer) {
+			dtVert = scrollSpeed * -1;
+		}
+		else if (scroll.dtTop !== null && e.pageY > scroll.dtTop + scroll.dtHeight - buffer) {
+			dtVert = scrollSpeed;
+		}
+
+		// This is where it gets interesting. We want to continue scrolling
+		// without requiring a mouse move, so we need an interval to be
+		// triggered. The interval should continue until it is no longer needed,
+		// but it must also use the latest scroll commands (for example consider
+		// that the mouse might move from scrolling up to scrolling left, all
+		// with the same interval running. We use the `scroll` object to "pass"
+		// this information to the interval. Can't use local variables as they
+		// wouldn't be the ones that are used by an already existing interval!
+		if (windowVert || dtVert) {
+			scroll.windowVert = windowVert;
+			scroll.dtVert = dtVert;
+			runInterval = true;
+		}
+		else if (this.s.scrollInterval) {
+			// Don't need to scroll - remove any existing timer
+			clearInterval(this.s.scrollInterval);
+			this.s.scrollInterval = null;
+		}
+
+		// If we need to run the interval to scroll and there is no existing
+		// interval (if there is an existing one, it will continue to run)
+		if (!this.s.scrollInterval && runInterval) {
+			this.s.scrollInterval = setInterval(function () {
+				// Don't need to worry about setting scroll <0 or beyond the
+				// scroll bound as the browser will just reject that.
+				if (scroll.windowVert) {
+					var top = $(document).scrollTop();
+					$(document).scrollTop(top + scroll.windowVert);
+
+					if (top !== $(document).scrollTop()) {
+						var move = parseFloat(that.dom.cloneParent.css('top'));
+						that.dom.cloneParent.css('top', move + scroll.windowVert);
+					}
+				}
+
+				// DataTables scrolling
+				if (scroll.dtVert) {
+					var scroller = that.dom.dtScroll[0];
+
+					if (scroll.dtVert) {
+						scroller.scrollTop += scroll.dtVert;
+					}
+				}
+			}, 20);
+		}
+	},
+
+	/**
+	 * Calculates the current area of the table body and returns it as a rectangle
+	 *
+	 * @private
+	 */
+	_calcBodyArea: function (e) {
+		var dt = this.s.dt;
+		var offset = $(dt.table().body()).offset();
+		var area = {
+			left: offset.left,
+			top: offset.top,
+			right: offset.left + $(dt.table().body()).width(),
+			bottom: offset.top + $(dt.table().body()).height()
+		};
+
+		return area;
+	},
+
+	/**
+	 * Calculates the current area of the cloned parent element and returns it as a rectangle
+	 *
+	 * @private
+	 */
+	_calcCloneParentArea: function (e) {
+		var dt = this.s.dt;
+		var offset = $(this.dom.cloneParent).offset();
+		var area = {
+			left: offset.left,
+			top: offset.top,
+			right: offset.left + $(this.dom.cloneParent).width(),
+			bottom: offset.top + $(this.dom.cloneParent).height()
+		};
+
+		return area;
+	},
+
+	/**
+	 * Returns whether the given reactangles intersect or not
+	 *
+	 * @private
+	 */
+	_rectanglesIntersect: function (a, b) {
+		var noOverlap =
+			a.left >= b.right || b.left >= a.right || a.top >= b.bottom || b.top >= a.bottom;
+
+		return !noOverlap;
+	},
+
+	/**
+	 * Calculates the index of the row which lays under the given Y position or
+	 * returns -1 if no such row
+	 *
+	 * @param  {integer} insertPoint Position
+	 * @private
+	 */
+	_calcRowIndexByPos: function (bodyY) {
+		// Determine where the row is located based on the mouse
+		// position
+
+		var dt = this.s.dt;
+		var nodes = $.unique(dt.rows({ page: 'current' }).nodes().toArray());
+		var rowIndex = -1;
+		var headerHeight = $(dt.table().node()).find('thead').outerHeight();
+
+		$.each(nodes, function (i, node) {
+			var top = $(node).position().top - headerHeight;
+			var bottom = top + $(node).outerHeight();
+
+			if (bodyY >= top && bodyY <= bottom) {
+				rowIndex = i;
+			}
+		});
+
+		return rowIndex;
+	},
+
+	/**
+	 * Handles key up events and cancels the dragging if ESC key is pressed
+	 *
+	 * @param  {object} e Mouse move event object
+	 * @private
+	 */
+	_keyup: function (e) {
+		var cancelable = this.c.cancelable;
+
+		if (cancelable && e.which === 27) {
+			// ESC key is up
+			e.preventDefault();
+			this._cancel();
+		}
+	},
+
+	/**
+	 * Cancels the dragging, moves target back into its original position
+	 * and cleans up the dragging
+	 *
+	 * @param  {object} e Mouse move event object
+	 * @private
+	 */
+	_cancel: function () {
+		var start = this.s.start;
+		var insertPoint = start.rowIndex > this.s.lastInsert ? start.rowIndex + 1 : start.rowIndex;
+
+		this._moveTargetIntoPosition(insertPoint);
+
+		this._cleanupDragging();
+
+		// Emit event
+		this._emitEvent('row-reorder-canceled', [this.s.start.rowIndex]);
+	}
+});
+
+/**
+ * RowReorder default settings for initialisation
+ *
+ * @namespace
+ * @name RowReorder.defaults
+ * @static
+ */
+RowReorder.defaults = {
+	/**
+	 * Data point in the host row's data source object for where to get and set
+	 * the data to reorder. This will normally also be the sorting column.
+	 *
+	 * @type {Number}
+	 */
+	dataSrc: 0,
+
+	/**
+	 * Editor instance that will be used to perform the update
+	 *
+	 * @type {DataTable.Editor}
+	 */
+	editor: null,
+
+	/**
+	 * Enable / disable RowReorder's user interaction
+	 * @type {Boolean}
+	 */
+	enable: true,
+
+	/**
+	 * Form options to pass to Editor when submitting a change in the row order.
+	 * See the Editor `from-options` object for details of the options
+	 * available.
+	 * @type {Object}
+	 */
+	formOptions: {},
+
+	/**
+	 * Drag handle selector. This defines the element that when dragged will
+	 * reorder a row.
+	 *
+	 * @type {String}
+	 */
+	selector: 'td:first-child',
+
+	/**
+	 * Optionally lock the dragged row's x-position. This can be `true` to
+	 * fix the position match the host table's, `false` to allow free movement
+	 * of the row, or a number to define an offset from the host table.
+	 *
+	 * @type {Boolean|number}
+	 */
+	snapX: false,
+
+	/**
+	 * Update the table's data on drop
+	 *
+	 * @type {Boolean}
+	 */
+	update: true,
+
+	/**
+	 * Selector for children of the drag handle selector that mouseDown events
+	 * will be passed through to and drag will not activate
+	 *
+	 * @type {String}
+	 */
+	excludedChildren: 'a',
+
+	/**
+	 * Enable / disable the canceling of the drag & drop interaction
+	 *
+	 * @type {Boolean}
+	 */
+	cancelable: false
+};
+
+/*
+ * API
+ */
+var Api = $.fn.dataTable.Api;
+
+// Doesn't do anything - work around for a bug in DT... Not documented
+Api.register('rowReorder()', function () {
+	return this;
+});
+
+Api.register('rowReorder.enable()', function (toggle) {
+	if (toggle === undefined) {
+		toggle = true;
+	}
+
+	return this.iterator('table', function (ctx) {
+		if (ctx.rowreorder) {
+			ctx.rowreorder.c.enable = toggle;
+		}
+	});
+});
+
+Api.register('rowReorder.disable()', function () {
+	return this.iterator('table', function (ctx) {
+		if (ctx.rowreorder) {
+			ctx.rowreorder.c.enable = false;
+		}
+	});
+});
+
+/**
+ * Version information
+ *
+ * @name RowReorder.version
+ * @static
+ */
+RowReorder.version = '1.4.1';
+
+$.fn.dataTable.RowReorder = RowReorder;
+$.fn.DataTable.RowReorder = RowReorder;
+
+// Attach a listener to the document which listens for DataTables initialisation
+// events so we can automatically initialise
+$(document).on('init.dt.dtr', function (e, settings, json) {
+	if (e.namespace !== 'dt') {
+		return;
+	}
+
+	var init = settings.oInit.rowReorder;
+	var defaults = DataTable.defaults.rowReorder;
+
+	if (init || defaults) {
+		var opts = $.extend({}, init, defaults);
+
+		if (init !== false) {
+			new RowReorder(settings, opts);
+		}
+	}
+});
 
 
 return DataTable;

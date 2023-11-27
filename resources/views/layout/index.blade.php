@@ -30,14 +30,6 @@
 @push('page-js-before')
     <script src="/admin/assets/vendors/js/datatables/datatables.min.js"></script>
     <script src="/admin/assets/js/components/tables/tables.js"></script>
-    <script>
-        $('table td').click(function () {
-            if (screen.width < 1020) {
-                $("#show_btn").remove();
-                $(this).parent().after('<tr id="show_btn"><td class="td-actions" colspan="99">' + $(this).parent().find($(".td-actions")).html() + '</td></tr>');
-            }
-        });
-    </script>
 @endpush
 @push('page-js-after')
     @stack('page-js-after-1')

@@ -28,7 +28,7 @@ class NanjingController extends Controller
         $headers = ['headers' => ['Cookie' => "cmiims.session.id=$session",]];
         #获取证书清单
         $res = $client->request('GET', 'http://58.213.156.66/cmiims/a/sys/adminECertQuery/listenceInfo?Bp15yk3ja5mdrgvb99vm0wPu+D8CX+pW9Hsvf3FAnmudfLnJsjdh+T8ZvXOygoXi4gSJYHVMdRojzdteV4Uks5hwQk/+LUGqCJ8d66bdXbvRNB02z4f8uJXZhJTzajDLdgWznY9oqtVRG2pV76SL0w==', $headers);
-        $result = json_decode(explode(',"firstResult"', explode('"list":', $this->nanjing_decode((string)$res->getBody()))[1])[0]);
+        $result = json_decode(explode(',"html"', explode('"list":', $this->nanjing_decode((string)$res->getBody()))[1])[0]);
         $nanjing = Nanjing::orderBy('verification_date')->get();
         $certificates = [];
         $sql = array_column(Certificate::select('certificate_no')->where('department_id', Parameter::where('name', '市计量院')->first()->id)->get()->toArray(), 'certificate_no');
@@ -54,7 +54,7 @@ class NanjingController extends Controller
         $headers = ['headers' => ['Cookie' => "cmiims.session.id=$session",]];
         #获取证书清单
         $res = $client->request('GET', 'http://58.213.156.66/cmiims/a/sys/adminECertQuery/listenceInfo?Bp15yk3ja5mdrgvb99vm0wPu+D8CX+pW9Hsvf3FAnmudfLnJsjdh+T8ZvXOygoXi4gSJYHVMdRojzdteV4Uks5hwQk/+LUGqCJ8d66bdXbvRNB02z4f8uJXZhJTzajDLdgWznY9oqtVRG2pV76SL0w==', $headers);
-        $result = json_decode(explode(',"firstResult"', explode('"list":', $this->nanjing_decode((string)$res->getBody()))[1])[0]);
+        $result = json_decode(explode(',"html"', explode('"list":', $this->nanjing_decode((string)$res->getBody()))[1])[0]);
         foreach ($result as $key => $value) {
             if (in_array($value->id, $check)) {
                 $value->ccbh = isset($value->ccbh) ? $value->ccbh == '/' ? '' : $value->ccbh : '';

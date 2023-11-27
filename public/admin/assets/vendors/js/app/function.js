@@ -1,3 +1,10 @@
+$('table td').click(function () {
+    if (screen.width < 1020) {
+        $("#show_btn").remove();
+        $(this).parent().after('<tr id="show_btn"><td class="td-actions" colspan="99">' + $(this).parent().find($(".td-actions")).html() + '</td></tr>');
+    }
+});
+
 //菜单选中
 if (menu != '') {
     $("#" + menu).addClass('active');
