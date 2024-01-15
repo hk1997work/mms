@@ -17,7 +17,8 @@ Route::group(['namespace' => '\App\Http\Controllers'], function () {
     Route::group(['middleware' => 'auth:web'], function () {
         //首页
         Route::get('/', 'MainController@index');
-        Route::get('/main_ajax', 'MainController@ajax');
+        Route::get('/main_ajax', 'MainController@list');
+        Route::view('/delete', 'layout.delete');
 
         //计量台账
         Route::group(['middleware' => 'can:certificate'], function () {
@@ -27,11 +28,7 @@ Route::group(['namespace' => '\App\Http\Controllers'], function () {
             Route::resource('/deactive', 'CertificateController');
             Route::resource('/scrap', 'CertificateController');
             Route::resource('/invalid', 'CertificateController');
-            //证书操作
-            Route::get('/replace/{certificate}/edit', 'CertificateController@replace');
-            Route::put('/replace/{certificate}', 'CertificateController@updateReplace');
-            Route::put('/apply/{certificate}', 'CertificateController@apply');
-            Route::put('/displace/{old}/{new}/{cause}', 'CertificateController@displace');
+            Route::post('/ajax_certificate', 'CertificateController@list');
             Route::any('/pdf', 'Controller@pdf');
             //导出台账
             Route::resource('/export', 'ExportController');
@@ -65,19 +62,23 @@ Route::group(['namespace' => '\App\Http\Controllers'], function () {
         Route::group(['middleware' => 'can:manage'], function () {
             //岗位管理
             Route::resource('/position', 'PositionController');
+            Route::post('/ajax_position', 'PositionController@list');
+            Route::post('/ajax_position_show', 'PositionController@list_show');
             Route::post('/move/position/{position}/{type}', 'PositionController@move');
-            Route::post('/sign/position/{position}', 'PositionController@sign');
             Route::get('/sn/{certificate}/edit', 'PositionController@sn');
             Route::put('/sn/{certificate}', 'PositionController@updateSn');
             Route::post('/move/sn/{certificate}/{type}', 'PositionController@moveSn');
             //量具管理
             Route::resource('/tool', 'ToolController');
+            Route::post('/ajax_tool', 'ToolController@list');
+            Route::post('/ajax_tool_show', 'ToolController@list_show');
             //厂家管理
             Route::resource('/factory', 'FactoryController');
             //编号管理
             Route::resource('/number', 'NumberController');
             //标准管理
             Route::resource('/standard', 'StandardController');
+            Route::post('/ajax_standard', 'StandardController@list');
             //数据验证
             Route::resource('/check', 'CheckController');
         });
@@ -86,17 +87,21 @@ Route::group(['namespace' => '\App\Http\Controllers'], function () {
         Route::group(['middleware' => 'can:setting'], function () {
             //用户管理
             Route::resource('/user', 'UserController');
+            Route::post('/ajax_user', 'UserController@list');
             Route::get('/roles/{user}/edit', 'UserController@role');
             Route::put('/roles/{user}', 'UserController@storeRole');
             //角色管理
             Route::resource('/role', 'RoleController');
+            Route::post('/ajax_role', 'RoleController@list');
             Route::get('/permissions/{role}/edit', 'RoleController@permission');
             Route::put('/permissions/{role}', 'RoleController@storePermission');
             //权限管理
             Route::resource('/permission', 'PermissionController');
+            Route::post('/ajax_permission', 'PermissionController@list');
             Route::post('/move/permission/{permission}/{type}', 'PermissionController@move');
             //参数管理
             Route::resource('/parameter', 'ParameterController');
+            Route::post('/ajax_parameter', 'ParameterController@list');
             Route::post('/move/parameter/{parameter}/{type}', 'ParameterController@move');
         });
 
@@ -107,12 +112,10 @@ Route::group(['namespace' => '\App\Http\Controllers'], function () {
 
         //API
         //证书参数
-        Route::any('/certificate_standard', 'Controller@getStandard');
         Route::get('/certificate_sn/{position_id}', 'Controller@getSn');
         Route::get('/certificate_info/{tool}', 'Controller@getInfo');
         Route::get('/certificate_factories/{tool_id}', 'Controller@getFactories');
         Route::get('/certificate_numbers/{factory_id}', 'Controller@getNumbers');
-        Route::get('/certificate_no/{certificate_no}', 'Controller@getCertificateNo');
         Route::get('/certificate_number/{number}', 'Controller@getNumber');
     });
     //登录页面

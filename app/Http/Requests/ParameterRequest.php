@@ -14,9 +14,11 @@ class ParameterRequest extends FormRequest
 
     public function rules()
     {
-        $rules['name'] = [
-            'required',
-            Rule::unique('parameters')->ignore($this->route('parameter')),
+        $rules = [
+            'name' => [
+                'required',
+                Rule::unique('parameters')->ignore($this->route('parameter')),
+            ],
         ];
         return $rules;
     }

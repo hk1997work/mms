@@ -9,14 +9,14 @@ class SupervisionController extends Controller
 {
     public function index()
     {
-        $certificates = CertificatesView::where('type', '计量器具')->where('valid', 1)->where('sign', 0)->get();
+        $certificates = CertificatesView::where('type', '计量器具')->where('valid', 1)->where('sign', 0)->orderBy('order')->get();
         return view("supervision.index", compact('certificates'));
     }
 
     public function store(Request $request)
     {
         if (isset($request->cb)) {
-            $certificates = CertificatesView::where('type', '计量器具')->where('valid', 1)->whereIn('id', array_keys($request->cb))->get();
+            $certificates = CertificatesView::where('type', '计量器具')->where('valid', 1)->whereIn('id', array_keys($request->cb))->orderBy('order')->get();
             if (isset($request->input_export)) {
                 $str = '';
                 foreach ($certificates as $certificate) {

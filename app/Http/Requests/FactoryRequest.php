@@ -14,13 +14,15 @@ class FactoryRequest extends FormRequest
 
     public function rules()
     {
-        $rules['factory'] = [
-            'required',
-            Rule::unique('factories')->where('tool_id', $this->tool_id)->ignore($this->route('factory')),
-        ];
-        $rules['fullname'] = [
-            'required',
-            Rule::unique('factories')->where('tool_id', $this->tool_id)->ignore($this->route('factory')),
+        $rules = [
+            'factory' => [
+                'required',
+                Rule::unique('factories')->where('tool_id', $this->tool_id)->ignore($this->route('factory')),
+            ],
+            'fullname' => [
+                'required',
+                Rule::unique('factories')->where('tool_id', $this->tool_id)->ignore($this->route('factory')),
+            ]
         ];
         return $rules;
     }

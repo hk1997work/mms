@@ -21,7 +21,7 @@ class SampleController extends Controller
 
     public function store(Request $request)
     {
-        $path = "storage/" . \Auth::user()->username;
+        $path = "storage/" . \Auth::user()->id;
         if (File::isDirectory($path)) {
             File::deleteDirectory($path);
         }
@@ -228,7 +228,7 @@ class SampleController extends Controller
 
 
         $zip = new ZipArchive();
-        if ($zip->open($path . '/抽检记录' . date('Y-m-d') . '.zip', ZipArchive::CREATE) === TRUE) {
+        if ($zip->open($path . '/抽检记录' . date('Y-m-d') . '.zip', ZipArchive::CREATE) == TRUE) {
             $this->addFileToZip($path, $zip);
             $zip->close();
         }

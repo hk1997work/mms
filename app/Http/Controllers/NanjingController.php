@@ -12,23 +12,20 @@ use App\Models\Parameter;
 use App\Models\PositionsView;
 use App\Models\StandardsView;
 use App\Models\Tool;
+use Carbon\Carbon;
 use GuzzleHttp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-
 
 class NanjingController extends Controller
 {
     public function index()
     {
         $client = new GuzzleHttp\Client();
-        #登录获取session
-        $res = $client->get('http://58.213.156.66/cmiims/a/api/ajaxLogin?zMOJ96CTV+ZP2z8sI2UlA1OZyrsxdz49Ibgl7nMLnbKANNqUC+fMfTOm1E012HLJL160wCUIYjAE1uRgWUw5mAIqWVp06hAUu4nBjM9765kXkT5G81EIVT+0k3KOc0fZufz8QMUIIhmvdXPAALtpykieWUZPzPTEYwDWt1Wz/hLSvD8bcdcW6D9WLfJtGLzcdgWznY9oqtVRG2pV76SL0w==');
-        $session = str_replace('; Path=/cmiims; HttpOnly', '', str_replace('cmiims.session.id=', '', $res->getHeaders()['Set-Cookie'][0]));
-        $headers = ['headers' => ['Cookie' => "cmiims.session.id=$session",]];
+        $headers = $this->login($client);
         #获取证书清单
         $res = $client->request('GET', 'http://58.213.156.66/cmiims/a/sys/adminECertQuery/listenceInfo?Bp15yk3ja5mdrgvb99vm0wPu+D8CX+pW9Hsvf3FAnmudfLnJsjdh+T8ZvXOygoXi4gSJYHVMdRojzdteV4Uks5hwQk/+LUGqCJ8d66bdXbvRNB02z4f8uJXZhJTzajDLdgWznY9oqtVRG2pV76SL0w==', $headers);
-        $result = json_decode(explode(',"html"', explode('"list":', $this->nanjing_decode((string)$res->getBody()))[1])[0]);
+        $result = json_decode(explode(',"firstResult"', explode('"list":', $this->nanjing_decode((string)$res->getBody()))[1])[0]);
         $nanjing = Nanjing::orderBy('verification_date')->get();
         $certificates = [];
         $sql = array_column(Certificate::select('certificate_no')->where('department_id', Parameter::where('name', '市计量院')->first()->id)->get()->toArray(), 'certificate_no');
@@ -48,13 +45,10 @@ class NanjingController extends Controller
         $tools = Tool::orderBy('instrument')->get();
         $standards = StandardsView::where('level', 2)->orderBy('name1')->get();
         $client = new GuzzleHttp\Client();
-        #登录获取session
-        $res = $client->get('http://58.213.156.66/cmiims/a/api/ajaxLogin?zMOJ96CTV+ZP2z8sI2UlA1OZyrsxdz49Ibgl7nMLnbKANNqUC+fMfTOm1E012HLJL160wCUIYjAE1uRgWUw5mAIqWVp06hAUu4nBjM9765kXkT5G81EIVT+0k3KOc0fZufz8QMUIIhmvdXPAALtpykieWUZPzPTEYwDWt1Wz/hLSvD8bcdcW6D9WLfJtGLzcdgWznY9oqtVRG2pV76SL0w==');
-        $session = str_replace('; Path=/cmiims; HttpOnly', '', str_replace('cmiims.session.id=', '', $res->getHeaders()['Set-Cookie'][0]));
-        $headers = ['headers' => ['Cookie' => "cmiims.session.id=$session",]];
+        $headers = $this->login($client);
         #获取证书清单
         $res = $client->request('GET', 'http://58.213.156.66/cmiims/a/sys/adminECertQuery/listenceInfo?Bp15yk3ja5mdrgvb99vm0wPu+D8CX+pW9Hsvf3FAnmudfLnJsjdh+T8ZvXOygoXi4gSJYHVMdRojzdteV4Uks5hwQk/+LUGqCJ8d66bdXbvRNB02z4f8uJXZhJTzajDLdgWznY9oqtVRG2pV76SL0w==', $headers);
-        $result = json_decode(explode(',"html"', explode('"list":', $this->nanjing_decode((string)$res->getBody()))[1])[0]);
+        $result = json_decode(explode(',"firstResult"', explode('"list":', $this->nanjing_decode((string)$res->getBody()))[1])[0]);
         foreach ($result as $key => $value) {
             if (in_array($value->id, $check)) {
                 $value->ccbh = isset($value->ccbh) ? $value->ccbh == '/' ? '' : $value->ccbh : '';
@@ -140,10 +134,7 @@ class NanjingController extends Controller
     public function show($type)
     {
         $client = new GuzzleHttp\Client();
-        #登录获取session
-        $res = $client->get('http://58.213.156.66/cmiims/a/api/ajaxLogin?zMOJ96CTV+ZP2z8sI2UlA1OZyrsxdz49Ibgl7nMLnbKANNqUC+fMfTOm1E012HLJL160wCUIYjAE1uRgWUw5mAIqWVp06hAUu4nBjM9765kXkT5G81EIVT+0k3KOc0fZufz8QMUIIhmvdXPAALtpykieWUZPzPTEYwDWt1Wz/hLSvD8bcdcW6D9WLfJtGLzcdgWznY9oqtVRG2pV76SL0w==');
-        $session = str_replace('; Path=/cmiims; HttpOnly', '', str_replace('cmiims.session.id=', '', $res->getHeaders()['Set-Cookie'][0]));
-        $headers = ['headers' => ['Cookie' => "cmiims.session.id=$session",]];
+        $headers = $this->login($client);
         #获取证书地址
         $str = $this->nanjing_encode('{"eCert":' . str_replace('@', '#', $_GET['str']) . '}');
         $res = $client->request('GET', "http://58.213.156.66/cmiims/a/sys/adminECertQuery/downloadInfoByPath?$str", $headers);
@@ -191,5 +182,19 @@ class NanjingController extends Controller
                 ->orWhere('state_id', Parameter::where('name', '备用')->first()->id);
         })->orderBy('number')->get();
         return $numbers;
+    }
+
+    public function login($client)
+    {
+        #获取验证码
+        $res = $client->get('http://58.213.156.66/cmiims/servlet/validateCodeServlet?' . (int)Carbon::now()->valueOf());
+        $session = str_replace('; Path=/cmiims; HttpOnly', '', $res->getHeaders()['Set-Cookie'][0]);
+        file_put_contents("storage/" . \Auth::user()->id . "/orc/1.jpg", $res->getBody());
+        exec("python F:/phpstudy_pro/WWW/laravel8/python/get_validate_code.py  2>&1 " . \Auth::user()->id, $out, $status);
+        $str = '{"userName":"13155555418","password":"qq199362","userType":"0","validateCode":"' . $out[count($out) - 1] . '","type":"2","codeType":""}';
+        $str = $this->nanjing_encode($str);
+        #登录
+        $client->post('http://58.213.156.66/cmiims/a/api/ajaxLogin', ['body' => $str, 'headers' => ['Cookie' => $session]]);
+        return ['headers' => ['Cookie' => $session]];
     }
 }

@@ -14,9 +14,11 @@ class RoleRequest extends FormRequest
 
     public function rules()
     {
-        $rules['name'] = [
-            'required',
-            Rule::unique('roles')->ignore($this->route('role')),
+        $rules = [
+            'name' => [
+                'required',
+                Rule::unique('roles')->ignore($this->route('role')),
+            ],
         ];
         return $rules;
     }

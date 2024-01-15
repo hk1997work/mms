@@ -1,13 +1,11 @@
 @extends('layout.edit')
-@section('text_modal-title',"修改用户：$user->username")
-
 @section('content_form')
-    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">
-        <label class="form-control-label">用户名</label>
-        <input type="text" name="username" id="username" class="form-control" value="{{$user->username}}" readonly>
+    <div class="col-12 div-username">
+        <div class="sidebar-heading mt-3 mb-2">用户名</div>
+        <input type="text" name="username" class="form-control" value="{{$user->username}}" readonly>
     </div>
-    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">
-        <label class="form-control-label">密码</label>
-        <input type="password" name="password" id="password" class="form-control">
+    <div class="col-12 div-password">
+        <div class="sidebar-heading mt-3 mb-2">密码</div>
+        <input type="password" name="password" class="form-control">
     </div>
 @endsection

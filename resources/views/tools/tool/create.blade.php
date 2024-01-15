@@ -1,61 +1,59 @@
 @extends('layout.create')
-@section('text_modal-title','增加量具')
-
 @section('content_form')
-    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
-        <label class="form-control-label">器具名称</label>
-        <input type="text" name="instrument" id="instrument" class="form-control">
+    <div class="col-12 div-instrument">
+        <div class="sidebar-heading mt-3 mb-2">器具名称</div>
+        <input type="text" name="instrument" class="form-control">
     </div>
-    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
-        <label class="form-control-label">规格型号</label>
-        <input type="text" name="model" id="model" class="form-control">
+    <div class="col-12 div-model">
+        <div class="sidebar-heading mt-3 mb-2">规格型号</div>
+        <input type="text" name="model" class="form-control">
     </div>
-    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
-        <label class="form-control-label">测量范围</label>
-        <input type="text" name="limit" id="limit" class="form-control">
+    <div class="col-12 div-limit">
+        <div class="sidebar-heading mt-3 mb-2">测量范围</div>
+        <input type="text" name="limit" class="form-control">
     </div>
-    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
-        <label class="form-control-label">精确度</label>
-        <input type="text" name="accuracy" id="accuracy" class="form-control">
+    <div class="col-12 div-accuracy">
+        <div class="sidebar-heading mt-3 mb-2">精确度</div>
+        <input type="text" name="accuracy" class="form-control">
     </div>
-    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
-        <label class="form-control-label">检定周期</label>
-        <select name="cycle_id" id="cycle_id" class="custom-select form-control">
+    <div class="col-12 div-cycle_id">
+        <div class="sidebar-heading mt-3 mb-2">检定周期</div>
+        <select name="cycle_id" class="custom-select form-control">
             <option value="" selected disabled>请选择...</option>
             @foreach($cycles as $cycle)
                 <option value={{$cycle->id}}>{{$cycle->name}}</option>
             @endforeach
         </select>
     </div>
-    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
-        <label class="form-control-label">ABC类</label>
-        <select name="abc_id" id="abc_id" class="custom-select form-control">
+    <div class="col-12 div-abc_id">
+        <div class="sidebar-heading mt-3 mb-2">ABC类</div>
+        <select name="abc_id" class="custom-select form-control">
             <option value="" selected disabled>请选择...</option>
             @foreach($abcs as $abc)
                 <option value={{$abc->id}}>{{$abc->name}}</option>
             @endforeach
         </select>
     </div>
-    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
-        <label class="form-control-label">检定计划</label>
-        <select name="plan_id" id="plan_id" class="custom-select form-control">
+    <div class="col-12 div-plan_id">
+        <div class="sidebar-heading mt-3 mb-2">检定计划</div>
+        <select name="plan_id" class="custom-select form-control">
             <option value="" selected disabled>请选择...</option>
             @foreach($plans as $plan)
                 <option value={{$plan->id}}>{{$plan->name}}</option>
             @endforeach
         </select>
     </div>
-    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
-        <label class="form-control-label">检定要求</label>
-        <input type="text" name="requirement" id="requirement" class="form-control">
-    </div>
-    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
-        <label class="form-control-label">易损量具</label>
-        <select name="vulnerable" id="vulnerable" class="custom-select form-control">
+    <div class="col-12 div-vulnerable">
+        <div class="sidebar-heading mt-3 mb-2">易损</div>
+        <select name="vulnerable" class="custom-select form-control">
             <option value="" selected disabled>请选择...</option>
             <option value="1">是</option>
             <option value="0">否</option>
         </select>
     </div>
-    <input type="hidden" name="type_id" id="type_id" value="{{$type_id}}">
+    <div class="col-12 div-requirement">
+        <div class="sidebar-heading mt-3 mb-2">检定要求</div>
+        <input type="text" name="requirement" class="form-control">
+    </div>
+    <input type="hidden" name="type_id" value="{{$type_id}}">
 @endsection

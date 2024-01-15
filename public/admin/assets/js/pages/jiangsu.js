@@ -63,32 +63,3 @@ function load_numbers(id) {
         }
     })
 }
-
-function factory_id_click(id) {
-    if ($("#tool_id" + id).val() != null) {
-        if ($("#factory_id_btn" + id).text() == $("#number_id_btn" + id).text()) {
-            number_id_click(id);
-        }
-        if ($("#factory_id_btn" + id).text() == '返回') {
-            $("#factory_id" + id).replaceWith("<select name='factory_id[" + id + "]' id='factory_id" + id + "' class='custom-select form-control' onchange='load_numbers(" + id + ")'><option value='' selected>请选择...</option></select>");
-            $("#factory_id_btn" + id).replaceWith("<span class='input-group-addon addon-primary' id='factory_id_btn" + id + "' onclick='factory_id_click(" + id + ")'>增加</span>");
-            load_factories(id);
-        } else {
-            $("#factory_id" + id).replaceWith("<input type='text' name='factory_id[" + id + "]' id='factory_id" + id + "' class='form-control'>");
-            $("#factory_id_btn" + id).replaceWith("<span class='input-group-addon addon-orange' id='factory_id_btn" + id + "' onclick='factory_id_click(" + id + ")'>返回</span>");
-        }
-    }
-}
-
-function number_id_click(id) {
-    if ($("#tool_id" + id).val() != null) {
-        if ($("#number_id_btn" + id).text() == '返回' && $("#factory_id_btn" + id).text() != '返回') {
-            $("#number_id" + id).replaceWith("<select name='number_id[" + id + "]' id='number_id" + id + "' class='custom-select form-control'><option value='' selected>请选择...</option></select>");
-            $("#number_id_btn" + id).replaceWith("<span class='input-group-addon addon-primary' id='number_id_btn" + id + "' onclick='number_id_click(" + id + ")'>增加</span>");
-            load_numbers(id);
-        } else {
-            $("#number_id" + id).replaceWith("<input type='text' name='number_id[" + id + "]' id='number_id" + id + "' class='form-control'>");
-            $("#number_id_btn" + id).replaceWith("<span class='input-group-addon addon-orange' id='number_id_btn" + id + "' onclick='number_id_click(" + id + ")'>返回</span>");
-        }
-    }
-}

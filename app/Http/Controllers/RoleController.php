@@ -13,8 +13,22 @@ class RoleController extends Controller
 {
     public function index()
     {
-        $roles = RolesView::get();
-        return view('users.role.index', compact('roles'));
+        return view('users.role.index');
+    }
+
+    public function list()
+    {
+        $data = RolesView::select('id', 'name', 'user', 'permission', 'position',)->get()->toArray();
+        foreach ($data as $key => $value) {
+            $data[$key]['id'] = "<div class='styled-checkbox'>
+                        <input type='checkbox' name='cb' class='cb' id='$value[id]'>
+                        <label for='$value[id]'></label>
+                    </div>";
+            if ($value['user'] == '' || $value['permission'] == '' || $value['position'] == '') {
+                $data[$key]['name'] = "<div class='text-danger'>$value[name]</div>";
+            }
+        }
+        return response()->json(['data' => array_map('array_values', $data)]);
     }
 
     public function create()
@@ -39,52 +53,37 @@ class RoleController extends Controller
         return !!$role->save();
     }
 
-    public function destroy(Role $role)
+    public function destroy($role)
     {
-        if (DB::table("role_user")->where('role_id', $role->id)->exists() || DB::table("permission_role")->where('role_id', $role->id)->exists()) {
-            return "角色{$role->name}使用中,无法删除";
+        $user = DB::table("role_user")->selectRaw('GROUP_CONCAT(role_id) AS str')->whereIn('role_id', explode(',', $role))->first();
+        $permission = DB::table("permission_role")->selectRaw('GROUP_CONCAT(role_id) AS str')->whereIn('role_id', explode(',', $role))->first();
+        $position = DB::table("position_role")->selectRaw('GROUP_CONCAT(role_id) AS str')->whereIn('role_id', explode(',', $role))->first();
+        if ($user->str || $permission->str || $position->str) {
+            $id = implode(',', [$user->str, $permission->str, $position->str]);
+            $result = Role::selectRaw('GROUP_CONCAT(name) AS name')->whereIn('id', array_unique(explode(',', $id)))->first();
+            return $result->name . '使用中,无法删除';
+        } else {
+            return !!Role::whereIn('id', explode(',', $role))->delete();
         }
-        return !!$role->delete();
     }
 
-    public function permission(Role $role)
+    public function permission($role)
     {
         $permissions = Permission::orderBy('sort')->get();
-        $myPermissions = $role->permissions;
         $positions = Position::orderBy('sort')->get();
-        $myPositions = $role->positions;
+        $myPermissions = strpos($role, ',') ? '' : Role::find($role)->permissions;
+        $myPositions = strpos($role, ',') ? '' : Role::find($role)->positions;
         return view('users.role.permission', compact('role', 'permissions', 'myPermissions', 'positions', 'myPositions',));
     }
 
-    public function storePermission(Role $role)
+    public function storePermission($role)
     {
         $permissions = Permission::find(request('permission'));
-        if (isset($permissions)) {
-            $myPermissions = $role->permissions;
-            $addPermissions = $permissions->diff($myPermissions);
-            foreach ($addPermissions as $permission) {
-                $role->addPermission($permission);
-            }
-            $deletePermissions = $myPermissions->diff($permissions);
-            foreach ($deletePermissions as $permission) {
-                $role->deletePermission($permission);
-            }
-        } else {
-            DB::table('permission_role')->where('role_id', $role->id)->delete();
-        }
         $positions = Position::find(request('position'));
-        if (isset($positions)) {
-            $myPositions = $role->positions;
-            $addPositions = $positions->diff($myPositions);
-            foreach ($addPositions as $position) {
-                $role->addPosition($position);
-            }
-            $deletePositions = $myPositions->diff($positions);
-            foreach ($deletePositions as $position) {
-                $role->deletePosition($position);
-            }
-        } else {
-            DB::table('role_position')->where('role_id', $role->id)->delete();
+        $roles = Role::find(explode(',', $role));
+        foreach ($roles as $r) {
+            $r->permissions()->sync($permissions);
+            $r->positions()->sync($positions);
         }
         return true;
     }

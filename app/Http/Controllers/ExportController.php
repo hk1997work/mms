@@ -44,7 +44,7 @@ class ExportController extends Controller
             $result1_id = array_column($result->where('valid', 1)->get()->toArray(), 'id');
         }
 
-        $path = "storage/" . \Auth::user()->username;
+        $path = "storage/" . \Auth::user()->id;
         if (File::isDirectory($path)) {
             File::deleteDirectory($path);
         }
@@ -67,7 +67,7 @@ class ExportController extends Controller
             $this->export($result1_id, $request->contents, $request->type, $request->position);
         }
         $zip = new ZipArchive();
-        if ($zip->open($path . '/证书台账' . date('Y-m-d') . '.zip', ZipArchive::CREATE) === TRUE) {
+        if ($zip->open($path . '/证书台账' . date('Y-m-d') . '.zip', ZipArchive::CREATE) == TRUE) {
             $this->addFileToZip($path, $zip);
             $zip->close();
         }
@@ -80,7 +80,7 @@ class ExportController extends Controller
 
     public function export($id, $contents, $type, $position)
     {
-        $path = "storage/" . \Auth::user()->username;
+        $path = "storage/" . \Auth::user()->id;
         $filename = '';
         $styleArray = [
             'alignment' => [
@@ -224,8 +224,8 @@ class ExportController extends Controller
         }
         if (in_array("计量证书", $contents)) {
             foreach ($certificates as $certificate) {
-                if (Storage::exists("public/certificate/$certificate->id.pdf") && !Storage::exists("public/" . \Auth::user()->username . "/证书/$certificate->order--$certificate->instrument--$certificate->number--【" . substr($certificate->verification_date, 0, 4) . "年" . substr($certificate->verification_date, 5, 2) . "月" . substr($certificate->verification_date, 8, 2) . "日-" . substr($certificate->validity_date, 0, 4) . "年" . substr($certificate->validity_date, 5, 2) . "月" . substr($certificate->validity_date, 8, 2) . "日】.pdf")) {
-                    Storage::copy("public/certificate/$certificate->id.pdf", "public/" . \Auth::user()->username . "/证书/$filename/$certificate->order--$certificate->instrument--$certificate->number--【" . substr($certificate->verification_date, 0, 4) . "年" . substr($certificate->verification_date, 5, 2) . "月" . substr($certificate->verification_date, 8, 2) . "日-" . substr($certificate->validity_date, 0, 4) . "年" . substr($certificate->validity_date, 5, 2) . "月" . substr($certificate->validity_date, 8, 2) . "日】.pdf");
+                if (Storage::exists("public/certificate/$certificate->id.pdf") && !Storage::exists("public/" . \Auth::user()->id . "/证书/$certificate->order--$certificate->instrument--$certificate->number--【" . substr($certificate->verification_date, 0, 4) . "年" . substr($certificate->verification_date, 5, 2) . "月" . substr($certificate->verification_date, 8, 2) . "日-" . substr($certificate->validity_date, 0, 4) . "年" . substr($certificate->validity_date, 5, 2) . "月" . substr($certificate->validity_date, 8, 2) . "日】.pdf")) {
+                    Storage::copy("public/certificate/$certificate->id.pdf", "public/" . \Auth::user()->id . "/证书/$filename/$certificate->order--$certificate->instrument--$certificate->number--【" . substr($certificate->verification_date, 0, 4) . "年" . substr($certificate->verification_date, 5, 2) . "月" . substr($certificate->verification_date, 8, 2) . "日-" . substr($certificate->validity_date, 0, 4) . "年" . substr($certificate->validity_date, 5, 2) . "月" . substr($certificate->validity_date, 8, 2) . "日】.pdf");
                 }
             }
         }
@@ -261,8 +261,8 @@ class ExportController extends Controller
                 $sheet->setCellValueByColumnAndRow(18, $i, $cer->start);
                 $sheet->setCellValueByColumnAndRow(19, $i, $cer->remark);
                 $sheet->getRowDimension($i)->setRowHeight(20);
-                if (Storage::exists("public/certificate/$cer->id.pdf") && !Storage::exists("public/" . \Auth::user()->username . "/监理资料/$cer->order--$cer->instrument--$cer->number--【" . substr($cer->verification_date, 0, 4) . "年" . substr($cer->verification_date, 5, 2) . "月" . substr($cer->verification_date, 8, 2) . "日-" . substr($cer->validity_date, 0, 4) . "年" . substr($cer->validity_date, 5, 2) . "月" . substr($cer->validity_date, 8, 2) . "日】.pdf")) {
-                    Storage::copy("public/certificate/$cer->id.pdf", "public/" . \Auth::user()->username . "/监理资料/$filename/$cer->order--$cer->instrument--$cer->number--【" . substr($cer->verification_date, 0, 4) . "年" . substr($cer->verification_date, 5, 2) . "月" . substr($cer->verification_date, 8, 2) . "日-" . substr($cer->validity_date, 0, 4) . "年" . substr($cer->validity_date, 5, 2) . "月" . substr($cer->validity_date, 8, 2) . "日】.pdf");
+                if (Storage::exists("public/certificate/$cer->id.pdf") && !Storage::exists("public/" . \Auth::user()->id . "/监理资料/$cer->order--$cer->instrument--$cer->number--【" . substr($cer->verification_date, 0, 4) . "年" . substr($cer->verification_date, 5, 2) . "月" . substr($cer->verification_date, 8, 2) . "日-" . substr($cer->validity_date, 0, 4) . "年" . substr($cer->validity_date, 5, 2) . "月" . substr($cer->validity_date, 8, 2) . "日】.pdf")) {
+                    Storage::copy("public/certificate/$cer->id.pdf", "public/" . \Auth::user()->id . "/监理资料/$filename/$cer->order--$cer->instrument--$cer->number--【" . substr($cer->verification_date, 0, 4) . "年" . substr($cer->verification_date, 5, 2) . "月" . substr($cer->verification_date, 8, 2) . "日-" . substr($cer->validity_date, 0, 4) . "年" . substr($cer->validity_date, 5, 2) . "月" . substr($cer->validity_date, 8, 2) . "日】.pdf");
                 }
             }
             $sheet->getStyle("A4:S$i")->applyFromArray($styleArray);

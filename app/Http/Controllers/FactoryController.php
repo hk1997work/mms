@@ -19,8 +19,7 @@ class FactoryController extends Controller
         $arr['tool_id'] = $request->tool_id;
         $arr['factory'] = $request->factory;
         $arr['fullname'] = $request->fullname;
-        $factory = Factory::create($arr);
-        return $factory->id;
+        return !!Factory::create($arr);
     }
 
     public function edit(Factory $factory)
@@ -35,11 +34,14 @@ class FactoryController extends Controller
         return !!$factory->save();
     }
 
-    public function destroy(Factory $factory)
+    public function destroy($factory)
     {
-        if (Number::where('factory_id', $factory->id)->exists()) {
-            return "厂家使用中,无法删除";
+        $id = Number::selectRaw('GROUP_CONCAT(factory_id) AS str')->whereIn('factory_id', explode(',', $factory))->first();
+        if ($id->str) {
+            $result = Factory::selectRaw('GROUP_CONCAT(factory) AS name')->whereIn('id', explode(',', $id->str))->first();
+            return $result->name . '使用中,无法删除';
+        } else {
+            return !!Factory::whereIn('id', explode(',', $factory))->delete();
         }
-        return !!$factory->delete();
     }
 }

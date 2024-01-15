@@ -15,17 +15,18 @@ class ToolRequest extends FormRequest
     public function rules()
     {
         $rules = [
+            'instrument' => [
+                'required',
+                Rule::unique('tools')->where('model', $this->model)->where('limit', $this->limit)
+                    ->where('accuracy', $this->accuracy)->ignore($this->route('tool')),
+            ],
             'model' => 'required',
             'limit' => 'required',
             'accuracy' => 'required',
             'cycle_id' => 'required',
             'abc_id' => 'required',
             'plan_id' => 'required',
-        ];
-        $rules['instrument'] = [
-            'required',
-            Rule::unique('tools')->where('model', $this->model)->where('limit', $this->limit)
-                ->where('accuracy', $this->accuracy)->ignore($this->route('tool')),
+            'vulnerable' => 'required',
         ];
         return $rules;
     }
@@ -41,6 +42,7 @@ class ToolRequest extends FormRequest
             'cycle_id.required' => '请选择检定周期',
             'abc_id.required' => '请选择ABC类',
             'plan_id.required' => '请选择检定计划',
+            'vulnerable.required' => '请选择易损',
         ];
     }
 }

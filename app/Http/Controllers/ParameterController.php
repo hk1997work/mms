@@ -3,24 +3,40 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ParameterRequest;
-use App\Models\Certificate;
 use App\Models\Parameter;
-use App\Models\Number;
 use App\Models\ParametersView;
-use App\Models\Tool;
-use Illuminate\Http\Client\Request;
 
 class ParameterController extends Controller
 {
     public function index()
     {
-        $parameters = ParametersView::get();
-        return view('parameter.index', compact('parameters'));
+        return view('parameter.index');
+    }
+
+    public function list()
+    {
+        $data = ParametersView::select('id', 'name1', 'name2', 'count', 'level')->get()->toArray();
+        foreach ($data as $key => $value) {
+            $data[$key]['id'] = "<div class='styled-checkbox'>
+                        <input type='checkbox' name='cb' class='cb' id='$value[id]'>
+                        <label for='$value[id]'></label>
+                    </div>";
+            if ($value['level'] == 1) {
+                $data[$key]['name1'] = "<span class='tag btn-sm " . ($value['count'] == null ? 'tag-danger' : 'tag-outline-warning') . "'>$value[name1]</span>";
+                $data[$key]['name2'] = "<span class='btn btn-outline-secondary btn-sm btn-add ripple' data-pos='right' data-menu='parameter' data-id='$value[id]'>增加</span>";
+            }
+            if ($value['level'] == 2) {
+                $data[$key]['name1'] = $value['name2'];
+                $data[$key]['name2'] = "<span class='tag btn-sm " . ($value['count'] == null ? 'tag-danger' : 'tag-outline-success') . "'>$value[name1]</span>";
+            }
+            unset($data[$key]['level']);
+        }
+        return response()->json(['data' => array_map('array_values', $data)]);
     }
 
     public function create()
     {
-        $id = $_GET['id'];
+        $id = isset($_GET['id']) ? $_GET['id'] : 0;
         return view('parameter.create', compact('id'));
     }
 
@@ -45,12 +61,16 @@ class ParameterController extends Controller
         return !!$parameter->save();
     }
 
-    public function destroy(ParametersView $parameter)
+    public function destroy($parameter)
     {
-        if (!$parameter->count == null) {
-            return "参数{$parameter->name1}使用中,无法删除";
+        $id = ParametersView::selectRaw('GROUP_CONCAT(id) AS str')->whereIn('id', explode(',', $parameter))->whereNotNull('count')->where('level', 2)->first();
+        $pid = Parameter::selectRaw('GROUP_CONCAT(pid) AS str')->whereIn('pid', explode(',', $parameter))->whereNotIn('id', explode(',', $parameter))->first();
+        if ($id->str || $pid->str) {
+            $id = implode(',', [$id->str, $pid->str]);
+            $result = Parameter::selectRaw('GROUP_CONCAT(name) AS name')->whereIn('id', array_unique(explode(',', $id)))->first();
+            return $result->name . '使用中,无法删除';
         }
-        return !!Parameter::where('id', $parameter->id)->delete();
+        return !!Parameter::whereIn('id', explode(',', $parameter))->delete();
     }
 
     public function move(Parameter $parameter, $type)
@@ -65,6 +85,6 @@ class ParameterController extends Controller
             $parameter_exchange->sort = $parameter->sort;
             $parameter->sort = $result;
             return !!$parameter->save() && !!$parameter_exchange->save();
-        } else return false;
+        } else return $type ? '已经是最顶层,无法上移' : '已经是最底层,无法下移';
     }
 }

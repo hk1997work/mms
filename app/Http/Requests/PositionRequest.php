@@ -14,9 +14,11 @@ class PositionRequest extends FormRequest
 
     public function rules()
     {
-        $rules['name'] = [
-            'required',
-            Rule::unique('positions')->where('pid', $this->pid)->ignore($this->route('position')),
+        $rules = [
+            'name' => [
+                'required',
+                Rule::unique('positions')->where('pid', $this->pid)->ignore($this->route('position')),
+            ],
         ];
         if (isset($this->code)) {
             $rules['code'] = [

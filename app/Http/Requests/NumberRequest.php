@@ -16,10 +16,10 @@ class NumberRequest extends FormRequest
     {
         $rules = [
             'state_id' => 'required',
-        ];
-        $rules['number'] = [
-            'required',
-            Rule::unique('numbers')->where('factory_id', $this->factory_id)->ignore($this->route('number')),
+            'number' => [
+                'required',
+                Rule::unique('numbers')->where('factory_id', $this->factory_id)->ignore($this->route('number')),
+            ],
         ];
         return $rules;
     }

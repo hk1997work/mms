@@ -15,11 +15,11 @@ class UserRequest extends FormRequest
     public function rules()
     {
         $rules = [
+            'username' => [
+                'required',
+                Rule::unique('users')->ignore($this->route('user')),
+            ],
             'password' => 'required',
-        ];
-        $rules['username'] = [
-            'required',
-            Rule::unique('users')->ignore($this->route('user')),
         ];
         return $rules;
     }

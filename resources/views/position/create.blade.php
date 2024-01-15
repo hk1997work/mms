@@ -1,18 +1,21 @@
 @extends('layout.create')
-@section('text_modal-title','增加岗位')
-
 @section('content_form')
-    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">
-        <label class="form-control-label">岗位名称</label>
-        <input type="text" name="name" id="name" class="form-control">
+    <div class="col-12 div-name">
+        <div class="sidebar-heading mt-3 mb-2">岗位名称</div>
+        <input type="text" name="name" class="form-control">
     </div>
     @if(isset($position)&&$position->level==4)
-        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">
-            <label class="form-control-label">编号</label>
-            <input type="text" name="code" id="code" class="form-control">
+        <div class="col-12 div-code">
+            <div class="sidebar-heading mt-3 mb-2">编号</div>
+            <input type="text" name="code" class="form-control">
         </div>
     @endif
-    <input type="hidden" name="pid" id="pid" value="{{isset($position->id)?$position->id:0}}">
+    <div class="col-12 div-sign">
+        <div class="sidebar-heading mt-3 mb-2">状态</div>
+        <select name="sign" class="custom-select form-control" required>
+            <option value="0">有效</option>
+            <option value="1">失效</option>
+        </select>
+    </div>
+    <input type="hidden" name="pid" value="{{isset($position->id)?$position->id:0}}">
 @endsection
-
-

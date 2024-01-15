@@ -10,7 +10,11 @@ class Certificate extends Model
     use HasFactory;
 
     protected $fillable = [
-        'sn', 'certificate_name', 'position_id', 'certificate_no', 'number_id', 'verification_date', 'validity_date', 'valid', 'category_id', 'department_id', 'start', 'times', 'money', 'standard_id', 'remark'
+        'sn', 'certificate_name', 'position_id', 'certificate_no', 'number_id', 'verification_date', 'validity_date', 'valid', 'category_id', 'department_id', 'start', 'times', 'remark', 'start_date', 'end_date'
     ];
 
+    public function standards()
+    {
+        return $this->belongsToMany(StandardsView::class, 'standard_certificate', 'certificate_id', 'standard_id')->withPivot(['certificate_id', 'standard_id'])->orderBy('standard_id');
+    }
 }

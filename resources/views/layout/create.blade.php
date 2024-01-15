@@ -1,22 +1,21 @@
-<div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h4 class="modal-title">@yield('text_modal-title')</h4>
-            <button type="button" class="close" data-dismiss="modal">
-                <span aria-hidden="true">×</span>
-                <span class="sr-only">close</span>
-            </button>
-        </div>
-        <form action="" onsubmit="return false;" id="form">
+<div class="off-sidebar-container">
+    <header class="off-sidebar-header">
+        <ul class="button-nav nav nav-tabs mt-3 mb-3 ml-4" role="tablist">
+            <li><a class="active sidebar-btn" data-toggle="tab" role="tab"></a></li>
+        </ul>
+    </header>
+    <div class="off-sidebar-content offcanvas-scroll auto-scroll">
+        <form action="" onsubmit="return false;">
             {{csrf_field()}}
-            <div class="modal-body">
-                <div class="form-group row mb-3">
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane show active fade">
                     @yield('content_form')
+                    <input type="hidden" class="sidebar-url" name="sidebar-url" value="">
+                    <div class="enter-message">
+                        <button class="btn btn-outline-primary ripple submit-add">确 定</button>
+                        <button class="btn btn-outline-secondary ripple sidebar-close">取 消</button>
+                    </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="submit" class="btn btn-primary ripple">确 定</button>
-                <button type="button" class="btn btn-secondary ripple" data-dismiss="modal">取 消</button>
             </div>
         </form>
     </div>

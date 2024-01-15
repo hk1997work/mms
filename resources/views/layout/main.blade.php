@@ -171,11 +171,11 @@
                     <li><a href="/"><i class="la la-home"></i><span>主页</span></a></li>
                     @foreach($permissions->where('level',1) as $permission)
                         @can($permission->name)
-                            <li><a href="#dropdown-{{$permission->name}}" aria-expanded="false" data-toggle="collapse"><i class="{{$permission->icon}}"></i><span>{{$permission->description1}}</span></a>
+                            <li><a href="#dropdown-{{$permission->name}}" aria-expanded="false" data-toggle="collapse"><i class="{{$permission->icon}}"></i><span>{{$permission->description}}</span></a>
                                 <ul id="dropdown-{{$permission->name}}" class="collapse list-unstyled pt-0 nav-tabs">
                                     @foreach($permissions->where('pid',$permission->id) as $p)
                                         @can($p->name)
-                                            <li><a href="/{{$p->name}}" id="{{$p->name}}">{{$p->description1}}</a></li>
+                                            <li><a href="/{{$p->name}}" id="{{$p->name}}">{{$p->description}}</a></li>
                                         @endcan
                                     @endforeach
                                 </ul>
@@ -201,10 +201,11 @@
 </div>
 <!-- 结束 主体 -->
 <!-- 开始 模态框 -->
-<div id="modal1" class="modal fade" data-backdrop="static"></div>
-<div id="modal2" class="modal fade" data-backdrop="static"></div>
-<div id="modal3" class="modal fade" data-backdrop="static"></div>
+<div id="modal" class="modal fade" data-backdrop="static"></div>
 <!-- 结束 模态框 -->
+<div class="off-sidebar from-left" data-pos="left"></div>
+<div class="off-sidebar from-right" data-pos="right"></div>
+<div class="off-sidebar from-up" data-pos="up"></div>
 <script>
     const csrf_token = '{{csrf_token()}}'
     const menu = '{{$menu}}'
@@ -224,7 +225,6 @@
 <script src="/admin/assets/vendors/js/nicescroll/nicescroll.min.js"></script>
 <script src="/admin/assets/vendors/js/noty/noty.min.js"></script>
 <script src="/admin/assets/vendors/js/app/app.js"></script>
-<script src="/admin/assets/vendors/js/app/function.js"></script>
 <!-- 结束 插件Js -->
 
 @stack('page-js-after')

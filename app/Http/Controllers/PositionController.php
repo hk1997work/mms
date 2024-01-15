@@ -14,9 +14,56 @@ class PositionController extends Controller
 {
     public function index()
     {
-        $type_id = isset($_GET['type_id']) ? $_GET['type_id'] : 0;
-        $positions = PositionsView::get();
-        return view('position.index', compact('type_id', 'positions'));
+        return view('position.index');
+    }
+
+    public function list()
+    {
+        $data = PositionsView::select('id', 'name1', 'name2', 'name3', 'name4', 'name5', 'code', 'count', 'total', 'level', 'sign',)->get()->toArray();
+        foreach ($data as $key => $value) {
+            $data[$key]['id'] = "<div class='styled-checkbox'>
+                        <input type='checkbox' name='cb' class='cb' id='$value[id]'>
+                        <label for='$value[id]'></label>
+                    </div>";
+            if ($value['level'] == 1) {
+                $data[$key]['name1'] = "<span class='tag btn-sm " . ($value['total'] == 0 && $value['sign'] == 0 ? ' tag-danger' : 'tag-outline-primary') . "'>$value[name1]</span>";
+                $data[$key]['name2'] = "<span class='btn btn-outline-secondary btn-sm btn-add ripple' data-pos='right' data-menu='position' data-id='$value[id]'>增加</span>";
+                $data[$key]['count'] = "<span class='tag btn-sm " . ($value['sign'] ? ' tag-outline-danger' : 'tag-outline-secondary') . "'>$value[count]" . ($value['count'] == $value['total'] ? '' : '/' . $value['total']) . "</span>";;
+            }
+            if ($value['level'] == 2) {
+                $data[$key]['name1'] = $value['name2'];
+                $data[$key]['name2'] = "<span class='tag btn-sm " . ($value['total'] == 0 && $value['sign'] == 0 ? ' tag-danger' : 'tag-outline-primary') . "'>$value[name1]</span>";
+                $data[$key]['name3'] = "<span class='btn btn-outline-secondary btn-sm btn-add ripple' data-pos='right' data-menu='position' data-id='$value[id]'>增加</span>";
+                $data[$key]['count'] = "<span class='tag btn-sm " . ($value['sign'] ? ' tag-outline-danger' : 'tag-outline-secondary') . "'>$value[count]" . ($value['count'] == $value['total'] ? '' : '/' . $value['total']) . "</span>";;
+            }
+            if ($value['level'] == 3) {
+                $data[$key]['name1'] = $value['name3'];
+                $data[$key]['name2'] = $value['name2'];
+                $data[$key]['name3'] = "<span class='tag btn-sm " . ($value['total'] == 0 && $value['sign'] == 0 ? ' tag-danger' : 'tag-outline-warning') . "'>$value[name1]</span>";
+                $data[$key]['name4'] = "<span class='btn btn-outline-secondary btn-sm btn-add ripple' data-pos='right' data-menu='position' data-id='$value[id]'>增加</span>";
+                $data[$key]['count'] = "<span class='tag btn-sm " . ($value['sign'] ? ' tag-outline-danger' : 'tag-outline-secondary') . "'>$value[count]" . ($value['count'] == $value['total'] ? '' : '/' . $value['total']) . "</span>";;
+            }
+            if ($value['level'] == 4) {
+                $data[$key]['name1'] = $value['name4'];
+                $data[$key]['name2'] = $value['name3'];
+                $data[$key]['name3'] = $value['name2'];
+                $data[$key]['name4'] = "<span class='tag btn-sm " . ($value['total'] == 0 && $value['sign'] == 0 ? ' tag-danger' : 'tag-outline-success') . "'>$value[name1]</span>";
+                $data[$key]['name5'] = "<span class='btn btn-outline-secondary btn-sm btn-add ripple' data-pos='right' data-menu='position' data-id='$value[id]'>增加</span>";
+                $data[$key]['count'] = "<span class='tag btn-sm " . ($value['sign'] ? ' tag-outline-danger' : 'tag-outline-secondary') . "'>$value[count]" . ($value['count'] == $value['total'] ? '' : '/' . $value['total']) . "</span>";;
+            }
+            if ($value['level'] == 5) {
+                $data[$key]['name1'] = $value['name5'];
+                $data[$key]['name2'] = $value['name4'];
+                $data[$key]['name3'] = $value['name3'];
+                $data[$key]['name4'] = $value['name2'];
+                $data[$key]['name5'] = "<span class='tag btn-sm " . ($value['total'] == 0 && $value['sign'] == 0 ? ' tag-danger' : 'tag-outline-info') . "'>$value[name1]</span>";
+                $data[$key]['code'] = "<span class='tag btn-sm tag-info'>$value[code]</span>";
+                $data[$key]['count'] = "<span class='tag btn-sm " . ($value['sign'] ? ' tag-outline-danger' : 'tag-outline-secondary') . "'>$value[count]" . ($value['count'] == $value['total'] ? '' : '/' . $value['total']) . "</span>";;
+            }
+            unset($data[$key]['level']);
+            unset($data[$key]['total']);
+        }
+        return response()->json(['data' => array_map('array_values', $data)]);
     }
 
     public function create()
@@ -28,15 +75,8 @@ class PositionController extends Controller
 
     public function show(Position $position)
     {
-        $certificates = CertificatesView::selectRaw('sn,`order`,position,position_id,instrument,MAX(valid) AS valid,MAX(start) AS start,MAX(times) AS times,MAX(id) AS id')
-            ->where('position', '<>', '备用')->where(function ($query) use ($position) {
-                $query->where('unit1_id', $position->id)
-                    ->orWhere('unit2_id', $position->id)
-                    ->orWhere('unit3_id', $position->id)
-                    ->orWhere('unit4_id', $position->id)
-                    ->orWhere('position_id', $position->id);
-            })->groupBy('sn', 'order', 'position', 'position_id', 'instrument')->get();
-        return view('position.show', compact('position', 'certificates'));
+
+        return view('position.show', compact('position'));
     }
 
     public function store(PositionRequest $request)
@@ -47,7 +87,7 @@ class PositionController extends Controller
         $arr['pid'] = $request->pid;
         $arr['level'] = isset($parent->level) ? $parent->level + 1 : 1;
         $arr['sort'] = Position::max('id') + 1;
-        $arr['sign'] = 0;
+        $arr['sign'] = $request->sign;
         return !!Position::create($arr);
     }
 
@@ -60,15 +100,20 @@ class PositionController extends Controller
     {
         $position->name = $request->name;
         $position->code = $request->code;
+        $position->sign = $request->sign;
         return !!$position->save();
     }
 
-    public function destroy(Position $position)
+    public function destroy($position)
     {
-        if (Certificate::where('position_id', $position->id)->exists() || Position::where('pid', $position->id)->exists() || DB::table("role_position")->where('position_id', $position->id)->exists()) {
-            return "岗位{$position->name}使用中,无法删除";
+        $certificate = Certificate::selectRaw('GROUP_CONCAT(position_id) AS str')->whereIn('position_id', explode(',', $position))->first();
+        $pid = Position::selectRaw('GROUP_CONCAT(pid) AS str')->whereIn('pid', explode(',', $position))->whereNotIn('id', explode(',', $position))->first();
+        if ($certificate->str || $pid->str) {
+            $id = implode(',', [$certificate->str, $pid->str]);
+            $result = Position::selectRaw('GROUP_CONCAT(name) AS name')->whereIn('id', array_unique(explode(',', $id)))->first();
+            return $result->name . '使用中,无法删除';
         }
-        return !!$position->delete();
+        return !!Position::whereIn('id', explode(',', $position))->delete();
     }
 
     public function move(Position $position, $type)
@@ -83,7 +128,28 @@ class PositionController extends Controller
             $position_exchange->sort = $position->sort;
             $position->sort = $result;
             return !!$position->save() && !!$position_exchange->save();
-        } else return false;
+        } else return $type ? '已经是最顶层,无法上移' : '已经是最底层,无法下移';
+    }
+
+    public function list_show()
+    {
+        $id = $_GET['id'];
+        $data = CertificatesView::selectRaw('MAX(id) AS id,`order`,position,instrument,MAX(valid) AS valid,MIN(verification_date) AS verification_date,COUNT(*) AS count')
+            ->where('position', '<>', '备用')->where(function ($query) use ($id) {
+                $query->where('unit1_id', $id)
+                    ->orWhere('unit2_id', $id)
+                    ->orWhere('unit3_id', $id)
+                    ->orWhere('unit4_id', $id)
+                    ->orWhere('position_id', $id);
+            })->groupBy('order', 'position', 'position_id', 'instrument')->get()->toArray();
+        foreach ($data as $key => $value) {
+            $data[$key]['id'] = "<div class='styled-checkbox'>
+                        <input type='checkbox' name='cb' class='cb' id='$value[id]cb'>
+                        <label for='$value[id]cb'></label>
+                    </div>";
+            $data[$key]['valid'] = "<span class='tag btn-sm " . ($value['valid'] ? "tag-success'>有效" : "tag-danger'>失效") . "</span>";
+        }
+        return response()->json(['data' => array_map('array_values', $data)]);
     }
 
     public function sn(Certificate $certificate)
@@ -118,12 +184,6 @@ class PositionController extends Controller
                 $itemB->save();
             }
             return true;
-        } else return false;
-    }
-
-    public function sign(Position $position)
-    {
-        $position->sign = !$position->sign;
-        return $position->save();
+        } else return $type ? '已经是最顶层,无法上移' : '已经是最底层,无法下移';
     }
 }

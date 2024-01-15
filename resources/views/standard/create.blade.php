@@ -1,10 +1,8 @@
 @extends('layout.create')
-@section('text_modal-title','增加标准')
-
 @section('content_form')
-    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-3">
-        <label class="form-control-label">标准</label>
-        <input type="text" name="name" id="name" class="form-control">
+    <div class="col-12">
+        <div class="sidebar-heading mt-3 mb-2">标准</div>
+        <input type="text" name="name" class="form-control">
+        <input type="hidden" name="pid" value="{{$id}}">
     </div>
-    <input type="hidden" name="pid" id="pid" value="{{$id}}">
 @endsection

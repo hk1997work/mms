@@ -6,9 +6,10 @@ use App\Http\Requests\NumberRequest;
 use App\Models\Certificate;
 use App\Models\CertificatesView;
 use App\Models\Number;
-use App\Models\NumbersView;
 use App\Models\Parameter;
-use App\Models\Tool;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class NumberController extends Controller
 {
@@ -16,7 +17,7 @@ class NumberController extends Controller
     {
         $states = Parameter::where('pid', Parameter::where('name', '管理状态')->first()->id)->orderBy('sort')->get();
         $factory_id = $_GET['id'];
-        return view('tools.number.create', compact('states','factory_id'));
+        return view('tools.number.create', compact('states', 'factory_id'));
     }
 
     public function store(NumberRequest $request)
@@ -24,14 +25,13 @@ class NumberController extends Controller
         $arr['factory_id'] = $request->factory_id;
         $arr['number'] = $request->number;
         $arr['state_id'] = $request->state_id;
-        $number = Number::create($arr);
-        return $number->id;
+        return !!Number::create($arr);
     }
 
     public function edit(Number $number)
     {
         $states = Parameter::where('pid', Parameter::where('name', '管理状态')->first()->id)->orderBy('sort')->get();
-        return view('tools.number.edit', compact('number','states'));
+        return view('tools.number.edit', compact('number', 'states'));
     }
 
     public function update(NumberRequest $request, Number $number)
@@ -61,19 +61,31 @@ class NumberController extends Controller
         }
     }
 
-    public function show($str)
+    public function show($number)
     {
-        $tool = Tool::find(explode('_', $str)[0]);
-        $state = explode('_', $str)[1];
-        $numbers = NumbersView::where('tool_id', $tool->id)->where('state_id', Parameter::where('name', $state)->first()->id)->get();
-        return view('tools.number.show', compact('numbers', 'state', 'tool'));
+        $certificate = Certificate::where('number_id', $number)->orderBy('validity_date', 'desc')->first();
+        if ($certificate) {
+            $certificates = DB::table('certificates_views')->where('position_id', $certificate->position_id)->where('sn', $certificate->sn)->orderBy('verification_date', 'desc')->get();
+            foreach ($certificates as $c) {
+                $c->path = "storage/jpg/$c->id";
+                $c->files = Storage::files("\public\jpg\\$c->id");
+                if ($certificate->id == $c->id) {
+                    $disable = $c->id;
+                }
+            }
+            return view('certificate.show', compact('certificates', 'disable'));
+        }
+        return false;
     }
 
-    public function destroy(Number $number)
+    public function destroy($number)
     {
-        if (Certificate::where('number_id', $number->id)->exists()) {
-            return "编号使用中,无法删除";
+        $id = Certificate::selectRaw('GROUP_CONCAT(number_id) AS str')->whereIn('number_id', explode(',', $number))->first();
+        if ($id->str) {
+            $result = Number::selectRaw('GROUP_CONCAT(number) AS name')->whereIn('id', explode(',', $id->str))->first();
+            return $result->name . '使用中,无法删除';
+        } else {
+            return !!Number::whereIn('id', explode(',', $number))->delete();
         }
-        return !!$number->delete();
     }
 }

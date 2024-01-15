@@ -1,151 +1,145 @@
 @extends('layout.create')
-@section('text_modal-title','增加证书')
-
 @section('content_form')
-    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
-        <label class="form-control-label">岗位</label>
-        <select name="position_id" id="position_id" class="custom-select form-control" onchange="load_sn()">
-            <option value="" selected disabled>请选择...</option>
-            @foreach($positions->where('level',4) as $p1)
-                <optgroup label="{{$p1->name1}}">
-                    @foreach($positions->where('pid',$p1->id) as $p2)
-                        <option value="{{$p2->id}}">{{$p2->name1}}-{{$p2->code}}</option>
-                    @endforeach
-                </optgroup>
-            @endforeach
-        </select>
-    </div>
-    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
-        <label class="form-control-label">序号</label>
-        <input type="text" name="sn" id="sn" class="form-control">
-    </div>
-    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
-        <label class="form-control-label">证书类型</label>
-        <select name="category_id" id="category_id" class="custom-select form-control">
-            <option value="" selected disabled>请选择...</option>
-            @foreach($categories as $category)
-                <option value={{$category->id}}>{{$category->name}}</option>
-            @endforeach
-        </select>
-    </div>
-    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
-        <label class="form-control-label">器具名称</label>
-        <select name="tool_id" id="tool_id" class="form-control selectpicker show-menu-arrow" data-live-search="true" onchange="load_info()">
-            <option title="请选择..." value="" selected disabled>请选择...</option>
-            @foreach($tools as $tool)
-                <option title="{{$tool->instrument}}" value="{{$tool->id}}">{{$tool->instrument}}--{{$tool->model}}</option>
-            @endforeach
-        </select>
-    </div>
-    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
-        <label class="form-control-label">生产厂家</label>
-        <div class="input-group">
-            <select name="factory_id" id="factory_id" class="custom-select form-control" onchange="load_numbers()" disabled>
+    <div class="row">
+        <div class="col-6 div-position_id">
+            <div class="sidebar-heading mt-3 mb-2">岗位</div>
+            <select name="position_id" class="custom-select form-control">
                 <option value="" selected disabled>请选择...</option>
+                @foreach($positions->where('level',4) as $p1)
+                    <optgroup label="{{$p1->name1}}">
+                        @foreach($positions->where('pid',$p1->id) as $p2)
+                            <option value="{{$p2->id}}">{{$p2->name1}}-{{$p2->code}}</option>
+                        @endforeach
+                    </optgroup>
+                @endforeach
             </select>
-            <span class="input-group-addon addon-primary" id="factory_id_btn" onclick="factory_id_click()">增加</span>
+        </div>
+        <div class="col-6 div-sn">
+            <div class="sidebar-heading mt-3 mb-2">序号</div>
+            <input type="text" name="sn" class="form-control" readonly>
+        </div>
+        <div class="col-6 div-tool_id">
+            <div class="sidebar-heading mt-3 mb-2">器具名称</div>
+            <select name="tool_id" class="custom-select form-control" data-live-search="true">
+                <option title="请选择..." value="" selected disabled>请选择...</option>
+                @foreach($tools as $tool)
+                    <option title="{{$tool->instrument}}" value="{{$tool->id}}">{{$tool->instrument}}--{{$tool->model}}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-6 div-model">
+            <div class="sidebar-heading mt-3 mb-2">规格型号</div>
+            <input type="text" name="model" class="form-control" readonly>
+        </div>
+        <div class="col-6 div-factory_id">
+            <div class="sidebar-heading mt-3 mb-2">生产厂家</div>
+            <div class="input-group">
+                <select name="factory_id" class="custom-select form-control" disabled>
+                    <option value="" selected disabled>请选择...</option>
+                </select>
+                <span class="input-group-addon addon-primary btn-add factory_add" data-pos='right' data-menu='factory' data-cb="tool_id" hidden>增加</span>
+            </div>
+        </div>
+        <div class="col-6 div-limit">
+            <div class="sidebar-heading mt-3 mb-2">测量范围</div>
+            <input type="text" name="limit" class="form-control" readonly>
+        </div>
+        <div class="col-6 div-number_id">
+            <div class="sidebar-heading mt-3 mb-2">出厂编号</div>
+            <div class="input-group">
+                <select name="number_id" class="custom-select form-control" disabled>
+                    <option value="" selected disabled>请选择...</option>
+                </select>
+                <span class="input-group-addon addon-primary btn-add number_add" data-pos='right' data-menu='number' data-cb="factory_id" hidden>增加</span>
+            </div>
+        </div>
+        <div class="col-6 div-accuracy">
+            <div class="sidebar-heading mt-3 mb-2">精确度</div>
+            <input type="text" name="accuracy" class="form-control" readonly>
+        </div>
+        <div class="col-6 div-department_id">
+            <div class="sidebar-heading mt-3 mb-2">检定部门</div>
+            <select name="department_id" class="custom-select form-control">
+                <option value="" selected disabled>请选择...</option>
+                @foreach($departments as $department)
+                    <option value="{{$department->id}}">{{$department->name}}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-6 div-cycle_id">
+            <div class="sidebar-heading mt-3 mb-2">检定周期</div>
+            <input type="text" name="cycle_id" class="form-control" readonly>
+        </div>
+
+        <div class="col-6 div-category_id">
+            <div class="sidebar-heading mt-3 mb-2">证书类型</div>
+            <select name="category_id" class="custom-select form-control">
+                <option value="" selected disabled>请选择...</option>
+                @foreach($categories as $category)
+                    <option value="{{$category->id}}">{{$category->name}}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-6 div-abc_id">
+            <div class="sidebar-heading mt-3 mb-2">ABC</div>
+            <input type="text" name="abc_id" class="form-control" readonly>
+        </div>
+        <div class="col-6 div-verification_date">
+            <div class="sidebar-heading mt-3 mb-2">检定日期</div>
+            <input type="text" name="verification_date" class="form-control">
+        </div>
+        <div class="col-6 div-validity_date">
+            <div class="sidebar-heading mt-3 mb-2">有效期</div>
+            <input type="text" name="validity_date" class="form-control" readonly>
+        </div>
+        <div class="col-6 div-certificate_no">
+            <div class="sidebar-heading mt-3 mb-2">统一编号</div>
+            <input type="text" name="certificate_no" class="form-control">
+        </div>
+        <div class="col-6 div-start">
+            <div class="sidebar-heading mt-3 mb-2">启用时间</div>
+            <input type="text" name="start" class="form-control" readonly>
+        </div>
+        <div class="col-6 div-standard_id">
+            <div class="sidebar-heading mt-3 mb-2">检定标准</div>
+            <select name="standard_id[]" class="form-control" data-live-search="true" multiple>
+                @foreach($standards as $standard)
+                    <option value="{{$standard->id}}">{{$standard->name2}}-{{Str::limit($standard->name1,35)}}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-6 div-times">
+            <div class="sidebar-heading mt-3 mb-2">检定次数</div>
+            <input type="text" name="times" class="form-control" readonly>
+        </div>
+        <div class="col-6 div-certificate_name">
+            <div class="sidebar-heading mt-3 mb-2">证书名称</div>
+            <input type="text" name="certificate_name" class="form-control">
+        </div>
+        <div class="col-6 div-plan_id">
+            <div class="sidebar-heading mt-3 mb-2">送检计划</div>
+            <input type="text" name="plan_id" class="form-control" readonly>
+        </div>
+        <div class="col-6 div-remark">
+            <div class="sidebar-heading mt-3 mb-2">备注</div>
+            <input type="text" name="remark" class="form-control">
+        </div>
+        <div class="col-6">
+            <div class="sidebar-heading mt-3 mb-2">上传证书</div>
+            <input type="file" class="btn btn-secondary btn-square btn-sm" name="file_certificate" accept="application/pdf">
         </div>
     </div>
-    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
-        <label class="form-control-label">出厂编号</label>
-        <div class="input-group">
-            <select name="number_id" id="number_id" class="custom-select form-control" disabled>
-                <option value="" selected disabled>请选择...</option>
-            </select>
-            <span class="input-group-addon addon-primary" id="number_id_btn" onclick="number_id_click()">增加</span>
-        </div>
-    </div>
-    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
-        <label class="form-control-label">证书名称</label>
-        <input type="text" name="certificate_name" id="certificate_name" class="form-control">
-    </div>
-    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
-        <label class="form-control-label">统一编号</label>
-        <input type="text" name="certificate_no" id="certificate_no" class="form-control">
-    </div>
-    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
-        <label class="form-control-label">检定部门</label>
-        <select name="department_id" id="department_id" class="custom-select form-control">
-            <option value="" selected disabled>请选择...</option>
-            @foreach($departments as $department)
-                <option value="{{$department->id}}">{{$department->name}}</option>
-            @endforeach
-        </select>
-    </div>
-    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
-        <label class="form-control-label">检定日期</label>
-        <input type="text" name="verification_date" id="verification_date" class="form-control" onchange="load_validity_date()">
-    </div>
-    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
-        <label class="form-control-label">有效期</label>
-        <input type="text" name="validity_date" id="validity_date" class="form-control" readonly>
-    </div>
-    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
-        <label class="form-control-label">规格型号</label>
-        <input type="text" name="model" id="model" class="form-control" readonly>
-    </div>
-    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
-        <label class="form-control-label">测量范围</label>
-        <input type="text" name="limit" id="limit" class="form-control" readonly>
-    </div>
-    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
-        <label class="form-control-label">精确度</label>
-        <input type="text" name="accuracy" id="accuracy" class="form-control" readonly>
-    </div>
-    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
-        <label class="form-control-label">检定周期</label>
-        <input type="text" name="cycle_id" id="cycle_id" class="form-control" readonly>
-    </div>
-    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
-        <label class="form-control-label">ABC</label>
-        <input type="text" name="abc_id" id="abc_id" class="form-control" readonly>
-    </div>
-    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
-        <label class="form-control-label">启用时间</label>
-        <input type="text" name="start" id="start" value="{{date('Y')}}" class="form-control" readonly>
-    </div>
-    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
-        <label class="form-control-label">检定次数</label>
-        <input type="text" name="times" id="times" value="1" class="form-control" readonly>
-    </div>
-    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
-        <label class="form-control-label">检定费用</label>
-        <input type="text" name="money" id="money" value="0" class="form-control">
-    </div>
-    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
-        <label class="form-control-label">检定标准</label>
-        <select name="standard_id[]" id="standard_id" class="form-control selectpicker show-menu-arrow" data-live-search="true" multiple>
-            @foreach($standards as $standard)
-                <option value="{{$standard->id}}">{{$standard->name1}}-{{$standard->name2}}</option>
-            @endforeach
-        </select>
-    </div>
-    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
-        <label class="form-control-label">备注</label>
-        <input type="text" name="remark" id="remark" class="form-control">
-    </div>
-    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
-        <label class="form-control-label">送检计划</label>
-        <input type="text" name="plan_id" id="plan_id" class="form-control" readonly>
-    </div>
-    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 form-group row">
-        <button type="button" id="btn_certificate" class="btn btn-secondary btn-sm ripple">上传计量证书</button>
-        <input type="file" name="file_certificate" id="file_certificate" accept="application/pdf" style="display: none">
-        <label class="form-control-label" id="text_certificate"></label>
-    </div>
+    <script>
+        $('[name="tool_id"],[name="standard_id[]"]').selectpicker();
+        $('[name="verification_date"]').daterangepicker({
+            singleDatePicker: true,
+            container: '[name="verification_date"]',
+            locale: {
+                format: 'YYYY-MM-DD'
+            }
+        });
+        $('[name="verification_date"]').on('change', function () {
+            $('[name="start"]').val($('[name="verification_date"]').val().substring(0, 4))
+        })
+    </script>
 @endsection
-<link rel="stylesheet" href="/admin/assets/css/bootstrap-select/bootstrap-select.min.css">
-
-<script src="/admin/assets/vendors/js/datepicker/moment.min.js"></script>
-<script src="/admin/assets/vendors/js/datepicker/daterangepicker.js"></script>
-<script src="/admin/assets/vendors/js/bootstrap-select/bootstrap-select.min.js"></script>
-
-<script src="/admin/assets/js/components/datepicker/datepicker.js"></script>
-<script src="/admin/assets/js/pages/certificate.js"></script>
-<script>
-    $(document).ready(function () {
-        file()
-    })
-    $('#tool_id').selectpicker();
-    $('#standard_id').selectpicker();
-</script>

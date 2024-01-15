@@ -14,13 +14,15 @@ class PermissionRequest extends FormRequest
 
     public function rules()
     {
-        $rules['name'] = [
-            'required',
-            Rule::unique('permissions')->ignore($this->route('permission')),
-        ];
-        $rules['description'] = [
-            'required',
-            Rule::unique('permissions')->where('pid', $this->pid)->ignore($this->route('permission')),
+        $rules = [
+            'name' => [
+                'required',
+                Rule::unique('permissions')->ignore($this->route('permission')),
+            ],
+            'description' => [
+                'required',
+                Rule::unique('permissions')->where('pid', $this->pid)->ignore($this->route('permission')),
+            ]
         ];
         return $rules;
     }
@@ -28,10 +30,10 @@ class PermissionRequest extends FormRequest
     public function messages()
     {
         return [
-            "name.required" => "请输入角色名称",
-            "name.unique" => "角色名称已存在",
-            "description.required" => "请输入角色描述",
-            "description.unique" => "角色描述已存在",
+            "name.required" => "请输入权限名称",
+            "name.unique" => "权限名称已存在",
+            "description.required" => "请输入权限描述",
+            "description.unique" => "权限描述已存在",
         ];
     }
 }

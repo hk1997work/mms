@@ -12,7 +12,7 @@
                 </div>
                 <div class="widget-body">
                     <div class="table-responsive">
-                        <table id="sorting-table" class="table table-hover mb-0">
+                        <table id="index-table" class="table table-hover mb-0">
                             <thead>
                             <tr>
                                 <th>编号</th>
@@ -93,7 +93,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="table-responsive">
-                        <table id="sorting-table" class="table table-hover mb-0">
+                        <table id="index-table" class="table table-hover mb-0">
                             <thead>
                             <tr>
                                 <th>编号</th>

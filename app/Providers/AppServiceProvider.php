@@ -2,9 +2,7 @@
 
 namespace App\Providers;
 
-use App\Models\PermissionsView;
-use App\Models\Parameter;
-use App\Models\PositionsView;
+use App\Models\Permission;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -26,8 +24,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-
-        $permissions = PermissionsView::select('id','name','description1','description2','description3','pid','level','sort','icon','role','order')->get();
+        $permissions = Permission::orderBy('sort')->get();
         view()->share('permissions', $permissions);
         $menu = \Request::segment(1);
         view()->share('menu', $menu);

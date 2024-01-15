@@ -23,7 +23,7 @@
                 <div class="input-group">
                     <select name="factory_id[{{$a['json']->id}}]" id="factory_id{{$a['json']->id}}" class="custom-select form-control" onchange="load_numbers({{$a['json']->id}})">
                         @if($a['info'])
-                            <option value='' disabled>请选择...</option>
+                            <option value='' selected disabled>请选择...</option>
                             @foreach($a['factories'] as $factory)
                                 <option value="{{$factory->id}}" @if($factory->id==$a['factory_id']) selected @endif>{{$factory->factory}}</option>
                             @endforeach
@@ -43,7 +43,7 @@
                     @else
                         <select name="number_id[{{$a['json']->id}}]" id="number_id{{$a['json']->id}}" class="custom-select form-control">
                             @if($a['info'])
-                                <option value='' disabled>请选择...</option>
+                                <option value='' selected disabled>请选择...</option>
                                 @foreach($a['numbers'] as $number)
                                     <option value="{{$number->id}}" @if($number->id==$a['number_id']) selected @endif>{{$number->number}}</option>
                                 @endforeach

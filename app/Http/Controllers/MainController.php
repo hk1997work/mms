@@ -13,7 +13,7 @@ class MainController extends Controller
         return view("main.index");
     }
 
-    public function ajax()
+    public function list()
     {
         //证书、校准数量
         $certificates = CertificatesView::where('valid', 1)->where('sign', 0)->get();

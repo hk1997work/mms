@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Jobs\Pdf2Jpg;
 use App\Models\Certificate;
+use App\Models\CertificatesView;
 use App\Models\Factory;
 use App\Models\Number;
 use App\Models\Parameter;
@@ -14,8 +15,8 @@ use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
 use QL\QueryList;
+use GuzzleHttp;
 
 
 class Controller extends BaseController
@@ -26,19 +27,6 @@ class Controller extends BaseController
     {
         DB::select('CALL get_sn(?,@sn)', [$position_id]);
         return DB::select('SELECT @sn AS sn')[0]->sn;
-    }
-
-    function getStandard(Request $request, $path = '')
-    {
-        if ($request->hasFile('file_certificate')) {
-            $path = $request->file('file_certificate')->path();
-        }
-        exec("python F:/phpstudy_pro/WWW/laravel8/python/get_standard_from_pdf.py 2>&1 " . $path, $out, $status);
-        if ($status == 0) {
-            return $out;
-        } else {
-            return '读取失败';
-        }
     }
 
     function getInfo(ToolsView $tool)
@@ -61,48 +49,107 @@ class Controller extends BaseController
         return $numbers;
     }
 
+    function getNumber($number_id)
+    {
+        return Certificate::selectRaw('LEFT(IFNULL(MIN(verification_date),NOW()),4) AS start,COUNT(*) + 1 AS times')->where('number_id', $number_id)->first();
+    }
+
     function pdf(Request $request)
     {
         if ($request->hasFile('file_certificate')) {
             $file = $request->file('file_certificate');
-            $file->storeAs('public/' . \Auth::user()->username . '/orc/', "1.pdf");
-            exec("python F:/phpstudy_pro/WWW/laravel8/python/get_qr_code_from_pdf.py " . \Auth::user()->username . " 2>&1", $out, $status);
+            exec("python F:/phpstudy_pro/WWW/laravel8/python/get_qr_code_from_pdf.py  2>&1 " . $file->path(), $out, $status);
             if ($status == 0 && count($out) > 0) {
                 switch (substr($out[0], 0, 20)) {
                     case '':
                         return '识别二维码失败';
                     case 'http://lims.njsjly.c':
-                        return ['nj', explode('?zsId=', $out[0])[1]];
+                        $result = $this->nanjing($out[0]);
+                        break;
                     case 'https://serv.jsmi.co':
-                        return ['js_new', explode('?zsh=', $out[0])[1]];
+                        $result = $this->jiangsu_new($out[0]);
+                        break;
                     case 'https://www.jsmi.com.':
-                        return $this->jiangsu_url_old($out[0]);
+                        $result = $this->jiangsu_old($out[0]);
+                        break;
                     default:
                         return '识别成功,未接入API,请联系管理员.';
                 }
+                exec("python F:/phpstudy_pro/WWW/laravel8/python/get_standard_from_pdf.py 2>&1 " . $file->path(), $out, $status);
+                if ($status == 0) {
+                    $result['standard_id'] = $out[count($out) - 2];
+                }
+                if (Certificate::where('certificate_no', $result['certificate_no'])->where('certificate_no', '<>', $request->certificate_no)->count()) {
+                    $result['exist'] = 1;
+                }
+                $number = Number::where('number', $result['number'])->get();
+                if ($number->count() == 1) {
+                    $factory = Factory::where('id', $number->first()->factory_id)->first();
+                    $result['number_id'] = $number->first()->id;
+                    $result['factory_id'] = $factory->id;
+                    $result['tool_id'] = $factory->tool_id;
+                }
+                return $result;
             } else {
                 return '识别失败.';
             }
         }
     }
 
-    function getCertificateNo($certificate_no)
+    function nanjing($url)
     {
-        return !!Certificate::where('certificate_no', $certificate_no)->count();
+        $id = explode('?zsId=', $url)[1];
+        $client = new GuzzleHttp\Client(['verify' => false]);
+        $res = $client->get('https://lims.njsjly.com/cmiims/f/sys/webQuery/inquiryByIdInfo?' . $this->nanjing_encode('{"id":"' . $id . '"}'));
+        $body = json_decode($this->nanjing_decode($res->getBody()->getContents()));
+        $data = array(
+            'tool' => $body->certificateInfo->qj,
+            'model' => $body->certificateInfo->xhgg,
+            'factory' => $body->certificateInfo->zzcs,
+            'number' => (($body->certificateInfo->ccbh == null || $body->certificateInfo->ccbh == '/') ? '' : $body->certificateInfo->ccbh) . (($body->certificateInfo->sbbh == null || $body->certificateInfo->sbbh == '/') ? '' : $body->certificateInfo->sbbh),
+            'category' => $body->certificateInfo->zslx,
+            'verification_date' => $body->certificateInfo->jd_rq,
+            'certificate_no' => $body->certificateInfo->zs_bh,
+            'department' => '市计量院',
+        );
+        return $data;
     }
 
-    function getNumber($number)
+    function jiangsu_new($url)
     {
-        $number = Number::where('number', $number)->get();
-        if ($number->count() == 1) {
-            $factory = Factory::where('id', $number->first()->factory_id)->first();
-            $arr['number_id'] = $number->first()->id;
-            $arr['factory_id'] = $factory->id;
-            $arr['tool_id'] = $factory->tool_id;
-            return $arr;
-        }
-        return false;
+        $id = explode('?zsh=', $url)[1];
+        $client = new GuzzleHttp\Client(['verify' => false]);
+        $res = $client->get("https://serv.jsmi.com.cn/admin/zs/getByZshEwm/$id");
+        $body = json_decode($res->getBody()->getContents());
+        $data = array(
+            'tool' => $body->data->zsQjmc,
+            'model' => $body->data->zsXhgg,
+            'factory' => $body->data->zsZzc,
+            'number' => (($body->data->zsCcbh == null || $body->data->zsCcbh == '/') ? '' : $body->data->zsCcbh) . (($body->data->zsSbbh == null || $body->data->zsSbbh == '/') ? '' : $body->data->zsSbbh),
+            'category' => $body->data->zsZslx,
+            'verification_date' => $body->data->zsJdrq,
+            'certificate_no' => $body->data->zsZsh,
+            'department' => '省计量院',
+        );
+        return $data;
     }
+
+    function jiangsu_old($url)
+    {
+        $rules = array(
+            'tool' => ['#txtQJMC', 'text'],
+            'model' => ['#txtXHGG', 'text'],
+            'factory' => ['#txtZZC', 'text'],
+            'number' => ['#txtCCBH', 'text'],
+            'category' => ['#txtZSLX', 'text'],
+            'verification_date' => ['#txtJDRQ', 'text'],
+            'certificate_no' => ['#txtZSH', 'text'],
+        );
+        $data = QueryList::get($url)->rules($rules)->query()->getData();
+        $data['department'] = '省计量院';
+        return $data;
+    }
+
 
     function pdf2jpg($id)
     {
@@ -117,32 +164,11 @@ class Controller extends BaseController
                 if (is_dir($path . '/' . $filename)) {
                     $this->addFileToZip($path . '/' . $filename, $zip);
                 } else {
-                    $zip->addFile($path . '/' . $filename, str_replace('storage/' . \Auth::user()->username . '/', '', $path) . '/' . $filename);
+                    $zip->addFile($path . '/' . $filename, str_replace('storage/' . \Auth::user()->id . '/', '', $path) . '/' . $filename);
                 }
             }
         }
         closedir($handler);
-    }
-
-    function jiangsu_url_old($url)
-    {
-        //采集规则
-        $data[0] = 'js_old';
-        $rules = array(
-            'category' => ['#txtZSLX', 'text'],
-            'tool' => ['#txtQJMC', 'text'],
-            'factory' => ['#txtZZC', 'text'],
-            'number' => ['#txtCCBH', 'text'],
-            'certificate_no' => ['#txtZSH', 'text'],
-            'certificate_name' => ['#txtQJMC', 'text'],
-            'model' => ['#txtXHGG', 'text'],
-            'verification_date' => ['#txtJDRQ', 'text'],
-        );
-        //采集
-        $data[] = QueryList::get($url)->rules($rules)->query()->getData();
-        $data[1]['department'] = '省计量院';
-        //查看采集结果
-        return $data;
     }
 
     function nanjing_decode($str)
@@ -179,7 +205,7 @@ class Controller extends BaseController
         return $str;
     }
 
-    function jiangsu_decode($str,$key)
+    function jiangsu_decode($str, $key)
     {
         #base64解密
         $str = base64_decode($str);
@@ -193,7 +219,7 @@ class Controller extends BaseController
         return $str;
     }
 
-    function jiangsu_encode($str,$key)
+    function jiangsu_encode($str, $key)
     {
         #AES和HEX加密
         $str = openssl_encrypt(

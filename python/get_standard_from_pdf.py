@@ -78,7 +78,7 @@ def get_data_from_database():
         database="erp"
     )
     cursor = db_connection.cursor()
-    query = "SELECT id,CONCAT(name1,'-',name2) as standard FROM standards_views WHERE `level`=2"
+    query = "SELECT id,CONCAT(name2,'-',name1) as standard FROM standards_views WHERE `level`=2"
     cursor.execute(query)
 
     result = cursor.fetchall()
