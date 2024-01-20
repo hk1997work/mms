@@ -29,6 +29,7 @@ Route::group(['namespace' => '\App\Http\Controllers'], function () {
             Route::resource('/scrap', 'CertificateController');
             Route::resource('/invalid', 'CertificateController');
             Route::post('/ajax_certificate', 'CertificateController@list');
+            Route::get('/download_certificate/{certificate}','CertificateController@download');
             Route::any('/pdf', 'Controller@pdf');
             //导出台账
             Route::resource('/export', 'ExportController');
@@ -52,10 +53,14 @@ Route::group(['namespace' => '\App\Http\Controllers'], function () {
         Route::group(['middleware' => 'can:organization'], function () {
             //南京市
             Route::resource('/nanjing', 'NanjingController');
-            Route::get('/nj/number/{factory_id}', 'nanjingController@number');
+            Route::post('/ajax_nanjing', 'NanjingController@list');
+            Route::get('/download_nanjing/{nanjing}','NanjingController@download');
+            Route::post('/ajax_nanjing_show', 'NanjingController@list_show');
             //江苏省
             Route::resource('/jiangsu', 'JiangsuController');
-            Route::get('/js/number/{factory_id}', 'jiangsuController@number');
+            Route::post('/ajax_jiangsu', 'JiangsuController@list');
+            Route::get('/download_jiangsu/{jiangsu}','JiangsuController@download');
+            Route::post('/ajax_jiangsu_show', 'JiangsuController@list_show');
         });
 
         //计量管理

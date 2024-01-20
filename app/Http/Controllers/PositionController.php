@@ -75,8 +75,28 @@ class PositionController extends Controller
 
     public function show(Position $position)
     {
-
         return view('position.show', compact('position'));
+    }
+
+    public function list_show()
+    {
+        $id = $_GET['id'];
+        $data = CertificatesView::selectRaw('MAX(id) AS id,`order`,position,instrument,MAX(valid) AS valid,MIN(verification_date) AS verification_date,COUNT(*) AS count')
+            ->where('position', '<>', '备用')->where(function ($query) use ($id) {
+                $query->where('unit1_id', $id)
+                    ->orWhere('unit2_id', $id)
+                    ->orWhere('unit3_id', $id)
+                    ->orWhere('unit4_id', $id)
+                    ->orWhere('position_id', $id);
+            })->groupBy('order', 'position', 'position_id', 'instrument')->get()->toArray();
+        foreach ($data as $key => $value) {
+            $data[$key]['id'] = "<div class='styled-checkbox'>
+                        <input type='checkbox' name='cb' class='cb' id='$value[id]cb'>
+                        <label for='$value[id]cb'></label>
+                    </div>";
+            $data[$key]['valid'] = "<span class='tag btn-sm " . ($value['valid'] ? "tag-success'>有效" : "tag-danger'>失效") . "</span>";
+        }
+        return response()->json(['data' => array_map('array_values', $data)]);
     }
 
     public function store(PositionRequest $request)
@@ -129,27 +149,6 @@ class PositionController extends Controller
             $position->sort = $result;
             return !!$position->save() && !!$position_exchange->save();
         } else return $type ? '已经是最顶层,无法上移' : '已经是最底层,无法下移';
-    }
-
-    public function list_show()
-    {
-        $id = $_GET['id'];
-        $data = CertificatesView::selectRaw('MAX(id) AS id,`order`,position,instrument,MAX(valid) AS valid,MIN(verification_date) AS verification_date,COUNT(*) AS count')
-            ->where('position', '<>', '备用')->where(function ($query) use ($id) {
-                $query->where('unit1_id', $id)
-                    ->orWhere('unit2_id', $id)
-                    ->orWhere('unit3_id', $id)
-                    ->orWhere('unit4_id', $id)
-                    ->orWhere('position_id', $id);
-            })->groupBy('order', 'position', 'position_id', 'instrument')->get()->toArray();
-        foreach ($data as $key => $value) {
-            $data[$key]['id'] = "<div class='styled-checkbox'>
-                        <input type='checkbox' name='cb' class='cb' id='$value[id]cb'>
-                        <label for='$value[id]cb'></label>
-                    </div>";
-            $data[$key]['valid'] = "<span class='tag btn-sm " . ($value['valid'] ? "tag-success'>有效" : "tag-danger'>失效") . "</span>";
-        }
-        return response()->json(['data' => array_map('array_values', $data)]);
     }
 
     public function sn(Certificate $certificate)

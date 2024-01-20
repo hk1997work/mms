@@ -14714,4 +14714,8 @@ be a descendant of the grid when it is being dragged.
   input[type="file"]{
     width: 100%;
   }
+
+  .factory_add,.number_add,.group-delete{
+    cursor: pointer;
+  }
 }

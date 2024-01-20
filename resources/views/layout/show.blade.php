@@ -6,9 +6,7 @@
     </header>
     <div class="off-sidebar-content offcanvas-scroll auto-scroll">
         <input type="hidden" class="sidebar-url" name="sidebar-url" value="">
-        <div hidden class="sidebar-btn"></div>
-        <div class="tab-content">
-            @yield('content_form')
-        </div>
+        <div class="sidebar-btn" hidden></div>
+        @yield('content_form')
     </div>
 </div>

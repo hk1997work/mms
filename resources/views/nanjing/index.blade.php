@@ -1,140 +1,39 @@
 @extends('layout.index')
 @section('content_btn')
-    <li class="nav-item"><a onclick="btn_open()" class="nav-link">批量查看</a></li>
-    <li class="nav-item"><a onclick="btn_download()" class="nav-link">批量下载</a></li>
-    <li class="nav-item"><a onclick="btn_add()" class="nav-link">批量录入</a></li>
-    <li class="nav-item"><a class="nav-link" data-toggle="modal" data-target="#filter_modal">屏蔽详情</a></li>
+    <li class="nav-item"><a class="nav-link btn-show" data-menu="nanjing" data-pos="left" href="#">屏蔽列表</a></li>
 @endsection
 @section('content_table')
-    <form action="" onsubmit="return false;" id="form_nanjing">
-        {{csrf_field()}}
-        <table id="export-table" class="table table-hover mb-0">
-            <thead>
-            <tr>
-                <th class="d-none d-xl-table-cell">
-                    <div class="styled-checkbox mt-3">
-                        <input type="checkbox" name="check-all" id="check-all">
-                        <label for="check-all"></label>
-                    </div>
-                </th>
-                <th>检定日期</th>
-                <th class="d-none d-xl-table-cell">证书编号</th>
-                <th class="d-none d-xl-table-cell">器具名称</th>
-                <th class="d-none d-xl-table-cell">规格型号</th>
-                <th class="d-none d-xl-table-cell">出厂编号</th>
-                <th class="d-xl-none">证书信息</th>
-                <th class="d-none d-sm-table-cell">操作</th>
-            </tr>
-            </thead>
-            <tbody>
-            @if(isset($certificates))
-                @foreach($certificates as $certificate)
-                    <tr @if($certificate->zsType=='检定结果通知书') class="bg-error" @endif>
-                        <td>
-                            <div class="d-xl-none">{{$certificate->jdrq}}</div>
-                            @if($certificate->zsType!='检定结果通知书')
-                                <div class="styled-checkbox mt-3">
-                                    <input type="checkbox" name="cb" id="{{$certificate->id}}">
-                                    <label for="{{$certificate->id}}"></label>
-                                </div>
-                            @endif
-                        </td>
-                        <td class="d-none d-xl-table-cell">{{$certificate->jdrq}}</td>
-                        <td class="d-none d-xl-table-cell">{{$certificate->zsbh}}</td>
-                        <td class="d-none d-xl-table-cell">{{$certificate->name}}</td>
-                        <td class="d-none d-xl-table-cell">{{$certificate->xhgg}}</td>
-                        <td class="d-none d-xl-table-cell">{{isset($certificate->ccbh)?$certificate->ccbh=='/'?'':$certificate->ccbh:''}}{{isset($certificate->sbbh)?$certificate->sbbh=='/'?'':$certificate->sbbh:''}}</td>
-                        <td class="d-xl-none">{{$certificate->name}}<br>{{$certificate->xhgg}}
-                            <br>{{isset($certificate->ccbh)?$certificate->ccbh=='/'?'':$certificate->ccbh:''}}{{isset($certificate->sbbh)?$certificate->sbbh=='/'?'':$certificate->sbbh:''}}
-                            <br>{{$certificate->zsbh}}
-                        </td>
-                        <td class="td-actions d-none d-sm-table-cell">
-                            <a href="/nanjing/1?str={{str_replace('#','@',json_encode($certificate))}}" target="_blank"><i class="la la-eye edit"></i></a>
-                            <a href="/nanjing/0?str={{str_replace('#','@',json_encode($certificate))}}"><i class="la la-download delete"></i></a>
-                            <a onclick="m_edit('nanjing',{{$certificate->id}},'{{str_replace('#','@',json_encode($certificate))}}')"><i class="la la-eye-slash edit"></i></a>
-                        </td>
-                    </tr>
-                @endforeach
-            @endif
-            </tbody>
-        </table>
-    </form>
-    <div id="filter_modal" class="modal fade" data-backdrop="static">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">屏蔽列表</h4>
-                    <button type="button" class="close" data-dismiss="modal">
-                        <span aria-hidden="true">×</span>
-                        <span class="sr-only">close</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="table-responsive" style="max-height:500px;">
-                        <table id="filter-table" class="table table-hover mb-0">
-                            <thead>
-                            <tr>
-                                <th>检定日期</th>
-                                <th>证书信息</th>
-                                <th>操作</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            @foreach($nanjing as $n)
-                                <tr>
-                                    <td>{{$n->verification_date}}</td>
-                                    <td>{{$n->instrument}}<br>{{$n->model}}<br>{{$n->number}}<br>{{$n->certificate_no}}<br>{{$n->remark}}</td>
-                                    <td class="td-actions">
-                                        <a href="/nanjing/1?str={{str_replace('#','@',$n->pdf)}}" target="_blank"><i class="la la-eye edit"></i></a>
-                                        <a onclick="m_delete('nanjing',{{$n->id}})" data-toggle="modal" data-target="#delete" data-dismiss="modal"><i class="la la-close delete"></i></a>
-                                    </td>
-                                </tr>
-                            @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary ripple" data-dismiss="modal">返 回</button>
-                </div>
-            </div>
-        </div>
+    <div class="btn-group mb-3">
+        <ul class="button-nav nav nav-tabs mt-3 mb-3 ml-3" role="tablist">
+            <li><a class="btn-add check-multiple" data-menu="nanjing" data-pos="left" data-id="checkbox" data-cb="load" href="#">录入</a></li>
+            <li><a class="btn-edit check-multiple" data-menu="nanjing" data-pos="right" href="#">屏蔽</a></li>
+            <li><a class="btn-open check-multiple" data-menu="nanjing" href="#">打开</a></li>
+            <li><a class="btn-download check-multiple" data-menu="nanjing" href="#">下载</a></li>
+        </ul>
     </div>
-    @if(isset($certificates))
-        <script>
-            function btn_add() {
-                let check = []
-                if ($("#export-table input[type='checkbox'][name='cb']:checked").length > 10) {
-                    notifications('最多选择10条数据,当前数据' + $("#export-table input[type='checkbox'][name='cb']:checked").length + '条')
-                } else if ($("#export-table input[type='checkbox'][name='cb']:checked").length > 0) {
-                    $("#export-table input[type='checkbox'][name='cb']:checked").each(function () {
-                        check.push($(this).attr('id'))
-                    });
-                    m_add('nanjing', check.join(','), 1)
-                } else {
-                    notifications('请选择数据');
-                }
-            }
-
-            function btn_open() {
-                if ($("#export-table input[type='checkbox'][name='cb']:checked").length > 0) {
-                    $("#export-table input[type='checkbox'][name='cb']:checked").each(function () {
-                        window.open($(this).closest('tr').find('.td-actions a:first').attr('href'), '_blank')
-                    });
-                } else {
-                    notifications('请选择数据');
-                }
-            }
-
-            function btn_download() {
-                if ($("#export-table input[type='checkbox'][name='cb']:checked").length > 0) {
-                    $("#export-table input[type='checkbox'][name='cb']:checked").each(function () {
-                        window.open($(this).closest('tr').find('.td-actions a:eq(1)').attr('href'), '_blank')
-                    });
-                } else {
-                    notifications('请选择数据');
-                }
-            }
-        </script>
-    @endif
+    <table id="index-table" data-menu="nanjing" class="table table-hover mb-0">
+        <thead>
+        <tr>
+            <th style="width:5%;">
+                <div class="styled-checkbox">
+                    <input type="checkbox" name="check-all" class="check-all" id="check-all">
+                    <label for="check-all"></label>
+                </div>
+            </th>
+            <th>检定日期</th>
+            <th>证书编号</th>
+            <th>器具名称</th>
+            <th>规格型号</th>
+            <th>出厂编号</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
 @endsection
+@push('page-js-after-1')
+    <link rel="stylesheet" href="/admin/assets/css/bootstrap-select/bootstrap-select.min.css">
+    <script src="/admin/assets/vendors/js/datepicker/moment.min.js"></script>
+    <script src="/admin/assets/vendors/js/datepicker/daterangepicker.js"></script>
+    <script src="/admin/assets/vendors/js/bootstrap-select/bootstrap-select.min.js"></script>
+    <script src="/admin/assets/js/pages/nanjing.js"></script>
+@endpush

@@ -1,105 +1,78 @@
 @extends('layout.create')
-@section('text_modal-title','批量录入')
-
 @section('content_form')
-    @foreach($arr as $a)
+    @foreach($certificates as $certificate)
         <div class="form-group row mb-5 mt-5">
-            <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3 @if($a['info']==0) has-danger @endif">
-                <a href="{{$a['path']}}" id="tool_text{{$a['json']->id}}" target="_blank" class="form-control-label text-info">{{$a['json']->name}}</a>
-                <label class="form-control-label" id="model_text{{$a['json']->id}}">{{$a['json']->xhgg}}</label>
-                <select name="tool_id[{{$a['json']->id}}]" id="tool_id{{$a['json']->id}}" class="form-control selectpicker show-menu-arrow" data-live-search="true" onchange="load_factories({{$a['json']->id}})">
+            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 mb-3 div-group[{{$certificate['json']->id}}][tool_id] div-group[{{$certificate['json']->id}}][certificate_no]">
+                <a href="/download_nanjing/{{$certificate['json']->zsbh}}?type=show" target="_blank" class="form-control-label text-info">{{$certificate['json']->name}}</a>
+                <label class="form-control-label">{{$certificate['json']->xhgg}}</label>
+                <select name="group[{{$certificate['json']->id}}][tool_id]" class="custom-select form-control @if($certificate['info']==0) is-invalid @endif" data-live-search="true">
                     <option title="请选择..." value="" selected disabled>请选择...</option>
                     @foreach($tools as $tool)
-                        <option value="{{$tool->id}}" @if($a['info']&&$a['tool_id']==$tool->id) selected @endif>{{$tool->instrument}}--{{$tool->model}}</option>
+                        <option title="{{$tool->instrument}}" value="{{$tool->id}}" @if($certificate['info']&&$certificate['tool_id']==$tool->id) selected @endif>{{$tool->instrument}}--{{$tool->model}}</option>
                     @endforeach
                 </select>
-                <input type="hidden" name="path[{{$a['json']->id}}]" id="path[{{$a['json']->id}}]" value="{{$a['path']}}">
-                <input type="hidden" name="category[{{$a['json']->id}}]" id="category[{{$a['json']->id}}]" value="{{mb_substr($a['json']->zsType,0,4)}}">
-                <input type="hidden" name="certificate_no[{{$a['json']->id}}]" id="certificate_no{{$a['json']->id}}" value="{{$a['json']->zsbh}}">
-                <input type="hidden" name="certificate_name[{{$a['json']->id}}]" id="certificate_name{{$a['json']->id}}" value="{{$a['json']->name}}">
+                <input type="hidden" name="group[{{$certificate['json']->id}}][path]" value="{{$certificate['path']}}">
+                <input type="hidden" name="group[{{$certificate['json']->id}}][category]" value="{{mb_substr($certificate['category'],0,4)}}">
+                <input type="hidden" name="group[{{$certificate['json']->id}}][certificate_no]" value="{{$certificate['json']->zsbh}}">
+                <input type="hidden" name="group[{{$certificate['json']->id}}][certificate_name]" value="{{$certificate['json']->name}}">
             </div>
-            <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3 @if($a['info']==0) has-danger @endif">
-                <label class="form-control-label factory_text" id="factory_text{{$a['factory']}}">{{$a['factory']}}</label>
+            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 mb-3 div-group[{{$certificate['json']->id}}][factory_id]">
+                <label class="form-control-label">{{$certificate['factory']}}</label>
                 <div class="input-group">
-                    <select name="factory_id[{{$a['json']->id}}]" id="factory_id{{$a['json']->id}}" class="custom-select form-control" onchange="load_numbers({{$a['json']->id}})">
-                        @if($a['info'])
-                            <option value='' selected disabled>请选择...</option>
-                            @foreach($a['factories'] as $factory)
-                                <option value="{{$factory->id}}" @if($factory->id==$a['factory_id']) selected @endif>{{$factory->factory}}</option>
+                    <select name="group[{{$certificate['json']->id}}][factory_id]" class="custom-select form-control @if($certificate['info']==0) is-invalid @endif">
+                        <option value='' selected disabled>请选择...</option>
+                        @if($certificate['info'])
+                            @foreach($certificate['factories'] as $factory)
+                                <option value="{{$factory->id}}" @if($factory->id==$certificate['factory_id']) selected @endif>{{$factory->factory}}</option>
                             @endforeach
-                        @else
-                            <option value="" selected>请选择...</option>
                         @endif
                     </select>
-                    <span class="input-group-addon addon-primary" id="factory_id_btn{{$a['json']->id}}" onclick="factory_id_click({{$a['json']->id}})">增加</span>
+                    <span class="input-group-addon addon-primary btn-add factory_add" data-pos='right' data-menu='factory' data-cb="group[{{$certificate['json']->id}}][tool_id]" @if($certificate['info']) data-id="{{$certificate['tool_id']}}" @else hidden @endif>增加</span>
                 </div>
             </div>
-            <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3 @if($a['info']==0) has-danger @endif">
-                <label class="form-control-label" id="number_text{{$a['json']->id}}">{{isset($a['json']->ccbh)?$a['json']->ccbh=='/'?'':$a['json']->ccbh:''}}{{isset($a['json']->sbbh)?$a['json']->sbbh=='/'?'':$a['json']->sbbh:''}}</label>
+            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 mb-3 div-group[{{$certificate['json']->id}}][number_id]">
+                <label class="form-control-label">{{isset($certificate['json']->ccbh)?$certificate['json']->ccbh=='/'?'':$certificate['json']->ccbh:''}}{{isset($certificate['json']->sbbh)?$certificate['json']->sbbh=='/'?'':$certificate['json']->sbbh:''}}</label>
                 <div class="input-group">
-                    @if($a['info']==0)
-                        <input type='text' name='number_id[{{$a['json']->id}}]' id='number_id{{$a['json']->id}}' class='form-control' value="{{isset($a['json']->ccbh)?$a['json']->ccbh=='/'?'':$a['json']->ccbh:''}}{{isset($a['json']->sbbh)?$a['json']->sbbh=='/'?'':$a['json']->sbbh:''}}">
-                        <span class='input-group-addon addon-orange' id='number_id_btn{{$a['json']->id}}' onclick='number_id_click("{{$a['json']->id}}")'>返回</span>
-                    @else
-                        <select name="number_id[{{$a['json']->id}}]" id="number_id{{$a['json']->id}}" class="custom-select form-control">
-                            @if($a['info'])
-                                <option value='' selected disabled>请选择...</option>
-                                @foreach($a['numbers'] as $number)
-                                    <option value="{{$number->id}}" @if($number->id==$a['number_id']) selected @endif>{{$number->number}}</option>
-                                @endforeach
-                            @else
-                                <option value="" selected>请选择...</option>
-                            @endif
-                        </select>
-                        <span class="input-group-addon addon-primary" id="number_id_btn{{$a['json']->id}}" onclick="number_id_click({{$a['json']->id}})">增加</span>
-                    @endif
+                    <select name="group[{{$certificate['json']->id}}][number_id]" class="custom-select form-control @if($certificate['info']==0) is-invalid @endif">
+                        <option value='' selected disabled>请选择...</option>
+                        @if($certificate['info'])
+                            @foreach($certificate['numbers'] as $number)
+                                <option value="{{$number->id}}" @if($number->id==$certificate['number_id']) selected @endif>{{$number->number}}</option>
+                            @endforeach
+                        @endif
+                    </select>
+                    <span class="input-group-addon addon-primary btn-add number_add" data-pos='right' data-menu='number' data-cb="group[{{$certificate['json']->id}}][factory_id]" @if($certificate['info']) data-id="{{$certificate['factory_id']}}" @else hidden @endif>增加</span>
                 </div>
             </div>
-            <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
+            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 mb-3 div-group[{{$certificate['json']->id}}][verification_date]">
                 <label class="form-control-label">检定日期</label>
-                <input type="text" name="verification_date[{{$a['json']->id}}]" id="verification_date{{$a['json']->id}}" value="{{$a['json']->jdrq}}" class="form-control datepicker">
+                <input type="text" name="group[{{$certificate['json']->id}}][verification_date]" class="form-control" value="{{$certificate['json']->jdrq}}">
             </div>
-            <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
+            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 mb-3 div-group[{{$certificate['json']->id}}][standard_id]">
                 <label class="form-control-label">检定标准</label>
-                <select name="standard_id[{{$a['json']->id}}][]" id="standard_id{{$a['json']->id}}" class="form-control selectpicker show-menu-arrow" data-live-search="true" multiple>
+                <select name="group[{{$certificate['json']->id}}][standard_id][]" class="form-control" data-live-search="true" multiple>
                     @foreach($standards as $standard)
-                        <option value="{{$standard->id}}" @if(in_array($standard->id,$a['standard'])) selected @endif>{{$standard->name1}}-{{$standard->name2}}</option>
+                        <option value="{{$standard->id}}" @if(in_array($standard->id,$certificate['standard'])) selected @endif>{{$standard->name2}}-{{Str::limit($standard->name1,35)}}</option>
                     @endforeach
                 </select>
             </div>
-            <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
+            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 mb-3 div-group[{{$certificate['json']->id}}][remark]">
                 <label class="form-control-label">备注</label>
                 <div class="input-group">
-                    <input type="text" name="remark[{{$a['json']->id}}]" id="remark{{$a['json']->id}}" class="form-control">
-                    <span class="input-group-addon addon-orange" onclick="$(this).parent().parent().parent().remove()">删除</span>
+                    <input type="text" name="group[{{$certificate['json']->id}}][remark]" class="form-control">
+                    <span class="input-group-addon addon-orange group-delete">删除</span>
                 </div>
             </div>
         </div>
     @endforeach
-@endsection
-<link rel="stylesheet" href="/admin/assets/css/bootstrap-select/bootstrap-select.min.css">
-
-<script src="/admin/assets/vendors/js/datepicker/moment.min.js"></script>
-<script src="/admin/assets/vendors/js/datepicker/daterangepicker.js"></script>
-<script src="/admin/assets/vendors/js/bootstrap-select/bootstrap-select.min.js"></script>
-
-<script src="/admin/assets/js/pages/nanjing.js"></script>
-
-<script>
-    $(".selectpicker").selectpicker();
-    $(".datepicker").daterangepicker({
-        singleDatePicker: true,
-        locale: {
-            format: 'YYYY-MM-DD'
-        }
-    });
-    $(document).ready(function () {
-        $('.modal-body').on('change', 'select', function () {
-            if ($(this).val() == '') {
-                $(this).parent().parent().addClass('has-danger');
-            } else {
-                $(this).parent().parent().removeClass('has-danger');
+    <script>
+        $('[name^="group["][name$="][tool_id]"],[name^="group["][name$="][standard_id][]"]').selectpicker();
+        $('[name^="group["][name$="][verification_date]"]').daterangepicker({
+            singleDatePicker: true,
+            container: '[name^="group["][name$="][verification_date]"]',
+            locale: {
+                format: 'YYYY-MM-DD'
             }
         });
-    });
-</script>
+    </script>
+@endsection

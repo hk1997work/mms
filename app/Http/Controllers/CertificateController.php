@@ -3,12 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CertificateRequest;
-use App\Http\Requests\FactoryRequest;
-use App\Http\Requests\NumberRequest;
-use App\Http\Requests\ReplaceRequest;
 use App\Models\Certificate;
 use App\Models\CertificatesView;
-use App\Models\Factory;
 use App\Models\Number;
 use App\Models\Parameter;
 use App\Models\Position;
@@ -18,7 +14,6 @@ use App\Models\StandardsView;
 use App\Models\Tool;
 use App\Models\ToolsView;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
@@ -56,7 +51,7 @@ class CertificateController extends Controller
         $data = $data->orderBy('validity_date')->get()->toArray();
         foreach ($data as $key => $value) {
             $data[$key]['id'] = "<div class='styled-checkbox'>
-                        <input type='checkbox' name='cb' class='cb' id='$value[id]'>
+                        <input type='checkbox' name='cb' class='cb' id='$value[id]' data-url='/storage/certificate/$value[id].pdf'>
                         <label for='$value[id]'></label>
                     </div>";
             $data[$key]['instrument'] = ($value['validity_date'] < now() && $path == 'active') ? "<span class='tag btn-sm tag-danger'>$value[instrument]</span>" : $value['instrument'];
@@ -124,9 +119,9 @@ class CertificateController extends Controller
     public function update(CertificateRequest $request, Certificate $certificate)
     {
         if ($request->type == 'apply') {
-            $certificate->position_id = $request->position;
-            $certificate->sn = $this->getSn($request->position);
-            $certificate->remark = $request->remarks;
+            $certificate->position_id = $request->position_id;
+            $certificate->sn = $request->sn;
+            $certificate->remark = $request->remark;
             $number = Number::find($certificate->number_id);
             $number->state_id = Parameter::where('name', '在用')->first()->id;
             $number->save();
@@ -225,26 +220,25 @@ class CertificateController extends Controller
 
     public function destroy($certificate)
     {
-        $certificate = Certificate::find($certificate);
-        if ($certificate->valid) {
-            $certificate->valid = 0;
-            $number = Number::find($certificate->number_id);
-            $number->state_id = Parameter::where('name', '待检')->first()->id;
-            $number->save();
-            return !!$certificate->save();
+        $certificates = Certificate::find(explode(',', $certificate));
+        if ($certificates[0]->valid) {
+            Certificate::whereIn('id', explode(',', $certificate))->update(['valid' => 0]);
+            return !!Number::whereIn('id', $certificates->pluck('number_id'))->update(['state_id' => Parameter::where('name', '待检')->first()->id]);
         } else {
-            if (Storage::exists("public/certificate/$certificate->id.pdf")) {
-                Storage::delete("public/certificate/$certificate->id.pdf");
+            foreach ($certificates as $c) {
+                if (Storage::exists("public/certificate/$c->id.pdf")) {
+                    Storage::delete("public/certificate/$c->id.pdf");
+                }
+                if (File::isDirectory("storage/jpg/$c->id")) {
+                    File::deleteDirectory("storage/jpg/$c->id");
+                }
             }
-            if (File::isDirectory("storage/jpg/$certificate->id")) {
-                File::deleteDirectory("storage/jpg/$certificate->id");
-            }
-            return !!$certificate->delete();
+            return !!Certificate::whereIn('id', explode(',', $certificate))->delete();
         }
     }
 
-    public function displace(Certificate $old, Certificate $new, $cause)
+    public function download(CertificatesView $certificate)
     {
-
+        return response()->download(storage_path("app/public/certificate/$certificate->id.pdf"), "$certificate->order--$certificate->instrument--$certificate->number--【$certificate->verification_date" . '至' . "$certificate->validity_date" . "】.pdf");
     }
 }

@@ -1,65 +1,69 @@
-function load_factories(id) {
-    var tool_id = $("#tool_id" + id).val();
-    $.ajax({
-        url: "/certificate_factories/" + tool_id,
-        success: function (data) {
-            if (data) {
-                $("#factory_id" + id).empty();
-                $("#factory_id" + id).parent().parent().addClass('has-danger');
-                $("#factory_id" + id).append("<option value='' selected disabled>请选择...</option>");
-                $("#number_id" + id).empty();
-                $("#number_id" + id).parent().parent().addClass('has-danger');
-                $("#number_id" + id).append("<option value='' selected disabled>请选择...</option>");
-                if (data.length) {
-                    for (var key in data) {
-                        $("#factory_id" + id).append("<option value=" + data[key]['id'] + ">" + data[key]['factory'] + "</option>");
-                    }
-                    if ($("#ff" + id).val()) {
-                        $("#factory_id" + id).val($("#ff" + id).val())
-                        $("#ff" + id).remove()
-                        load_numbers(id)
+//加载生产厂家
+$('.off-sidebar').on('change', '[name^="group["][name$="][tool_id]"]', function () {
+    let form_group = $(this).closest('.form-group')
+    if (form_group.find('[name^="group["][name$="][tool_id]"]').val() != null) {
+        let path = "/certificate_factories/" + form_group.find('[name^="group["][name$="][tool_id]"]').val();
+        form_group.find('.factory_add').attr("hidden", false);
+        form_group.find('.factory_add').data('id', form_group.find('[name^="group["][name$="][tool_id]"]').val())
+        form_group.find('.number_add').attr("hidden", true)
+        form_group.find('.number_add').data('id', '')
+        form_group.find('[name^="group["][name$="][factory_id]"]').empty();
+        form_group.find('[name^="group["][name$="][factory_id]"]').append("<option value='' selected disabled>请选择...</option>");
+        form_group.find('[name^="group["][name$="][number_id]"]').empty();
+        form_group.find('[name^="group["][name$="][number_id]"]').append("<option value='' selected disabled>请选择...</option>");
+        $.ajax({
+            url: path,
+            success: function (data) {
+                if (data) {
+                    if (data.length) {
+                        for (const key in data) {
+                            form_group.find('[name^="group["][name$="][factory_id]"]').append("<option value=" + data[key]['id'] + ">" + data[key]['factory'] + "</option>");
+                        }
+                    } else {
+                        notifications('未录入生产厂家');
                     }
                 } else {
-                    notifications('未录入生产厂家');
-                    factory_id_click(id);
+                    notifications('生产厂家加载失败');
                 }
-            } else {
-                notifications('器具名称加载失败');
+            },
+            error: function (xhr) {
+                xhr.status == 401 ? document.location.reload() : notifications('生产厂家加载失败')
             }
-        },
-        error: function (xhr) {
-            xhr.status == 401 ? document.location.reload() : notifications('器具名称加载失败')
-        }
-    })
-}
+        })
+    }
+})
 
-function load_numbers(id) {
-    var factory_id = $("#factory_id" + id).val();
-    $.ajax({
-        url: "/nj/number/" + factory_id,
-        success: function (data) {
-            if (data) {
-                $("#number_id" + id).empty();
-                $("#number_id" + id).parent().parent().addClass('has-danger');
-                $("#number_id" + id).append("<option value='' selected disabled>请选择...</option>");
-                if (data.length) {
-                    for (var key in data) {
-                        $("#number_id" + id).append("<option value=" + data[key]['id'] + ">" + data[key]['number'] + "</option>");
-                    }
-                    if ($("#nn" + id).val()) {
-                        $("#number_id" + id).val($("#nn" + id).val())
-                        $("#nn" + id).remove()
+//加载出厂编号
+$('.off-sidebar').on('change', '[name^="group["][name$="][factory_id]"]', function () {
+    let form_group = $(this).closest('.form-group')
+    if (form_group.find('[name^="group["][name$="][factory_id]"]').val() != null) {
+        let path = "/certificate_numbers/" + form_group.find('[name^="group["][name$="][factory_id]"]').val() + '?number_id=0';
+        form_group.find('.number_add').attr("hidden", false);
+        form_group.find('.number_add').data('id', form_group.find('[name^="group["][name$="][factory_id]"]').val())
+        form_group.find('[name^="group["][name$="][number_id]"]').empty();
+        form_group.find('[name^="group["][name$="][number_id]"]').append("<option value='' selected disabled>请选择...</option>");
+        $.ajax({
+            url: path,
+            success: function (data) {
+                if (data) {
+                    if (data.length) {
+                        for (const key in data) {
+                            form_group.find('[name^="group["][name$="][number_id]"]').append("<option value=" + data[key]['id'] + ">" + data[key]['number'] + "</option>");
+                        }
+                    } else {
+                        notifications('未录入出厂编号');
                     }
                 } else {
-                    notifications('未录入出厂编号');
-                    number_id_click(id)
+                    notifications('出厂编号加载失败');
                 }
-            } else {
-                notifications('数据加载失败');
+            },
+            error: function (xhr) {
+                xhr.status == 401 ? document.location.reload() : notifications('出厂编号加载失败')
             }
-        },
-        error: function (xhr) {
-            xhr.status == 401 ? document.location.reload() : notifications('出厂编号加载失败')
-        }
-    })
-}
+        })
+    }
+})
+
+$('.off-sidebar').on('click', '.group-delete', function () {
+    $(this).closest('.form-group').remove();
+})

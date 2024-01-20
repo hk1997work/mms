@@ -65,9 +65,9 @@ $('.off-sidebar').on('change', '[name="tool_id"]', function () {
         form.find('.factory_add').data('id', form.find('[name="tool_id"]').val())
         form.find('.number_add').attr("hidden", true)
         form.find('.number_add').data('id', '')
-        form.find('[name="number_id"]').attr("disabled", true)
         form.find('[name="factory_id"]').empty();
         form.find('[name="factory_id"]').append("<option value='' selected disabled>请选择...</option>");
+        form.find('[name="number_id"]').attr("disabled", true)
         form.find('[name="number_id"]').empty();
         form.find('[name="number_id"]').append("<option value='' selected disabled>请选择...</option>");
         $.ajax({

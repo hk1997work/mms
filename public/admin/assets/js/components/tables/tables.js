@@ -5,7 +5,7 @@
     let canSubmit = true;
 
     function initTable(table) {
-        if ($(table).length > 0) {
+        if (table.length > 0) {
             let options = {
                 language: {
                     sProcessing: "",
@@ -33,14 +33,14 @@
                 },
                 processing: true,
                 scrollX: true,
-                scrollY: $(window).height() - $(table).offset().top - 210,
+                scrollY: $(window).height() - table.offset().top - 210,
                 fixedColumns: {
                     leftColumns: 1
                 },
                 lengthChange: false,
                 paging: false,
                 ajax: {
-                    url: "/ajax_" + $(table).data('menu'),
+                    url: "/ajax_" + table.data('menu'),
                     type: "POST",
                     data: {
                         "_token": csrf_token
@@ -51,18 +51,22 @@
                     {orderable: false, targets: 0}
                 ],
             }
-            if (table == '#no-ajax-table') {
+            if (table.attr('id') == 'no-ajax-table') {
                 delete options.fixedColumns
                 delete options.ajax
-                delete options.order
-                options.columnDefs = [
-                    {orderable: false, targets: -1}
-                ]
+                if (table.hasClass('nocheck')) {
+                    delete options.order
+                    options.columnDefs = [
+                        {orderable: false, targets: -1}
+                    ]
+                }
+                $(".loader").fadeOut();
+                $("#preloader").fadeOut();
             }
-            if ($(table).hasClass('unsorted')) {
+            if (table.hasClass('unsorted')) {
                 options.ordering = false;
             }
-            return $(table).DataTable(options).on('xhr.dt', function () {
+            return table.DataTable(options).on('xhr.dt', function () {
                 $(".loader").fadeOut();
                 $("#preloader").fadeOut();
             });
@@ -125,6 +129,9 @@
     function sidebar_ajax(url, menu, title, pos, callback) {
         if (canSubmit) {
             canSubmit = false;
+            if (callback == 'load') {
+                $("#preloader")[0].style.display = 'block';
+            }
             $.ajax({
                 url: url,
                 success: function (data) {
@@ -134,10 +141,10 @@
                         $('.from-' + pos).find('.sidebar-url').val(menu)
                         $(window).trigger('resize')
                         if ($('.from-' + pos).find($('#no-ajax-table')).length > 0) {
-                            initTable('#no-ajax-table')
+                            initTable($('#no-ajax-table'))
                         }
                         if ($('.from-' + pos).find($('#off-sidebar-table')).length > 0) {
-                            offSidebarDataTable = initTable('#off-sidebar-table').on('xhr.dt', function () {
+                            offSidebarDataTable = initTable($('#off-sidebar-table')).on('xhr.dt', function () {
                                 $('.from-' + pos).addClass('is-visible');
                             });
                             checkboxChange($('.from-' + pos))
@@ -150,9 +157,11 @@
                     } else {
                         notifications(title + '失败')
                     }
+                    $("#preloader").fadeOut();
                 },
                 error: function (xhr) {
                     xhr.status == 401 ? document.location.reload() : notifications(title + '失败')
+                    $("#preloader").fadeOut();
                 },
             });
             setTimeout(() => {
@@ -166,6 +175,9 @@
         let form = btn.closest('form')
         if (canSubmit) {
             canSubmit = false;
+            if (callback == 'load') {
+                $("#preloader")[0].style.display = 'block';
+            }
             let title = $('.from-' + pos).find('.sidebar-btn').text()
             $.ajax({
                 url: url,
@@ -192,16 +204,22 @@
                     } else {
                         notifications(result);
                     }
+                    $("#preloader").fadeOut();
                 }, error: function (xhr) {
                     xhr.status == 401 ? document.location.reload() : notifications(title + '失败')
                     form.find(".warning-danger").remove();
                     form.find('.form-control').removeClass('is-invalid').addClass('is-valid');
                     let json = JSON.parse(xhr.responseText);
                     $.each(json.errors, function (idx, obj) {
+                        if (idx.includes('.')) {
+                            let parts = idx.split('.');
+                            idx = parts[0] + "[" + parts[1] + "][" + parts[2] + "]";
+                        }
                         let str = " <small class='text-danger warning-danger'>" + obj + "</small>";
-                        form.find(".div-" + idx.replace(".", "")).find('.sidebar-heading').append(str);
-                        form.find(".div-" + idx.replace(".", "")).find('.form-control').removeClass('is-valid').addClass('is-invalid');
+                        form.find('[class~="div-' + idx + '"]').find('.sidebar-heading,label.form-control-label').append(str);
+                        form.find('[class~="div-' + idx + '"]').find('.form-control').removeClass('is-valid').addClass('is-invalid');
                     });
+                    $("#preloader").fadeOut();
                 }
             });
             setTimeout(() => {
@@ -211,11 +229,11 @@
     }
 
     $('.off-sidebar').on('change', '.is-valid,.is-invalid', function () {
-        $(this).closest(('.div-' + $(this).attr('name')).replace('[]', '')).find(".warning-danger").remove();
-        $(this).closest(('.div-' + $(this).attr('name')).replace('[]', '')).find(".form-control").removeClass('is-valid').removeClass('is-invalid');
+        $(this).closest(('[class~="div-' + $(this).attr('name') + '"]').replace('[]', '')).find(".warning-danger").remove();
+        $(this).closest(('[class~="div-' + $(this).attr('name') + '"]').replace('[]', '')).find(".form-control").removeClass('is-valid').removeClass('is-invalid');
     })
 
-    dataTable = initTable('#index-table');
+    dataTable = initTable($('table'));
 
     window.onbeforeunload = function (e) {
         localStorage.setItem('scrollpos', $('.dataTables_scrollBody').scrollTop());
@@ -242,6 +260,9 @@
     //增加框
     $('.table-responsive,.off-sidebar').on('click', '.btn-add', function () {
         let id = $(this).data('id')
+        if (id == 'checkbox') {
+            id = get_id($(this).closest('.ckp'))
+        }
         let menu = $(this).data('menu')
         let title = $(this).text()
         let url = '/' + menu + '/create' + (id ? '?id=' + id : '')
@@ -275,8 +296,9 @@
     })
 
     //显示框
-    $('.table-responsive,.off-sidebar').on('click', '.btn-show', function () {
+    $('.widget-header,.table-responsive,.off-sidebar').on('click', '.btn-show', function () {
         let id = get_id($(this).closest('.ckp'), '.btn-show')
+        id = id ? id : 0
         let menu = $(this).data('menu')
         let title = $(this).text()
         let url = '/' + menu + '/' + id
@@ -289,7 +311,9 @@
         let pos = $(this).closest('.off-sidebar').data('pos')
         let url = "/" + $('.from-' + pos).find('.sidebar-url').val()
         let callback
-        if ($(this).data('cb')) {
+        if ($(this).data('cb') == 'load') {
+            callback = 'load'
+        } else if ($(this).data('cb')) {
             callback = function () {
                 $('[name="' + $('.from-' + pos).find('.submit-add').data('cb') + '"]').trigger('change');
             }
@@ -354,16 +378,24 @@
 
     //下载操作
     $('.table-responsive,.off-sidebar').on('click', '.btn-download', function () {
+        let menu = $(this).data('menu')
         let id = get_id($(this).closest('.ckp'))
         $.each(id.split(','), function (index, value) {
-            let tr = $('#' + value).closest('tr')
-            window.open('/download/pdf/certificate/' + value + '/' + encodeURIComponent(tr.find('td:eq(1)').text() + '--' + tr.find('td:eq(4)').text() + '--' + tr.find('td:eq(6)').text() + '--【' + tr.find('td:eq(7)').text() + '至' + tr.find('td:eq(8)').text() + '】'), '_blank');
+            window.open('/download_' + menu + '/' + value);
+        })
+    })
+
+    //打开操作
+    $('.table-responsive,.off-sidebar').on('click', '.btn-open', function () {
+        let id = get_id($(this).closest('.ckp'))
+        $.each(id.split(','), function (index, value) {
+            window.open($('#' + value).data('url'));
         })
     })
 
     $(document).ready(function () {
         $('.off-sidebar').on('transitionend', function (event) {
-            if (event.hasOwnProperty('propertyName') && event.originalEvent.propertyName === 'transform') {
+            if (event.originalEvent.propertyName && event.originalEvent.propertyName === 'transform') {
                 if ($(this).hasClass('is-visible') == false) {
                     $(this).html('')
                 }

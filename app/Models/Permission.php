@@ -17,14 +17,4 @@ class Permission extends Model
     {
         return $this->belongsToMany(Role::class, 'permission_role', 'permission_id', 'role_id')->withPivot(['permission_id', 'role_id'])->orderBy('id');
     }
-    //获取父级
-    public function toParent()
-    {
-        return $this->belongsTo(Permission::class,'pid','id');
-    }
-    //获取子级
-    public function toChildrens()
-    {
-        return $this->hasMany(Permission::class,'pid','id')->orderBy('sort');
-    }
 }

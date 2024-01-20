@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Jobs\Pdf2Jpg;
 use App\Models\Certificate;
-use App\Models\CertificatesView;
 use App\Models\Factory;
 use App\Models\Number;
 use App\Models\Parameter;
@@ -43,8 +42,14 @@ class Controller extends BaseController
     function getNumbers(Factory $factory_id)
     {
         $numbers = Number::where('factory_id', $factory_id->id)->where(function ($query) {
-            $query->where('state_id', Parameter::where('name', '待检')->first()->id)
-                ->orWhere('id', isset($_GET['number_id']) ? $_GET['number_id'] : 0);
+            if ($_GET['number_id'] == 0) {
+                $query->where('state_id', Parameter::where('name', '待检')->first()->id)
+                    ->orWhere('state_id', Parameter::where('name', '在用')->first()->id)
+                    ->orWhere('state_id', Parameter::where('name', '备用')->first()->id);
+            } else {
+                $query->where('state_id', Parameter::where('name', '待检')->first()->id)
+                    ->orWhere('id', isset($_GET['number_id']) ? $_GET['number_id'] : 0);
+            }
         })->orderBy('number')->get();
         return $numbers;
     }
@@ -52,6 +57,16 @@ class Controller extends BaseController
     function getNumber($number_id)
     {
         return Certificate::selectRaw('LEFT(IFNULL(MIN(verification_date),NOW()),4) AS start,COUNT(*) + 1 AS times')->where('number_id', $number_id)->first();
+    }
+
+    function getStandards($path)
+    {
+        exec("python F:/phpstudy_pro/WWW/laravel8/python/get_standard_from_pdf.py 2>&1 " . $path, $out, $status);
+        if ($status == 0) {
+            $result['standard_id'] = $out[count($out) - 2];
+            $result['category'] = hex2bin(str_replace('\x', '', substr($out[count($out) - 1], 2, -1)));
+        }
+        return $result;
     }
 
     function pdf(Request $request)
@@ -75,10 +90,7 @@ class Controller extends BaseController
                     default:
                         return '识别成功,未接入API,请联系管理员.';
                 }
-                exec("python F:/phpstudy_pro/WWW/laravel8/python/get_standard_from_pdf.py 2>&1 " . $file->path(), $out, $status);
-                if ($status == 0) {
-                    $result['standard_id'] = $out[count($out) - 2];
-                }
+                $result['standard_id'] = $this->getStandards($file->path())['standard_id'];
                 if (Certificate::where('certificate_no', $result['certificate_no'])->where('certificate_no', '<>', $request->certificate_no)->count()) {
                     $result['exist'] = 1;
                 }

@@ -33,7 +33,8 @@
                 <li><a class="btn-add" data-menu="certificate" data-id='{{$type->id}}' data-pos="left" href="#">增加</a></li>
             @endif
             <li><a class="btn-delete check-multiple" data-menu="certificate" data-pos="right" href="#">删除</a></li>
-            <li><a class="btn-download check-multiple" href="#">下载</a></li>
+            <li><a class="btn-open check-multiple" data-menu="certificate" href="#">打开</a></li>
+            <li><a class="btn-download check-multiple" data-menu="certificate" href="#">下载</a></li>
             <li><a class="btn-edit check-single" data-menu="certificate" data-pos="left" href="#">修改</a></li>
             <li><a class="btn-show check-single" data-menu="certificate" data-pos="up" href="#">查看</a></li>
         </ul>
@@ -61,7 +62,6 @@
         </thead>
         <tbody></tbody>
     </table>
-
 @endsection
 @push('page-js-after-1')
     <link rel="stylesheet" href="/admin/assets/css/bootstrap-select/bootstrap-select.min.css">
