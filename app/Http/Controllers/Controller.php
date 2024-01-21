@@ -42,7 +42,7 @@ class Controller extends BaseController
     function getNumbers(Factory $factory_id)
     {
         $numbers = Number::where('factory_id', $factory_id->id)->where(function ($query) {
-            if ($_GET['number_id'] == 0) {
+            if (isset($_GET['number_id']) && $_GET['number_id'] == 0) {
                 $query->where('state_id', Parameter::where('name', '待检')->first()->id)
                     ->orWhere('state_id', Parameter::where('name', '在用')->first()->id)
                     ->orWhere('state_id', Parameter::where('name', '备用')->first()->id);
@@ -61,12 +61,11 @@ class Controller extends BaseController
 
     function getStandards($path)
     {
-        exec("python F:/phpstudy_pro/WWW/laravel8/python/get_standard_from_pdf.py 2>&1 " . $path, $out, $status);
+        exec("python F:/phpstudy_pro/WWW/laravel8/python/get_standard_from_pdf.py 2>&1 " . str_replace('"', '\"', $path), $out, $status);
         if ($status == 0) {
-            $result['standard_id'] = $out[count($out) - 2];
-            $result['category'] = hex2bin(str_replace('\x', '', substr($out[count($out) - 1], 2, -1)));
+            return json_decode($out[count($out) - 1]);
         }
-        return $result;
+        return false;
     }
 
     function pdf(Request $request)
@@ -90,7 +89,7 @@ class Controller extends BaseController
                     default:
                         return '识别成功,未接入API,请联系管理员.';
                 }
-                $result['standard_id'] = $this->getStandards($file->path())['standard_id'];
+                $result['standard_id'] = $this->getStandards($file->path())[0]->standards;
                 if (Certificate::where('certificate_no', $result['certificate_no'])->where('certificate_no', '<>', $request->certificate_no)->count()) {
                     $result['exist'] = 1;
                 }

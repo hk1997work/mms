@@ -209,7 +209,7 @@ $('.off-sidebar').on('change', '[name="file_certificate"]', function () {
                         form.find('[name="standard_id[]"]').selectpicker('refresh');
                     }
                     if (result['exist']) {
-                        form.find(".div-tool_id").find('.sidebar-heading').append(" <small class='text-warning' id='t'>证书已录入</small>");
+                        form.find(".div-tool_id").find('.sidebar-heading').append(" <small class='text-warning t'>证书已录入</small>");
                         form.find('[name="file_certificate"]').val('');
                     } else {
                         form.find(".div-tool_id .sidebar-heading").append(" <small class='text-info m'>" + result['tool'] + result['model'] + "</small>");

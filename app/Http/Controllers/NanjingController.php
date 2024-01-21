@@ -32,37 +32,39 @@ class NanjingController extends Controller
         $nanjing = Nanjing::pluck('certificate_no')->toArray();
         $certificate = Certificate::where('department_id', Parameter::where('name', '市计量院')->first()->id)->pluck('certificate_no')->toArray();
         $list = [];
-        foreach ($result as $item) {
-            if (!in_array($item->zsbh, $nanjing) && !in_array($item->zsbh, $certificate)) {
-                $list[] = $item;
-            }
-        }
         $certificates = [];
         $i = 0;
-        foreach ($list as $value) {
-            $certificates[$i]['id'] = "<div class='styled-checkbox'>
+        foreach ($result as $value) {
+            if (!in_array($value->zsbh, $nanjing) && !in_array($value->zsbh, $certificate)) {
+                $list[] = $value;
+                $certificates[$i]['id'] = "<div class='styled-checkbox'>
                         <input type='checkbox' name='cb' class='cb' id='$value->zsbh' data-url='/download_nanjing/$value->zsbh?type=show'>
                         <label for='$value->zsbh'></label>
                     </div>";
-            $certificates[$i]['jdrq'] = $value->jdrq;
-            $certificates[$i]['zsbh'] = $value->zsbh;
-            $certificates[$i]['name'] = $value->name;
-            $certificates[$i]['xhgg'] = $value->xhgg;
-            $certificates[$i]['ccbh'] = (isset($value->ccbh) ? ($value->ccbh == '/' ? '' : $value->ccbh) : '') . (isset($value->sbbh) ? ($value->sbbh == '/' ? '' : $value->sbbh) : '');
-            $i = $i + 1;
+                $certificates[$i]['jdrq'] = $value->jdrq;
+                $certificates[$i]['zsbh'] = $value->zsbh;
+                $certificates[$i]['name'] = $value->name;
+                $certificates[$i]['xhgg'] = $value->xhgg;
+                $certificates[$i]['ccbh'] = (isset($value->ccbh) ? ($value->ccbh == '/' ? '' : $value->ccbh) : '') . (isset($value->sbbh) ? ($value->sbbh == '/' ? '' : $value->sbbh) : '');
+                $i = $i + 1;
+            }
         }
+        request()->session()->put('nanjing_certificate', $list);
         return response()->json(['data' => array_map('array_values', $certificates)]);
     }
 
     public function create(Request $request)
     {
+        if (request()->session()->missing('nanjing_headers')) {
+            $this->check();
+        }
         $certificates = [];
         $check = explode(',', $request->id);
         $tools = Tool::orderBy('instrument')->get();
         $standards = StandardsView::where('level', 2)->orderBy('name1')->get();
         $client = new GuzzleHttp\Client(['verify' => false]);
         $headers = request()->session()->get('nanjing_headers');
-        $list = request()->session()->get('nanjing_list');
+        $list = request()->session()->get('nanjing_certificate');
         foreach ($list as $key => $value) {
             if (in_array($value->zsbh, $check)) {
                 #获取证书地址
@@ -79,10 +81,8 @@ class NanjingController extends Controller
                 $res = $client->request('GET', "http://lims.njsjly.com/cmiims/f/sys/webQuery/inquiryByIdInfo?$str", $headers);
                 $certificates[$key]['factory'] = explode('","', explode('"zzcs":"', $this->nanjing_decode((string)$res->getBody()))[1])[0];
 
+                $certificates[$key]['key'] = 'key' . $key;
                 $certificates[$key]['json'] = $value;
-                $standard = $this->getStandards($certificates[$key]['path']);
-                $certificates[$key]['standard'] = explode(',', $standard['standard_id']);
-                $certificates[$key]['category'] = $standard['category'];
                 if ($number->count() == 1) {
                     $certificates[$key]['info'] = 1;
                     $factory = Factory::where('id', $number->first()->factory_id)->first();
@@ -95,6 +95,11 @@ class NanjingController extends Controller
                     $certificates[$key]['info'] = 0;
                 }
             }
+        }
+        $result = $this->getStandards(collect($certificates)->pluck('path', 'key'));
+        foreach ($result as $value) {
+            $certificates[$value->key]['standard'] = explode(',', $value->standards);
+            $certificates[$value->key]['category'] = $value->category;
         }
         return view('nanjing.create', compact('tools', 'standards', 'certificates'));
     }
@@ -143,7 +148,7 @@ class NanjingController extends Controller
                 $number->save();
                 $standards = Standard::find($r['standard_id']);
                 $certificate->standards()->sync($standards);
-                Storage::put("/public/certificate/" . $certificate->id . ".pdf", file_get_contents(str_replace('@', '&', $r['path'])));
+                Storage::put("/public/certificate/" . $certificate->id . ".pdf", file_get_contents($r['path']));
                 $this->pdf2jpg($certificate->id);
             } else {
                 return false;
@@ -159,8 +164,11 @@ class NanjingController extends Controller
 
     public function update(Request $request, $nanjing)
     {
+        if (request()->session()->missing('nanjing_session')) {
+            $this->check();
+        }
         $check = explode(',', $nanjing);
-        $list = request()->session()->get('nanjing_list');
+        $list = request()->session()->get('nanjing_certificate');
         foreach ($list as $value) {
             if (in_array($value->zsbh, $check)) {
                 $arr['certificate_no'] = $value->zsbh;
@@ -201,6 +209,9 @@ class NanjingController extends Controller
 
     public function download($nanjing)
     {
+        if (request()->session()->missing('nanjing_headers')) {
+            $this->check();
+        }
         $client = new GuzzleHttp\Client(['verify' => false]);
         $headers = request()->session()->get('nanjing_headers');
         $list = request()->session()->get('nanjing_list');

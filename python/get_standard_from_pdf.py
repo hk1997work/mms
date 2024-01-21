@@ -2,12 +2,12 @@ import sys
 import fitz  # PyMuPDF
 import pytesseract
 import mysql.connector
-import re
-from io import BytesIO
 import requests
+import json
+from io import BytesIO
 from PIL import Image
 
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files/Tesseract-OCR/tesseract.exe'
 
 
 def extract_text_from_pdf(pdf_path):
@@ -31,7 +31,7 @@ def extract_text_from_pdf(pdf_path):
         if page_num == 0:
             one_text = page_text.replace(' ', '').replace('\n', '').lower()
     pdf_document.close()
-    return one_text, full_text
+    return one_text, find_matching_lines(full_text)
 
 
 def find_matching_keywords(text, keywords):
@@ -78,7 +78,7 @@ def get_data_from_database():
         database="erp"
     )
     cursor = db_connection.cursor()
-    query = "SELECT id,CONCAT(name2,'-',name1) as standard FROM standards_views WHERE `level`=2"
+    query = "SELECT id,CONCAT(name2,'-',REPLACE(REPLACE(SUBSTRING_INDEX(name1, '《', 1), 'I', '1'), 'O', '0')) as standard FROM standards_views WHERE `level`=2"
     cursor.execute(query)
 
     result = cursor.fetchall()
@@ -89,20 +89,30 @@ def get_data_from_database():
     return result
 
 
+def is_valid_json(text):
+    try:
+        json_object = json.loads(text)
+        return True, json_object
+    except json.JSONDecodeError as e:
+        return False, text
+
+
 def main():
-    pdf = sys.argv[1].replace('@', '&')
+    text = sys.argv[1]
     arr_category = {"检定证": "检定证书", "检定结": "检定证书", "校准证": "校准证书", "检测报": "检测报告", "测试报": "检测报告"}
     database_data = get_data_from_database()
-    one_text, pdf_text = extract_text_from_pdf(pdf)
-    pdf_standard = []
-    pdf_category = find_matching_keywords(one_text, arr_category)
-
-    for record in database_data:
-        db_standard = re.sub(r'《(.*?)》', '', record[1].replace('I', '1').replace('O', '0')).split(',')
-        if all(item in find_matching_lines(pdf_text) for item in db_standard):
-            pdf_standard.append(str(record[0]))
-    print(', '.join(pdf_standard))
-    print(pdf_category.encode('utf-8'))
+    is_json, arr = is_valid_json(text)
+    json_array = []
+    if not is_json:
+        arr = {'0': text}
+    for key, value in arr.items():
+        one_text, pdf_text = extract_text_from_pdf(value)
+        pdf_standard = []
+        for record in database_data:
+            if record[1] in pdf_text:
+                pdf_standard.append(str(record[0]))
+        json_array.append({'key': key.replace('key', ''), 'category': find_matching_keywords(one_text, arr_category), 'standards': ','.join(pdf_standard)})
+    print(json.dumps(json_array))
 
 
 if __name__ == "__main__":

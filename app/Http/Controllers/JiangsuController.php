@@ -33,37 +33,39 @@ class JiangsuController extends Controller
         $jiangsu = Jiangsu::pluck('certificate_no')->toArray();
         $certificate = Certificate::where('department_id', Parameter::where('name', '省计量院')->first()->id)->pluck('certificate_no')->toArray();
         $list = [];
-        foreach ($result as $item) {
-            if (!in_array($item->zsZsh, $jiangsu) && !in_array($item->zsZsh, $certificate)) {
-                $list[] = $item;
-            }
-        }
         $certificates = [];
         $i = 0;
-        foreach ($list as $value) {
-            $certificates[$i]['zsId'] = "<div class='styled-checkbox'>
+        foreach ($result as $value) {
+            if (!in_array($value->zsZsh, $jiangsu) && !in_array($value->zsZsh, $certificate)) {
+                $list[] = $value;
+                $certificates[$i]['zsId'] = "<div class='styled-checkbox'>
                         <input type='checkbox' name='cb' class='cb' id='$value->zsZsh' data-url='/download_jiangsu/$value->zsZsh?type=download'>
                         <label for='$value->zsZsh'></label>
                     </div>";
-            $certificates[$i]['zsJdrq'] = $value->zsJdrq;
-            $certificates[$i]['zsZsh'] = $value->zsZsh;
-            $certificates[$i]['zsQjmc'] = $value->zsQjmc;
-            $certificates[$i]['zsXhgg'] = $value->zsXhgg;
-            $certificates[$i]['zsCcbh'] = (isset($value->zsCcbh) ? ($value->zsCcbh == '/' ? '' : $value->zsCcbh) : '') . (isset($value->zsSbbh) ? ($value->zsSbbh == '/' ? '' : $value->zsSbbh) : '');
-            $i = $i + 1;
+                $certificates[$i]['zsJdrq'] = $value->zsJdrq;
+                $certificates[$i]['zsZsh'] = $value->zsZsh;
+                $certificates[$i]['zsQjmc'] = $value->zsQjmc;
+                $certificates[$i]['zsXhgg'] = $value->zsXhgg;
+                $certificates[$i]['zsCcbh'] = (isset($value->zsCcbh) ? ($value->zsCcbh == '/' ? '' : $value->zsCcbh) : '') . (isset($value->zsSbbh) ? ($value->zsSbbh == '/' ? '' : $value->zsSbbh) : '');
+                $i = $i + 1;
+            }
         }
+        request()->session()->put('jiangsu_certificate', $list);
         return response()->json(['data' => array_map('array_values', $certificates)]);
     }
 
     public function create(Request $request)
     {
+        if (request()->session()->missing('jiangsu_Authorization')) {
+            $this->check();
+        }
         $certificates = [];
         $check = explode(',', $request->id);
         $tools = Tool::orderBy('instrument')->get();
         $standards = StandardsView::where('level', 2)->orderBy('name1')->get();
         $client = new GuzzleHttp\Client(['verify' => false]);
         $Authorization = request()->session()->get('jiangsu_Authorization');
-        $list = request()->session()->get('jiangsu_list');
+        $list = request()->session()->get('jiangsu_certificate');
         foreach ($list as $key => $value) {
             if (in_array($value->zsZsh, $check)) {
                 #获取证书地址
@@ -74,16 +76,14 @@ class JiangsuController extends Controller
                     ],
                 ]);
                 $json = json_decode((string)$res->getBody())->data;
-                $certificates[$key]['path'] = 'https://app.jsmi.com.cn/file/sys-file/downLoadFile//' . $value->zsZsh . '.pdf?bucket=' . $json->bucket . '@fileName=' . $json->zsdz;
+                $certificates[$key]['path'] = 'https://app.jsmi.com.cn/file/sys-file/downLoadFile//' . $value->zsZsh . '.pdf?bucket=' . $json->bucket . '&fileName=' . $json->zsdz;
                 #获取出厂编号
                 $value->zsCcbh = isset($value->zsCcbh) ? $value->zsCcbh == '/' ? '' : $value->zsCcbh : '';
                 $value->zsSbbh = isset($value->zsSbbh) ? $value->zsSbbh == '/' ? '' : $value->zsSbbh : '';
                 $number = Number::where('number', $value->zsCcbh . $value->zsSbbh)->get();
 
+                $certificates[$key]['key'] = 'key' . $key;
                 $certificates[$key]['json'] = $value;
-                $standard = $this->getStandards($certificates[$key]['path']);
-                $certificates[$key]['standard'] = explode(',', $standard['standard_id']);
-                $certificates[$key]['category'] = $standard['category'];
                 if ($number->count() == 1) {
                     $certificates[$key]['info'] = 1;
                     $factory = Factory::where('id', $number->first()->factory_id)->first();
@@ -96,6 +96,11 @@ class JiangsuController extends Controller
                     $certificates[$key]['info'] = 0;
                 }
             }
+        }
+        $result = $this->getStandards(collect($certificates)->pluck('path', 'key'));
+        foreach ($result as $value) {
+            $certificates[$value->key]['standard'] = explode(',', $value->standards);
+            $certificates[$value->key]['category'] = $value->category;
         }
         return view('jiangsu.create', compact('tools', 'standards', 'certificates'));
     }
@@ -144,7 +149,7 @@ class JiangsuController extends Controller
                 $number->save();
                 $standards = Standard::find($r['standard_id']);
                 $certificate->standards()->sync($standards);
-                Storage::put("/public/certificate/" . $certificate->id . ".pdf", file_get_contents(str_replace('@', '&', $r['path'])));
+                Storage::put("/public/certificate/" . $certificate->id . ".pdf", file_get_contents($r['path']));
                 $this->pdf2jpg($certificate->id);
             } else {
                 return false;
@@ -160,8 +165,11 @@ class JiangsuController extends Controller
 
     public function update(Request $request, $jiangsu)
     {
+        if (request()->session()->missing('jiangsu_Authorization')) {
+            $this->check();
+        }
         $check = explode(',', $jiangsu);
-        $list = request()->session()->get('jiangsu_list');
+        $list = request()->session()->get('jiangsu_certificate');
         foreach ($list as $value) {
             if (in_array($value->zsZsh, $check)) {
                 $arr['certificate_no'] = $value->zsZsh;
@@ -201,6 +209,9 @@ class JiangsuController extends Controller
 
     public function download($jiangsu)
     {
+        if (request()->session()->missing('jiangsu_Authorization')) {
+            $this->check();
+        }
         $client = new GuzzleHttp\Client(['verify' => false]);
         $Authorization = request()->session()->get('jiangsu_Authorization');
         $res = $client->request('GET', 'https://app.jsmi.com.cn/forms/app-zs/getPath?zsh=' . $jiangsu, [
