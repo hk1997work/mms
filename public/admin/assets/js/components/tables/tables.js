@@ -393,6 +393,23 @@
         })
     })
 
+    //提交操作
+    $('.table-responsive,.off-sidebar').on('click', '.btn-submit', function () {
+        let id
+        if ($(this).data('id')) {
+            id = $(this).data('id')
+        } else if ($('#off-sidebar-table').length > 0) {
+            id = get_id($('.off-sidebar'))
+        } else {
+            id = get_id($('.table-responsive'))
+        }
+        let pos = $(this).closest('.off-sidebar').data('pos')
+        let url = "/" + $('.from-' + pos).find('.sidebar-url').val() + '/' + id
+        $('.from-' + pos).find('form').attr('action', url)
+        $('.from-' + pos).removeClass('is-visible');
+        $('.from-' + pos).find('form').submit()
+    })
+
     $(document).ready(function () {
         $('.off-sidebar').on('transitionend', function (event) {
             if (event.originalEvent.propertyName && event.originalEvent.propertyName === 'transform') {

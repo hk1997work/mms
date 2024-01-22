@@ -18,6 +18,9 @@ $('.off-sidebar').on('change', '[name^="group["][name$="][tool_id]"]', function 
                     if (data.length) {
                         for (const key in data) {
                             form_group.find('[name^="group["][name$="][factory_id]"]').append("<option value=" + data[key]['id'] + ">" + data[key]['factory'] + "</option>");
+                            if (form_group.find(".ff").text().trim() == data[key]['factory']) {
+                                form_group.find('[name^="group["][name$="][factory_id]"]').val(data[key]['id']).trigger('change');
+                            }
                         }
                     } else {
                         notifications('未录入生产厂家');
@@ -49,6 +52,10 @@ $('.off-sidebar').on('change', '[name^="group["][name$="][factory_id]"]', functi
                     if (data.length) {
                         for (const key in data) {
                             form_group.find('[name^="group["][name$="][number_id]"]').append("<option value=" + data[key]['id'] + ">" + data[key]['number'] + "</option>");
+                            if (form_group.find(".nn").text().trim() == data[key]['number']) {
+                                console.log(data[key]['id'])
+                                form_group.find('[name^="group["][name$="][number_id]"]').val(data[key]['id']).trigger('change');
+                            }
                         }
                     } else {
                         notifications('未录入出厂编号');
