@@ -54,7 +54,7 @@ class CertificateController extends Controller
                         <input type='checkbox' name='cb' class='cb' id='$value[id]' data-url='/storage/certificate/$value[id].pdf'>
                         <label for='$value[id]'></label>
                     </div>";
-            $data[$key]['instrument'] = ($value['validity_date'] < now() && $path == 'active') ? "<span class='tag btn-sm tag-danger'>$value[instrument]</span>" : $value['instrument'];
+            $data[$key]['instrument'] = ($value['validity_date'] < Carbon::now()->format('Y-m-d') && $path == 'active') ? "<span class='tag btn-sm tag-danger'>$value[instrument]</span>" : $value['instrument'];
         }
         return response()->json(['data' => array_map('array_values', $data)]);
     }
