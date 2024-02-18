@@ -194,9 +194,11 @@
                             if ($('#off-sidebar-table').length > 0) {
                                 offSidebarDataTable.ajax.reload(null, false)
                             }
-                            dataTable.ajax.reload(function () {
-                                $(window).trigger('resize')
-                            }, false);
+                            if (dataTable) {
+                                dataTable.ajax.reload(function () {
+                                    $(window).trigger('resize')
+                                }, false);
+                            }
                         }
                         $('.from-' + pos).removeClass('is-visible');
                     } else if (result == false) {
@@ -258,7 +260,7 @@
     checkboxChange($('.table-responsive'))
 
     //增加框
-    $('.table-responsive,.off-sidebar').on('click', '.btn-add', function () {
+    $('.widget-header,.table-responsive,.off-sidebar').on('click', '.btn-add', function () {
         let id = $(this).data('id')
         if (id == 'checkbox') {
             id = get_id($(this).closest('.ckp'))
@@ -412,7 +414,7 @@
 
     $(document).ready(function () {
         $('.off-sidebar').on('transitionend', function (event) {
-            if (event.originalEvent.propertyName && event.originalEvent.propertyName === 'transform') {
+            if (event.originalEvent && event.originalEvent.propertyName && event.originalEvent.propertyName === 'transform') {
                 if ($(this).hasClass('is-visible') == false) {
                     $(this).html('')
                 }

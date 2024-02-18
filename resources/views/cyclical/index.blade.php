@@ -13,23 +13,23 @@
                         {{csrf_field()}}
                         <div class="form-group row mb-3">
                             <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 mb-3">
-                                <label class="form-control-label">类别</label>
-                                <div><select name="type[]" class="selectpicker show-menu-arrow show-tick" multiple data-actions-box="true" data-selected-text-format="count" required>
-                                        <option selected>质量</option>
-                                        <option selected>安全</option>
-                                    </select></div>
-                            </div>
-                            <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 mb-3">
                                 <label class="form-control-label">单位</label>
-                                <div><select name="position[]" class="selectpicker show-menu-arrow show-tick" multiple data-actions-box="true" data-selected-text-format="count" required>
+                                <div><select name="position[]" class="selectpicker show-menu-arrow show-tick" multiple data-actions-box="true" data-selected-text-format="count">
                                         @foreach($levels as $level)
                                             <option selected>{{$level->name1}}</option>
                                         @endforeach
                                     </select></div>
                             </div>
                             <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 mb-3">
+                                <label class="form-control-label">类别</label>
+                                <div><select name="type[]" class="selectpicker show-menu-arrow show-tick" multiple data-actions-box="true" data-selected-text-format="count">
+                                        <option selected>质量</option>
+                                        <option selected>安全</option>
+                                    </select></div>
+                            </div>
+                            <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 mb-3">
                                 <label class="form-control-label">选择年份</label>
-                                <div><select name="year[]" class="selectpicker show-menu-arrow show-tick" multiple data-actions-box="true" data-selected-text-format="count" required>
+                                <div><select name="year[]" class="selectpicker show-menu-arrow show-tick" multiple data-actions-box="true" data-selected-text-format="count">
                                         @foreach($years as $year)
                                             <option @if($year->year==date('Y')) selected @endif>{{$year->year}}</option>
                                         @endforeach

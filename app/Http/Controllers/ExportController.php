@@ -16,69 +16,75 @@ class ExportController extends Controller
 {
     public function index()
     {
+        $levels = Position::select('name')->where('level', 3)->distinct()->get();
+        $types = Position::where('level', 2)->orderBy('sort')->get();
+        return view("export.index", compact('levels', 'types'));
+    }
+
+    public function create()
+    {
         $certificates = CertificatesView::where('valid', 1)->where('type', '计量器具')->where('sign', 0)->orderBy('order')->get();
         $settings = explode(',', Setting::first()->order);
-        $levels = Position::select('name')->where('level', 3)->distinct()->get();
-        $types = Position::where('level',2)->orderBy('sort')->get();
-        return view("export.index", compact('certificates', 'settings', 'levels','types'));
+        return view('export.create', compact('certificates', 'settings'));
     }
 
     public function store(Request $request)
     {
-        $result = CertificatesView::whereIn('type', $request->type)->whereIn('unit2', $request->position)->whereNotNull('unit3');
+        if (Setting::count()) {
+            return !!Setting::whereRaw('1=1')->update(['order' => $request->cb ? implode(',', array_keys($request->cb)) : '']);
+        } else {
+            return !!Setting::create(['order' => $request->cb ? implode(',', array_keys($request->cb)) : '']);
+        }
+    }
+
+    public function update(Request $request)
+    {
+        $certificates = CertificatesView::whereIn('type', $request->type)->whereIn('unit2', $request->position);
         if (isset($request->daterange)) {
             $start_date = substr($request->daterange, 0, 10);
             $end_date = substr($request->daterange, -10);
-            $orders = array_unique(array_column($result->get()->toArray(), 'order'));
-            $result1 = $result->where('verification_date', '<=', $start_date)->where('validity_date', '>=', $end_date)->selectRaw('`order`,Max(id) AS id')->groupBy('order');
-            $result1_order = array_column($result1->get()->toArray(), 'order');
-            $result1_id = array_column($result1->get()->toArray(), 'id');
-            $result2_order = array_diff($orders, $result1_order);
-            foreach ($result2_order as $order2) {
-                $start = CertificatesView::where('order', $order2)->where('verification_date', '<=', $start_date)->where('validity_date', '>', $start_date)->max('times');
-                $end = CertificatesView::where('order', $order2)->where('validity_date', '>=', $end_date)->where('verification_date', '<', $end_date)->min('times');
-                $result2_id = array_column(CertificatesView::where('order', $order2)->whereBetween('times', [$start, $end])->get()->toArray(), 'id');
-                $result1_id = array_merge($result1_id, $result2_id);
-            }
+            $certificates = $certificates->where('start_date', '<=', $end_date)->where('end_date', '>', $start_date);
         } else {
-            $result1_id = array_column($result->where('valid', 1)->get()->toArray(), 'id');
+            $certificates = $certificates->where('valid', 1);
         }
-
         $path = "storage/" . \Auth::user()->id;
-        if (File::isDirectory($path)) {
-            File::deleteDirectory($path);
-        }
-
         if ($request->check_type) {
-            foreach ($request->type as $t) {
+            foreach ($request->type as $type) {
                 if ($request->check_position) {
-                    foreach ($request->position as $p) {
-                        $this->export($result1_id, $request->contents, $t, $p);
+                    foreach ($request->position as $position) {
+                        $this->export($certificates, $request->contents, [$type], [$position]);
                     }
                 } else {
-                    $this->export($result1_id, $request->contents, $t, $request->position);
+                    $this->export($certificates, $request->contents, [$type], $request->position);
                 }
             }
         } elseif ($request->check_position) {
-            foreach ($request->position as $p) {
-                $this->export($result1_id, $request->contents, $request->type, $p);
+            foreach ($request->position as $position) {
+                $this->export($certificates, $request->contents, $request->type, [$position]);
             }
         } else {
-            $this->export($result1_id, $request->contents, $request->type, $request->position);
+            $this->export($certificates, $request->contents, $request->type, $request->position);
         }
         $zip = new ZipArchive();
         if ($zip->open($path . '/证书台账' . date('Y-m-d') . '.zip', ZipArchive::CREATE) == TRUE) {
-            $this->addFileToZip($path, $zip);
+            $this->addFileToZip($path . '/证书台账', $zip);
             $zip->close();
+        }
+        if (File::isDirectory($path . '/证书台账')) {
+            File::deleteDirectory($path . '/证书台账');
         }
         header("Content-Type: application/zip");
         header("Content-Transfer-Encoding: Binary");
         header("Content-Length: " . filesize($path . '/证书台账' . date('Y-m-d') . '.zip'));
         header("Content-Disposition: attachment; filename=证书台账" . date('Y-m-d') . ".zip");
         readfile($path . '/证书台账' . date('Y-m-d') . '.zip');
+        @ob_end_clean();
+        if (file_exists($path . '/证书台账' . date('Y-m-d') . '.zip')) {
+            unlink($path . '/证书台账' . date('Y-m-d') . '.zip');
+        }
     }
 
-    public function export($id, $contents, $type, $position)
+    public function export($certificates, $contents, $types, $positions)
     {
         $path = "storage/" . \Auth::user()->id;
         $filename = '';
@@ -100,30 +106,13 @@ class ExportController extends Controller
                 'formatCode' => '@'
             ],
         ];
-        if (is_array($id)) {
-            $ids = $id;
-        } else {
-            $ids[] = $id;
-        }
-        if (is_array($type)) {
-            $types = $type;
-        } else {
-            $types[] = $type;
-            $filename = $type;
-        }
-        if (is_array($position)) {
-            $positions = $position;
-        } else {
-            $positions[] = $position;
-            $filename = $filename . $position;
-        }
-        $certificates = CertificatesView::whereIn('id', $ids)->whereIn('type', $types)->whereIn('unit2', $positions)->orderBy('order')->orderBy('times')->get();
+        $certificates = $certificates->whereIn('type', $types)->whereIn('unit2', $positions)->orderBy('order')->orderBy('start_date')->get();
         if ($certificates->count() == 0) {
             return;
         }
         if (in_array("台账", $contents)) {
             $i = 3;
-            $inputFileName = 'storage/mould/台账模板.xls';
+            $inputFileName = 'storage/mould/台账模板.xlsx';
             $spreadsheet = IOFactory::load($inputFileName);
             $sheet = $spreadsheet->getActiveSheet();
             foreach ($certificates as $certificate) {
@@ -150,16 +139,15 @@ class ExportController extends Controller
                 $sheet->getRowDimension($i)->setRowHeight(20);
             }
             $sheet->getStyle("A4:S$i")->applyFromArray($styleArray);
-            @ob_end_clean();
-            $writer = IOFactory::createWriter($spreadsheet, 'Xls');
-            if (File::isDirectory($path . '/台账') == false) {
-                File::makeDirectory($path . '/台账', 0777, true, true);
+            $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+            if (File::isDirectory($path . '/证书台账/台账') == false) {
+                File::makeDirectory($path . '/证书台账/台账', 0777, true, true);
             }
-            $writer->save($path . "/台账/台账$filename.xls");
+            $writer->save($path . "/证书台账/台账/台账$filename.xlsx");
         }
         if (in_array("核对台账", $contents)) {
             $i = 3;
-            $inputFileName = 'storage/mould/核对台账模板.xls';
+            $inputFileName = 'storage/mould/核对台账模板.xlsx';
             $spreadsheet = IOFactory::load($inputFileName);
             $sheet = $spreadsheet->getActiveSheet();
             foreach ($certificates as $certificate) {
@@ -176,16 +164,15 @@ class ExportController extends Controller
                 $sheet->getRowDimension($i)->setRowHeight(20);
             }
             $sheet->getStyle("A4:I$i")->applyFromArray($styleArray);
-            @ob_end_clean();
-            $writer = IOFactory::createWriter($spreadsheet, 'Xls');
-            if (File::isDirectory($path . '/核对台账') == false) {
-                File::makeDirectory($path . '/核对台账', 0777, true, true);
+            $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+            if (File::isDirectory($path . '/证书台账/核对台账') == false) {
+                File::makeDirectory($path . '/证书台账/核对台账', 0777, true, true);
             }
-            $writer->save($path . "/核对台账/核对台账$filename.xls");
+            $writer->save($path . "/证书台账/核对台账/核对台账$filename.xlsx");
         }
         if (in_array("标准台账", $contents)) {
             $i = 4;
-            $inputFileName = 'storage/mould/标准台账模板.xls';
+            $inputFileName = 'storage/mould/标准台账模板.xlsx';
             $spreadsheet = IOFactory::load($inputFileName);
             $sheet = $spreadsheet->getActiveSheet();
             foreach ($certificates as $certificate) {
@@ -215,27 +202,26 @@ class ExportController extends Controller
                 $sheet->getRowDimension($i)->setRowHeight(20);
             }
             $sheet->getStyle("A5:V$i")->applyFromArray($styleArray);
-            @ob_end_clean();
-            $writer = IOFactory::createWriter($spreadsheet, 'Xls');
-            if (File::isDirectory($path . '/标准台账') == false) {
-                File::makeDirectory($path . '/标准台账', 0777, true, true);
+            $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+            if (File::isDirectory($path . '/证书台账/标准台账') == false) {
+                File::makeDirectory($path . '/证书台账/标准台账', 0777, true, true);
             }
-            $writer->save($path . "/标准台账/标准台账$filename.xls");
+            $writer->save($path . "/证书台账/标准台账/标准台账$filename.xlsx");
         }
         if (in_array("计量证书", $contents)) {
             foreach ($certificates as $certificate) {
-                if (Storage::exists("public/certificate/$certificate->id.pdf") && !Storage::exists("public/" . \Auth::user()->id . "/证书/$certificate->order--$certificate->instrument--$certificate->number--【" . substr($certificate->verification_date, 0, 4) . "年" . substr($certificate->verification_date, 5, 2) . "月" . substr($certificate->verification_date, 8, 2) . "日-" . substr($certificate->validity_date, 0, 4) . "年" . substr($certificate->validity_date, 5, 2) . "月" . substr($certificate->validity_date, 8, 2) . "日】.pdf")) {
-                    Storage::copy("public/certificate/$certificate->id.pdf", "public/" . \Auth::user()->id . "/证书/$filename/$certificate->order--$certificate->instrument--$certificate->number--【" . substr($certificate->verification_date, 0, 4) . "年" . substr($certificate->verification_date, 5, 2) . "月" . substr($certificate->verification_date, 8, 2) . "日-" . substr($certificate->validity_date, 0, 4) . "年" . substr($certificate->validity_date, 5, 2) . "月" . substr($certificate->validity_date, 8, 2) . "日】.pdf");
+                if (Storage::exists("public/certificate/$certificate->id.pdf") && !Storage::exists("public/" . \Auth::user()->id . "/证书台账/证书/$certificate->order--$certificate->instrument--$certificate->number--【" . substr($certificate->verification_date, 0, 4) . "年" . substr($certificate->verification_date, 5, 2) . "月" . substr($certificate->verification_date, 8, 2) . "日-" . substr($certificate->validity_date, 0, 4) . "年" . substr($certificate->validity_date, 5, 2) . "月" . substr($certificate->validity_date, 8, 2) . "日】.pdf")) {
+                    Storage::copy("public/certificate/$certificate->id.pdf", "public/" . \Auth::user()->id . "/证书台账/证书/$filename/$certificate->order--$certificate->instrument--$certificate->number--【" . substr($certificate->verification_date, 0, 4) . "年" . substr($certificate->verification_date, 5, 2) . "月" . substr($certificate->verification_date, 8, 2) . "日-" . substr($certificate->validity_date, 0, 4) . "年" . substr($certificate->validity_date, 5, 2) . "月" . substr($certificate->validity_date, 8, 2) . "日】.pdf");
                 }
             }
         }
         if (in_array("监理资料", $contents)) {
             $i = 3;
-            $inputFileName = 'storage/mould/台账模板.xls';
+            $inputFileName = 'storage/mould/台账模板.xlsx';
             $spreadsheet = IOFactory::load($inputFileName);
             $sheet = $spreadsheet->getActiveSheet();
             $settings = explode(',', Setting::first()->order);
-            $cers = CertificatesView::whereIn('id', $ids)->whereIn('type', $types)->whereIn('unit3', $positions)->whereIn('order', $settings)->orderBy('order')->orderBy('times')->get();
+            $cers = $certificates->whereIn('order', $settings);
             if ($cers->count() == 0) {
                 return;
             }
@@ -261,26 +247,16 @@ class ExportController extends Controller
                 $sheet->setCellValueByColumnAndRow(18, $i, $cer->start);
                 $sheet->setCellValueByColumnAndRow(19, $i, $cer->remark);
                 $sheet->getRowDimension($i)->setRowHeight(20);
-                if (Storage::exists("public/certificate/$cer->id.pdf") && !Storage::exists("public/" . \Auth::user()->id . "/监理资料/$cer->order--$cer->instrument--$cer->number--【" . substr($cer->verification_date, 0, 4) . "年" . substr($cer->verification_date, 5, 2) . "月" . substr($cer->verification_date, 8, 2) . "日-" . substr($cer->validity_date, 0, 4) . "年" . substr($cer->validity_date, 5, 2) . "月" . substr($cer->validity_date, 8, 2) . "日】.pdf")) {
-                    Storage::copy("public/certificate/$cer->id.pdf", "public/" . \Auth::user()->id . "/监理资料/$filename/$cer->order--$cer->instrument--$cer->number--【" . substr($cer->verification_date, 0, 4) . "年" . substr($cer->verification_date, 5, 2) . "月" . substr($cer->verification_date, 8, 2) . "日-" . substr($cer->validity_date, 0, 4) . "年" . substr($cer->validity_date, 5, 2) . "月" . substr($cer->validity_date, 8, 2) . "日】.pdf");
+                if (Storage::exists("public/certificate/$cer->id.pdf") && !Storage::exists("public/" . \Auth::user()->id . "/证书台账/监理资料/$cer->order--$cer->instrument--$cer->number--【" . substr($cer->verification_date, 0, 4) . "年" . substr($cer->verification_date, 5, 2) . "月" . substr($cer->verification_date, 8, 2) . "日-" . substr($cer->validity_date, 0, 4) . "年" . substr($cer->validity_date, 5, 2) . "月" . substr($cer->validity_date, 8, 2) . "日】.pdf")) {
+                    Storage::copy("public/certificate/$cer->id.pdf", "public/" . \Auth::user()->id . "/证书台账/监理资料/$filename/$cer->order--$cer->instrument--$cer->number--【" . substr($cer->verification_date, 0, 4) . "年" . substr($cer->verification_date, 5, 2) . "月" . substr($cer->verification_date, 8, 2) . "日-" . substr($cer->validity_date, 0, 4) . "年" . substr($cer->validity_date, 5, 2) . "月" . substr($cer->validity_date, 8, 2) . "日】.pdf");
                 }
             }
             $sheet->getStyle("A4:S$i")->applyFromArray($styleArray);
-            @ob_end_clean();
-            $writer = IOFactory::createWriter($spreadsheet, 'Xls');
-            if (File::isDirectory($path . '/监理资料') == false) {
-                File::makeDirectory($path . '/监理资料', 0777, true, true);
+            $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+            if (File::isDirectory($path . '/证书台账/监理资料') == false) {
+                File::makeDirectory($path . '/证书台账/监理资料', 0777, true, true);
             }
-            $writer->save($path . "/监理资料/监理资料$filename.xls");
-        }
-    }
-
-    public function update(Request $request)
-    {
-        if (Setting::count()) {
-            return !!Setting::whereRaw('1=1')->update(['order' => $request->cb ? implode(',', array_keys($request->cb)) : '']);
-        } else {
-            return !!Setting::create(['order' => $request->cb ? implode(',', array_keys($request->cb)) : '']);
+            $writer->save($path . "/证书台账/监理资料/监理资料$filename.xlsx");
         }
     }
 }

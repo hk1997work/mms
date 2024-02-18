@@ -12,7 +12,7 @@
     @endif
     <div class="col-12 div-sign">
         <div class="sidebar-heading mt-3 mb-2">状态</div>
-        <select name="sign" class="custom-select form-control" required>
+        <select name="sign" class="custom-select form-control">
             <option value="0">有效</option>
             <option value="1">失效</option>
         </select>

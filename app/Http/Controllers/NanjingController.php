@@ -17,6 +17,7 @@ use Carbon\Carbon;
 use GuzzleHttp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 
 class NanjingController extends Controller
 {
@@ -246,6 +247,9 @@ class NanjingController extends Controller
             #获取验证码
             $res = $client->get('http://58.213.156.66/cmiims/servlet/validateCodeServlet?' . (int)Carbon::now()->valueOf());
             $session = str_replace('; Path=/cmiims; HttpOnly', '', $res->getHeaders()['Set-Cookie'][0]);
+            if (File::isDirectory("storage/" . \Auth::user()->id . "/orc") == false) {
+                File::makeDirectory("storage/" . \Auth::user()->id . "/orc", 0777, true, true);
+            }
             file_put_contents("storage/" . \Auth::user()->id . "/orc/1.jpg", $res->getBody());
             exec("python F:/phpstudy_pro/WWW/laravel8/python/get_validate_code.py  2>&1 " . \Auth::user()->id, $out, $status);
             $str = $this->nanjing_encode('{"userName":"13155555418","password":"qq199362","userType":"0","validateCode":"' . $out[count($out) - 1] . '","type":"2","codeType":""}');

@@ -14,7 +14,7 @@
                         <div class="form-group row mb-3">
                             <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 mb-3">
                                 <label class="form-control-label">单位</label>
-                                <div><select name="position[]" class="selectpicker show-menu-arrow show-tick" multiple data-actions-box="true" data-selected-text-format="count" required>
+                                <div><select name="position[]" class="selectpicker show-menu-arrow show-tick" multiple data-actions-box="true" data-selected-text-format="count">
                                         @foreach($levels as $type)
                                             <option selected>{{$type->name1}}</option>
                                         @endforeach
@@ -22,7 +22,7 @@
                             </div>
                             <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 mb-3">
                                 <label class="form-control-label">选择日期</label>
-                                <input type="text" class="form-control" name="daterange" id="daterange" style="width: 218px" required>
+                                <input type="text" class="form-control" name="daterange" id="daterange" style="width: 218px">
                             </div>
                         </div>
                         <button type="submit" class="btn btn-primary ripple pull-right mb-4">下 载</button>

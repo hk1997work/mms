@@ -33,16 +33,16 @@ Route::group(['namespace' => '\App\Http\Controllers'], function () {
             Route::any('/pdf', 'Controller@pdf');
             //导出台账
             Route::resource('/export', 'ExportController');
+            //打印标签
+            Route::resource('/print', 'PrintController');
+            //监督检查
+            Route::resource('/supervision', 'SupervisionController');
         });
 
         //工作内容
         Route::group(['middleware' => 'can:work'], function () {
             //符合验证
             Route::resource('/confirm', 'ConfirmController');
-            //打印标签
-            Route::resource('/print', 'PrintController');
-            //监督检查
-            Route::resource('/supervision', 'SupervisionController');
             //周检通知
             Route::resource('/cyclical', 'CyclicalController');
             //抽检记录

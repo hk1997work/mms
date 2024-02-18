@@ -8,17 +8,18 @@
                 <div class="widget-header bordered d-flex align-items-center">
                     <h2 class="page-title"></h2>
                     <ul class="nav nav-tabs">
-                        <li class="nav-item"><a data-toggle="modal" data-target="#modal" class="nav-link">设 置</a></li>
+                        <li class="nav-item"><a class="nav-link btn-add" data-menu="export" data-pos="left" href="#">设置</a></li>
                     </ul>
                 </div>
                 <div class="widget-body">
-                    <form action="/export" method="post" enctype="multipart/form-data">
+                    <form action="/export/1" method="post" enctype="multipart/form-data">
+                        {{method_field("put")}}
                         {{csrf_field()}}
                         <div class="form-group row mb-3">
                             <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 mb-3">
                                 <label class="form-control-label">文件类型</label>
                                 <div>
-                                    <select name="contents[]" class="selectpicker show-menu-arrow show-tick" multiple data-actions-box="true" data-selected-text-format="count" required>
+                                    <select name="contents[]" class="selectpicker show-menu-arrow show-tick" multiple data-actions-box="true" data-selected-text-format="count">
                                         <option selected>台账</option>
                                         <option>核对台账</option>
                                         <option>标准台账</option>
@@ -30,7 +31,7 @@
                             <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 mb-3">
                                 <label class="form-control-label">计量类别</label>
                                 <div>
-                                    <select name="type[]" class="selectpicker show-menu-arrow show-tick" multiple data-actions-box="true" data-selected-text-format="count" required>
+                                    <select name="type[]" class="selectpicker show-menu-arrow show-tick" multiple data-actions-box="true" data-selected-text-format="count">
                                         @foreach($types as $type)
                                             <option selected>{{$type->name}}</option>
                                         @endforeach
@@ -44,7 +45,7 @@
                             <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 mb-3">
                                 <label class="form-control-label">单位</label>
                                 <div>
-                                    <select name="position[]" class="selectpicker show-menu-arrow show-tick" multiple data-actions-box="true" data-selected-text-format="count" required>
+                                    <select name="position[]" class="selectpicker show-menu-arrow show-tick" multiple data-actions-box="true" data-selected-text-format="count">
                                         @foreach($levels as $level)
                                             <option selected>{{$level->name}}</option>
                                         @endforeach
@@ -57,7 +58,7 @@
                             </div>
                             <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 mb-3">
                                 <label class="form-control-label">选择日期</label>
-                                <input type="text" class="form-control" name="daterange" id="daterange" style="width: 218px" required disabled>
+                                <input type="text" class="form-control" name="daterange" id="daterange" style="width: 218px" disabled>
                                 <div class="styled-checkbox mt-3">
                                     <input type="checkbox" name="check_daterange" id="check_daterange">
                                     <label for="check_daterange">选择日期范围</label>
@@ -72,69 +73,18 @@
         </div>
     </div>
     <!-- 结束 行 -->
-    <!-- 开始 模态框 -->
-    <div id="modal" class="modal fade" data-backdrop="static">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">监理资料设置</h4>
-                    <button type="button" class="close" data-dismiss="modal">
-                        <span aria-hidden="true">×</span>
-                        <span class="sr-only">close</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="table-responsive" style="max-height:520px;">
-                        <form action="" onsubmit="return false;" id="form">
-                            {{method_field("put")}}
-                            {{csrf_field()}}
-                            <table class="table table-hover mb-0">
-                                <thead>
-                                <tr>
-                                    <th></th>
-                                    <th>序号</th>
-                                    <th>岗位</th>
-                                    <th>器具名称</th>
-                                    <th>规格型号</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                @foreach($certificates as $certificate)
-                                    <tr>
-                                        <td style="width:5%;">
-                                            <div class="styled-checkbox mt-3">
-                                                <input type="checkbox" name="cb[{{$certificate->order}}]" id="cb[{{$certificate->order}}]"
-                                                       @if(isset(array_flip($settings)[$certificate->order])) checked @endif>
-                                                <label for="cb[{{$certificate->order}}]"></label>
-                                            </div>
-                                        </td>
-                                        <td>{{$certificate->order}}</td>
-                                        <td>{{$certificate->position}}</td>
-                                        <td>{{$certificate->instrument}}</td>
-                                        <td>{{$certificate->model}}</td>
-                                    </tr>
-                                @endforeach
-                                </tbody>
-                            </table>
-                        </form>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary ripple" onclick="b_edit('export',1)">确 定</button>
-                    <button type="button" class="btn btn-secondary ripple" data-dismiss="modal">返 回</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- 结束 模态框 -->
 @endsection
 @push('page-css')
     <link rel="stylesheet" href="/admin/assets/css/bootstrap-select/bootstrap-select.min.css">
+    <link rel="stylesheet" href="/admin/assets/css/datatables/datatables.min.css">
+    <link rel="stylesheet" href="/admin/assets/css/datatables/fixedColumns.dataTables.min.css">
 @endpush
 @push('page-js-after')
     <script src="/admin/assets/vendors/js/datepicker/moment.min.js"></script>
     <script src="/admin/assets/vendors/js/datepicker/daterangepicker.js"></script>
-
+    <script src="/admin/assets/vendors/js/datatables/datatables.min.js"></script>
+    <script src="/admin/assets/vendors/js/datatables/dataTables.fixedColumns.min.js"></script>
+    <script src="/admin/assets/js/components/tables/tables.js"></script>
     <script src="/admin/assets/js/components/datepicker/datepicker.js"></script>
     <script src="/admin/assets/vendors/js/bootstrap-select/bootstrap-select.min.js"></script>
 

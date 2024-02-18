@@ -133,9 +133,9 @@
             arr.push(
                 {
                     id: {{ $certificate->id }},
-                    content: '{{ $certificate->number }}',
-                    start: "{{ $certificate->verification_date }}",
-                    end: "{{ $certificate->validity_date }}",
+                    content: '出厂编号：{{ $certificate->number }}，使用日期：{{ $certificate->start_date }}至{{ $certificate->end_date }}',
+                    start: "{{ $certificate->start_date }}",
+                    end: "{{ $certificate->end_date }}",
                 })
             @endforeach
             var items = new vis.DataSet(arr);

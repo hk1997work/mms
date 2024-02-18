@@ -16,29 +16,21 @@ class SampleController extends Controller
     public function index()
     {
         $levels = PositionsView::select('name1')->where('level', 3)->where('sign', 0)->where('total', '>', 30)->distinct()->get();
-        return view("sample.index",compact('levels'));
+        return view("sample.index", compact('levels'));
     }
 
     public function store(Request $request)
     {
         $path = "storage/" . \Auth::user()->id;
-        if (File::isDirectory($path)) {
-            File::deleteDirectory($path);
-        }
         $start_date = substr($request->daterange, 0, 10);
         $end_date = substr($request->daterange, -10);
         $periods = CarbonPeriod::create($start_date, $end_date)->toArray();
-
         $i = 1;
         $inputFileName = 'storage/mould/抽检记录模板.xlsx';
         $spreadsheet = IOFactory::load($inputFileName);
         $sheet = $spreadsheet->getActiveSheet();
-        $sheet->getDefaultRowDimension()->setRowHeight(24);
-
         foreach ($periods as $period) {
-            $results = CertificatesView::select('id')->where('verification_date', '<=', $period)->where('validity_date', '>=', $period)->where('type', '计量器具')->whereIn('unit2', $request->position)->inRandomOrder()->limit(17);
-            $ids = array_column($results->get()->toArray(), 'id');
-            $certificates = CertificatesView::whereIn('id', $ids)->orderBy('order')->get();
+            $certificates = CertificatesView::where('verification_date', '<=', $period)->where('validity_date', '>=', $period)->where('type', '计量器具')->whereIn('unit2', $request->position)->inRandomOrder()->limit(17)->get()->sortBy(['unit2', 'unit1', 'position']);
             $date = substr($period, 0, 10);
             foreach ($certificates as $certificate) {
                 if ($i % 24 == 0) {
@@ -218,24 +210,32 @@ class SampleController extends Controller
             }
             $i = $i - $i % 24 + 24;
         }
+        for ($row = 1; $row <= $sheet->getHighestRow(); $row++) {
+            $sheet->getRowDimension($row)->setRowHeight(24);
+        }
 
-        @ob_end_clean();
-        $writer = IOFactory::createWriter($spreadsheet, 'Xls');
+        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
         if (File::isDirectory($path . '/抽检记录') == false) {
             File::makeDirectory($path . '/抽检记录', 0777, true, true);
         }
-        $writer->save($path . "/抽检记录/抽检记录.xls");
-
+        $writer->save($path . "/抽检记录/抽检记录.xlsx");
 
         $zip = new ZipArchive();
         if ($zip->open($path . '/抽检记录' . date('Y-m-d') . '.zip', ZipArchive::CREATE) == TRUE) {
-            $this->addFileToZip($path, $zip);
+            $this->addFileToZip($path . '/抽检记录', $zip);
             $zip->close();
+        }
+        if (File::isDirectory($path . '/抽检记录')) {
+            File::deleteDirectory($path . '/抽检记录');
         }
         header("Content-Type: application/zip");
         header("Content-Transfer-Encoding: Binary");
         header("Content-Length: " . filesize($path . '/抽检记录' . date('Y-m-d') . '.zip'));
         header("Content-Disposition: attachment; filename=抽检记录" . date('Y-m-d') . ".zip");
         readfile($path . '/抽检记录' . date('Y-m-d') . '.zip');
+        @ob_end_clean();
+        if (file_exists($path . '/抽检记录' . date('Y-m-d') . '.zip')) {
+            unlink($path . '/抽检记录' . date('Y-m-d') . '.zip');
+        }
     }
 }
