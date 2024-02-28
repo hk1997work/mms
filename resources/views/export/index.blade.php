@@ -80,7 +80,6 @@
     <link rel="stylesheet" href="/admin/assets/css/datatables/fixedColumns.dataTables.min.css">
 @endpush
 @push('page-js-after')
-    <script src="/admin/assets/vendors/js/datepicker/moment.min.js"></script>
     <script src="/admin/assets/vendors/js/datepicker/daterangepicker.js"></script>
     <script src="/admin/assets/vendors/js/datatables/datatables.min.js"></script>
     <script src="/admin/assets/vendors/js/datatables/dataTables.fixedColumns.min.js"></script>

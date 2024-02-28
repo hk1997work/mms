@@ -133,14 +133,15 @@
             arr.push(
                 {
                     id: {{ $certificate->id }},
-                    content: '出厂编号：{{ $certificate->number }}，使用日期：{{ $certificate->start_date }}至{{ $certificate->end_date }}',
+                    content: '{{ $certificate->number }}',
                     start: "{{ $certificate->start_date }}",
                     end: "{{ $certificate->end_date }}",
                 })
             @endforeach
             var items = new vis.DataSet(arr);
             var options = {
-                height: '150px',
+                height: '100px',
+                stack: false,
             };
             var selected
             var timeline = new vis.Timeline(container, items, options);
@@ -155,7 +156,7 @@
                 }
             });
             if ($(window).height() < $(window).width()) {
-                $('.tab-content').height($('.off-sidebar-content').height() - 210)
+                $('.tab-content').height($('.off-sidebar-content').height() - 160)
             }
         });
     </script>

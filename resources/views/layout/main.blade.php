@@ -222,6 +222,7 @@
 <!-- 结束 底层Js -->
 
 <!-- 开始 插件Js -->
+<script src="/admin/assets/vendors/js/datepicker/moment.min.js"></script>
 <script src="/admin/assets/vendors/js/nicescroll/nicescroll.min.js"></script>
 <script src="/admin/assets/vendors/js/noty/noty.min.js"></script>
 <script src="/admin/assets/vendors/js/app/app.js"></script>

@@ -81,7 +81,6 @@ class NanjingController extends Controller
                 $str = $this->nanjing_encode('{"id":"' . $value->id . '"}');
                 $res = $client->request('GET', "http://lims.njsjly.com/cmiims/f/sys/webQuery/inquiryByIdInfo?$str", $headers);
                 $certificates[$key]['factory'] = explode('","', explode('"zzcs":"', $this->nanjing_decode((string)$res->getBody()))[1])[0];
-
                 $certificates[$key]['key'] = 'key' . $key;
                 $certificates[$key]['json'] = $value;
                 if ($number->count() == 1) {
@@ -135,12 +134,12 @@ class NanjingController extends Controller
             $c = Certificate::where('number_id', $r['number_id'])->where('valid', 1)->get();
             if ($c->count() == 1) {
                 $c[0]->valid = 0;
-                $c[0]->end_date = Carbon::parse(date('Y-m-d'))->min($arr['verification_date'])->max($c[0]->validity_date);
+                $c[0]->end_date = Carbon::parse(date('Y-m-d'))->max($arr['verification_date'])->min($c[0]->validity_date);
                 $c[0]->save();
                 $arr['sn'] = $c[0]->sn;
                 $arr['position_id'] = $c[0]->position_id;
                 $arr['remark'] = $c[0]->remark;
-                $arr['start_date'] == Carbon::parse(date('Y-m-d'))->min($arr['verification_date'])->max($c[0]->validity_date);
+                $arr['start_date'] == Carbon::parse(date('Y-m-d'))->max($arr['verification_date'])->min($c[0]->validity_date);
             }
             if ($certificate = Certificate::create($arr)) {
                 $position = Position::find($arr['position_id'])->name;
@@ -256,7 +255,7 @@ class NanjingController extends Controller
             #登录
             $client->post('http://58.213.156.66/cmiims/a/api/ajaxLogin', ['body' => $str, 'headers' => ['Cookie' => $session]]);
             $res = $client->request('GET', 'http://58.213.156.66/cmiims/a/sys/adminECertQuery/listenceInfo?' . $this->nanjing_encode('{"pageNo":1,"pageSize":"9999","orderBy":"","searchConditionFilter":[]}'), ['headers' => ['Cookie' => $session]]);
-            $list = json_decode(explode(',"firstResult"', explode('"list":', $this->nanjing_decode((string)$res->getBody()))[1])[0]);
+            $list = json_decode(explode(',"html"', explode('"list":', $this->nanjing_decode((string)$res->getBody()))[1])[0]);
             request()->session()->put('nanjing_headers', ['headers' => ['Cookie' => $session]]);
             request()->session()->put('nanjing_list', $list);
         }

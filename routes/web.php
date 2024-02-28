@@ -43,6 +43,7 @@ Route::group(['namespace' => '\App\Http\Controllers'], function () {
         Route::group(['middleware' => 'can:work'], function () {
             //符合验证
             Route::resource('/confirm', 'ConfirmController');
+            Route::post('/ajax_confirm', 'ConfirmController@list');
             //周检通知
             Route::resource('/cyclical', 'CyclicalController');
             //抽检记录

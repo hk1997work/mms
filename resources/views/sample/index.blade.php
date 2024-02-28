@@ -38,7 +38,6 @@
     <link rel="stylesheet" href="/admin/assets/css/bootstrap-select/bootstrap-select.min.css">
 @endpush
 @push('page-js-after')
-    <script src="/admin/assets/vendors/js/datepicker/moment.min.js"></script>
     <script src="/admin/assets/vendors/js/datepicker/daterangepicker.js"></script>
 
     <script src="/admin/assets/js/components/datepicker/datepicker.js"></script>

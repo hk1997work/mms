@@ -135,12 +135,12 @@ class JiangsuController extends Controller
             $c = Certificate::where('number_id', $r['number_id'])->where('valid', 1)->get();
             if ($c->count() == 1) {
                 $c[0]->valid = 0;
-                $c[0]->end_date = Carbon::parse(date('Y-m-d'))->min($arr['verification_date'])->max($c[0]->validity_date);
+                $c[0]->end_date = Carbon::parse(date('Y-m-d'))->max($arr['verification_date'])->min($c[0]->validity_date);
                 $c[0]->save();
                 $arr['sn'] = $c[0]->sn;
                 $arr['position_id'] = $c[0]->position_id;
                 $arr['remark'] = $c[0]->remark;
-                $arr['start_date'] == Carbon::parse(date('Y-m-d'))->min($arr['verification_date'])->max($c[0]->validity_date);
+                $arr['start_date'] == Carbon::parse(date('Y-m-d'))->max($arr['verification_date'])->min($c[0]->validity_date);
             }
             if ($certificate = Certificate::create($arr)) {
                 $position = Position::find($arr['position_id'])->name;
