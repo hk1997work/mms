@@ -10,6 +10,6 @@ class Number extends Model
     use HasFactory;
 
     protected $fillable = [
-        'factory_id', 'number', 'state_id'
+        'factory_id', 'number', 'remark', 'state_id'
     ];
 }

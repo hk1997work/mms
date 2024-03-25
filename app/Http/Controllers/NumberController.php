@@ -17,13 +17,15 @@ class NumberController extends Controller
     {
         $states = Parameter::where('pid', Parameter::where('name', '管理状态')->first()->id)->orderBy('sort')->get();
         $factory_id = $_GET['id'];
-        return view('tools.number.create', compact('states', 'factory_id'));
+        $name = isset($_GET['name']) ? $_GET['name'] : null;
+        return view('tools.number.create', compact('states', 'factory_id', 'name'));
     }
 
     public function store(NumberRequest $request)
     {
         $arr['factory_id'] = $request->factory_id;
         $arr['number'] = $request->number;
+        $arr['remark'] = $request->remark;
         $arr['state_id'] = $request->state_id;
         return !!Number::create($arr);
     }
@@ -37,27 +39,21 @@ class NumberController extends Controller
     public function update(NumberRequest $request, Number $number)
     {
         $number->number = $request->number;
+        $number->remark = $request->remark;
         $number->state_id = $request->state_id;
         $state = Parameter::find($request->state_id);
-        switch ($state->name) {
-            case '在用':
-                if (CertificatesView::where('number_id', $number->id)->where('valid', 1)->where('position', '!=', '备用')->exists()) {
-                    return !!$number->save();
-                } else {
-                    return '无可用证书,无法修改为在用状态';
-                }
-            case'备用':
-                if (CertificatesView::where('number_id', $number->id)->where('valid', 1)->where('position', '备用')->exists()) {
-                    return !!$number->save();
-                } else {
-                    return '无可用证书,无法修改为备用状态';
-                }
-            default:
-                if (CertificatesView::where('number_id', $number->id)->where('valid', 1)->exists()) {
-                    return '证书使用中,无法修改状态';
-                } else {
-                    return !!$number->save();
-                }
+        if ($state->name == '在用' || $state->name == '借用') {
+            if (CertificatesView::where('number_id', $number->id)->where('valid', 1)->exists()) {
+                return !!$number->save();
+            } else {
+                return '无可用证书,无法修改状态';
+            }
+        } else {
+            if (CertificatesView::where('number_id', $number->id)->where('valid', 1)->exists()) {
+                return '证书使用中,无法修改状态';
+            } else {
+                return !!$number->save();
+            }
         }
     }
 

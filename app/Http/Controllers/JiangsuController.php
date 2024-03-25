@@ -143,9 +143,8 @@ class JiangsuController extends Controller
                 $arr['start_date'] == Carbon::parse(date('Y-m-d'))->max($arr['verification_date'])->min($c[0]->validity_date);
             }
             if ($certificate = Certificate::create($arr)) {
-                $position = Position::find($arr['position_id'])->name;
                 $number = Number::find($arr['number_id']);
-                $number->state_id = Parameter::where('name', $position == '备用' ? '备用' : '在用')->first()->id;
+                $number->state_id = Parameter::where('name', '在用')->first()->id;
                 $number->save();
                 $standards = Standard::find($r['standard_id']);
                 $certificate->standards()->sync($standards);

@@ -34,7 +34,7 @@
             <th>检定周期</th>
             <th>ABC</th>
             <th>在用</th>
-            <th>备用</th>
+            <th>借用</th>
             <th>待检</th>
             <th>封存</th>
             <th>损坏</th>

@@ -13,4 +13,8 @@
             @endforeach
         </select>
     </div>
+    <div class="col-12 div-remark">
+        <div class="sidebar-heading mt-3 mb-2">备注</div>
+        <input type="text" name="remark" class="form-control" value="{{$number->remark}}">
+    </div>
 @endsection

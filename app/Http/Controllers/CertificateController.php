@@ -31,14 +31,20 @@ class CertificateController extends Controller
     public function list()
     {
         $arr = [
-            "active" => ['valid', '1'],
-            "invalid" => ['valid', '0'],
-            "deactive" => ['state', '封存'],
-            "scrap" => ['state', '报废']
+            "active" => [['state', '=', '在用'], ['valid', '=', '1']],
+            "borrow" => [['state', '=', '借用'], ['valid', '=', '1']],
+            "invalid" => [['valid', '=', '0']],
+            "deactive" => [['state', '=', '封存']],
+            "scrap" => [['state', '=', '报废']]
         ];
         $path = $_GET['path'];
         $type_id = isset($_GET['id']) ? $_GET['id'] : Position::where('level', 2)->orderBy('sort')->first()->id;
-        $data = CertificatesView::select('id', 'order', 'position', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'remark')->where($arr[$path][0], $arr[$path][1]);
+        $data = CertificatesView::select('id', 'order', 'position', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'remark', 'number_remark')
+            ->where(function ($query) use ($arr, $path) {
+                foreach ($arr[$path] as $value) {
+                    $query->where($value[0], $value[1], $value[2]);
+                }
+            });
         if ($path == 'active' || $path == 'invalid') {
             $data = $data->where(function ($query) use ($type_id) {
                 $query->where('unit1_id', $type_id)
@@ -54,7 +60,14 @@ class CertificateController extends Controller
                         <input type='checkbox' name='cb' class='cb' id='$value[id]' data-url='/storage/certificate/$value[id].pdf'>
                         <label for='$value[id]'></label>
                     </div>";
-            $data[$key]['instrument'] = ($value['validity_date'] < Carbon::now()->format('Y-m-d') && $path == 'active') ? "<span class='tag btn-sm tag-danger'>$value[instrument]</span>" : $value['instrument'];
+            if ($value['validity_date'] < Carbon::now()->format('Y-m-d') && $path == 'active') {
+                $data[$key]['instrument'] = "<span class='tag btn-sm tag-danger'>$value[instrument]</span>";
+            } elseif ($value['validity_date'] < Carbon::now()->subMonth(-1)->format('Y-m-d') && $path == 'active') {
+                $data[$key]['instrument'] = "<span class='tag btn-sm tag-warning'>$value[instrument]</span>";
+            } else {
+                $data[$key]['instrument'] = $value['instrument'];
+            }
+            $data[$key]['remark'] = $data[$key]['remark'] . ($data[$key]['number_remark'] ? '<div class="text-primary">' . $data[$key]['number_remark'] . '</div>' : '');
         }
         return response()->json(['data' => array_map('array_values', $data)]);
     }
@@ -88,9 +101,8 @@ class CertificateController extends Controller
         $arr['start_date'] = $request->verification_date;
         $arr['end_date'] = $request->validity_date;
         if ($certificate = Certificate::create($arr)) {
-            $position = Position::find($request->position_id)->name;
             $number = Number::find($request->number_id);
-            $number->state_id = Parameter::where('name', $position == '备用' ? '备用' : '在用')->first()->id;
+            $number->state_id = Parameter::where('name', '在用')->first()->id;
             $number->save();
             $standards = Standard::find($request->standard_id);
             $certificate->standards()->sync($standards);

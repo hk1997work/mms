@@ -44,8 +44,7 @@ class Controller extends BaseController
         $numbers = Number::where('factory_id', $factory_id->id)->where(function ($query) {
             if (isset($_GET['number_id']) && $_GET['number_id'] == 0) {
                 $query->where('state_id', Parameter::where('name', '待检')->first()->id)
-                    ->orWhere('state_id', Parameter::where('name', '在用')->first()->id)
-                    ->orWhere('state_id', Parameter::where('name', '备用')->first()->id);
+                    ->orWhere('state_id', Parameter::where('name', '在用')->first()->id);
             } else {
                 $query->where('state_id', Parameter::where('name', '待检')->first()->id)
                     ->orWhere('id', isset($_GET['number_id']) ? $_GET['number_id'] : 0);

@@ -23,14 +23,14 @@ class ToolController extends Controller
     public function list()
     {
         $type_id = isset($_GET['id']) ? $_GET['id'] : Position::where('level', 2)->orderBy('sort')->first()->id;
-        $data = ToolsView::select('id', 'instrument', 'model', 'limit', 'accuracy', 'cycle', 'abc', 'active', 'standby', 'inactive', 'deactive', 'broken', 'scrap', 'total', 'vulnerable', 'requirement', 'mistake')->where('type_id', $type_id)->get()->toArray();
+        $data = ToolsView::select('id', 'instrument', 'model', 'limit', 'accuracy', 'cycle', 'abc', 'active', 'borrow', 'inactive', 'deactive', 'broken', 'scrap', 'total', 'vulnerable', 'requirement', 'mistake')->where('type_id', $type_id)->get()->toArray();
         foreach ($data as $key => $value) {
             $data[$key]['id'] = "<div class='styled-checkbox'>
                         <input type='checkbox' name='cb' class='cb' id='$value[id]'>
                         <label for='$value[id]'></label>
                     </div>";
             $data[$key]['active'] = $value['active'] ? "<span class='tag btn-sm tag-outline-success'>$value[active]</span>" : '';
-            $data[$key]['standby'] = $value['standby'] ? "<span class='tag btn-sm tag-outline-info'>$value[standby]</span>" : '';
+            $data[$key]['borrow'] = $value['borrow'] ? "<span class='tag btn-sm tag-outline-info'>$value[borrow]</span>" : '';
             $data[$key]['inactive'] = $value['inactive'] ? "<span class='tag btn-sm tag-outline-warning'>$value[inactive]</span>" : '';
             $data[$key]['deactive'] = $value['deactive'] ? "<span class='tag btn-sm tag-outline-primary'>$value[deactive]</span>" : '';
             $data[$key]['broken'] = $value['broken'] ? "<span class='tag btn-sm tag-outline-danger'>$value[broken]</span>" : '';
@@ -95,14 +95,14 @@ class ToolController extends Controller
     public function list_show()
     {
         $id = $_GET['id'];
-        $data = NumbersView::select('id', 'factory', 'number', 'state', 'mistake')->where('tool_id', $id)->get()->toArray();
+        $data = NumbersView::select('id', 'factory', 'number', 'state', 'remark', 'mistake')->where('tool_id', $id)->get()->toArray();
         foreach ($data as $key => $value) {
             if ($data[$key]['number']) {
                 switch ($data[$key]['state']) {
                     case '在用':
                         $tag = "success";
                         break;
-                    case '备用':
+                    case '借用':
                         $tag = "info";
                         break;
                     case '待检':
@@ -120,6 +120,7 @@ class ToolController extends Controller
                 }
                 $data[$key]['state'] = "<span class='tag btn-sm tag-$tag'>$value[state]</span>";
                 $data[$key]['number'] = $value['mistake'] == 1 ? "<span class='tag btn-sm tag-danger'>$value[number]</span>" : $value['number'];
+                $data[$key]['remark'] = $value['remark'];
                 $data[$key]['id'] = "<div class='styled-checkbox'>
                         <input type='checkbox' name='cb' class='cb' data-menu='number' id='$value[id]cb'>
                         <label for='$value[id]cb'></label>
@@ -127,6 +128,7 @@ class ToolController extends Controller
             } else {
                 $data[$key]['factory'] = $value['mistake'] == 1 ? "<span class='tag btn-sm tag-danger'>$value[factory]</span>" : $value['factory'];
                 $data[$key]['number'] = "<span class='btn btn-outline-secondary btn-sm btn-add ripple' data-pos='right' data-menu='number' data-id='$value[id]'>增加</span>";
+                $data[$key]['remark'] = '';
                 $data[$key]['id'] = "<div class='styled-checkbox'>
                         <input type='checkbox' name='cb' class='cb' data-menu='factory' data-hide='btn-show' id='$value[id]cb'>
                         <label for='$value[id]cb'></label>

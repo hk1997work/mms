@@ -1,6 +1,6 @@
 @extends('layout.show')
 @section('content_title')
-    @if($certificate->valid)
+    @if($certificate->valid && $certificate->state!='借用')
         @if($certificate->position=='备用')
             <li><a class="active" data-toggle="tab" href="#apply-tab" role="tab" id="apply-btn">使用</a></li>
         @else
@@ -10,7 +10,7 @@
             <li><a @if($spares->count()==0) class="active" @endif data-toggle="tab" href="#replace-tab" role="tab" id="replace-btn">更新</a></li>
         @endif
     @endif
-    <li><a @if($certificate->valid==0) class="active" @endif data-toggle="tab" href="#edit-tab" role="tab" id="edit-btn">修改</a></li>
+    <li><a @if($certificate->valid==0||$certificate->state=='借用') class="active" @endif data-toggle="tab" href="#edit-tab" role="tab" id="edit-btn">修改</a></li>
 @endsection
 @section('content_form')
     <div class="tab-content">

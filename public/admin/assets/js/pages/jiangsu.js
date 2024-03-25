@@ -4,7 +4,7 @@ $('.off-sidebar').on('change', '[name^="group["][name$="][tool_id]"]', function 
     if (form_group.find('[name^="group["][name$="][tool_id]"]').val() != null) {
         let path = "/certificate_factories/" + form_group.find('[name^="group["][name$="][tool_id]"]').val();
         form_group.find('.factory_add').attr("hidden", false);
-        form_group.find('.factory_add').data('id', form_group.find('[name^="group["][name$="][tool_id]"]').val())
+        form_group.find('.factory_add').data('id', form_group.find('[name^="group["][name$="][tool_id]"]').val() + "&name=" + form_group.find('.ff').text())
         form_group.find('.number_add').attr("hidden", true)
         form_group.find('.number_add').data('id', '')
         form_group.find('[name^="group["][name$="][factory_id]"]').empty();
@@ -42,7 +42,7 @@ $('.off-sidebar').on('change', '[name^="group["][name$="][factory_id]"]', functi
     if (form_group.find('[name^="group["][name$="][factory_id]"]').val() != null) {
         let path = "/certificate_numbers/" + form_group.find('[name^="group["][name$="][factory_id]"]').val() + '?number_id=0';
         form_group.find('.number_add').attr("hidden", false);
-        form_group.find('.number_add').data('id', form_group.find('[name^="group["][name$="][factory_id]"]').val())
+        form_group.find('.number_add').data('id', form_group.find('[name^="group["][name$="][factory_id]"]').val() + "&name=" + form_group.find('.nn').text())
         form_group.find('[name^="group["][name$="][number_id]"]').empty();
         form_group.find('[name^="group["][name$="][number_id]"]').append("<option value='' selected disabled>请选择...</option>");
         $.ajax({

@@ -17,7 +17,7 @@
                 <input type="hidden" name="group[{{$certificate['json']->zsId}}][certificate_name]" value="{{$certificate['json']->zsQjmc}}">
             </div>
             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 mb-3 div-group[{{$certificate['json']->zsId}}][factory_id]">
-                <label class="form-control-label ff">{{$certificate['json']->zsZzc}}</label>
+                <label class="form-control-label"><span class="ff">{{$certificate['json']->zsZzc}}</span></label>
                 <div class="input-group">
                     <select name="group[{{$certificate['json']->zsId}}][factory_id]" class="custom-select form-control @if($certificate['info']==0) is-invalid @endif">
                         <option value='' selected disabled>请选择...</option>
@@ -27,11 +27,11 @@
                             @endforeach
                         @endif
                     </select>
-                    <span class="input-group-addon addon-primary btn-add factory_add" data-pos='right' data-menu='factory' data-cb="group[{{$certificate['json']->zsId}}][tool_id]" @if($certificate['info']) data-id="{{$certificate['tool_id']}}" @else hidden @endif>增加</span>
+                    <span class="input-group-addon addon-primary btn-add factory_add" data-pos='right' data-menu='factory' data-cb="group[{{$certificate['json']->zsId}}][tool_id]" @if($certificate['info']) data-id="{{$certificate['tool_id']}}&name={{$certificate['json']->zsZzc}}" @else hidden @endif>增加</span>
                 </div>
             </div>
             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 mb-3 div-group[{{$certificate['json']->zsId}}][number_id]">
-                <label class="form-control-label nn">{{isset($certificate['json']->zsCcbh)?$certificate['json']->zsCcbh=='/'?'':$certificate['json']->zsCcbh:''}}{{isset($certificate['json']->zsSbbh)?$certificate['json']->zsSbbh=='/'?'':$certificate['json']->zsSbbh:''}}</label>
+                <label class="form-control-label"><span class="nn">{{isset($certificate['json']->zsCcbh)?$certificate['json']->zsCcbh=='/'?'':$certificate['json']->zsCcbh:''}}{{isset($certificate['json']->zsSbbh)?$certificate['json']->zsSbbh=='/'?'':$certificate['json']->zsSbbh:''}}</span></label>
                 <div class="input-group">
                     <select name="group[{{$certificate['json']->zsId}}][number_id]" class="custom-select form-control @if($certificate['info']==0) is-invalid @endif">
                         <option value='' selected disabled>请选择...</option>
@@ -41,7 +41,9 @@
                             @endforeach
                         @endif
                     </select>
-                    <span class="input-group-addon addon-primary btn-add number_add" data-pos='right' data-menu='number' data-cb="group[{{$certificate['json']->zsId}}][factory_id]" @if($certificate['info']) data-id="{{$certificate['factory_id']}}" @else hidden @endif>增加</span>
+                    <span class="input-group-addon addon-primary btn-add number_add" data-pos='right' data-menu='number' data-cb="group[{{$certificate['json']->zsId}}][factory_id]"
+                          @if($certificate['info']) data-id="{{$certificate['factory_id']}}&name={{isset($certificate['json']->zsCcbh)?$certificate['json']->zsCcbh=='/'?'':$certificate['json']->zsCcbh:''}}{{isset($certificate['json']->zsSbbh)?$certificate['json']->zsSbbh=='/'?'':$certificate['json']->zsSbbh:''}}"
+                          @else hidden @endif>增加</span>
                 </div>
             </div>
             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 mb-3 div-group[{{$certificate['json']->zsId}}][verification_date]">

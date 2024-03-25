@@ -11,7 +11,8 @@ class FactoryController extends Controller
     public function create()
     {
         $tool_id = $_GET['id'];
-        return view('tools.factory.create', compact('tool_id'));
+        $name = isset($_GET['name']) ? $_GET['name'] : null;
+        return view('tools.factory.create', compact('tool_id', 'name'));
     }
 
     public function store(FactoryRequest $request)

@@ -13,7 +13,7 @@ class ConfirmController extends Controller
 
     public function list()
     {
-        $data = CertificatesView::select('id', 'order', 'position', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'remark')->where('valid', 1)->where('category', '校准证书')->where('position', '!=', '备用')->get()->toArray();
+        $data = CertificatesView::select('id', 'order', 'position', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'remark')->where('valid', 1)->where('category', '校准证书')->where('sign', 0)->get()->toArray();
         foreach ($data as $key => $value) {
             $data[$key]['id'] = "<div class='styled-checkbox'>
                         <input type='checkbox' name='cb' class='cb' id='$value[id]' data-url='/storage/certificate/$value[id].pdf'>

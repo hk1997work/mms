@@ -11,7 +11,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/admin/assets/img/favicon-16x16.png">
     <!-- CSS样式 -->
     <link rel="stylesheet" href="/admin/assets/vendors/css/base/bootstrap.min.css">
-    <link rel="stylesheet" href="/admin/assets/vendors/css/base/elisyam-1.2.min.css">
+    <link rel="stylesheet" href="/admin/assets/vendors/css/base/elisyam-1.2.css">
 
 </head>
 <body class="bg-white">

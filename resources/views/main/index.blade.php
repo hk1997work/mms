@@ -1,91 +1,247 @@
 @extends("layout.main")
 @section("content")
-    <!-- Begin Row -->
-    <div class="row flex-row">
-        <div class="col-xl-4 col-md-6">
-            <div class="widget widget-21 has-shadow">
-                <div class="widget-body h-100 d-flex align-items-center">
-                    <div class="section-title">
-                        <h3>证书扫描</h3>
-                    </div>
-                    <div class="pdf_per">
-                        <div class="percent"></div>
-                    </div>
-                    <div class="value-progress">
-
-                    </div>
+    <div class="row flex-row mt-4">
+        <div class="col-xl-4 col-md-4">
+            <div class="widget-32 widget-image bg-image has-shadow">
+                <div class="overlay"></div>
+                <div class="content">
+                    <div id="events-day"></div>
+                    <div id="events-date"></div>
+                    <div id="events-year"></div>
+                </div>
+                <div class="real-time">
+                    <div id="events-time"></div>
                 </div>
             </div>
             <div class="widget widget-22 bg-gradient-03 has-shadow">
                 <div class="widget-body h-100 d-flex align-items-center">
                     <div class="section-title">
-                        <h3>符合性验证</h3>
+                        <h3>电子证书</h3>
                     </div>
-                    <div class="img_per">
+                    <div class="home_per certificate_per">
                         <div class="percent"></div>
                     </div>
-                    <div class="value-progress">
-
-                    </div>
+                    <b class="value-progress certificate_count"></b>
                 </div>
             </div>
         </div>
-        <div class="col-xl-8 col-md-6">
-            <!-- Begin Widget 09 -->
+        <div class="col-xl-8 col-md-8">
             <div class="widget widget-09 has-shadow">
-                <!-- Begin Widget Header -->
-                <div class="widget-header d-flex align-items-center">
-                    <h2>检定计划</h2>
-                    <div class="widget-options">
-                        <div class="dropdown">
-                            <button type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
-                                    class="dropdown-toggle">
-                                <i class="la la-ellipsis-h"></i>
-                            </button>
-                            <div class="dropdown-menu">
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- End Widget Header -->
-                <!-- Begin Widget Body -->
                 <div class="widget-body">
+                    <div class="today">
+                        <div class="title">{{date('Y')}}</div>
+                        <div class="new-tasks mt-2"><span class="nb">周检计划</span></div>
+                    </div>
                     <div class="row">
                         <div class="col-xl-10 col-12 no-padding">
                             <div>
                                 <canvas id="orders"></canvas>
                             </div>
                         </div>
-                        <div class="col-xl-2 col-12 d-flex flex-column my-auto no-padding text-center">
-                            <div class="new-orders">
-                                <div class="title">本月完成率</div>
-                                <div class="circle-orders">
-                                    <div class="percent-orders"></div>
+                        <div class="col-xl-2 col-12 my-auto no-padding text-center row">
+                            <div class="col-xl-12 col-lg-6 col-md-6 col-sm-6">
+                                <div class="new-orders">
+                                    <div class="title">{{date('m')}}月完成率</div>
+                                    <div class="circle-orders">
+                                        <div class="percent-orders"></div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="some-stats mt-5">
-                                <div class="title">本月待送检</div>
-                                <div class="number text-blue" id="SJ"></div>
-                            </div>
-                            <div class="some-stats mt-3">
-                                <div class="title">本月待报检</div>
-                                <div class="number text-blue" id="BJ"></div>
+                            <div class="col-xl-12 col-lg-6 col-md-6 col-sm-6">
+                                <div class="some-stats mt-5">
+                                    <div class="title">{{date('m')}}月待送检</div>
+                                    <div class="number text-danger" id="sj"></div>
+                                </div>
+                                <div class="some-stats mt-3">
+                                    <div class="title">{{date('m')}}月待报检</div>
+                                    <div class="number text-danger" id="bj"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- End Widget 09 -->
         </div>
     </div>
-    <!-- End Row -->
+    <div class="row flex-row">
+        <div class="col-xl-4 col-md-6">
+            <!-- Begin Widget 08 -->
+            <div class="widget widget-14 has-shadow">
+                <!-- Begin Widget Body -->
+                <div class="widget-body">
+                    <div class="today">
+                        <div class="title">{{$plans->where('type','报检')->count()}}类{{$plans->where('type','报检')->sum('total')}}件</div>
+                        <div class="new-tasks mt-2"><span class="nb">报检清单</span></div>
+                    </div>
+                    <ul class="list-group w-100 widget-scroll mt-3" style="max-height: 400px; overflow:hidden;">
+                        @foreach($plans->where('type','报检') as $plan)
+                            <li class="list-group-item mr-3">
+                                <div class="media">
+                                    <div class="media-body align-self-center">
+                                        <div class="event-title
+                                        @switch($plan->plan)
+                                        @case('市计量院') text-success @break
+                                        @case('省计量院') text-info @break
+                                        @case('钢研纳克') text-warning @break
+                                        @default text-danger @break
+                                        @endswitch
+                                        ">{{$plan->instrument}} <span class="text-primary">{{$plan->plan}}</span>
+                                            @if(isset($plan->danger)||isset($plan->warning)||isset($plan->success))
+                                                @if($plan->danger>0)
+                                                    <span class="text-danger">{{$plan->danger}}</span>
+                                                @endif
+                                                @if($plan->warning>0)
+                                                    <span class="text-warning">{{$plan->warning}}</span>
+                                                @endif
+                                                @if($plan->success>0)
+                                                    <span class="text-success">{{$plan->success}}</span>
+                                                @endif
+                                            @endif
+                                        </div>
+                                        <div class="event-desc">
+                                            <i class="la la-calendar"></i>
+                                            <span>{{$plan->diff_date}}日</span>
+                                        </div>
+                                        <div class="event-desc">
+                                            <i class="la la-sitemap"></i>
+                                            <span>{{$plan->department}}</span>
+                                        </div>
+                                    </div>
+                                    <div class="event-date align-self-center @if($plan->validity_date<now()->addMonths(1)) text-danger @else text-warning @endif">
+                                        @if($plan->total-$plan->warning-$plan->success<=0)
+                                            <i class="la la-check text-primary" style="font-size: 14px"></i>
+                                        @endif
+                                        {{$plan->total}}
+                                    </div>
+                                </div>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+                <!-- End Widget Body -->
+            </div>
+            <!-- End Widget 08 -->
+        </div>
+        <div class="col-xl-4 col-md-6">
+            <!-- Begin Widget 08 -->
+            <div class="widget widget-14 has-shadow">
+                <!-- Begin Widget Body -->
+                <div class="widget-body">
+                    <div class="today">
+                        <div class="title">{{$plans->where('type','送检')->count()}}类{{$plans->where('type','送检')->sum('total')}}件</div>
+                        <div class="new-tasks mt-2"><span class="nb">送检清单</span></div>
+                    </div>
+                    <ul class="list-group w-100 widget-scroll mt-3" style="max-height: 400px; overflow:hidden;">
+                        @foreach($plans->where('type','送检') as $plan)
+                            <li class="list-group-item mr-3">
+                                <div class="media">
+                                    <div class="media-body align-self-center">
+                                        <div class="event-title
+                                        @switch($plan->plan)
+                                        @case('市计量院') text-success @break
+                                        @case('省计量院') text-info @break
+                                        @case('钢研纳克') text-warning @break
+                                        @default text-danger @break
+                                        @endswitch
+                                        ">{{$plan->instrument}} <span class="text-primary">{{$plan->plan}}</span>
+                                            @if(isset($plan->danger)||isset($plan->warning)||isset($plan->success))
+                                                @if($plan->danger>0)
+                                                    <span class="text-danger">{{$plan->danger}}</span>
+                                                @endif
+                                                @if($plan->warning>0)
+                                                    <span class="text-warning">{{$plan->warning}}</span>
+                                                @endif
+                                                @if($plan->success>0)
+                                                    <span class="text-success">{{$plan->success}}</span>
+                                                @endif
+                                            @endif
+                                        </div>
+                                        <div class="event-desc">
+                                            <i class="la la-calendar"></i>
+                                            <span>{{$plan->diff_date}}日</span>
+                                        </div>
+                                        <div class="event-desc">
+                                            <i class="la la-sitemap"></i>
+                                            <span>{{$plan->department}}</span>
+                                        </div>
+                                    </div>
+                                    <div class="event-date align-self-center @if($plan->validity_date<now()->addMonths(1)) text-danger @else text-warning @endif">
+                                        @if($plan->total-$plan->warning-$plan->success<=0)
+                                            <i class="la la-check text-primary" style="font-size: 14px"></i>
+                                        @endif
+                                        {{$plan->total}}
+                                    </div>
+                                </div>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+                <!-- End Widget Body -->
+            </div>
+            <!-- End Widget 08 -->
+        </div>
+        <div class="col-xl-4 col-md-6">
+            <!-- Begin Widget 08 -->
+            <div class="widget widget-14 has-shadow">
+                <!-- Begin Widget Body -->
+                <div class="widget-body">
+                    <div class="today">
+                        <div class="title">{{$standbys->count()}}类</div>
+                        <div class="new-tasks mt-2"><span class="nb">备用清单</span></div>
+                    </div>
+                    <ul class="list-group w-100 widget-scroll mt-3" style="max-height: 400px; overflow:hidden;">
+                        @foreach($standbys as $standby)
+                            <li class="list-group-item mr-3">
+                                <div class="media">
+                                    <div class="media-body align-self-center">
+                                        <div class="event-title
+                                        @switch($standby->plan)
+                                        @case('市计量院') text-success @break
+                                        @case('省计量院') text-info @break
+                                        @case('钢研纳克') text-warning @break
+                                        @default text-danger @break
+                                        @endswitch
+                                        ">{{$standby->instrument}} <span class="text-primary">{{$standby->plan}}</span>
+                                            @if(isset($standby->danger)||isset($standby->warning)||isset($standby->success))
+                                                @if($standby->danger>0)
+                                                    <span class="text-danger">{{$standby->danger}}</span>
+                                                @endif
+                                                @if($standby->warning>0)
+                                                    <span class="text-warning">{{$standby->warning}}</span>
+                                                @endif
+                                                @if($standby->success>0)
+                                                    <span class="text-success">{{$standby->success}}</span>
+                                                @endif
+                                            @endif
+                                        </div>
+                                        <div class="event-desc">
+                                            <i class="la la-sitemap"></i>
+                                            <span>{{$standby->department}}</span>
+                                        </div>
+                                    </div>
+                                    <div class="event-date align-self-center @if($standby->standby-$standby->danger>0) text-success @else text-danger @endif">{{$standby->standby-$standby->danger}}/{{$standby->inuse}}</div>
+                                </div>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+                <!-- End Widget Body -->
+            </div>
+            <!-- End Widget 08 -->
+        </div>
+    </div>
 @endsection
 @push('page-css')
     <link rel="stylesheet" href="/admin/assets/css/owl-carousel/owl.carousel.min.css">
     <link rel="stylesheet" href="/admin/assets/css/owl-carousel/owl.theme.min.css">
 @endpush
 @push('page-js-after')
+    <script>
+        var pdf_count = {{$pdf_count}};
+        var pdf_total = {{$certificates->count()}};
+        var plan = {!! json_encode($year_plan) !!};
+        var month_plan = {{$month_plan}}
+    </script>
     <script src="/admin/assets/vendors/js/chart/chart.min.js"></script>
     <script src="/admin/assets/vendors/js/progress/circle-progress.min.js"></script>
 
