@@ -92,7 +92,15 @@
                         </div>
                         <div class="col-4">
                             <div class="sidebar-heading mt-3 mb-2">备注</div>
-                            <input type="text" class="form-control" value="{{$certificate->remark}}" readonly>
+                            <input type="text" class="form-control" value="{{$certificate->remark}}{{$certificate->number_remark}}" readonly>
+                        </div>
+                        <div class="col-4">
+                            <div class="sidebar-heading mt-3 mb-2">开始日期</div>
+                            <input type="text" class="form-control" value="{{$certificate->start_date}}" readonly>
+                        </div>
+                        <div class="col-4">
+                            <div class="sidebar-heading mt-3 mb-2">结束日期</div>
+                            <input type="text" class="form-control" value="{{$certificate->end_date}}" readonly>
                         </div>
                     </div>
                     <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12">
@@ -134,14 +142,16 @@
                 {
                     id: {{ $certificate->id }},
                     content: '{{ $certificate->number }}',
-                    start: "{{ $certificate->start_date }}",
-                    end: "{{ $certificate->end_date }}",
+                    start: "{{ $certificate->start_date }} 00:00:00",
+                    end: "{{ $certificate->end_date }} 23:59:59",
                 })
             @endforeach
             var items = new vis.DataSet(arr);
             var options = {
                 height: '100px',
                 stack: false,
+                min: "{{ $min }}",
+                max: "{{ $max }}",
             };
             var selected
             var timeline = new vis.Timeline(container, items, options);

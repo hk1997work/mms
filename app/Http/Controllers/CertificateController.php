@@ -140,7 +140,7 @@ class CertificateController extends Controller
             return !!$certificate->save();
         } elseif ($request->type == 'replace') {
             $certificate->valid = 0;
-            $certificate->end_date = Carbon::parse(date('Y-m-d'))->max($request->verification_date)->min($certificate->validity_date);
+            $certificate->end_date = Carbon::parse(date('Y-m-d'))->min($certificate->validity_date)->max($request->verification_date)->subDay();
             $certificate->save();
             $old_certificate = CertificatesView::find($request->id);
             $old_number = Number::find($old_certificate->number_id);
@@ -160,7 +160,7 @@ class CertificateController extends Controller
             $arr['start'] = $request->start;
             $arr['times'] = $request->times;
             $arr['remark'] = $request->remark;
-            $arr['start_date'] = Carbon::parse(date('Y-m-d'))->max($request->verification_date)->min($certificate->validity_date);
+            $arr['start_date'] = Carbon::parse(date('Y-m-d'))->min($certificate->validity_date)->max($request->verification_date);
             $arr['end_date'] = $request->validity_date;
             if ($new_certificate = Certificate::create($arr)) {
                 $number = Number::find($request->number_id);
@@ -180,7 +180,7 @@ class CertificateController extends Controller
         } elseif ($request->type == 'spare') {
             $old = Certificate::find($request->id);
             $old->valid = 0;
-            $old->end_date = Carbon::parse(date('Y-m-d'))->max($certificate->verification_date)->min($old->validity_date);
+            $old->end_date = Carbon::parse(date('Y-m-d'))->min($old->validity_date)->max($certificate->verification_date)->subDay();
             $old->save();
             $old_number = Number::find($old->number_id);
             $old_number->state_id = Parameter::where('name', $request->cause)->first()->id;
@@ -189,7 +189,7 @@ class CertificateController extends Controller
             $certificate->sn = $old->sn;
             $certificate->position_id = $old->position_id;
             $certificate->remark = $old->remark;
-            $certificate->start_date = Carbon::parse(date('Y-m-d'))->max($certificate->verification_date)->min($old->validity_date);
+            $certificate->start_date = Carbon::parse(date('Y-m-d'))->min($old->validity_date)->max($certificate->verification_date);
             $new_number = Number::find($certificate->number_id);
             $new_number->state_id = Parameter::where('name', '在用')->first()->id;
             $new_number->save();
@@ -226,8 +226,12 @@ class CertificateController extends Controller
             if ($certificate->id == $c->id) {
                 $disable = $c->id;
             }
+            $dates[] = $c->start_date;
+            $dates[] = $c->end_date;
         }
-        return view('certificate.show', compact('certificates', 'disable'));
+        $max = max($dates);
+        $min = min($dates);
+        return view('certificate.show', compact('certificates', 'disable', 'max', 'min'));
     }
 
     public function destroy($certificate)
