@@ -132,7 +132,7 @@ class ExportController extends Controller
                 $sheet->setCellValueByColumnAndRow(13, $i, $certificate->cycle);
                 $sheet->setCellValueByColumnAndRow(14, $i, $certificate->abc);
                 $sheet->setCellValueByColumnAndRow(15, $i, $certificate->department);
-                $sheet->setCellValueByColumnAndRow(16, $i, '有效');
+                $sheet->setCellValueByColumnAndRow(16, $i, $certificate->valid ? '有效' : '无效');
                 $sheet->setCellValueByColumnAndRow(17, $i, $certificate->times);
                 $sheet->setCellValueByColumnAndRow(18, $i, $certificate->start);
                 $sheet->setCellValueByColumnAndRow(19, $i, $certificate->remark);
@@ -193,7 +193,7 @@ class ExportController extends Controller
                 $sheet->setCellValueByColumnAndRow(14, $i, $certificate->month);
                 $sheet->setCellValueByColumnAndRow(15, $i, $certificate->abc);
                 $sheet->setCellValueByColumnAndRow(16, $i, $certificate->department);
-                $sheet->setCellValueByColumnAndRow(17, $i, '有效');
+                $sheet->setCellValueByColumnAndRow(17, $i, $certificate->valid ? '有效' : '无效');
                 $sheet->setCellValueByColumnAndRow(18, $i, $certificate->cycle);
                 $sheet->setCellValueByColumnAndRow(19, $i, $certificate->times);
                 $sheet->setCellValueByColumnAndRow(20, $i, $certificate->start);
@@ -242,7 +242,7 @@ class ExportController extends Controller
                 $sheet->setCellValueByColumnAndRow(13, $i, $cer->cycle);
                 $sheet->setCellValueByColumnAndRow(14, $i, $cer->abc);
                 $sheet->setCellValueByColumnAndRow(15, $i, $cer->department);
-                $sheet->setCellValueByColumnAndRow(16, $i, "有效");
+                $sheet->setCellValueByColumnAndRow(16, $i, $certificate->valid ? '有效' : '无效');
                 $sheet->setCellValueByColumnAndRow(17, $i, $cer->times);
                 $sheet->setCellValueByColumnAndRow(18, $i, $cer->start);
                 $sheet->setCellValueByColumnAndRow(19, $i, $cer->remark);

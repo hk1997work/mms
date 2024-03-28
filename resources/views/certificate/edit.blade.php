@@ -14,7 +14,7 @@
 @endsection
 @section('content_form')
     <div class="tab-content">
-        <div role="tabpanel" class="tab-pane @if($certificate->valid==0) show active @endif fade" id="edit-tab" aria-labelledby="edit-btn">
+        <div role="tabpanel" class="tab-pane @if($certificate->valid==0||$certificate->state=='借用') show active @endif fade" id="edit-tab" aria-labelledby="edit-btn">
             <form action="" onsubmit="return false;">
                 {{method_field("put")}}
                 {{csrf_field()}}
@@ -132,7 +132,7 @@
                 </div>
             </form>
         </div>
-        @if($certificate->valid)
+        @if($certificate->valid && $certificate->state!='借用')
             @if($certificate->position=='备用')
                 <div role="tabpanel" class="tab-pane show active fade" id="apply-tab" aria-labelledby="apply-btn">
                     <form action="" onsubmit="return false;">

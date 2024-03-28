@@ -42,12 +42,14 @@ class NumberController extends Controller
         $number->remark = $request->remark;
         $number->state_id = $request->state_id;
         $state = Parameter::find($request->state_id);
-        if ($state->name == '在用' || $state->name == '借用') {
+        if ($state->name == '在用') {
             if (CertificatesView::where('number_id', $number->id)->where('valid', 1)->exists()) {
                 return !!$number->save();
             } else {
                 return '无可用证书,无法修改状态';
             }
+        } elseif ($state->name == '借用') {
+            return !!$number->save();
         } else {
             if (CertificatesView::where('number_id', $number->id)->where('valid', 1)->exists()) {
                 return '证书使用中,无法修改状态';
@@ -68,8 +70,12 @@ class NumberController extends Controller
                 if ($certificate->id == $c->id) {
                     $disable = $c->id;
                 }
+                $dates[] = $c->start_date;
+                $dates[] = $c->end_date;
             }
-            return view('certificate.show', compact('certificates', 'disable'));
+            $max = max($dates);
+            $min = min($dates);
+            return view('certificate.show', compact('certificates', 'disable', 'max', 'min'));
         }
         return false;
     }

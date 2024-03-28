@@ -30,21 +30,27 @@ class CertificateController extends Controller
 
     public function list()
     {
-        $arr = [
-            "active" => [['state', '=', '在用'], ['valid', '=', '1']],
-            "borrow" => [['state', '=', '借用'], ['valid', '=', '1']],
-            "invalid" => [['valid', '=', '0']],
-            "deactive" => [['state', '=', '封存']],
-            "scrap" => [['state', '=', '报废']]
-        ];
+
         $path = $_GET['path'];
         $type_id = isset($_GET['id']) ? $_GET['id'] : Position::where('level', 2)->orderBy('sort')->first()->id;
-        $data = CertificatesView::select('id', 'order', 'position', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'remark', 'number_remark')
-            ->where(function ($query) use ($arr, $path) {
-                foreach ($arr[$path] as $value) {
-                    $query->where($value[0], $value[1], $value[2]);
-                }
-            });
+        $data = CertificatesView::select('id', 'order', 'position', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'remark', 'number_remark');
+        switch ($path) {
+            case 'active':
+                $data->where('state', '在用')->where('valid', 1);
+                break;
+            case 'borrow':
+                $data->where('state', '借用')->whereRaw('(number_id,validity_date) IN (SELECT `c`.`number_id`, max( `c`.`validity_date` ) AS `validity_date` FROM `certificates` `c` GROUP BY `c`.`number_id`)');
+                break;
+            case 'invalid':
+                $data->where('valid', 0);
+                break;
+            case 'deactive':
+                $data->where('state', '封存');
+                break;
+            case 'scrap':
+                $data->where('state', '报废');
+                break;
+        }
         if ($path == 'active' || $path == 'invalid') {
             $data = $data->where(function ($query) use ($type_id) {
                 $query->where('unit1_id', $type_id)
@@ -60,9 +66,9 @@ class CertificateController extends Controller
                         <input type='checkbox' name='cb' class='cb' id='$value[id]' data-url='/storage/certificate/$value[id].pdf'>
                         <label for='$value[id]'></label>
                     </div>";
-            if ($value['validity_date'] < Carbon::now()->format('Y-m-d') && $path == 'active') {
+            if ($value['validity_date'] < Carbon::now()->format('Y-m-d') && ($path == 'active' || $path == 'borrow')) {
                 $data[$key]['instrument'] = "<span class='tag btn-sm tag-danger'>$value[instrument]</span>";
-            } elseif ($value['validity_date'] < Carbon::now()->subMonth(-1)->format('Y-m-d') && $path == 'active') {
+            } elseif ($value['validity_date'] < Carbon::now()->subMonth(-1)->format('Y-m-d') && ($path == 'active' || $path == 'borrow')) {
                 $data[$key]['instrument'] = "<span class='tag btn-sm tag-warning'>$value[instrument]</span>";
             } else {
                 $data[$key]['instrument'] = $value['instrument'];
