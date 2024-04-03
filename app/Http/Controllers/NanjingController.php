@@ -134,12 +134,12 @@ class NanjingController extends Controller
             $c = Certificate::where('number_id', $r['number_id'])->where('valid', 1)->get();
             if ($c->count() == 1) {
                 $c[0]->valid = 0;
-                $c[0]->end_date = Carbon::parse(date('Y-m-d'))->min($c[0]->validity_date->max($arr['verification_date']))->subDay();
+                $c[0]->end_date = Carbon::parse(date('Y-m-d'))->min($c[0]->validity_date)->max($arr['verification_date'])->subDay();
                 $c[0]->save();
                 $arr['sn'] = $c[0]->sn;
                 $arr['position_id'] = $c[0]->position_id;
                 $arr['remark'] = $c[0]->remark;
-                $arr['start_date'] = Carbon::parse(date('Y-m-d'))->min($c[0]->validity_date->max($arr['verification_date']));
+                $arr['start_date'] = Carbon::parse(date('Y-m-d'))->min($c[0]->validity_date)->max($arr['verification_date']);
             }
             if ($certificate = Certificate::create($arr)) {
                 $number = Number::find($arr['number_id']);

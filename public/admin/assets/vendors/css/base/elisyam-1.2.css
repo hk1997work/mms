@@ -8230,14 +8230,14 @@ nav.navbar .user-size.dropdown-menu a.logout:hover {
 
 .widget-08 .today,
 .widget-09 .today,
-.widget-14 .today{
+.widget-14 .today {
     line-height: 1;
     padding: 1.07rem 0
 }
 
 .widget-08 .today .title,
 .widget-09 .today .title,
-.widget-14 .today .title{
+.widget-14 .today .title {
     color: #5d5386;
     font-size: 1.4rem;
     font-weight: 700;
@@ -8246,7 +8246,7 @@ nav.navbar .user-size.dropdown-menu a.logout:hover {
 
 .widget-08 .today .new-tasks .nb,
 .widget-09 .today .new-tasks .nb,
-.widget-14 .today .new-tasks .nb{
+.widget-14 .today .new-tasks .nb {
     color: #e76c90;
     font-size: 2.4rem;
     font-weight: 600
@@ -8730,7 +8730,7 @@ nav.navbar .user-size.dropdown-menu a.logout:hover {
 }
 
 .widget-14 .list-group-item {
-    border: 0 none
+    border: 0 none;
 }
 
 .widget-14 .list-group-item .event-date {
@@ -8741,7 +8741,8 @@ nav.navbar .user-size.dropdown-menu a.logout:hover {
 
 .widget-14 .list-group-item .event-title {
     color: #2c304d;
-    font-weight: 600
+    font-weight: 600;
+    font-size: 1.4rem;
 }
 
 .widget-14 .list-group-item .event-desc {
@@ -8755,7 +8756,7 @@ nav.navbar .user-size.dropdown-menu a.logout:hover {
 
 .widget-14 .list-group-item .event-desc span {
     color: #2c304d;
-    font-size: .9rem
+    font-size: 1rem;
 }
 
 .widget-15 .weather-infos {
@@ -13878,4 +13879,8 @@ input[type="file"] {
 
 .factory_add, .number_add, .group-delete {
     cursor: pointer;
+}
+
+.media {
+    display: flex !important;
 }

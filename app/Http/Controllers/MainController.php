@@ -21,23 +21,9 @@ class MainController extends Controller
             if (Storage::exists("public/certificate/$certificate->id.pdf")) {
                 $pdf_count += 1;
             }
-            else{
-                dd($certificate->id);
-            }
         }
         //检定计划
-        $months = [];
-        for ($i = 0; $i < 12; $i++) {
-            $month = now()->addMonths($i)->format('Y-m');
-            $months[] = $month;
-        }
-        $year_plan = CertificatesView::selectRaw("DATE_FORMAT(validity_date,'%Y-%m') MONTH, IFNULL(SUM(IF(plan LIKE '%送检%',1,0)),0) sj, IFNULL(SUM(IF(plan LIKE '%报检%',1,0)),0) bj")
-            ->whereIn(DB::raw("DATE_FORMAT(validity_date, '%Y-%m')"), $months)
-            ->where('valid', 1)
-            ->where('sign', 0)
-            ->orderBy('MONTH')
-            ->groupBy('MONTH')
-            ->get();
+        $year_plan = DB::table('year_plan_views')->get();
         $month_plan = CertificatesView::where('sign', 0)->where('validity_date', 'LIKE', $year_plan->first()->MONTH . "%")->count();
         //送检、报检计划
         $plans = DB::table('plan_views')->get();

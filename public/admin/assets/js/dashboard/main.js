@@ -31,9 +31,6 @@
 
     getDate();
 
-    $('#sj').text(plan[0]['sj']);
-    $('#bj').text(plan[0]['bj']);
-
     $('.certificate_per').circleProgress({
         value: (pdf_count / pdf_total),
         size: 140,
@@ -142,16 +139,16 @@
     var myChart = new Chart(ctx, {
         type: 'roundedBar',
         data: {
-            labels: [parseInt(plan[0]['MONTH'].split('-')[1]) + '月', parseInt(plan[1]['MONTH'].split('-')[1]) + '月', parseInt(plan[2]['MONTH'].split('-')[1]) + '月', parseInt(plan[3]['MONTH'].split('-')[1]) + '月', parseInt(plan[4]['MONTH'].split('-')[1]) + '月', parseInt(plan[5]['MONTH'].split('-')[1]) + '月', parseInt(plan[6]['MONTH'].split('-')[1]) + '月', parseInt(plan[7]['MONTH'].split('-')[1]) + '月', parseInt(plan[8]['MONTH'].split('-')[1]) + '月', parseInt(plan[9]['MONTH'].split('-')[1]) + '月', parseInt(plan[10]['MONTH'].split('-')[1]) + '月', parseInt(plan[11]['MONTH'].split('-')[1]) + '月'],
+            labels: [parseInt(year_plan[0]['MONTH'].split('-')[1]) + '月', parseInt(year_plan[1]['MONTH'].split('-')[1]) + '月', parseInt(year_plan[2]['MONTH'].split('-')[1]) + '月', parseInt(year_plan[3]['MONTH'].split('-')[1]) + '月', parseInt(year_plan[4]['MONTH'].split('-')[1]) + '月', parseInt(year_plan[5]['MONTH'].split('-')[1]) + '月', parseInt(year_plan[6]['MONTH'].split('-')[1]) + '月', parseInt(year_plan[7]['MONTH'].split('-')[1]) + '月', parseInt(year_plan[8]['MONTH'].split('-')[1]) + '月', parseInt(year_plan[9]['MONTH'].split('-')[1]) + '月', parseInt(year_plan[10]['MONTH'].split('-')[1]) + '月', parseInt(year_plan[11]['MONTH'].split('-')[1]) + '月'],
             datasets: [{
                 label: '送检',
-                data: [plan[0]['sj'], plan[1]['sj'], plan[2]['sj'], plan[3]['sj'], plan[4]['sj'], plan[5]['sj'], plan[6]['sj'], plan[7]['sj'], plan[8]['sj'], plan[9]['sj'], plan[10]['sj'], plan[11]['sj']],
+                data: [year_plan[0]['sj'], year_plan[1]['sj'], year_plan[2]['sj'], year_plan[3]['sj'], year_plan[4]['sj'], year_plan[5]['sj'], year_plan[6]['sj'], year_plan[7]['sj'], year_plan[8]['sj'], year_plan[9]['sj'], year_plan[10]['sj'], year_plan[11]['sj']],
                 borderColor: "#fff",
                 backgroundColor: "#5d5386",
                 hoverBackgroundColor: "#483d77"
             }, {
                 label: '报检',
-                data: [plan[0]['bj'], plan[1]['bj'], plan[2]['bj'], plan[3]['bj'], plan[4]['bj'], plan[5]['bj'], plan[6]['bj'], plan[7]['bj'], plan[8]['bj'], plan[9]['bj'], plan[10]['bj'], plan[11]['bj']],
+                data: [year_plan[0]['bj'], year_plan[1]['bj'], year_plan[2]['bj'], year_plan[3]['bj'], year_plan[4]['bj'], year_plan[5]['bj'], year_plan[6]['bj'], year_plan[7]['bj'], year_plan[8]['bj'], year_plan[9]['bj'], year_plan[10]['bj'], year_plan[11]['bj']],
                 borderColor: "#fff",
                 backgroundColor: "#e4e8f0",
                 hoverBackgroundColor: "#dde1e9"
@@ -206,7 +203,7 @@
         }
     });
     $('.circle-orders').circleProgress({
-        value: (month_plan - (parseInt(plan[0]['sj']) + parseInt(plan[0]['bj']))) / month_plan,
+        value: (month_plan - (parseInt(year_plan[0]['sj']) + parseInt(year_plan[0]['bj']))) / month_plan,
         size: 120,
         startAngle: -Math.PI / 2,
         thickness: 6,
@@ -216,6 +213,6 @@
             gradient: ['#5d5386', '#5d5386']
         }
     }).on('circle-animation-progress', function (event, progress) {
-        $(this).find('.percent-orders').html(Math.round((month_plan - (parseInt(plan[0]['sj']) + parseInt(plan[0]['bj']))) / month_plan * progress * 100) + '<i>%</i>');
+        $(this).find('.percent-orders').html(Math.round((month_plan - (parseInt(year_plan[0]['sj']) + parseInt(year_plan[0]['bj']))) / month_plan * progress * 100) + '<i>%</i>');
     });
 })(jQuery);

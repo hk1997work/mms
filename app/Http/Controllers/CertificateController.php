@@ -228,6 +228,9 @@ class CertificateController extends Controller
         $certificates = DB::table('certificates_views')->where('position_id', $certificate->position_id)->where('sn', $certificate->sn)->orderBy('verification_date', 'desc')->get();
         foreach ($certificates as $c) {
             $c->path = "storage/jpg/$c->id";
+            if (!File::exists($c->path)) {
+                $this->pdf2jpg($c->id);
+            }
             $c->files = Storage::files("\public\jpg\\$c->id");
             if ($certificate->id == $c->id) {
                 $disable = $c->id;

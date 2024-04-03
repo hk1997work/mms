@@ -9,6 +9,7 @@ use App\Models\Number;
 use App\Models\Parameter;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 
 class NumberController extends Controller
@@ -66,6 +67,9 @@ class NumberController extends Controller
             $certificates = DB::table('certificates_views')->where('position_id', $certificate->position_id)->where('sn', $certificate->sn)->orderBy('verification_date', 'desc')->get();
             foreach ($certificates as $c) {
                 $c->path = "storage/jpg/$c->id";
+                if (!File::exists($c->path)) {
+                    $this->pdf2jpg($c->id);
+                }
                 $c->files = Storage::files("\public\jpg\\$c->id");
                 if ($certificate->id == $c->id) {
                     $disable = $c->id;
