@@ -191,7 +191,7 @@ class JiangsuController extends Controller
 
     public function list_show()
     {
-        $data = Jiangsu::select('id', 'verification_date', 'certificate_no', 'instrument', 'model', 'number', 'remark')->get()->toArray();
+        $data = Jiangsu::select('id', 'verification_date', 'certificate_no', 'instrument', 'model', 'number', 'remark')->where('remark','!=','安全')->get()->toArray();
         foreach ($data as $key => $value) {
             $data[$key]['id'] = "<div class='styled-checkbox'>
                         <input type='checkbox' name='cb' class='cb' id='$value[certificate_no]' data-url='/download_jiangsu/$value[certificate_no]?type=download'>

@@ -190,7 +190,7 @@ class NanjingController extends Controller
 
     public function list_show()
     {
-        $data = Nanjing::select('id', 'verification_date', 'certificate_no', 'instrument', 'model', 'number', 'remark')->get()->toArray();
+        $data = Nanjing::select('id', 'verification_date', 'certificate_no', 'instrument', 'model', 'number', 'remark')->where('remark','!=','安全')->get()->toArray();
         foreach ($data as $key => $value) {
             $data[$key]['id'] = "<div class='styled-checkbox'>
                         <input type='checkbox' name='cb' class='cb' id='$value[certificate_no]' data-url='/download_nanjing/$value[certificate_no]?type=show'>

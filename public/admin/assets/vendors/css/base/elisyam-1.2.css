@@ -4150,7 +4150,7 @@ section.forms form span, section.forms form small {
 
 .nav-link {
     display: block;
-    padding: .7rem 1rem
+    padding: .7rem 0.5rem
 }
 
 .nav-tabs .nav-link {

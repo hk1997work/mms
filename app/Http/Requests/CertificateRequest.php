@@ -31,7 +31,7 @@ class CertificateRequest extends FormRequest
                         $regex = '/^\d{4}[A-Z]{1}\d{2}-\d{2}-\d{10}|\d{4}[A-Z]{1}\d{2}-\d{2}-\d{10}-\d{2}$/';
                         break;
                     case '钢研纳克':
-                        $regex = '/^[A-Z]{2}\d{2}[A-Z]{2}\d{6}$/';
+                        $regex = '/^([A-Z]{2}\d{2}[A-Z]{2}\d{6}|[A-Z]{2}\d{9}-\d{1}|[A-Z]{2}\d{9})$/';
                         break;
                     case '镇江计量院':
                         $regex = '/^\d{9}-\d{3}$/';

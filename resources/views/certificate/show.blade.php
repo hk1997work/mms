@@ -108,7 +108,7 @@
                             <ul class="nav nav-tabs nav-fill" role="tablist">
                                 @for($page=0;$page<count($certificate->files);$page++)
                                     <li class="nav-item">
-                                        <a class="nav-link @if($page==0) active @endif" id="just-tab-{{$certificate->id}}-{{$page+1}}" data-toggle="tab" href="#j-tab-{{$certificate->id}}-{{$page+1}}" role="tab">第{{$page+1}}页</a>
+                                        <a class="nav-link @if($page==0) active @endif" id="just-tab-{{$certificate->id}}-{{$page+1}}" data-toggle="tab" href="#j-tab-{{$certificate->id}}-{{$page+1}}" role="tab">{{$page+1}}</a>
                                     </li>
                                 @endfor
                             </ul>

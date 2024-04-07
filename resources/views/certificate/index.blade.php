@@ -35,7 +35,7 @@
             <li><a class="btn-delete check-multiple" data-menu="certificate" data-pos="right" href="#">删除</a></li>
             <li><a class="btn-open check-multiple" data-menu="certificate" href="#">打开</a></li>
             <li><a class="btn-download check-multiple" data-menu="certificate" href="#">下载</a></li>
-            @if($menu=='active')
+            @if($menu=='active'||$menu='borrow')
                 <li><a class="btn-edit check-multiple" data-menu="print" data-pos="right" href="#">打印标签</a></li>
                 <li><a class="btn-show check-multiple" data-menu="supervision" data-pos="right" href="#">监督检查</a></li>
             @endif
