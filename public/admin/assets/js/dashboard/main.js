@@ -42,7 +42,7 @@
             gradient: ['#fff', '#fff']
         }
     }).on('circle-animation-progress', function (event, progress) {
-        $(this).find('.percent').html(Math.round((pdf_count / pdf_total) * progress * 100) + '<i>%</i>');
+        $(this).find('.percent').html(((pdf_count / pdf_total) * progress * 100).toFixed(2) + '<i>%</i>');
     });
     $('.certificate_count').text(pdf_count + '/' + pdf_total)
 
