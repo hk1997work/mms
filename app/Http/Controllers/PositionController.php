@@ -153,15 +153,16 @@ class PositionController extends Controller
 
     public function sn(Certificate $certificate)
     {
-        return view('position.sn', compact('certificate'));
+        $positions = PositionsView::where('id4', PositionsView::find($certificate->position_id)->id4)->get();
+        return view('position.sn', compact('certificate', 'positions'));
     }
 
     public function updateSn(Request $request, Certificate $certificate)
     {
-        if (Certificate::where('position_id', $certificate->position_id)->where('sn', $request->sn)->exists()) {
+        if (Certificate::where('position_id', $request->position_id)->where('sn', $request->sn)->exists()) {
             return '序号重复';
         }
-        return !!Certificate::where('position_id', $certificate->position_id)->where('sn', $certificate->sn)->update(['sn' => $request->sn]);
+        return !!Certificate::where('position_id', $certificate->position_id)->where('sn', $certificate->sn)->update(['position_id' => $request->position_id, 'sn' => $request->sn]);
     }
 
     public function moveSn(Certificate $certificate, $type)
