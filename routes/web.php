@@ -49,6 +49,8 @@ Route::group(['namespace' => '\App\Http\Controllers'], function () {
             Route::resource('/cyclical', 'CyclicalController');
             //抽检记录
             Route::resource('/sample', 'SampleController');
+            //日常抽检
+            Route::resource('/check', 'CheckController');
         });
 
         //检定机构
@@ -86,8 +88,6 @@ Route::group(['namespace' => '\App\Http\Controllers'], function () {
             //标准管理
             Route::resource('/standard', 'StandardController');
             Route::post('/ajax_standard', 'StandardController@list');
-            //数据验证
-            Route::resource('/check', 'CheckController');
         });
 
         //系统设置

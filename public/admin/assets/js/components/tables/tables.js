@@ -42,9 +42,7 @@
                 ajax: {
                     url: "/ajax_" + table.data('menu'),
                     type: "POST",
-                    data: {
-                        "_token": csrf_token
-                    }
+                    data: {"_token": csrf_token}
                 },
                 order: [1, 'asc'],
                 columnDefs: [
@@ -261,10 +259,7 @@
 
     //增加框
     $('.widget-header,.table-responsive,.off-sidebar').on('click', '.btn-add', function () {
-        let id = $(this).data('id')
-        if (id == 'checkbox') {
-            id = get_id($(this).closest('.ckp'))
-        }
+        let id = $(this).data('id') ? $(this).data('id') : get_id($(this).closest('.ckp'))
         let menu = $(this).data('menu')
         let title = $(this).text()
         let url = '/' + menu + '/create' + (id ? '?id=' + id : '')
@@ -299,7 +294,7 @@
 
     //显示框
     $('.widget-header,.table-responsive,.off-sidebar').on('click', '.btn-show', function () {
-        let id = get_id($(this).closest('.ckp'), '.btn-show')
+        let id = $(this).data('id') ? $(this).data('id') : get_id($(this).closest('.ckp'), '.btn-show')
         id = id ? id : 0
         let menu = $(this).data('menu')
         let title = $(this).text()

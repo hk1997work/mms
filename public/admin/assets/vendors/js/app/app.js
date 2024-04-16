@@ -6,7 +6,7 @@
     // 加载动画
     // ------------------------------------------------------ //
     $(window).on("load", function () {
-        if (document.querySelectorAll('table').length == 0) {
+        if (document.querySelectorAll('table').length == 0 && document.querySelectorAll('.swiper').length == 0) {
             $(".loader").fadeOut();
             $("#preloader").fadeOut();
         }

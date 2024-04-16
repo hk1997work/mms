@@ -4307,25 +4307,25 @@ section.forms form span, section.forms form small {
 
 .alert-success {
     color: #fff;
-    background-color: #5cb85c;
+    background-color: #5cb85c !important;
     border-color: #5cb85c
 }
 
 .alert-info {
     color: #fff;
-    background-color: #5bc0de;
+    background-color: #5bc0de !important;
     border-color: #5bc0de
 }
 
 .alert-warning {
     color: #fff;
-    background-color: #f0ad4e;
+    background-color: #f0ad4e !important;
     border-color: #f0ad4e
 }
 
 .alert-danger {
     color: #fff;
-    background-color: #c9302c;
+    background-color: #c9302c !important;
     border-color: #c9302c
 }
 
@@ -8030,9 +8030,6 @@ nav.navbar .user-size.dropdown-menu a.logout:hover {
 }
 
 .widget-05 .author-avatar {
-    width: 80px;
-    height: 80px;
-    margin: 50px auto 0;
     position: relative
 }
 
@@ -8092,7 +8089,6 @@ nav.navbar .user-size.dropdown-menu a.logout:hover {
     display: block;
     font-size: 1rem;
     font-weight: 600;
-    margin-bottom: -.5rem
 }
 
 .widget-05 .chart-text .number {
@@ -8112,7 +8108,6 @@ nav.navbar .user-size.dropdown-menu a.logout:hover {
 
 .widget-05 .social-stats {
     margin: 1.07rem 0 1.8rem;
-    padding: 0 3rem
 }
 
 .widget-05 .social-stats i {

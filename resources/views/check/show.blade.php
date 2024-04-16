@@ -1,0 +1,25 @@
+@extends('layout.show')
+@section('content_title')
+    <li><a class="active" data-toggle="tab" href="#number-tab" role="tab" id="number-btn">详情</a></li>
+@endsection
+@section('content_form')
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane show active fade" id="number-tab" aria-labelledby="number-btn">
+            <div class="row">
+                @foreach($files as $file)
+                    <div class="col-xl-3 col-md-4 col-sm-12">
+                        <div class="widget has-shadow">
+                            <img src="/storage/check/{{$certificate_id}}/{{$file}}" class="img-fluid">
+                            <div class="widget-body text-center">
+                                <h3>{{explode('.',str_replace("'",':',$file))[0]}}</h3>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+            <div class="enter-message">
+                <button class="btn btn-outline-secondary ripple sidebar-close">返 回</button>
+            </div>
+        </div>
+    </div>
+@endsection

@@ -27,6 +27,7 @@
 @push('page-css')
     <link rel="stylesheet" href="/admin/assets/css/datatables/datatables.min.css">
     <link rel="stylesheet" href="/admin/assets/css/datatables/fixedColumns.dataTables.min.css">
+    @stack('page-css-after-1')
 @endpush
 @push('page-js-after')
     <script src="/admin/assets/vendors/js/datatables/datatables.min.js"></script>

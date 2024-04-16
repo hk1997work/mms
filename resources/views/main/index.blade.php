@@ -211,10 +211,6 @@
         </div>
     </div>
 @endsection
-@push('page-css')
-    <link rel="stylesheet" href="/admin/assets/css/owl-carousel/owl.carousel.min.css">
-    <link rel="stylesheet" href="/admin/assets/css/owl-carousel/owl.theme.min.css">
-@endpush
 @push('page-js-after')
     <script>
         var pdf_count = {{$pdf_count}};

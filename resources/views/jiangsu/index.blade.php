@@ -5,7 +5,7 @@
 @section('content_table')
     <div class="btn-group mb-3">
         <ul class="button-nav nav nav-tabs mt-3 mb-3 ml-3" role="tablist">
-            <li><a class="btn-add check-multiple" data-menu="jiangsu" data-pos="left" data-id="checkbox" data-cb="load" href="#">录入</a></li>
+            <li><a class="btn-add check-multiple" data-menu="jiangsu" data-pos="left" data-cb="load" href="#">录入</a></li>
             <li><a class="btn-edit check-multiple" data-menu="jiangsu" data-pos="right" href="#">屏蔽</a></li>
             <li><a class="btn-download check-multiple" data-menu="jiangsu" href="#">打开</a></li>
             <li><a class="btn-open check-multiple" data-menu="jiangsu" href="#">下载</a></li>
