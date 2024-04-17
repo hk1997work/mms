@@ -84,20 +84,36 @@ let swiper_position = new Swiper(".swiper-position", {
 });
 let swiper_unit = new Swiper(".swiper-unit", {
     on: {
-        init: function () {
-            this.emit('slideChangeTransitionStart');
-        },
         slideChangeTransitionStart: function () {
-            let unit = $('.swiper-unit').find('.swiper-slide:eq(' + this.activeIndex + ')').text()
+            let unit_id = $('.swiper-unit').find('.swiper-slide:eq(' + this.activeIndex + ')').data('id')
             swiper_position.removeAllSlides();
             $.each(positions, function (i, item) {
-                if (item.name3 === unit) {
+                if (item.id3 === unit_id) {
                     swiper_position.appendSlide([
                         `<div class="swiper-slide author-name" data-id="${item.id}">${item.name1}</div>`,
                     ]);
                 }
             })
             swiper_position.emit('slideChangeTransitionStart');
+        },
+    },
+});
+let swiper_type = new Swiper(".swiper-type", {
+    on: {
+        init: function () {
+            this.emit('slideChangeTransitionStart');
+        },
+        slideChangeTransitionStart: function () {
+            let type_id = $('.swiper-type').find('.swiper-slide:eq(' + this.activeIndex + ')').data('id')
+            swiper_unit.removeAllSlides();
+            $.each(positions, function (i, item) {
+                if (item.id2 === type_id) {
+                    swiper_unit.appendSlide([
+                        `<div class="swiper-slide author-name" data-id="${item.id}">${item.name1}</div>`,
+                    ]);
+                }
+            })
+            swiper_unit.emit('slideChangeTransitionStart');
         },
     },
 });

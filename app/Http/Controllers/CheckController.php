@@ -18,7 +18,7 @@ class CheckController extends Controller
 {
     public function index()
     {
-        $positions = PositionsView::where('str', 'LIKE', "%," . Position::where('name', '计量器具')->first()->id . ",%")->where('sign', 0)->orderBy('code')->orderBy('order')->get();
+        $positions = PositionsView::where('sign', 0)->where('count','!=',0)->orderBy('code')->orderBy('order')->get();
         return view("check.index", compact('positions'));
     }
 
@@ -59,7 +59,7 @@ class CheckController extends Controller
 
     public function update($position_id)
     {
-        $certificates = CertificatesView::where('valid', 1)->where('type', '计量器具')->where('position_id', $position_id)->where('sign', 0)->orderBy('order')->get();
+        $certificates = CertificatesView::where('valid', 1)->where('position_id', $position_id)->where('sign', 0)->orderBy('order')->get();
         foreach ($certificates as $certificate) {
             $folderPath = "storage/check/$certificate->id";
             if (file_exists($folderPath) && is_dir($folderPath)) {
