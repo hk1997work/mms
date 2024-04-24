@@ -17,7 +17,7 @@
                     <td style="width:5%;">
                         <div class="styled-checkbox">
                             <input type="checkbox" name="cb[{{$certificate->order}}]" id="cb[{{$certificate->order}}]"
-                                   @if(isset(array_flip($settings)[$certificate->order])) checked @endif>
+                                   @if(in_array($certificate->order, $settings)) checked @endif>
                             <label for="cb[{{$certificate->order}}]"></label>
                         </div>
                     </td>

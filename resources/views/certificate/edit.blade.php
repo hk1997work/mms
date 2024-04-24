@@ -376,7 +376,7 @@
                             </div>
                             <div class="col-6 div-remark">
                                 <div class="sidebar-heading mt-3 mb-2">备注</div>
-                                <input type="text" name="remark" class="form-control">
+                                <input type="text" name="remark" class="form-control" value="{{$certificate->remark}}">
                             </div>
                             <div class="col-6">
                                 <div class="sidebar-heading mt-3 mb-2">上传证书</div>

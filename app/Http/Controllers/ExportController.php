@@ -231,7 +231,7 @@ class ExportController extends Controller
                 $sheet->setCellValueByColumnAndRow(2, $i, $cer->category);
                 $sheet->setCellValueByColumnAndRow(3, $i, $cer->certificate_no);
                 $sheet->setCellValueByColumnAndRow(4, $i, $cer->position);
-                $sheet->setCellValueByColumnAndRow(5, $i, $cer->instrument);
+                $sheet->setCellValueByColumnAndRow(5, $i, $cer->certificate_name);
                 $sheet->setCellValueByColumnAndRow(6, $i, $cer->model);
                 $sheet->setCellValueByColumnAndRow(7, $i, $cer->number);
                 $sheet->setCellValueByColumnAndRow(8, $i, $cer->limit);
@@ -242,7 +242,7 @@ class ExportController extends Controller
                 $sheet->setCellValueByColumnAndRow(13, $i, $cer->cycle);
                 $sheet->setCellValueByColumnAndRow(14, $i, $cer->abc);
                 $sheet->setCellValueByColumnAndRow(15, $i, $cer->department);
-                $sheet->setCellValueByColumnAndRow(16, $i, $certificate->valid ? '有效' : '无效');
+                $sheet->setCellValueByColumnAndRow(16, $i, $cer->valid ? '有效' : '无效');
                 $sheet->setCellValueByColumnAndRow(17, $i, $cer->times);
                 $sheet->setCellValueByColumnAndRow(18, $i, $cer->start);
                 $sheet->setCellValueByColumnAndRow(19, $i, $cer->remark);

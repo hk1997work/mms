@@ -67,11 +67,13 @@
         <tbody></tbody>
     </table>
 @endsection
-@push('page-js-after-1')
+@push('page-css-after-1')
     <link rel="stylesheet" href="/admin/assets/css/bootstrap-select/bootstrap-select.min.css">
-
+@endpush
+@push('page-js-after-1')
     <script src="/admin/assets/vendors/js/datepicker/daterangepicker.js"></script>
     <script src="/admin/assets/vendors/js/bootstrap-select/bootstrap-select.min.js"></script>
 
     <script src="/admin/assets/js/pages/certificate.js"></script>
+    <script src="/admin/assets/vendors/js/vis-timeline/vis-timeline-graph2d.min.js"></script>
 @endpush

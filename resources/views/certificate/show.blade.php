@@ -131,7 +131,6 @@
         @endforeach
         <link rel="stylesheet" href="/admin/assets/css/vis-timeline/vis-timeline-graph2d.css">
         <div class="col-12 mt-2" id="timeline"></div>
-        <script src="/admin/assets/vendors/js/vis-timeline/vis-timeline-graph2d.min.js"></script>
     </div>
     <script>
         $(document).ready(function () {
