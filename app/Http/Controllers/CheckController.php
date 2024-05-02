@@ -18,7 +18,7 @@ class CheckController extends Controller
 {
     public function index()
     {
-        $positions = PositionsView::where('sign', 0)->where('count','!=',0)->orderBy('code')->orderBy('order')->get();
+        $positions = PositionsView::where('sign', 0)->where('count', '!=', 0)->orderBy('code')->orderBy('order')->get();
         return view("check.index", compact('positions'));
     }
 
@@ -69,11 +69,11 @@ class CheckController extends Controller
                     natsort($files);
                     $fileDate = Carbon::createFromFormat('Y-m-d', substr(end($files), 0, 10));
                     $fileAge = $fileDate->diffInDays(Carbon::now());
-                    if ($fileAge < 30) {
+                    if ($fileAge == 0) {
                         $certificate->color = 'success';
-                    } elseif ($fileAge < 90) {
+                    } elseif ($fileAge < 30) {
                         $certificate->color = 'info';
-                    } elseif ($fileAge < 180) {
+                    } elseif ($fileAge < 90) {
                         $certificate->color = 'warning';
                     } else {
                         $certificate->color = 'danger';

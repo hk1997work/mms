@@ -39,7 +39,7 @@ let swiper_position = new Swiper(".swiper-position", {
                                             <div class="chart-text">
                                                 <span class="heading">${item.order}</span>
                                                 <span class="number">${item.instrument}</span>
-                                                <div class="cxg text-info">${item.model}</div>
+                                                <div class="cxg">${item.model}</div>
                                                 <input type="hidden" name="certificate_id" value="${item.id}">
                                                 <input type="hidden" name="certificate_color" value="${item.color}">
                                             </div>
@@ -47,8 +47,8 @@ let swiper_position = new Swiper(".swiper-position", {
                                         <div class="col-12 no-padding text-center mt-4">
                                             <div class="chart-text">
                                                 <span class="number">${item.number}</span>
-                                                <div class="cxg text-success">${item.verification_date}</div>
-                                                <div class="cxg text-success">${item.validity_date}</div>
+                                                <div class="cxg  text-${item.color}">${item.verification_date}</div>
+                                                <div class="cxg  text-${item.color}">${item.validity_date}</div>
                                                 <span class="heading">${item.department}</span>
                                                 <a href="#" data-menu="check" data-id="${item.id}" data-pos="up" class="number btn-show" ${item.hidden}><i class="la la-eye"></i></a>
                                             </div>
