@@ -3,11 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\CertificatesView;
-use Illuminate\Http\Request;
 
 class SupervisionController extends Controller
 {
-    public function show($id)
+    public function show($id, $output = false)
     {
         $certificates = CertificatesView::where('type', '计量器具')->where('valid', 1)->whereIn('id', explode(',', $id))->orderBy('order')->get();
         $unit = '';
@@ -25,6 +24,6 @@ class SupervisionController extends Controller
             $position = $certificate->position;
         }
         $str = $str . "<br>以上计量器具满足使用要求，标签完好，与计量器具台账一致。";
-        return view('supervision.show', compact('str'));
+        return $output ? $str : view('supervision.show', compact('str'));
     }
 }

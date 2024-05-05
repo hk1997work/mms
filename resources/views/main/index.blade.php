@@ -210,6 +210,60 @@
             <!-- End Widget 08 -->
         </div>
     </div>
+    <div class="row flex-row">
+        <div class="col-xl-8 col-md-12">
+            <div class="widget widget-14 has-shadow">
+                <div class="widget-body">
+                    <div class="today mb-3">
+                        <div class="title">{{date('Y')}}</div>
+                        <div class="new-tasks mt-2"><span class="nb">统计报表</span></div>
+                    </div>
+                    <table class="table table-bordered text-center mb-0">
+                        <thead>
+                        <tr>
+                            <th class="border" rowspan="2">类别</th>
+                            <th class="border" rowspan="2">{{date('Y')}}年</th>
+                            <th class="border" colspan="4">{{date('m')}}月</th>
+                            <th class="td-actions border" rowspan="2">
+                                {{date('d')}}日
+                                <br>
+                                <a class="btn-copy" href="#"><i class="la la-copy edit"></i></a>
+                                <div id="text-copy" hidden>{!! $check !!}</div>
+                                <a href="#"><i class="la la-eye edit"></i></a>
+                            </th>
+                        </tr>
+                        <tr>
+                            @foreach($positions as $position)
+                                <th class="border">{{$position->name}}</th>
+                            @endforeach
+                            <th class="border">合计</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td><span class="text-primary">抽检</span></td>
+                            <td>{{$check_count['year']}}</td>
+                            @foreach($positions as $position)
+                                <td>{{$check_count['month'][$position->name]}}</td>
+                            @endforeach
+                            <td>{{$check_count['month_total']}}</td>
+                            <td>{{$check_count['day']}}</td>
+                        </tr>
+                        <tr>
+                            <td><span class="text-primary">周检</span></td>
+                            <td>{{$certificates->where('verification_date', '>=', $start_year)->where('verification_date', '<=', $end_year)->count()}}</td>
+                            @foreach($positions as $position)
+                                <td>{{$certificates->where('verification_date', '>=', $start_month)->where('verification_date', '<=', $end_month)->where('unit2',$position->name)->count()}}</td>
+                            @endforeach
+                            <td>{{$certificates->where('verification_date', '>=',$start_month)->where('verification_date', '<=',$end_month)->whereIn('unit2',$positions->pluck('name'))->count()}}</td>
+                            <td></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 @push('page-js-after')
     <script>

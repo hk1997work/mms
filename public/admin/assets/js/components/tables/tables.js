@@ -336,7 +336,9 @@
     //删除操作
     $('.table-responsive,.off-sidebar').on('click', '.submit-delete', function () {
         let id
-        if ($('#off-sidebar-table').length > 0) {
+        if ($(this).data('id')) {
+            id = $(this).data('id')
+        } else if ($('#off-sidebar-table').length > 0) {
             id = get_id($('.off-sidebar'))
         } else {
             id = get_id($('.table-responsive'))

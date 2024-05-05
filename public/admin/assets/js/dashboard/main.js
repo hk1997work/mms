@@ -1,6 +1,8 @@
 (function ($) {
     'use strict';
 
+    $("#preloader").fadeOut();
+
     function getDate() {
         var date = new Date();
         var weekday = date.getDay();
@@ -214,5 +216,20 @@
         }
     }).on('circle-animation-progress', function (event, progress) {
         $(this).find('.percent-orders').html(Math.round((month_plan - (parseInt(year_plan[0]['sj']) + parseInt(year_plan[0]['bj']))) / month_plan * progress * 100) + '<i>%</i>');
+    });
+
+    $('.btn-copy').click(function () {
+        var htmlContent = $('#text-copy')[0].innerHTML;
+        var tempTextArea = $('<textarea>');
+        tempTextArea.val(htmlContent.replace(/<br>/g, '\n'));
+        $('body').append(tempTextArea);
+        tempTextArea.select();
+        if (document.execCommand('copy')) {
+            notifications('复制成功')
+        } else {
+            notifications('复制失败')
+        }
+        tempTextArea.remove();
+        event.preventDefault()
     });
 })(jQuery);
