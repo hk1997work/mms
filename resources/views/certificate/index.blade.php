@@ -76,4 +76,5 @@
 
     <script src="/admin/assets/js/pages/certificate.js"></script>
     <script src="/admin/assets/vendors/js/vis-timeline/vis-timeline-graph2d.min.js"></script>
+    <link rel="stylesheet" href="/admin/assets/css/vis-timeline/vis-timeline-graph2d.css">
 @endpush

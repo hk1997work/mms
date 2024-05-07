@@ -32,6 +32,8 @@
     </table>
 @endsection
 @push('page-js-after-1')
+    <script src="/admin/assets/vendors/js/vis-timeline/vis-timeline-graph2d.min.js"></script>
+    <link rel="stylesheet" href="/admin/assets/css/vis-timeline/vis-timeline-graph2d.css">
     <script>
         $('.off-sidebar').on('change', '[name="position_id"]', function () {
             let form = $(this).closest('form')
