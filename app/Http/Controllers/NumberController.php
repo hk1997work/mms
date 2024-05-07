@@ -64,22 +64,7 @@ class NumberController extends Controller
     {
         $certificate = Certificate::where('number_id', $number)->orderBy('validity_date', 'desc')->first();
         if ($certificate) {
-            $certificates = DB::table('certificates_views')->where('position_id', $certificate->position_id)->where('sn', $certificate->sn)->orderBy('verification_date', 'desc')->get();
-            foreach ($certificates as $c) {
-                $c->path = "storage/jpg/$c->id";
-                if (!File::exists($c->path)) {
-                    $this->pdf2jpg($c->id);
-                }
-                $c->files = Storage::files("\public\jpg\\$c->id");
-                if ($certificate->id == $c->id) {
-                    $disable = $c->id;
-                }
-                $dates[] = $c->start_date;
-                $dates[] = $c->end_date;
-            }
-            $max = max($dates);
-            $min = min($dates);
-            return view('certificate.show', compact('certificates', 'disable', 'max', 'min'));
+            return (new CertificateController)->show(Certificate::find($certificate->id));
         }
         return false;
     }
