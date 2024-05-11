@@ -19,7 +19,7 @@ class PositionController extends Controller
 
     public function list()
     {
-        $data = PositionsView::select('id', 'name1', 'name2', 'name3', 'name4', 'name5', 'code', 'count', 'total', 'level', 'sign',)->get()->toArray();
+        $data = PositionsView::select('id', 'name1', 'name2', 'name3', 'name4', 'name5', 'code', 'count', 'total', 'level', 'sign')->get()->toArray();
         foreach ($data as $key => $value) {
             $data[$key]['id'] = "<div class='styled-checkbox'>
                         <input type='checkbox' name='cb' class='cb' id='$value[id]'>

@@ -232,4 +232,27 @@
         tempTextArea.remove();
         event.preventDefault()
     });
+    $('.btn-show').click(function () {
+        $("#preloader")[0].style.display = 'block';
+        $.ajax({
+            url: '/sample/' + $(this).data('id'),
+            success: function (data) {
+                if (data) {
+                    $('.from-up').html(data);
+                    $('.from-up').find('.sidebar-btn').text('抽捡详情')
+                    $(window).trigger('resize')
+                    $('.from-up').addClass('is-visible');
+                } else {
+                    notifications('查看失败')
+                }
+                $("#preloader").fadeOut();
+            },
+            error: function (xhr) {
+                xhr.status == 401 ? document.location.reload() : notifications('查看失败')
+                $("#preloader").fadeOut();
+            },
+        });
+        event.preventDefault()
+    });
+
 })(jQuery);

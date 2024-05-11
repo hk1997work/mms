@@ -133,8 +133,8 @@
     </div>
     <script>
         $(document).ready(function () {
-            var container = document.getElementById('timeline');
-            var arr = []
+            let container = document.getElementById('timeline');
+            let arr = []
             @foreach($certificates as $certificate)
             arr.push(
                 {
@@ -144,15 +144,15 @@
                     end: "{{ $certificate->end_date }} 23:59:59",
                 })
             @endforeach
-            var items = new vis.DataSet(arr);
-            var options = {
+            let items = new vis.DataSet(arr);
+            let options = {
                 height: '100px',
                 stack: false,
                 min: "{{ $min }}",
                 max: "{{ $max }}",
             };
-            var selected
-            var timeline = new vis.Timeline(container, items, options);
+            let selected
+            let timeline = new vis.Timeline(container, items, options);
             timeline.setSelection([{{$disable}}]);
             timeline.on('select', function (properties) {
                 if (properties.items.length > 0) {

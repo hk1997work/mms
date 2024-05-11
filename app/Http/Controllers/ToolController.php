@@ -95,7 +95,7 @@ class ToolController extends Controller
     public function list_show()
     {
         $id = $_GET['id'];
-        $data = NumbersView::select('id', 'factory', 'number', 'state', 'remark', 'mistake')->where('tool_id', $id)->get()->toArray();
+        $data = NumbersView::select('id', 'factory', 'number', 'state', 'times', 'remark', 'mistake')->where('tool_id', $id)->get()->toArray();
         foreach ($data as $key => $value) {
             if ($data[$key]['number']) {
                 switch ($data[$key]['state']) {

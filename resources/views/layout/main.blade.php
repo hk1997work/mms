@@ -203,9 +203,9 @@
 <!-- 开始 模态框 -->
 <div id="modal" class="modal fade" data-backdrop="static"></div>
 <!-- 结束 模态框 -->
-<div class="off-sidebar from-left" data-pos="left"></div>
-<div class="off-sidebar from-right" data-pos="right"></div>
-<div class="off-sidebar from-up" data-pos="up"></div>
+<div class="off-sidebar from-left" data-pos="left">@stack('off-sidebar-left')</div>
+<div class="off-sidebar from-right" data-pos="right">@stack('off-sidebar-right')</div>
+<div class="off-sidebar from-up" data-pos="up">@stack('off-sidebar-up')</div>
 <script>
     const csrf_token = '{{csrf_token()}}'
     const menu = '{{$menu}}'

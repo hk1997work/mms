@@ -95,15 +95,21 @@ class CheckController extends Controller
         return $certificates;
     }
 
-    public function show($certificate_id)
+    public function show($id)
     {
-        $folderPath = "storage/check/$certificate_id";
-        $files = array_diff(scandir($folderPath), ['.', '..']);
-        if (!count($files)) {
-            return false;
+        $checks = [];
+        $folderPath = "public/check/$id";
+        if (Storage::exists($folderPath)) {
+            $files = Storage::files($folderPath);
+            if (!count($files)) {
+                return false;
+            }
+            foreach ($files as $file) {
+                $checks[substr($file, 18, 7)][] = [
+                    'path' => $file,
+                ];
+            }
         }
-        natsort($files);
-        $files = array_reverse($files);
-        return view('check.show', compact('files', 'certificate_id'));
+        return view('check.show', compact('checks'));
     }
 }

@@ -41,20 +41,20 @@
                         <div class="col-xl-2 col-12 my-auto no-padding text-center row">
                             <div class="col-xl-12 col-lg-6 col-md-6 col-sm-6">
                                 <div class="new-orders">
-                                    <div class="title">{{date('m')}}月完成率</div>
                                     <div class="circle-orders">
                                         <div class="percent-orders"></div>
                                     </div>
+                                    <div class="title">{{date('m')}}月完成率</div>
                                 </div>
                             </div>
                             <div class="col-xl-12 col-lg-6 col-md-6 col-sm-6">
                                 <div class="some-stats mt-5">
-                                    <div class="title">{{date('m')}}月待送检</div>
                                     <div class="number text-danger" id="sj">{{$year_plan[0]->sj}}</div>
+                                    <div class="title">{{date('m')}}月待送检</div>
                                 </div>
                                 <div class="some-stats mt-3">
-                                    <div class="title">{{date('m')}}月待报检</div>
                                     <div class="number text-danger" id="bj">{{$year_plan[0]->bj}}</div>
+                                    <div class="title">{{date('m')}}月待报检</div>
                                 </div>
                             </div>
                         </div>
@@ -65,9 +65,7 @@
     </div>
     <div class="row flex-row">
         <div class="col-xl-4 col-md-6">
-            <!-- Begin Widget 08 -->
             <div class="widget widget-14 has-shadow">
-                <!-- Begin Widget Body -->
                 <div class="widget-body">
                     <div class="today">
                         <div class="title">{{$plans->where('type','报检')->count()}}类{{$plans->where('type','报检')->sum('total')}}件</div>
@@ -108,14 +106,10 @@
                         @endforeach
                     </ul>
                 </div>
-                <!-- End Widget Body -->
             </div>
-            <!-- End Widget 08 -->
         </div>
         <div class="col-xl-4 col-md-6">
-            <!-- Begin Widget 08 -->
             <div class="widget widget-14 has-shadow">
-                <!-- Begin Widget Body -->
                 <div class="widget-body">
                     <div class="today">
                         <div class="title">{{$plans->where('type','送检')->count()}}类{{$plans->where('type','送检')->sum('total')}}件</div>
@@ -156,14 +150,10 @@
                         @endforeach
                     </ul>
                 </div>
-                <!-- End Widget Body -->
             </div>
-            <!-- End Widget 08 -->
         </div>
         <div class="col-xl-4 col-md-6">
-            <!-- Begin Widget 08 -->
             <div class="widget widget-14 has-shadow">
-                <!-- Begin Widget Body -->
                 <div class="widget-body">
                     <div class="today">
                         <div class="title">{{$standbys->count()}}类</div>
@@ -205,61 +195,66 @@
                         @endforeach
                     </ul>
                 </div>
-                <!-- End Widget Body -->
             </div>
-            <!-- End Widget 08 -->
         </div>
-    </div>
-    <div class="row flex-row">
-        <div class="col-xl-8 col-md-12">
-            <div class="widget widget-14 has-shadow">
-                <div class="widget-body">
-                    <div class="today mb-3">
-                        <div class="title">{{date('Y')}}</div>
-                        <div class="new-tasks mt-2"><span class="nb">统计报表</span></div>
+        <div class="col-xl-4 col-md-6">
+            <div class="widget widget-13 has-shadow">
+                <div class="widget-body pt-0">
+                    <div class="author-name">
+                        <span>今日抽检</span>
+                        {{$check_count['day']}}
                     </div>
-                    <table class="table table-bordered text-center mb-0">
-                        <thead>
-                        <tr>
-                            <th class="border" rowspan="2">类别</th>
-                            <th class="border" rowspan="2">{{date('Y')}}年</th>
-                            <th class="border" colspan="4">{{date('m')}}月</th>
-                            <th class="td-actions border" rowspan="2">
-                                {{date('d')}}日
-                                <br>
-                                <a class="btn-copy" href="#"><i class="la la-copy edit"></i></a>
-                                <div id="text-copy" hidden>{!! $check !!}</div>
-                                <a href="#"><i class="la la-eye edit"></i></a>
-                            </th>
-                        </tr>
-                        <tr>
+                    <div class="follow-btn text-center mt-3">
+                        <a class="btn btn-outline-primary btn-copy" href="#" @if($check_count['day']==0) hidden @endif>复 制</a>
+                        <a class="btn btn-outline-primary btn-show" href="#" data-id="{{date('Y-m-d')}}" @if($check_count['day']==0) hidden @endif>查 看</a>
+                        <div id="text-copy" hidden>{!! $copy !!}</div>
+                    </div>
+                    <div class="author-name">
+                        <span>抽检</span>
+                    </div>
+                    <div class="social-stats">
+                        <div class="row d-flex justify-content-between">
+                            <div class="col-6 text-center">
+                                <div class="counter">{{$check_count['year']}}</div>
+                                <div class="heading">{{date('Y')}}年</div>
+                            </div>
+                            <div class="col-6 text-center">
+                                <div class="counter">{{$check_count['month_total']}}</div>
+                                <div class="heading">{{date('m')}}月</div>
+                            </div>
+                        </div>
+                        <div class="row d-flex justify-content-between mt-2">
                             @foreach($positions as $position)
-                                <th class="border">{{$position->name}}</th>
+                                <div class="col-4 text-center">
+                                    <div class="counter">{{$check_count['month'][$position->name]}}</div>
+                                    <div class="heading">{{$position->name}}</div>
+                                </div>
                             @endforeach
-                            <th class="border">合计</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td><span class="text-primary">抽检</span></td>
-                            <td>{{$check_count['year']}}</td>
+                        </div>
+                    </div>
+                    <div class="author-name">
+                        <span>周检</span>
+                    </div>
+                    <div class="social-stats mb-5">
+                        <div class="row d-flex justify-content-between">
+                            <div class="col-6 text-center">
+                                <div class="counter">{{$certificates->where('verification_date', '>=', $start_year)->where('verification_date', '<=', $end_year)->count()}}</div>
+                                <div class="heading">{{date('Y')}}年</div>
+                            </div>
+                            <div class="col-6 text-center">
+                                <div class="counter">{{$certificates->where('verification_date', '>=',$start_month)->where('verification_date', '<=',$end_month)->whereIn('unit2',$positions->pluck('name'))->count()}}</div>
+                                <div class="heading">{{date('m')}}月</div>
+                            </div>
+                        </div>
+                        <div class="row d-flex justify-content-between mt-2">
                             @foreach($positions as $position)
-                                <td>{{$check_count['month'][$position->name]}}</td>
+                                <div class="col-4 text-center">
+                                    <div class="counter">{{$certificates->where('verification_date', '>=', $start_month)->where('verification_date', '<=', $end_month)->where('unit2',$position->name)->count()}}</div>
+                                    <div class="heading">{{$position->name}}</div>
+                                </div>
                             @endforeach
-                            <td>{{$check_count['month_total']}}</td>
-                            <td>{{$check_count['day']}}</td>
-                        </tr>
-                        <tr>
-                            <td><span class="text-primary">周检</span></td>
-                            <td>{{$certificates->where('verification_date', '>=', $start_year)->where('verification_date', '<=', $end_year)->count()}}</td>
-                            @foreach($positions as $position)
-                                <td>{{$certificates->where('verification_date', '>=', $start_month)->where('verification_date', '<=', $end_month)->where('unit2',$position->name)->count()}}</td>
-                            @endforeach
-                            <td>{{$certificates->where('verification_date', '>=',$start_month)->where('verification_date', '<=',$end_month)->whereIn('unit2',$positions->pluck('name'))->count()}}</td>
-                            <td></td>
-                        </tr>
-                        </tbody>
-                    </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -267,10 +262,10 @@
 @endsection
 @push('page-js-after')
     <script>
-        var pdf_count = {{$pdf_count}};
-        var pdf_total = {{$certificates->count()}};
-        var year_plan = {!! json_encode($year_plan) !!};
-        var month_plan = {{$month_plan}};
+        let pdf_count = {{$pdf_count}};
+        let pdf_total = {{$certificates->count()}};
+        let year_plan = {!! json_encode($year_plan) !!};
+        let month_plan = {{$month_plan}};
     </script>
     <script src="/admin/assets/vendors/js/chart/chart.min.js"></script>
     <script src="/admin/assets/vendors/js/progress/circle-progress.min.js"></script>

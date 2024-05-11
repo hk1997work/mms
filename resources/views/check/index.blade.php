@@ -34,7 +34,7 @@
 @endpush
 @push('page-js-after-1')
     <script>
-        var positions = {!! $positions !!};
+        let positions = {!! $positions !!};
     </script>
     <script src="/admin/assets/vendors/js/swiper/swiper-bundle.js"></script>
     <script src="/admin/assets/js/components/swiper/swiper.js"></script>

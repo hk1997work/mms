@@ -16,8 +16,8 @@
         $(document).ready(function () {
             $('.btn-copy').click(function () {
 
-                var htmlContent = $('#supervision')[0].innerHTML;
-                var tempTextArea = $('<textarea>');
+                let htmlContent = $('#supervision')[0].innerHTML;
+                let tempTextArea = $('<textarea>');
                 tempTextArea.val(htmlContent.replace(/<br>/g, '\n'));
                 $('body').append(tempTextArea);
                 tempTextArea.select();

@@ -47,8 +47,10 @@ Route::group(['namespace' => '\App\Http\Controllers'], function () {
             Route::post('/ajax_confirm', 'ConfirmController@list');
             //周检通知
             Route::resource('/cyclical', 'CyclicalController');
+            Route::post('/ajax_cyclical', 'CyclicalController@list');
             //抽检记录
             Route::resource('/sample', 'SampleController');
+            Route::post('/ajax_sample', 'SampleController@list');
             //日常抽检
             Route::resource('/check', 'CheckController');
         });
