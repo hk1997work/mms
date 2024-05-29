@@ -17,12 +17,12 @@ let swiper_certificate = new Swiper(".swiper-certificate", {
 let swiper_position = new Swiper(".swiper-position", {
     on: {
         slideChangeTransitionStart: function () {
-            let position_id = $('.swiper-position').find('.swiper-slide:eq(' + this.activeIndex + ')').data('id')
+            let position = $('.swiper-position').find('.swiper-slide:eq(' + this.activeIndex + ')').text()
             let formData = new FormData();
             formData.append('_method', 'put');
             formData.append('_token', csrf_token);
             $.ajax({
-                url: "/check/" + position_id,
+                url: "/check/" + encodeURIComponent(position),
                 type: "POST",
                 data: formData,
                 processData: false,
@@ -84,36 +84,20 @@ let swiper_position = new Swiper(".swiper-position", {
 });
 let swiper_unit = new Swiper(".swiper-unit", {
     on: {
-        slideChangeTransitionStart: function () {
-            let unit_id = $('.swiper-unit').find('.swiper-slide:eq(' + this.activeIndex + ')').data('id')
-            swiper_position.removeAllSlides();
-            $.each(positions, function (i, item) {
-                if (item.id3 === unit_id) {
-                    swiper_position.appendSlide([
-                        `<div class="swiper-slide author-name" data-id="${item.id}">${item.name1}</div>`,
-                    ]);
-                }
-            })
-            swiper_position.emit('slideChangeTransitionStart');
-        },
-    },
-});
-let swiper_type = new Swiper(".swiper-type", {
-    on: {
         init: function () {
             this.emit('slideChangeTransitionStart');
         },
         slideChangeTransitionStart: function () {
-            let type_id = $('.swiper-type').find('.swiper-slide:eq(' + this.activeIndex + ')').data('id')
-            swiper_unit.removeAllSlides();
+            let unit = $('.swiper-unit').find('.swiper-slide:eq(' + this.activeIndex + ')').text()
+            swiper_position.removeAllSlides();
             $.each(positions, function (i, item) {
-                if (item.id2 === type_id) {
-                    swiper_unit.appendSlide([
-                        `<div class="swiper-slide author-name" data-id="${item.id}">${item.name1}</div>`,
+                if (item.name3 === unit) {
+                    swiper_position.appendSlide([
+                        `<div class="swiper-slide author-name">${item.name1}</div>`,
                     ]);
                 }
             })
-            swiper_unit.emit('slideChangeTransitionStart');
+            swiper_position.emit('slideChangeTransitionStart');
         },
     },
 });

@@ -27,7 +27,7 @@ class MainController extends Controller
             'month_total' => 0,
             'day' => 0,
         ];
-        $positions = Position::select('name')->whereIn('name', ['南京钢管分公司','防腐分公司','科技质量中心'])->groupBy('name')->orderByRaw('MIN(sort)')->get();
+        $positions = Position::select('name')->whereIn('name', ['南京钢管分公司', '防腐分公司', '科技质量中心'])->groupBy('name')->orderByRaw('MIN(sort)')->get();
         foreach ($positions as $position) {
             $check_count['month'][$position->name] = 0;
         }
@@ -50,11 +50,11 @@ class MainController extends Controller
                             if ($date > $start_month && $date < $end_month) {
                                 $check_count['month'][$certificate->unit2] += 1;
                                 $check_count['month_total'] += 1;
-                                if ($dateString == date('Y-m-d')) {
-                                    $check_count['day'] += 1;
-                                    $check_id[] = $certificate->id;
-                                }
                             }
+                        }
+                        if ($dateString == date('Y-m-d')) {
+                            $check_count['day'] += 1;
+                            $check_id[] = $certificate->id;
                         }
                     }
                 }

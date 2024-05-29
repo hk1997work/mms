@@ -2,17 +2,14 @@
 @section('content_table')
     <div class="widget widget-05">
         <div class="widget-body no-padding hidden">
-            <div class="swiper-type">
+            <div class="swiper-unit">
                 <div class="swiper-wrapper">
-                    @foreach($positions->where('level',2) as $position)
-                        <div class="swiper-slide author-name" data-id="{{$position->id}}">{{$position->name1}}</div>
+                    @foreach($positions->where('level',3) as $position)
+                        <div class="swiper-slide author-name">{{$position->name1}}</div>
                     @endforeach
                 </div>
             </div>
             <div class="author-avatar"></div>
-            <div class="swiper-unit">
-                <div class="swiper-wrapper"></div>
-            </div>
             <div class="swiper-position">
                 <div class="swiper-wrapper"></div>
             </div>

@@ -10,6 +10,7 @@ use App\Models\Position;
 use App\Models\PositionsView;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 
@@ -18,7 +19,13 @@ class CheckController extends Controller
 {
     public function index()
     {
-        $positions = PositionsView::where('sign', 0)->where('count', '!=', 0)->orderBy('code')->orderBy('order')->get();
+        $positions = PositionsView::selectRaw('name1,name3,level,MIN(code) AS code,MIN(sort) AS sort')->where(function ($query) {
+            $query->whereIn('name1', ['计量器具', '检测仪表'])
+                ->orWhereIn('name2', ['计量器具', '检测仪表'])
+                ->orWhereIn('name3', ['计量器具', '检测仪表'])
+                ->orWhereIn('name4', ['计量器具', '检测仪表']);
+        })->whereIn('level', [3, 5])->where('sign', 0)->where('count', '!=', 0)
+            ->groupBy('name1', 'name3', 'level')->orderBy(DB::raw('MIN(`code`)'))->orderBy(DB::raw('MIN(`order`)'))->get();
         return view("check.index", compact('positions'));
     }
 
@@ -57,9 +64,9 @@ class CheckController extends Controller
         return '上传失败';
     }
 
-    public function update($position_id)
+    public function update($position)
     {
-        $certificates = CertificatesView::where('valid', 1)->where('position_id', $position_id)->where('sign', 0)->orderBy('order')->get();
+        $certificates = CertificatesView::where('valid', 1)->where('position', $position)->whereIn('type', ['计量器具', '检测仪表'])->where('sign', 0)->orderBy('order')->get();
         foreach ($certificates as $certificate) {
             $folderPath = "storage/check/$certificate->id";
             if (file_exists($folderPath) && is_dir($folderPath)) {

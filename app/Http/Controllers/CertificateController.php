@@ -130,7 +130,7 @@ class CertificateController extends Controller
         $positions = PositionsView::where('str', 'like', '%' . $certificate->unit3_id . '%')->whereIn('level', [4, 5])->get();
         $tools = ToolsView::where('instrument', $certificate->instrument)->orderBy('instrument')->get();
         $standards = StandardsView::where('level', 2)->orderBy('name1')->get();
-        $spares = CertificatesView::where('valid', 1)->where('position', '备用')->where('instrument', $certificate->instrument)->orderBy('order')->get();
+        $spares = CertificatesView::where('valid', 1)->where('position', '备用')->where('state','!=','借用')->where('instrument', $certificate->instrument)->orderBy('order')->get();
         return view('certificate.edit', compact('certificate', 'categories', 'departments', 'positions', 'tools', 'standards', 'spares'));
     }
 
