@@ -190,7 +190,7 @@ class ExportController extends Controller
                 $sheet->setCellValueByColumnAndRow(11, $i, $certificate->verification_date);
                 $sheet->setCellValueByColumnAndRow(12, $i, $certificate->validity_date);
                 $sheet->setCellValueByColumnAndRow(13, $i, $certificate->cycle);
-                $sheet->setCellValueByColumnAndRow(14, $i, $certificate->month);
+                $sheet->setCellValueByColumnAndRow(14, $i, substr($certificate->validity_date, 0, 7));
                 $sheet->setCellValueByColumnAndRow(15, $i, $certificate->abc);
                 $sheet->setCellValueByColumnAndRow(16, $i, $certificate->department);
                 $sheet->setCellValueByColumnAndRow(17, $i, $certificate->valid ? '有效' : '无效');
