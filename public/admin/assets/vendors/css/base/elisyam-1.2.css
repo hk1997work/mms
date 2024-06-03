@@ -238,7 +238,7 @@ h6, .h6 {
 }
 
 .container-fluid {
-    padding: 30px 30px
+    padding: 30px
 }
 
 @media (max-width: 576px) {
@@ -2542,7 +2542,7 @@ span.badge-pulse-orange {
     border-radius: 0;
     border: none;
     margin-bottom: 30px;
-    position: relative
+    position: relative;
 }
 
 .widget-header {
@@ -2597,7 +2597,7 @@ span.badge-pulse-orange {
     bottom: 0;
     width: 100%;
     padding: 1.2rem 0;
-    z-index: 1
+    z-index: 1;
 }
 
 .widget-footer {
@@ -8293,6 +8293,10 @@ nav.navbar .user-size.dropdown-menu a.logout:hover {
     display: block
 }
 
+.widget-09 {
+    align-content: center;
+}
+
 .widget-09 .some-stats {
     line-height: 1.2
 }
@@ -8528,6 +8532,10 @@ nav.navbar .user-size.dropdown-menu a.logout:hover {
     font-size: 1rem
 }
 
+.widget-13 {
+    align-content: center;
+}
+
 .widget-13 .widget-body {
     position: relative;
     overflow: hidden
@@ -8578,10 +8586,9 @@ nav.navbar .user-size.dropdown-menu a.logout:hover {
 
 .widget-13 .author-name {
     color: #5d5386;
-    font-size: 4rem;
+    font-size: 3.5rem;
     font-weight: 600;
     text-align: center;
-    margin-top: 2.6rem;
     position: relative;
     text-shadow: 0 1px 0 #fff
 }
@@ -8617,11 +8624,6 @@ nav.navbar .user-size.dropdown-menu a.logout:hover {
     color: #2c304d;
     font-size: 1.2rem;
     font-weight: 700
-}
-
-.widget-13 .follow-btn .btn {
-    padding: 10px 30px;
-    height: 36.75px;
 }
 
 .shape-container {
@@ -9997,6 +9999,7 @@ nav.navbar .user-size.dropdown-menu a.logout:hover {
 .widget-32 {
     position: relative;
     text-align: center;
+    align-content: center;
     line-height: 1.1
 }
 
@@ -10024,7 +10027,7 @@ nav.navbar .user-size.dropdown-menu a.logout:hover {
 .widget-32 .content {
     padding: 1rem 0;
     position: relative;
-    z-index: 2
+    z-index: 2;
 }
 
 .widget-32 #events-date {

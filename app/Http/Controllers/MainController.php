@@ -29,7 +29,12 @@ class MainController extends Controller
         ];
         $positions = Position::select('name')->whereIn('name', ['南京钢管分公司', '防腐分公司', '科技质量中心'])->groupBy('name')->orderByRaw('MIN(sort)')->get();
         foreach ($positions as $position) {
-            $check_count['month'][$position->name] = 0;
+            $check_count['month'][$position->name]['count'] = 0;
+            $check_count[$position->name]['success'] = 0;
+            $check_count[$position->name]['info'] = 0;
+            $check_count[$position->name]['warning'] = 0;
+            $check_count[$position->name]['danger'] = 0;
+            $check_count[$position->name]['total'] = 0;
         }
         //证书数量
         $certificates = CertificatesView::orderBy('order')->get();
@@ -48,15 +53,43 @@ class MainController extends Controller
                         if ($date > $start_year && $date < $end_year) {
                             $check_count['year'] += 1;
                             if ($date > $start_month && $date < $end_month) {
-                                $check_count['month'][$certificate->unit2] += 1;
+                                $check_count['month'][$certificate->unit2]['count'] += 1;
                                 $check_count['month_total'] += 1;
                             }
                         }
-                        if ($dateString == date('Y-m-d')) {
+                        if ($dateString == date('Y-m-d') || $dateString == '2024-05-28') {
                             $check_count['day'] += 1;
                             $check_id[] = $certificate->id;
                         }
                     }
+                }
+            }
+            if ($certificate->valid == 1 && $certificate->sign == 0 && ($certificate->type == '计量器具' || $certificate->type == '检测仪表')) {
+                $folderPath = "storage/check/$certificate->id";
+                if(isset($check_count[$certificate->unit2])){
+                    if (file_exists($folderPath) && is_dir($folderPath)) {
+                        $files = scandir($folderPath);
+                        $certificate->count = count($files) - 2;
+                        if ($certificate->count > 0) {
+                            natsort($files);
+                            $fileDate = Carbon::createFromFormat('Y-m-d', substr(end($files), 0, 10));
+                            $fileAge = $fileDate->diffInDays(Carbon::now());
+                            if ($fileAge == 0) {
+                                $check_count[$certificate->unit2]['success'] += 1;
+                            } elseif ($fileAge < 30) {
+                                $check_count[$certificate->unit2]['info'] += 1;
+                            } elseif ($fileAge < 90) {
+                                $check_count[$certificate->unit2]['warning'] += 1;
+                            } else {
+                                $check_count[$certificate->unit2]['danger'] += 1;
+                            }
+                        } else {
+                            $check_count[$certificate->unit2]['danger'] += 1;
+                        }
+                    } else {
+                        $check_count[$certificate->unit2]['danger'] += 1;
+                    }
+                    $check_count[$certificate->unit2]['total'] += 1;
                 }
             }
         }

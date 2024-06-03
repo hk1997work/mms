@@ -32,6 +32,13 @@
     }
 
     getDate();
+    let container_fluid_height = window.innerHeight - $('.navbar-holder').height() - parseInt($('.container-fluid').css('padding-top')) - parseInt($('.container-fluid').css('padding-bottom'))
+    $('#swiper-main').height(container_fluid_height)
+    $('.list-group').height(container_fluid_height - document.querySelector('.today').getBoundingClientRect().height - parseInt($('.widget-body').css('padding-top')) - parseInt($('.widget-body').css('padding-bottom')))
+    $('#swiper-main .swiper-slide >.row:eq(0)').css('min-height', container_fluid_height / 3 * 2)
+    let swiper = new Swiper("#swiper-main", {
+        loop: "true",
+    });
 
     $('.certificate_per').circleProgress({
         value: (pdf_count / pdf_total),
@@ -254,5 +261,7 @@
         });
         event.preventDefault()
     });
+
+    $('#swiper-main .swiper-slide >.row:eq(1)').css('min-height', container_fluid_height - $('#swiper-main .swiper-slide >.row:eq(0)').height())
 
 })(jQuery);
