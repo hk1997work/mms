@@ -8,7 +8,7 @@
                 <select name="group[{{$certificate['json']->id}}][tool_id]" class="custom-select form-control @if($certificate['info']==0) is-invalid @endif" data-live-search="true">
                     <option title="请选择..." value="" selected disabled>请选择...</option>
                     @foreach($tools as $tool)
-                        <option title="{{$tool->instrument}}" value="{{$tool->id}}" @if($certificate['info']&&$certificate['tool_id']==$tool->id) selected @endif>{{$tool->instrument}}--{{$tool->model}}</option>
+                        <option value="{{$tool->id}}" @if($certificate['info']&&$certificate['tool_id']==$tool->id) selected @endif>{{$tool->instrument}}--{{$tool->model}}</option>
                     @endforeach
                 </select>
                 <input type="hidden" name="group[{{$certificate['json']->id}}][path]" value="{{$certificate['path']}}">
