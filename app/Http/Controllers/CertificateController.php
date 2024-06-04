@@ -74,6 +74,12 @@ class CertificateController extends Controller
                 $data[$key]['instrument'] = $value['instrument'];
             }
             $data[$key]['remark'] = $data[$key]['remark'] . ($data[$key]['number_remark'] ? '<div class="text-primary">' . $data[$key]['number_remark'] . '</div>' : '');
+            if ($path == 'active' && $value['position'] != '备用' && (Position::find($type_id)->name == '计量器具' || Position::find($type_id)->name == '检测仪表')) {
+                $folderPath = "public/check/$value[id]";
+                if (!Storage::exists($folderPath) || !count(Storage::files($folderPath))) {
+                    $data[$key]['remark'] = "<span class='text-danger'>检查</span>" . $data[$key]['remark'];
+                }
+            }
         }
         return response()->json(['data' => array_map('array_values', $data)]);
     }
@@ -130,7 +136,7 @@ class CertificateController extends Controller
         $positions = PositionsView::where('str', 'like', '%' . $certificate->unit3_id . '%')->whereIn('level', [4, 5])->get();
         $tools = ToolsView::where('instrument', $certificate->instrument)->orderBy('instrument')->get();
         $standards = StandardsView::where('level', 2)->orderBy('name1')->get();
-        $spares = CertificatesView::where('valid', 1)->where('position', '备用')->where('state','!=','借用')->where('instrument', $certificate->instrument)->orderBy('order')->get();
+        $spares = CertificatesView::where('valid', 1)->where('position', '备用')->where('state', '!=', '借用')->where('instrument', $certificate->instrument)->orderBy('order')->get();
         return view('certificate.edit', compact('certificate', 'categories', 'departments', 'positions', 'tools', 'standards', 'spares'));
     }
 
