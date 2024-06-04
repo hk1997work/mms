@@ -74,14 +74,12 @@ class MainController extends Controller
                             natsort($files);
                             $fileDate = Carbon::createFromFormat('Y-m-d', substr(end($files), 0, 10));
                             $fileAge = $fileDate->diffInDays(Carbon::now());
-                            if ($fileAge == 0) {
+                            if ($fileAge < 90) {
                                 $check_count[$certificate->unit2]['success'] += 1;
-                            } elseif ($fileAge < 30) {
+                            } elseif ($fileAge < 180) {
                                 $check_count[$certificate->unit2]['info'] += 1;
-                            } elseif ($fileAge < 90) {
-                                $check_count[$certificate->unit2]['warning'] += 1;
                             } else {
-                                $check_count[$certificate->unit2]['danger'] += 1;
+                                $check_count[$certificate->unit2]['warning'] += 1;
                             }
                         } else {
                             $check_count[$certificate->unit2]['danger'] += 1;

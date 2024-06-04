@@ -76,14 +76,12 @@ class CheckController extends Controller
                     natsort($files);
                     $fileDate = Carbon::createFromFormat('Y-m-d', substr(end($files), 0, 10));
                     $fileAge = $fileDate->diffInDays(Carbon::now());
-                    if ($fileAge == 0) {
+                    if ($fileAge < 90) {
                         $certificate->color = 'success';
-                    } elseif ($fileAge < 30) {
+                    } elseif ($fileAge < 180) {
                         $certificate->color = 'info';
-                    } elseif ($fileAge < 90) {
-                        $certificate->color = 'warning';
                     } else {
-                        $certificate->color = 'danger';
+                        $certificate->color = 'warning';
                     }
                     $certificate->last = str_replace("'", ':', pathinfo(end($files), PATHINFO_FILENAME));
                     $certificate->hidden = '';
