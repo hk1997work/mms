@@ -53,7 +53,9 @@ class MainController extends Controller
                         if ($date > $start_year && $date < $end_year) {
                             $check_count['year'] += 1;
                             if ($date > $start_month && $date < $end_month) {
-                                $check_count['month'][$certificate->unit2]['count'] += 1;
+                                if (isset($check_count[$certificate->unit2])) {
+                                    $check_count['month'][$certificate->unit2]['count'] += 1;
+                                }
                                 $check_count['month_total'] += 1;
                             }
                         }

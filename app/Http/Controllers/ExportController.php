@@ -135,7 +135,7 @@ class ExportController extends Controller
                 $sheet->setCellValueByColumnAndRow(16, $i, $certificate->valid ? '有效' : '无效');
                 $sheet->setCellValueByColumnAndRow(17, $i, $certificate->times);
                 $sheet->setCellValueByColumnAndRow(18, $i, $certificate->start);
-                $sheet->setCellValueByColumnAndRow(19, $i, $certificate->remark);
+                $sheet->setCellValueByColumnAndRow(19, $i, $certificate->remark . $certificate->number_remark);
                 $sheet->getRowDimension($i)->setRowHeight(20);
             }
             $sheet->getStyle("A4:S$i")->applyFromArray($styleArray);
@@ -160,7 +160,7 @@ class ExportController extends Controller
                 $sheet->setCellValueByColumnAndRow(6, $i, $certificate->verification_date);
                 $sheet->setCellValueByColumnAndRow(7, $i, $certificate->validity_date);
                 $sheet->setCellValueByColumnAndRow(8, $i, $certificate->department);
-                $sheet->setCellValueByColumnAndRow(9, $i, $certificate->remark);
+                $sheet->setCellValueByColumnAndRow(9, $i, $certificate->remark . $certificate->number_remark);
                 $sheet->getRowDimension($i)->setRowHeight(20);
             }
             $sheet->getStyle("A4:I$i")->applyFromArray($styleArray);
@@ -198,7 +198,7 @@ class ExportController extends Controller
                 $sheet->setCellValueByColumnAndRow(19, $i, $certificate->times);
                 $sheet->setCellValueByColumnAndRow(20, $i, $certificate->start);
                 $sheet->setCellValueByColumnAndRow(21, $i, '');
-                $sheet->setCellValueByColumnAndRow(22, $i, $certificate->remark);
+                $sheet->setCellValueByColumnAndRow(22, $i, $certificate->remark . $certificate->number_remark);
                 $sheet->getRowDimension($i)->setRowHeight(20);
             }
             $sheet->getStyle("A5:V$i")->applyFromArray($styleArray);
