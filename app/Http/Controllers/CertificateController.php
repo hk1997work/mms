@@ -33,7 +33,7 @@ class CertificateController extends Controller
 
         $path = $_GET['path'];
         $type_id = isset($_GET['id']) ? $_GET['id'] : Position::where('level', 2)->orderBy('sort')->first()->id;
-        $data = CertificatesView::select('id', 'order', 'position', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'remark', 'number_remark');
+        $data = CertificatesView::select('id', 'order', 'position', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'remark', 'number_remark','unit3');
         switch ($path) {
             case 'active':
                 $data->where('state', '在用')->where('valid', 1);
@@ -74,12 +74,13 @@ class CertificateController extends Controller
                 $data[$key]['instrument'] = $value['instrument'];
             }
             $data[$key]['remark'] = $data[$key]['remark'] . ($data[$key]['number_remark'] ? '<div class="text-primary">' . $data[$key]['number_remark'] . '</div>' : '');
-            if ($path == 'active' && $value['position'] != '备用' && (Position::find($type_id)->name == '计量器具' || Position::find($type_id)->name == '检测仪表')) {
+            if ($path == 'active' && $value['position'] != '备用' && ($value['unit3'] == '计量器具' || $value['unit3'] == '检测仪表')) {
                 $folderPath = "public/check/$value[id]";
                 if (!Storage::exists($folderPath) || !count(Storage::files($folderPath))) {
                     $data[$key]['remark'] = "<span class='text-danger'>检查</span>" . $data[$key]['remark'];
                 }
             }
+            unset($data[$key]['unit3']);
         }
         return response()->json(['data' => array_map('array_values', $data)]);
     }

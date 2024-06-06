@@ -45,19 +45,19 @@
                     @foreach($positions->where('level',1) as $position_1)
                         <div class="nav-tabs mt-3">
                             <div class="styled-checkbox">
-                                <input type="checkbox" id="position{{$position_1->id}}">
+                                <input type="checkbox" name="position[]" id="position{{$position_1->id}}" value="{{$position_1->id}}">
                                 <label class="sidebar-heading" for="position{{$position_1->id}}">{{$position_1->name}}</label>
                             </div>
                             @foreach($positions->where('pid',$position_1->id) as $position_2)
                                 <div class="ml-5">
                                     <div class="styled-checkbox">
-                                        <input type="checkbox" id="position{{$position_2->id}}" data-pid="position{{$position_2->pid}}" class="check-none">
+                                        <input type="checkbox" name="position[]" id="position{{$position_2->id}}" value="{{$position_2->id}}" data-pid="position{{$position_2->pid}}" class="check-none">
                                         <label class="sidebar-heading" for="position{{$position_2->id}}">{{$position_2->name}}</label>
                                     </div>
                                     @foreach($positions->where('pid',$position_2->id) as $position_3)
                                         <div class="ml-5">
                                             <div class="styled-checkbox">
-                                                <input type="checkbox" name="position[]" id="position{{$position_3->id}}" data-pid="position{{$position_3->pid}}" data-ppid="position{{$position_2->pid}}" value="{{$position_3->id}}" class="check-none" @if($myPositions!=''&&$myPositions->contains($position_3)) checked @endif>
+                                                <input type="checkbox" name="position[]" id="position{{$position_3->id}}" value="{{$position_3->id}}" data-pid="position{{$position_3->pid}}" data-ppid="position{{$position_2->pid}}" class="check-none" @if($myPositions!=''&&$myPositions->contains($position_3)) checked @endif>
                                                 <label class="sidebar-heading" for="position{{$position_3->id}}">{{$position_3->name}}</label>
                                             </div>
                                         </div>
