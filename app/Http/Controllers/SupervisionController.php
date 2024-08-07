@@ -8,7 +8,7 @@ class SupervisionController extends Controller
 {
     public function show($id, $output = false)
     {
-        $certificates = CertificatesView::where('type', '计量器具')->where('valid', 1)->whereIn('id', explode(',', $id))->orderBy('order')->get();
+        $certificates = CertificatesView::where('valid', 1)->whereIn('id', explode(',', $id))->orderBy('order')->get();
         $unit = '';
         $position = '';
         $str = "计量器具检查：";

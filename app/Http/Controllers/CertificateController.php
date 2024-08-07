@@ -33,7 +33,7 @@ class CertificateController extends Controller
 
         $path = $_GET['path'];
         $type_id = isset($_GET['id']) ? $_GET['id'] : Position::where('level', 2)->orderBy('sort')->first()->id;
-        $data = CertificatesView::select('id', 'order', 'position', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'remark', 'number_remark','unit3');
+        $data = CertificatesView::select('id', 'order', 'position', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'remark', 'number_remark', 'unit3');
         switch ($path) {
             case 'active':
                 $data->where('state', '在用')->where('valid', 1);
