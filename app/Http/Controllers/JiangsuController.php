@@ -133,7 +133,7 @@ class JiangsuController extends Controller
             $arr['start_date'] = $arr['verification_date'];
             $arr['end_date'] = $arr['validity_date'];
             $c = Certificate::where('number_id', $r['number_id'])->where('valid', 1)->get();
-            if ($c->count() == 1) {
+            if ($c->count() == 1 && $request->check_auto) {
                 $c[0]->valid = 0;
                 $c[0]->end_date = Carbon::parse(date('Y-m-d'))->min($c[0]->validity_date)->max($arr['verification_date'])->subDay();
                 $c[0]->save();
@@ -191,7 +191,7 @@ class JiangsuController extends Controller
 
     public function list_show()
     {
-        $data = Jiangsu::select('id', 'verification_date', 'certificate_no', 'instrument', 'model', 'number', 'remark')->where('remark','!=','安全')->get()->toArray();
+        $data = Jiangsu::select('id', 'verification_date', 'certificate_no', 'instrument', 'model', 'number', 'remark')->where('remark', '!=', '安全')->get()->toArray();
         foreach ($data as $key => $value) {
             $data[$key]['id'] = "<div class='styled-checkbox'>
                         <input type='checkbox' name='cb' class='cb' id='$value[certificate_no]' data-url='/download_jiangsu/$value[certificate_no]?type=download'>

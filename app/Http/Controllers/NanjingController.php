@@ -132,7 +132,7 @@ class NanjingController extends Controller
             $arr['start_date'] = $arr['verification_date'];
             $arr['end_date'] = $arr['validity_date'];
             $c = Certificate::where('number_id', $r['number_id'])->where('valid', 1)->get();
-            if ($c->count() == 1) {
+            if ($c->count() == 1 && $request->check_auto) {
                 $c[0]->valid = 0;
                 $c[0]->end_date = Carbon::parse(date('Y-m-d'))->min($c[0]->validity_date)->max($arr['verification_date'])->subDay();
                 $c[0]->save();
@@ -190,7 +190,7 @@ class NanjingController extends Controller
 
     public function list_show()
     {
-        $data = Nanjing::select('id', 'verification_date', 'certificate_no', 'instrument', 'model', 'number', 'remark')->where('remark','!=','安全')->get()->toArray();
+        $data = Nanjing::select('id', 'verification_date', 'certificate_no', 'instrument', 'model', 'number', 'remark')->where('remark', '!=', '安全')->get()->toArray();
         foreach ($data as $key => $value) {
             $data[$key]['id'] = "<div class='styled-checkbox'>
                         <input type='checkbox' name='cb' class='cb' id='$value[certificate_no]' data-url='/download_nanjing/$value[certificate_no]?type=show'>
@@ -251,7 +251,7 @@ class NanjingController extends Controller
             file_put_contents("storage/" . \Auth::user()->id . "/orc/1.jpg", $res->getBody());
             exec("python F:/phpstudy_pro/WWW/laravel8/python/get_validate_code.py  2>&1 " . \Auth::user()->id, $out, $status);
             if (strlen($out[count($out) - 1]) == 4) {
-                $str = $this->nanjing_encode('{"userName":"13155555418","password":"qq199362","userType":"0","validateCode":"' . $out[count($out) - 1] . '","type":"2","codeType":""}');
+                $str = $this->nanjing_encode('{"userName":"13155555418","password":"Qq199362","userType":"0","validateCode":"' . $out[count($out) - 1] . '","type":"2","codeType":""}');
                 #登录
                 $client->post('http://58.213.156.66/cmiims/a/api/ajaxLogin', ['body' => $str, 'headers' => ['Cookie' => $session]]);
                 $res = $client->request('GET', 'http://58.213.156.66/cmiims/a/sys/adminECertQuery/listenceInfo?' . $this->nanjing_encode('{"pageNo":1,"pageSize":"9999","orderBy":"","searchConditionFilter":[]}'), ['headers' => ['Cookie' => $session]]);

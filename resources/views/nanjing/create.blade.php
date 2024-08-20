@@ -1,5 +1,9 @@
 @extends('layout.create')
 @section('content_form')
+    <div class="col-12 styled-checkbox ml-3 mb-5">
+        <input type="checkbox" name="check_auto" id="check_auto" class="form-control">
+        <label class="sidebar-heading mt-3 mb-2" for="check_auto">自动替换</label>
+    </div>
     @foreach($certificates as $certificate)
         <div class="form-group row mb-5 mt-5">
             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 mb-3 div-group[{{$certificate['json']->id}}][tool_id] div-group[{{$certificate['json']->id}}][certificate_no]">
