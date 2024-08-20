@@ -80,7 +80,11 @@ class NanjingController extends Controller
                 #获取生产厂家
                 $str = $this->nanjing_encode('{"id":"' . $value->id . '"}');
                 $res = $client->request('GET', "http://lims.njsjly.com/cmiims/f/sys/webQuery/inquiryByIdInfo?$str", $headers);
-                $certificates[$key]['factory'] = explode('","', explode('"zzcs":"', $this->nanjing_decode((string)$res->getBody()))[1])[0];
+                if (str_contains($this->nanjing_decode((string)$res->getBody()), '"zzcs":"')) {
+                    $certificates[$key]['factory'] = explode('","', explode('"zzcs":"', $this->nanjing_decode((string)$res->getBody()))[1])[0];
+                } else {
+                    $certificates[$key]['factory'] = '未录入生产厂家';
+                }
                 $certificates[$key]['key'] = 'key' . $key;
                 $certificates[$key]['json'] = $value;
                 if ($number->count() == 1) {
