@@ -1478,7 +1478,7 @@ a.btn.disabled, fieldset[disabled] a.btn {
     background-color: #f3f4f5
 }
 
-.btn-outline-dark, .tag-outline-dart {
+.btn-outline-dark, .tag-outline-dark {
     color: #2c304d;
     border-color: #2c304d;
     background-image: none;
