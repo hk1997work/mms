@@ -114,7 +114,7 @@
                         <input type="text" name="certificate_name" class="form-control" value="{{$certificate->certificate_name}}">
                     </div>
                     <div class="col-6 div-plan_id">
-                        <div class="sidebar-heading mt-3 mb-2">送检计划</div>
+                        <div class="sidebar-heading mt-3 mb-2">检定计划</div>
                         <input type="text" name="plan_id" class="form-control" value="{{$certificate->plan}}" readonly>
                     </div>
                     <div class="col-6 div-remark">
@@ -234,7 +234,7 @@
                                 <input type="text" name="certificate_name" class="form-control" value="{{$certificate->certificate_name}}" readonly>
                             </div>
                             <div class="col-6 div-plan_id">
-                                <div class="sidebar-heading mt-3 mb-2">送检计划</div>
+                                <div class="sidebar-heading mt-3 mb-2">检定计划</div>
                                 <input type="text" name="plan_id" class="form-control" value="{{$certificate->plan}}" readonly>
                             </div>
                             <div class="col-6 div-remark">
@@ -371,7 +371,7 @@
                                 <input type="text" name="certificate_name" class="form-control">
                             </div>
                             <div class="col-6 div-plan_id">
-                                <div class="sidebar-heading mt-3 mb-2">送检计划</div>
+                                <div class="sidebar-heading mt-3 mb-2">检定计划</div>
                                 <input type="text" name="plan_id" class="form-control" readonly>
                             </div>
                             <div class="col-6 div-remark">
