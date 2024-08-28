@@ -35,7 +35,7 @@ class ToolController extends Controller
             $data[$key]['deactive'] = $value['deactive'] ? "<span class='tag btn-sm tag-outline-primary'>$value[deactive]</span>" : '';
             $data[$key]['broken'] = $value['broken'] ? "<span class='tag btn-sm tag-outline-danger'>$value[broken]</span>" : '';
             $data[$key]['scrap'] = $value['scrap'] ? "<span class='tag btn-sm tag-outline-dark'>$value[scrap]</span>" : '';
-            $data[$key]['total'] = $value['mistake'] ? "<span class='tag btn-sm tag-danger'>$value[total]</span>" : ($value['total'] ? "<span class='tag btn-sm tag-outline-secondary'>$value[total]</span>" : '');
+            $data[$key]['total'] = "<span class='tag btn-sm " . ($value['mistake'] ? "tag-danger" : "tag-outline-secondary") . "'>$value[total]</span>";
             $data[$key]['vulnerable'] = $value['vulnerable'] ? "<span class='tag btn-sm tag-danger'>易损</span>" : '';
         }
         return response()->json(['data' => array_map('array_values', $data)]);
