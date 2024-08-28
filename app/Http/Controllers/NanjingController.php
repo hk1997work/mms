@@ -258,7 +258,7 @@ class NanjingController extends Controller
                 $str = $this->nanjing_encode('{"userName":"13155555418","password":"Qq199362","userType":"0","validateCode":"' . $out[count($out) - 1] . '","type":"2","codeType":""}');
                 #登录
                 $client->post('http://58.213.156.66/cmiims/a/api/ajaxLogin', ['body' => $str, 'headers' => ['Cookie' => $session]]);
-                $res = $client->request('GET', 'http://58.213.156.66/cmiims/a/sys/adminECertQuery/listenceInfo?' . $this->nanjing_encode('{"pageNo":1,"pageSize":"9999","orderBy":"","searchConditionFilter":[]}'), ['headers' => ['Cookie' => $session]]);
+                $res = $client->request('GET', 'http://58.213.156.66/cmiims/a/sys/adminECertQuery/listenceInfo?' . $this->nanjing_encode('{"pageNo":1,"pageSize":"9999","orderBy":"","beginTime":"2023-06-01","searchConditionFilter":[]}'), ['headers' => ['Cookie' => $session]]);
                 $list = json_decode('[{"' . explode('":[{"', explode('"}],"', $this->nanjing_decode((string)$res->getBody()))[0])[1] . '"}]');
                 request()->session()->put('nanjing_headers', ['headers' => ['Cookie' => $session]]);
                 request()->session()->put('nanjing_list', $list);
