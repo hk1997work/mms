@@ -62,7 +62,7 @@ class NanjingController extends Controller
         $certificates = [];
         $check = explode(',', $request->id);
         $tools = Tool::orderBy('instrument')->get();
-        $standards = StandardsView::where('level', 2)->orderBy('name1')->get();
+        $standards = StandardsView::where('level', 2)->get();
         $client = new GuzzleHttp\Client(['verify' => false]);
         $headers = request()->session()->get('nanjing_headers');
         $list = request()->session()->get('nanjing_certificate');

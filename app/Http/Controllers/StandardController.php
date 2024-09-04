@@ -26,8 +26,8 @@ class StandardController extends Controller
                 $data[$key]['name2'] = "<span class='btn btn-outline-secondary btn-sm btn-add ripple' data-pos='right' data-menu='standard' data-id='$value[id]'>增加</span>";
             }
             if ($value['level'] == 2) {
-                $data[$key]['name1'] = $value['name2'];
-                $data[$key]['name2'] = "<span class='tag btn-sm " . ($value['count'] == 0 ? 'tag-danger' : 'tag-outline-success') . "'>$value[name1]</span>";
+                $data[$key]['name1'] = $value['name1'];
+                $data[$key]['name2'] = "<span class='tag btn-sm " . ($value['count'] == 0 ? 'tag-danger' : 'tag-outline-success') . "'>$value[name2]</span>";
             }
             unset($data[$key]['level']);
         }

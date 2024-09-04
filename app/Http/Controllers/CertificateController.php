@@ -92,7 +92,7 @@ class CertificateController extends Controller
         $position = Position::find($_GET['id']);
         $positions = PositionsView::where('str', 'like', '%' . $position->id . '%')->whereIn('level', [4, 5])->get();
         $tools = Tool::where('type_id', ($position->level == 2) ? $position->id : $position->pid)->orderBy('instrument')->get();
-        $standards = StandardsView::where('level', 2)->orderBy('name1')->get();
+        $standards = StandardsView::where('level', 2)->get();
         return view('certificate.create', compact('categories', 'departments', 'positions', 'tools', 'standards'));
     }
 
@@ -136,7 +136,7 @@ class CertificateController extends Controller
         $departments = Parameter::where('pid', Parameter::where('name', '检定部门')->first()->id)->orderBy('sort')->get();
         $positions = PositionsView::where('str', 'like', '%' . $certificate->unit3_id . '%')->whereIn('level', [4, 5])->get();
         $tools = ToolsView::where('instrument', $certificate->instrument)->orderBy('instrument')->get();
-        $standards = StandardsView::where('level', 2)->orderBy('name1')->get();
+        $standards = StandardsView::where('level', 2)->get();
         $spares = CertificatesView::where('valid', 1)->where('position', '备用')->where('state', '!=', '借用')->where('instrument', $certificate->instrument)->orderBy('order')->get();
         return view('certificate.edit', compact('certificate', 'categories', 'departments', 'positions', 'tools', 'standards', 'spares'));
     }
