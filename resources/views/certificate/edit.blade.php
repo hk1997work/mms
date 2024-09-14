@@ -101,7 +101,7 @@
                         <div class="sidebar-heading mt-3 mb-2">检定标准</div>
                         <select name="standard_id[]" class="form-control" data-live-search="true" multiple>
                             @foreach($standards as $standard)
-                                <option value="{{$standard->id}}" @if($certificate->standards->contains($standard->id)) selected @endif>{{$standard->name2}}-{{Str::limit($standard->name1,35)}}</option>
+                                <option value="{{$standard->id}}" @if($certificate->standards->contains($standard->id)) selected @endif>{{$standard->name1}}-{{Str::limit($standard->name2,35)}}</option>
                             @endforeach
                         </select>
                     </div>
@@ -358,7 +358,7 @@
                                 <div class="sidebar-heading mt-3 mb-2">检定标准</div>
                                 <select name="standard_id[]" class="form-control" data-live-search="true" multiple>
                                     @foreach($standards as $standard)
-                                        <option value="{{$standard->id}}">{{$standard->name2}}-{{Str::limit($standard->name1,35)}}</option>
+                                        <option value="{{$standard->id}}">{{$standard->name1}}-{{Str::limit($standard->name2,35)}}</option>
                                     @endforeach
                                 </select>
                             </div>
