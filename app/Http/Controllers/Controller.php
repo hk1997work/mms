@@ -112,11 +112,13 @@ class Controller extends BaseController
         $client = new GuzzleHttp\Client(['verify' => false]);
         $res = $client->get('https://lims.njsjly.com/cmiims/f/sys/webQuery/inquiryByIdInfo?' . $this->nanjing_encode('{"id":"' . $id . '"}'));
         $body = json_decode($this->nanjing_decode($res->getBody()->getContents()));
+        $ccbh = isset($body->certificateInfo->ccbh) && $body->certificateInfo->ccbh !== null && $body->certificateInfo->ccbh !== '/' ? $body->certificateInfo->ccbh : '';
+        $sbbh = isset($body->certificateInfo->sbbh) && $body->certificateInfo->sbbh !== null && $body->certificateInfo->sbbh !== '/' ? $body->certificateInfo->sbbh : '';
         $data = array(
             'tool' => $body->certificateInfo->qj,
             'model' => $body->certificateInfo->xhgg,
-            'factory' => $body->certificateInfo->zzcs,
-            'number' => (($body->certificateInfo->ccbh == null || $body->certificateInfo->ccbh == '/') ? '' : $body->certificateInfo->ccbh) . (($body->certificateInfo->sbbh == null || $body->certificateInfo->sbbh == '/') ? '' : $body->certificateInfo->sbbh),
+            'factory' => isset($body->certificateInfo->zzcs) ? $body->certificateInfo->zzcs : '',
+            'number' => $ccbh . $sbbh,
             'category' => $body->certificateInfo->zslx,
             'verification_date' => $body->certificateInfo->jd_rq,
             'certificate_no' => $body->certificateInfo->zs_bh,
@@ -243,3 +245,4 @@ class Controller extends BaseController
         return $str;
     }
 }
+
