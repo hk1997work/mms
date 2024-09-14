@@ -30,7 +30,7 @@ Route::group(['namespace' => '\App\Http\Controllers'], function () {
             Route::resource('/scrap', 'CertificateController');
             Route::resource('/invalid', 'CertificateController');
             Route::post('/ajax_certificate', 'CertificateController@list');
-            Route::get('/download_certificate/{certificate}','CertificateController@download');
+            Route::get('/download_certificate/{certificate}', 'CertificateController@download');
             Route::any('/pdf', 'Controller@pdf');
             //导出台账
             Route::resource('/export', 'ExportController');
@@ -60,12 +60,12 @@ Route::group(['namespace' => '\App\Http\Controllers'], function () {
             //南京市
             Route::resource('/nanjing', 'NanjingController');
             Route::post('/ajax_nanjing', 'NanjingController@list');
-            Route::get('/download_nanjing/{nanjing}','NanjingController@download');
+            Route::get('/download_nanjing/{nanjing}', 'NanjingController@download');
             Route::post('/ajax_nanjing_show', 'NanjingController@list_show');
             //江苏省
             Route::resource('/jiangsu', 'JiangsuController');
             Route::post('/ajax_jiangsu', 'JiangsuController@list');
-            Route::get('/download_jiangsu/{jiangsu}','JiangsuController@download');
+            Route::get('/download_jiangsu/{jiangsu}', 'JiangsuController@download');
             Route::post('/ajax_jiangsu_show', 'JiangsuController@list_show');
         });
 
@@ -118,6 +118,11 @@ Route::group(['namespace' => '\App\Http\Controllers'], function () {
         Route::get('/download/{extension}/{path}/{id}/{filename}', function ($extension, $path, $id, $filename) {
             return response()->download(storage_path("app\public\\$path\\$id.$extension"), "$filename.$extension");
         });
+        //导入台账
+        Route::get('/mould/certificate', function () {
+            return response()->download(storage_path("app\public\mould\标准台账模板.xlsx"), "导入模板.xlsx");
+        });
+        Route::put('/import/certificate', 'ImportController@update');
 
         //API
         //证书参数
@@ -133,5 +138,4 @@ Route::group(['namespace' => '\App\Http\Controllers'], function () {
     Route::post('/login', 'LoginController@login');
     //登出行为
     Route::get('/logout', 'LoginController@logout');
-
 });

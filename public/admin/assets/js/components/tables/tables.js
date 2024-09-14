@@ -415,6 +415,37 @@ $('.table-responsive,.off-sidebar').on('click', '.btn-submit', function () {
     $('.from-' + pos).find('form').submit()
 })
 
+//导入操作
+$('.submit-import').on('click', function () {
+    $('[name="import-file"]').click()
+})
+
+$('[name="import-file"]').on('change', function () {
+    let menu = $(this).data('menu')
+    let url = 'import/' + menu
+    if ($(this).val()) {
+        let formData = new FormData($('#form-import')[0]);
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (result) {
+                if (result == true) {
+                    notifications('操作成功')
+                } else {
+                    notifications(result);
+                }
+            },
+            error: function (xhr) {
+                xhr.status == 401 ? document.location.reload() : notifications('操作失败')
+            }
+        });
+    }
+    $('[name="import-file"]').val('')
+});
+
 $(document).ready(function () {
     $('.off-sidebar').on('transitionend', function (event) {
         if (event.originalEvent && event.originalEvent.propertyName && event.originalEvent.propertyName === 'transform') {

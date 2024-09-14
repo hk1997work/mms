@@ -1,4 +1,13 @@
 @extends('layout.index')
+@section('content_btn')
+    <li class="nav-item"><a class="nav-link" href="/mould/certificate">下载模板</a></li>
+    <li class="nav-item"><a class="nav-link submit-import" href="#">批量导入</a></li>
+    <form id="form-import" action=""  method="POST" enctype="multipart/form-data">
+        {{method_field("put")}}
+        {{csrf_field()}}
+        <input type="file" name="import-file" data-menu="certificate" accept=".xlsx" hidden>
+    </form>
+@endsection
 @section('content_table')
     <div class="btn-group mb-3">
         <ul class="button-nav nav nav-tabs mt-3 mb-3 ml-3" role="tablist">
