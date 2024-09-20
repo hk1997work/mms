@@ -20,8 +20,8 @@ class SampleController extends Controller
             if (Storage::exists($folderPath)) {
                 $files = Storage::files($folderPath);
                 foreach ($files as $file) {
-                    $dates[] = substr($file, 18, 10);
-                    $id[substr($file, 18, 10)][] = $certificate->id;
+                    $dates[] = substr(basename($file), 0, 10);
+                    $id[substr(basename($file), 0, 10)][] = $certificate->id;
                 }
             }
         }
@@ -46,7 +46,7 @@ class SampleController extends Controller
             if (Storage::exists($folderPath)) {
                 $files = Storage::files($folderPath);
                 foreach ($files as $file) {
-                    if (substr($file, 18, 10) == $date) {
+                    if (substr(basename($file), 0, 10) == $date) {
                         $checks[$certificate->position][] = [
                             'path' => $file,
                             'certificate' => $certificate,

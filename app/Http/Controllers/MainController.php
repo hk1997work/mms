@@ -48,7 +48,7 @@ class MainController extends Controller
                 if (Storage::exists($folderPath)) {
                     $files = Storage::files($folderPath);
                     foreach ($files as $file) {
-                        $dateString = substr($file, 18, 10);
+                        $dateString = substr(basename($file), 0, 10);
                         $date = Carbon::createFromFormat('Y-m-d', $dateString);
                         if ($date > $start_year && $date < $end_year) {
                             $check_count['year'] += 1;
