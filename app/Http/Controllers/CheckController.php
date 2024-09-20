@@ -25,7 +25,7 @@ class CheckController extends Controller
                 ->orWhereIn('name3', ['计量器具', '检测仪表'])
                 ->orWhereIn('name4', ['计量器具', '检测仪表']);
         })->whereIn('level', [3, 5])->where('sign', 0)->where('count', '!=', 0)
-            ->groupBy('name1', 'name3', 'level')->orderBy(DB::raw('MIN(`code`)'))->orderBy(DB::raw('MIN(`order`)'))->get();
+            ->groupBy('name1', 'name3', 'level')->orderBy(DB::raw('MIN(`code`)'))->orderBy(DB::raw('MIN(`sort`)'))->get();
         return view("check.index", compact('positions'));
     }
 
@@ -110,7 +110,7 @@ class CheckController extends Controller
                 return false;
             }
             foreach ($files as $file) {
-                $checks[substr($file, 18, 7)][] = [
+                $checks[substr(basename($file), 0, 7)][] = [
                     'path' => $file,
                 ];
             }

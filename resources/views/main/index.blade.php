@@ -259,12 +259,12 @@
                                     @foreach($standbys as $standby)
                                         <li class="list-group-item">
                                             <div class="media list-group-item shadow-sm
-                                @switch($plan->plan)
+                                    @switch($standby->plan)
                                         @case('市计量院') fc-bg-green @break
                                         @case('省计量院') fc-bg-blue @break
                                         @case('钢研纳克') fc-bg-violet @break
                                         @default fc-bg-orange @break
-                                        @endswitch">
+                                    @endswitch">
                                                 <div class="media-body align-self-center">
                                                     <div class="event-title @if($standby->standby-$standby->danger<=0) text-danger @endif">
                                                         {{$standby->instrument}}
@@ -282,10 +282,12 @@
                                                     </div>
                                                     <div class="event-desc">
                                                         <i class="la la-sitemap"></i>
-                                                        <span>{{$standby->department}}</span>
+                                                        <span>{!! $standby->str !!}</span>
                                                     </div>
                                                 </div>
-                                                <div class="event-date align-self-center @if($standby->standby-$standby->danger>0) text-success @else text-danger @endif">{{$standby->inuse}}</div>
+                                                <div class="event-date align-self-center @if($standby->standby-$standby->danger>0) text-success @else text-danger @endif">
+                                                    {{$standby->total}}
+                                                </div>
                                             </div>
                                         </li>
                                     @endforeach
