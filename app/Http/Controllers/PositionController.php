@@ -81,14 +81,14 @@ class PositionController extends Controller
     public function list_show()
     {
         $id = $_GET['id'];
-        $data = CertificatesView::selectRaw('MAX(id) AS id,`order`,position,instrument,number,MAX(valid) AS valid,MIN(verification_date) AS verification_date,COUNT(*) AS count')
+        $data = CertificatesView::selectRaw('MAX(id) AS id,`order`,position,instrument,MAX(valid) AS valid,MIN(verification_date) AS verification_date,COUNT(*) AS count')
             ->where('position', '<>', '备用')->where(function ($query) use ($id) {
                 $query->where('unit1_id', $id)
                     ->orWhere('unit2_id', $id)
                     ->orWhere('unit3_id', $id)
                     ->orWhere('unit4_id', $id)
                     ->orWhere('position_id', $id);
-            })->groupBy('order', 'position', 'position_id', 'instrument', 'number')->get()->toArray();
+            })->groupBy('order', 'position', 'position_id', 'instrument')->get()->toArray();
         foreach ($data as $key => $value) {
             $data[$key]['id'] = "<div class='styled-checkbox'>
                         <input type='checkbox' name='cb' class='cb' id='$value[id]cb'>
