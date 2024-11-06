@@ -1,7 +1,7 @@
 @extends('layout.create')
 @section('content_form')
     <div class="col-12 styled-checkbox ml-3 mb-5">
-        <input type="checkbox" name="check_auto" id="check_auto" class="form-control">
+        <input type="checkbox" name="check_auto" id="check_auto" class="form-control" checked>
         <label class="sidebar-heading mt-3 mb-2" for="check_auto">自动替换</label>
     </div>
     @foreach($certificates as $certificate)
