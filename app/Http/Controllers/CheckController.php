@@ -32,7 +32,7 @@ class CheckController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'file' => 'required|image|mimes:png,jpg|max:4096',
+            'file' => 'required|image|mimes:png,jpg|max:10240',
         ];
         $request->validate($rules);
         $file = $request->file('file');
