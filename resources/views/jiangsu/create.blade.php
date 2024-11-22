@@ -58,7 +58,7 @@
                 <label class="form-control-label">检定标准</label>
                 <select name="group[{{$certificate['json']->zsId}}][standard_id][]" class="form-control" data-live-search="true" multiple>
                     @foreach($standards as $standard)
-                        <option value="{{$standard->id}}" @if(in_array($standard->id,$certificate['standard'])) selected @endif>{{$standard->name2}}-{{Str::limit($standard->name1,35)}}</option>
+                        <option value="{{$standard->id}}" @if(in_array($standard->id,$certificate['standard'])) selected @endif>{{$standard->name1}}-{{Str::limit($standard->name2,35)}}</option>
                     @endforeach
                 </select>
             </div>
