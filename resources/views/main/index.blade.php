@@ -24,7 +24,7 @@
                                 <div class="home_per certificate_per">
                                     <div class="percent"></div>
                                 </div>
-                                <b class="value-progress certificate_count"></b>
+                                <b class="value-progress certificate_count">{{$pdf_count}}/{{$certificates->count()}}</b>
                             </div>
                         </div>
                     </div>
@@ -36,7 +36,7 @@
                                     <div class="new-tasks mt-2"><span class="nb">周检计划</span></div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-xl-10 col-12 no-padding">
+                                    <div class="col-xl-10 col-12">
                                         <div>
                                             <canvas id="orders"></canvas>
                                         </div>
@@ -78,13 +78,10 @@
                                     @foreach($positions as $position)
                                         <div class="col-4 text-center no-padding">
                                             <div class="progress mt-2 ml-2 mr-2">
-                                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar"
-                                                     style="width: {{$check_count[$position->name]['success']/$check_count[$position->name]['total']*100}}%">{{$check_count[$position->name]['success']}}</div>
+                                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: {{$check_count[$position->name]['success']/$check_count[$position->name]['total']*100}}%">{{$check_count[$position->name]['success']}}</div>
                                                 <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" style="width: {{$check_count[$position->name]['info']/$check_count[$position->name]['total']*100}}%">{{$check_count[$position->name]['info']}}</div>
-                                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning" role="progressbar"
-                                                     style="width: {{$check_count[$position->name]['warning']/$check_count[$position->name]['total']*100}}%">{{$check_count[$position->name]['warning']}}</div>
-                                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger" role="progressbar"
-                                                     style="width: {{$check_count[$position->name]['danger']/$check_count[$position->name]['total']*100}}%">{{$check_count[$position->name]['danger']}}</div>
+                                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning" role="progressbar" style="width: {{$check_count[$position->name]['warning']/$check_count[$position->name]['total']*100}}%">{{$check_count[$position->name]['warning']}}</div>
+                                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger" role="progressbar" style="width: {{$check_count[$position->name]['danger']/$check_count[$position->name]['total']*100}}%">{{$check_count[$position->name]['danger']}}</div>
                                             </div>
                                             <div class="heading">{{$position->name}}</div>
                                         </div>
@@ -167,7 +164,7 @@
                                     <div class="title">{{$plans->where('type','报检')->count()}}类{{$plans->where('type','报检')->sum('total')}}件</div>
                                     <div class="new-tasks mt-2"><span class="nb">报检清单</span></div>
                                 </div>
-                                <ul class="list-group hidden-scroll mt-3" style="overflow:hidden;">
+                                <ul class="list-group hidden-scroll mt-3">
                                     @foreach($plans->where('type','报检') as $plan)
                                         <li class="list-group-item">
                                             <div class="media list-group-item shadow-sm
@@ -255,7 +252,7 @@
                                     <div class="title">{{$standbys->count()}}类</div>
                                     <div class="new-tasks mt-2"><span class="nb">备用清单</span></div>
                                 </div>
-                                <ul class="list-group hidden-scroll mt-3" style="overflow:hidden;">
+                                <ul class="list-group hidden-scroll mt-3">
                                     @foreach($standbys as $standby)
                                         <li class="list-group-item">
                                             <div class="media list-group-item shadow-sm

@@ -40,6 +40,44 @@
         loop: "true",
     });
 
+    $('.btn-copy').click(function () {
+        var htmlContent = $('#text-copy')[0].innerHTML;
+        var tempTextArea = $('<textarea>');
+        tempTextArea.val(htmlContent.replace(/<br>/g, '\n'));
+        $('body').append(tempTextArea);
+        tempTextArea.select();
+        if (document.execCommand('copy')) {
+            notifications('复制成功')
+        } else {
+            notifications('复制失败')
+        }
+        tempTextArea.remove();
+        event.preventDefault()
+    });
+
+    $('.btn-show').click(function () {
+        $("#preloader")[0].style.display = 'block';
+        $.ajax({
+            url: '/sample/' + $(this).data('id'),
+            success: function (data) {
+                if (data) {
+                    $('.from-up').html(data);
+                    $('.from-up').find('.sidebar-btn').text('抽捡详情')
+                    $(window).trigger('resize')
+                    $('.from-up').addClass('is-visible');
+                } else {
+                    notifications('查看失败')
+                }
+                $("#preloader").fadeOut();
+            },
+            error: function (xhr) {
+                xhr.status == 401 ? document.location.reload() : notifications('查看失败')
+                $("#preloader").fadeOut();
+            },
+        });
+        event.preventDefault()
+    });
+
     $('.certificate_per').circleProgress({
         value: (pdf_count / pdf_total),
         size: 140,
@@ -53,11 +91,20 @@
     }).on('circle-animation-progress', function (event, progress) {
         $(this).find('.percent').html(((pdf_count / pdf_total) * progress * 100).toFixed(2) + '<i>%</i>');
     });
-    $('.certificate_count').text(pdf_count + '/' + pdf_total)
 
-    var randomScalingFactor = function () {
-        return (Math.random() > 0.5 ? 1.0 : 1.0) * Math.round(Math.random() * 100);
-    };
+    $('.circle-orders').circleProgress({
+        value: (month_plan - (parseInt(year_plan[0]['sj']) + parseInt(year_plan[0]['bj']))) / month_plan,
+        size: 120,
+        startAngle: -Math.PI / 2,
+        thickness: 6,
+        lineCap: 'round',
+        emptyFill: '#e4e8f0',
+        fill: {
+            gradient: ['#5d5386', '#5d5386']
+        }
+    }).on('circle-animation-progress', function (event, progress) {
+        $(this).find('.percent-orders').html(Math.round((month_plan - (parseInt(year_plan[0]['sj']) + parseInt(year_plan[0]['bj']))) / month_plan * progress * 100) + '<i>%</i>');
+    });
 
     Chart.helpers.drawRoundedTopRectangle = function (ctx, x, y, width, height, radius) {
         ctx.beginPath();
@@ -168,7 +215,7 @@
             barRoundness: 1,
             tooltips: {
                 backgroundColor: 'rgba(47, 49, 66, 0.8)',
-                titleFontSize: 13,
+                titleFontSize: 12,
                 titleFontColor: '#fff',
                 caretSize: 0,
                 cornerRadius: 4,
@@ -183,7 +230,7 @@
                     fontColor: "#2e3451",
                     usePointStyle: true,
                     padding: 50,
-                    fontSize: 13
+                    fontSize: 12
                 }
             },
             scales: {
@@ -210,56 +257,6 @@
                 }]
             }
         }
-    });
-    $('.circle-orders').circleProgress({
-        value: (month_plan - (parseInt(year_plan[0]['sj']) + parseInt(year_plan[0]['bj']))) / month_plan,
-        size: 120,
-        startAngle: -Math.PI / 2,
-        thickness: 6,
-        lineCap: 'round',
-        emptyFill: '#e4e8f0',
-        fill: {
-            gradient: ['#5d5386', '#5d5386']
-        }
-    }).on('circle-animation-progress', function (event, progress) {
-        $(this).find('.percent-orders').html(Math.round((month_plan - (parseInt(year_plan[0]['sj']) + parseInt(year_plan[0]['bj']))) / month_plan * progress * 100) + '<i>%</i>');
-    });
-
-    $('.btn-copy').click(function () {
-        var htmlContent = $('#text-copy')[0].innerHTML;
-        var tempTextArea = $('<textarea>');
-        tempTextArea.val(htmlContent.replace(/<br>/g, '\n'));
-        $('body').append(tempTextArea);
-        tempTextArea.select();
-        if (document.execCommand('copy')) {
-            notifications('复制成功')
-        } else {
-            notifications('复制失败')
-        }
-        tempTextArea.remove();
-        event.preventDefault()
-    });
-    $('.btn-show').click(function () {
-        $("#preloader")[0].style.display = 'block';
-        $.ajax({
-            url: '/sample/' + $(this).data('id'),
-            success: function (data) {
-                if (data) {
-                    $('.from-up').html(data);
-                    $('.from-up').find('.sidebar-btn').text('抽捡详情')
-                    $(window).trigger('resize')
-                    $('.from-up').addClass('is-visible');
-                } else {
-                    notifications('查看失败')
-                }
-                $("#preloader").fadeOut();
-            },
-            error: function (xhr) {
-                xhr.status == 401 ? document.location.reload() : notifications('查看失败')
-                $("#preloader").fadeOut();
-            },
-        });
-        event.preventDefault()
     });
 
     $('#swiper-main .swiper-slide >.row:eq(1)').css('min-height', container_fluid_height - $('#swiper-main .swiper-slide >.row:eq(0)').height())
