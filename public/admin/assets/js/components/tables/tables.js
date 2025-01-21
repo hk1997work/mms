@@ -166,7 +166,7 @@ function sidebar_ajax(url, menu, title, pos, callback) {
         });
         setTimeout(() => {
             canSubmit = true;
-        }, 1000);
+        }, 800);
     } else {
         notifications('操作间隔为1秒,请重试.')
     }
@@ -228,7 +228,7 @@ function submit_ajax(url, pos, btn, callback) {
         });
         setTimeout(() => {
             canSubmit = true;
-        }, 2000);
+        }, 800);
     } else {
         notifications('操作间隔为1秒,请重试.')
     }
