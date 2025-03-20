@@ -12,24 +12,26 @@ use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use ZipArchive;
 
-class ExportController extends Controller
-{
-    public function index()
-    {
+class ExportController extends Controller {
+    public function index() {
         $levels = Position::select('name')->where('level', 3)->distinct()->get();
         $types = Position::where('level', 2)->orderBy('sort')->get();
+
         return view("export.index", compact('levels', 'types'));
     }
 
-    public function create()
-    {
+    public function create() {
         $certificates = CertificatesView::where('valid', 1)->where('type', '计量器具')->where('sign', 0)->orderBy('order')->get();
-        $settings = explode(',', Setting::first()->order);
+        if (Setting::first()) {
+            $settings = explode(',', Setting::first()->order);
+        } else {
+            $settings = [];
+        }
+
         return view('export.create', compact('certificates', 'settings'));
     }
 
-    public function store(Request $request)
-    {
+    public function store(Request $request) {
         if (Setting::count()) {
             return !!Setting::whereRaw('1=1')->update(['order' => $request->cb ? implode(',', array_keys($request->cb)) : '']);
         } else {
@@ -37,8 +39,7 @@ class ExportController extends Controller
         }
     }
 
-    public function update(Request $request)
-    {
+    public function update(Request $request) {
         $certificates = CertificatesView::whereIn('type', $request->type)->whereIn('unit2', $request->position);
         if (isset($request->daterange)) {
             $start_date = substr($request->daterange, 0, 10);
@@ -47,7 +48,7 @@ class ExportController extends Controller
         } else {
             $certificates = $certificates->where('valid', 1);
         }
-        $path = "storage/" . \Auth::user()->id;
+        $path = "storage/".\Auth::user()->id;
         if ($request->check_type) {
             foreach ($request->type as $type) {
                 if ($request->check_position) {
@@ -66,45 +67,44 @@ class ExportController extends Controller
             $this->export($certificates, $request->contents, $request->type, $request->position);
         }
         $zip = new ZipArchive();
-        if ($zip->open($path . '/证书台账' . date('Y-m-d') . '.zip', ZipArchive::CREATE) == TRUE) {
-            $this->addFileToZip($path . '/证书台账', $zip);
+        if ($zip->open($path.'/证书台账'.date('Y-m-d').'.zip', ZipArchive::CREATE) == true) {
+            $this->addFileToZip($path.'/证书台账', $zip);
             $zip->close();
         }
-        if (File::isDirectory($path . '/证书台账')) {
-            File::deleteDirectory($path . '/证书台账');
+        if (File::isDirectory($path.'/证书台账')) {
+            File::deleteDirectory($path.'/证书台账');
         }
         header("Content-Type: application/zip");
         header("Content-Transfer-Encoding: Binary");
-        header("Content-Length: " . filesize($path . '/证书台账' . date('Y-m-d') . '.zip'));
-        header("Content-Disposition: attachment; filename=证书台账" . date('Y-m-d') . ".zip");
-        readfile($path . '/证书台账' . date('Y-m-d') . '.zip');
+        header("Content-Length: ".filesize($path.'/证书台账'.date('Y-m-d').'.zip'));
+        header("Content-Disposition: attachment; filename=证书台账".date('Y-m-d').".zip");
+        readfile($path.'/证书台账'.date('Y-m-d').'.zip');
         @ob_end_clean();
-        if (file_exists($path . '/证书台账' . date('Y-m-d') . '.zip')) {
-            unlink($path . '/证书台账' . date('Y-m-d') . '.zip');
+        if (file_exists($path.'/证书台账'.date('Y-m-d').'.zip')) {
+            unlink($path.'/证书台账'.date('Y-m-d').'.zip');
         }
     }
 
-    public function export($certificates, $contents, $types, $positions)
-    {
-        $path = "storage/" . \Auth::user()->id;
+    public function export($certificates, $contents, $types, $positions) {
+        $path = "storage/".\Auth::user()->id;
         $filename = '';
         $styleArray = [
-            'alignment' => [
-                'horizontal' => 'center',
-                'vertical' => 'center',
-            ],
-            'borders' => [
-                'allBorders' => [
-                    'borderStyle' => 'thin',
+                'alignment' => [
+                        'horizontal' => 'center',
+                        'vertical' => 'center',
                 ],
-            ],
-            'font' => [
-                'name' => '宋体',
-                'size' => 10
-            ],
-            'numberFormat' => [
-                'formatCode' => '@'
-            ],
+                'borders' => [
+                        'allBorders' => [
+                                'borderStyle' => 'thin',
+                        ],
+                ],
+                'font' => [
+                        'name' => '宋体',
+                        'size' => 10,
+                ],
+                'numberFormat' => [
+                        'formatCode' => '@',
+                ],
         ];
         $certificates = $certificates->whereIn('type', $types)->whereIn('unit2', $positions)->orderBy('order')->orderBy('start_date')->get();
         if ($certificates->count() == 0) {
@@ -135,15 +135,15 @@ class ExportController extends Controller
                 $sheet->setCellValueByColumnAndRow(16, $i, $certificate->valid ? '有效' : '无效');
                 $sheet->setCellValueByColumnAndRow(17, $i, $certificate->times);
                 $sheet->setCellValueByColumnAndRow(18, $i, $certificate->start);
-                $sheet->setCellValueByColumnAndRow(19, $i, $certificate->remark . $certificate->number_remark);
+                $sheet->setCellValueByColumnAndRow(19, $i, $certificate->remark.$certificate->number_remark);
                 $sheet->getRowDimension($i)->setRowHeight(20);
             }
             $sheet->getStyle("A4:S$i")->applyFromArray($styleArray);
             $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
-            if (File::isDirectory($path . '/证书台账/台账') == false) {
-                File::makeDirectory($path . '/证书台账/台账', 0777, true, true);
+            if (File::isDirectory($path.'/证书台账/台账') == false) {
+                File::makeDirectory($path.'/证书台账/台账', 0777, true, true);
             }
-            $writer->save($path . "/证书台账/台账/台账$filename.xlsx");
+            $writer->save($path."/证书台账/台账/台账$filename.xlsx");
         }
         if (in_array("核对台账", $contents)) {
             $i = 3;
@@ -160,15 +160,15 @@ class ExportController extends Controller
                 $sheet->setCellValueByColumnAndRow(6, $i, $certificate->verification_date);
                 $sheet->setCellValueByColumnAndRow(7, $i, $certificate->validity_date);
                 $sheet->setCellValueByColumnAndRow(8, $i, $certificate->department);
-                $sheet->setCellValueByColumnAndRow(9, $i, $certificate->remark . $certificate->number_remark);
+                $sheet->setCellValueByColumnAndRow(9, $i, $certificate->remark.$certificate->number_remark);
                 $sheet->getRowDimension($i)->setRowHeight(20);
             }
             $sheet->getStyle("A4:I$i")->applyFromArray($styleArray);
             $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
-            if (File::isDirectory($path . '/证书台账/核对台账') == false) {
-                File::makeDirectory($path . '/证书台账/核对台账', 0777, true, true);
+            if (File::isDirectory($path.'/证书台账/核对台账') == false) {
+                File::makeDirectory($path.'/证书台账/核对台账', 0777, true, true);
             }
-            $writer->save($path . "/证书台账/核对台账/核对台账$filename.xlsx");
+            $writer->save($path."/证书台账/核对台账/核对台账$filename.xlsx");
         }
         if (in_array("标准台账", $contents)) {
             $i = 4;
@@ -198,20 +198,20 @@ class ExportController extends Controller
                 $sheet->setCellValueByColumnAndRow(19, $i, $certificate->times);
                 $sheet->setCellValueByColumnAndRow(20, $i, $certificate->start);
                 $sheet->setCellValueByColumnAndRow(21, $i, '');
-                $sheet->setCellValueByColumnAndRow(22, $i, $certificate->remark . $certificate->number_remark);
+                $sheet->setCellValueByColumnAndRow(22, $i, $certificate->remark.$certificate->number_remark);
                 $sheet->getRowDimension($i)->setRowHeight(20);
             }
             $sheet->getStyle("A5:V$i")->applyFromArray($styleArray);
             $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
-            if (File::isDirectory($path . '/证书台账/标准台账') == false) {
-                File::makeDirectory($path . '/证书台账/标准台账', 0777, true, true);
+            if (File::isDirectory($path.'/证书台账/标准台账') == false) {
+                File::makeDirectory($path.'/证书台账/标准台账', 0777, true, true);
             }
-            $writer->save($path . "/证书台账/标准台账/标准台账$filename.xlsx");
+            $writer->save($path."/证书台账/标准台账/标准台账$filename.xlsx");
         }
         if (in_array("计量证书", $contents)) {
             foreach ($certificates as $certificate) {
-                if (Storage::exists("public/certificate/$certificate->id.pdf") && !Storage::exists("public/" . \Auth::user()->id . "/证书台账/证书/$certificate->order--$certificate->instrument--$certificate->number--【" . substr($certificate->verification_date, 0, 4) . "年" . substr($certificate->verification_date, 5, 2) . "月" . substr($certificate->verification_date, 8, 2) . "日-" . substr($certificate->validity_date, 0, 4) . "年" . substr($certificate->validity_date, 5, 2) . "月" . substr($certificate->validity_date, 8, 2) . "日】.pdf")) {
-                    Storage::copy("public/certificate/$certificate->id.pdf", "public/" . \Auth::user()->id . "/证书台账/证书/$filename/$certificate->order--$certificate->instrument--$certificate->number--【" . substr($certificate->verification_date, 0, 4) . "年" . substr($certificate->verification_date, 5, 2) . "月" . substr($certificate->verification_date, 8, 2) . "日-" . substr($certificate->validity_date, 0, 4) . "年" . substr($certificate->validity_date, 5, 2) . "月" . substr($certificate->validity_date, 8, 2) . "日】.pdf");
+                if (Storage::exists("public/certificate/$certificate->id.pdf") && !Storage::exists("public/".\Auth::user()->id."/证书台账/证书/$certificate->order--$certificate->instrument--$certificate->number--【".substr($certificate->verification_date, 0, 4)."年".substr($certificate->verification_date, 5, 2)."月".substr($certificate->verification_date, 8, 2)."日-".substr($certificate->validity_date, 0, 4)."年".substr($certificate->validity_date, 5, 2)."月".substr($certificate->validity_date, 8, 2)."日】.pdf")) {
+                    Storage::copy("public/certificate/$certificate->id.pdf", "public/".\Auth::user()->id."/证书台账/证书/$filename/$certificate->order--$certificate->instrument--$certificate->number--【".substr($certificate->verification_date, 0, 4)."年".substr($certificate->verification_date, 5, 2)."月".substr($certificate->verification_date, 8, 2)."日-".substr($certificate->validity_date, 0, 4)."年".substr($certificate->validity_date, 5, 2)."月".substr($certificate->validity_date, 8, 2)."日】.pdf");
                 }
             }
         }
@@ -247,16 +247,16 @@ class ExportController extends Controller
                 $sheet->setCellValueByColumnAndRow(18, $i, $cer->start);
                 $sheet->setCellValueByColumnAndRow(19, $i, $cer->remark);
                 $sheet->getRowDimension($i)->setRowHeight(20);
-                if (Storage::exists("public/certificate/$cer->id.pdf") && !Storage::exists("public/" . \Auth::user()->id . "/证书台账/监理资料/$cer->order--$cer->instrument--$cer->number--【" . substr($cer->verification_date, 0, 4) . "年" . substr($cer->verification_date, 5, 2) . "月" . substr($cer->verification_date, 8, 2) . "日-" . substr($cer->validity_date, 0, 4) . "年" . substr($cer->validity_date, 5, 2) . "月" . substr($cer->validity_date, 8, 2) . "日】.pdf")) {
-                    Storage::copy("public/certificate/$cer->id.pdf", "public/" . \Auth::user()->id . "/证书台账/监理资料/$filename/$cer->order--$cer->instrument--$cer->number--【" . substr($cer->verification_date, 0, 4) . "年" . substr($cer->verification_date, 5, 2) . "月" . substr($cer->verification_date, 8, 2) . "日-" . substr($cer->validity_date, 0, 4) . "年" . substr($cer->validity_date, 5, 2) . "月" . substr($cer->validity_date, 8, 2) . "日】.pdf");
+                if (Storage::exists("public/certificate/$cer->id.pdf") && !Storage::exists("public/".\Auth::user()->id."/证书台账/监理资料/$cer->order--$cer->instrument--$cer->number--【".substr($cer->verification_date, 0, 4)."年".substr($cer->verification_date, 5, 2)."月".substr($cer->verification_date, 8, 2)."日-".substr($cer->validity_date, 0, 4)."年".substr($cer->validity_date, 5, 2)."月".substr($cer->validity_date, 8, 2)."日】.pdf")) {
+                    Storage::copy("public/certificate/$cer->id.pdf", "public/".\Auth::user()->id."/证书台账/监理资料/$filename/$cer->order--$cer->instrument--$cer->number--【".substr($cer->verification_date, 0, 4)."年".substr($cer->verification_date, 5, 2)."月".substr($cer->verification_date, 8, 2)."日-".substr($cer->validity_date, 0, 4)."年".substr($cer->validity_date, 5, 2)."月".substr($cer->validity_date, 8, 2)."日】.pdf");
                 }
             }
             $sheet->getStyle("A4:S$i")->applyFromArray($styleArray);
             $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
-            if (File::isDirectory($path . '/证书台账/监理资料') == false) {
-                File::makeDirectory($path . '/证书台账/监理资料', 0777, true, true);
+            if (File::isDirectory($path.'/证书台账/监理资料') == false) {
+                File::makeDirectory($path.'/证书台账/监理资料', 0777, true, true);
             }
-            $writer->save($path . "/证书台账/监理资料/监理资料$filename.xlsx");
+            $writer->save($path."/证书台账/监理资料/监理资料$filename.xlsx");
         }
     }
 }
