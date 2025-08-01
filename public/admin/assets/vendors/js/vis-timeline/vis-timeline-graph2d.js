@@ -13709,7 +13709,6 @@
             return "object" == typeof e && null !== e && t === e.idProp && "function" == typeof e.add && "function" == typeof e.clear && "function" == typeof e.distinct && "function" == typeof Sl(e) && "function" == typeof e.get && "function" == typeof e.getDataSet && "function" == typeof e.getIds && "number" == typeof e.length && "function" == typeof ba(e) && "function" == typeof e.max && "function" == typeof e.min && "function" == typeof e.off && "function" == typeof e.on && "function" == typeof e.remove && "function" == typeof e.setOptions && "function" == typeof e.stream && "function" == typeof e.update && "function" == typeof e.updateOnly
         }(t, e.getDataSet())
     }
-    console.warn("You're running a development build.");
     var Lk = n(a());
     const Ak = "undefined" != typeof window && window.moment || Lk;
     var Fk, Rk, jk, Yk, Hk, zk, Gk, Wk, Bk, Vk, Uk, Xk = {

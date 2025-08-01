@@ -55,7 +55,6 @@ class PermissionController extends Controller
         $arr['pid'] = $request->pid;
         $arr['level'] = isset($parent->level) ? $parent->level + 1 : 1;
         $arr['sort'] = Permission::max('sort') + 1;
-        $arr['icon'] = $request->icon;
         return !!Permission::create($arr);
     }
 
@@ -68,7 +67,6 @@ class PermissionController extends Controller
     {
         $permission->name = $request->name;
         $permission->description = $request->description;
-        $permission->icon = $request->icon;
         return !!$permission->save();
     }
 

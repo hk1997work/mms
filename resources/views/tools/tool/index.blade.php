@@ -34,7 +34,6 @@
             <th>检定周期</th>
             <th>ABC</th>
             <th>在用</th>
-            <th>借用</th>
             <th>待检</th>
             <th>封存</th>
             <th>损坏</th>
@@ -47,7 +46,3 @@
         <tbody></tbody>
     </table>
 @endsection
-@push('page-js-after-1')
-    <script src="/admin/assets/vendors/js/vis-timeline/vis-timeline-graph2d.min.js"></script>
-    <link rel="stylesheet" href="/admin/assets/css/vis-timeline/vis-timeline-graph2d.css">
-@endpush

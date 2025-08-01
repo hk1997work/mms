@@ -30,9 +30,3 @@
         <tbody></tbody>
     </table>
 @endsection
-@push('page-js-after-1')
-    <link rel="stylesheet" href="/admin/assets/css/bootstrap-select/bootstrap-select.min.css">
-    <script src="/admin/assets/vendors/js/datepicker/daterangepicker.js"></script>
-    <script src="/admin/assets/vendors/js/bootstrap-select/bootstrap-select.min.js"></script>
-    <script src="/admin/assets/js/pages/nanjing.js"></script>
-@endpush

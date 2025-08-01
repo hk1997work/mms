@@ -63,7 +63,7 @@ class ParameterController extends Controller
 
     public function destroy($parameter)
     {
-        $id = ParametersView::selectRaw('GROUP_CONCAT(id) AS str')->whereIn('id', explode(',', $parameter))->whereNotNull('count')->where('level', 2)->first();
+        $id = ParametersView::selectRaw('GROUP_CONCAT(id) AS str')->whereIn('id', explode(',', $parameter))->where('count', '!=', 0)->where('level', 2)->first();
         $pid = Parameter::selectRaw('GROUP_CONCAT(pid) AS str')->whereIn('pid', explode(',', $parameter))->whereNotIn('id', explode(',', $parameter))->first();
         if ($id->str || $pid->str) {
             $id = implode(',', [$id->str, $pid->str]);
@@ -85,6 +85,8 @@ class ParameterController extends Controller
             $parameter_exchange->sort = $parameter->sort;
             $parameter->sort = $result;
             return !!$parameter->save() && !!$parameter_exchange->save();
-        } else return $type ? '已经是最顶层,无法上移' : '已经是最底层,无法下移';
+        } else {
+            return $type ? '已经是最顶层,无法上移' : '已经是最底层,无法下移';
+        }
     }
 }

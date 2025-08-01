@@ -10,24 +10,18 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/admin/assets/img/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/admin/assets/img/favicon-16x16.png">
     <!-- CSS样式 -->
-    <link rel="stylesheet" href="/admin/assets/vendors/css/base/bootstrap.min.css">
+    <link rel="stylesheet" href="/admin/assets/vendors/css/base/bootstrap.css">
     <link rel="stylesheet" href="/admin/assets/vendors/css/base/elisyam-1.2.css">
 
 </head>
 <body class="bg-white">
-<div id="preloader">
-    <div class="canvas">
-        <img src="/admin/assets/img/logo.png" alt="logo" class="loader-logo">
-        <div class="spinner"></div>
-    </div>
-</div>
 <div class="container-fluid no-padding h-100">
-    <div class="row flex-row h-100 bg-white">
+    <div class="row flex-row h-100">
         <div class="col-xl-9 col-lg-8 col-md-7 no-padding d-none d-sm-table-cell">
             <div class="elisyam-bg background-01">
                 <div class="elisyam-overlay overlay-01"></div>
                 <div class="authentication-col-content mx-auto">
-                    <h1 class="gradient-text-01">计 量 管 理 系 统</h1>
+                    <h1>计 量 管 理 系 统</h1>
                     <span class="description"></span>
                 </div>
             </div>
@@ -63,10 +57,5 @@
         </div>
     </div>
 </div>
-<script src="/admin/assets/vendors/js/base/jquery.min.js"></script>
-<script src="/admin/assets/vendors/js/base/core.min.js"></script>
-
-<script src="/admin/assets/vendors/js/nicescroll/nicescroll.min.js"></script>
-<script src="/admin/assets/vendors/js/app/app.js"></script>
 </body>
 </html>

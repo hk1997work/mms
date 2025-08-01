@@ -4,11 +4,11 @@ import base64
 import json
 from itertools import product
 import sys
+import requests
 
-path = sys.argv[1]
-with open(path, 'r') as file:
-    file_content = file.read()
-jsonJS = json.loads(file_content)
+url = "https://serv.jsmi.com.cn/code"
+response = requests.get(url)
+jsonJS = response.json()
 
 # 解码大图片和小图片
 big_img = base64.b64decode(jsonJS['data']['repData']['originalImageBase64'])
@@ -44,6 +44,7 @@ for x, y in product(range(big_img.shape[1] - small_img.shape[1] + 1), range(big_
 
     if similarity > best_similarity:
         best_similarity = similarity
-        best_x_coordinate = x
-
-print(best_x_coordinate)
+        best_x_coordinate = x + 1
+print(jsonJS['data']['repData']['secretKey'])
+print(jsonJS['data']['repData']['token'])
+print('{"x":' + str(best_x_coordinate) + ',"y":5}')

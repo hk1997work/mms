@@ -74,19 +74,8 @@
     </div>
     <!-- 结束 行 -->
 @endsection
-@push('page-css')
-    <link rel="stylesheet" href="/admin/assets/css/bootstrap-select/bootstrap-select.min.css">
-    <link rel="stylesheet" href="/admin/assets/css/datatables/datatables.min.css">
-    <link rel="stylesheet" href="/admin/assets/css/datatables/fixedColumns.dataTables.min.css">
-@endpush
-@push('page-js-after')
-    <script src="/admin/assets/vendors/js/datepicker/daterangepicker.js"></script>
-    <script src="/admin/assets/vendors/js/datatables/datatables.min.js"></script>
-    <script src="/admin/assets/vendors/js/datatables/dataTables.fixedColumns.min.js"></script>
-    <script src="/admin/assets/js/components/tables/tables.js"></script>
-    <script src="/admin/assets/js/components/datepicker/datepicker.js"></script>
-    <script src="/admin/assets/vendors/js/bootstrap-select/bootstrap-select.min.js"></script>
 
+@push('page-js-after')
     <script>
         $('#check_daterange').change(function () {
             if ($('#check_daterange').is(':checked')) {

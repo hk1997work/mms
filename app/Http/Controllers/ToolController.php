@@ -23,18 +23,17 @@ class ToolController extends Controller
     public function list()
     {
         $type_id = isset($_GET['id']) ? $_GET['id'] : Position::where('level', 2)->orderBy('sort')->first()->id;
-        $data = ToolsView::select('id', 'instrument', 'model', 'limit', 'accuracy', 'cycle', 'abc', 'active', 'borrow', 'inactive', 'deactive', 'broken', 'scrap', 'total', 'vulnerable', 'requirement', 'mistake')->where('type_id', $type_id)->get()->toArray();
+        $data = ToolsView::select('id', 'instrument', 'model', 'limit', 'accuracy', 'cycle', 'abc', 'active', 'inactive', 'deactive', 'broken', 'scrap', 'total', 'vulnerable', 'requirement', 'mistake')->where('type_id', $type_id)->get()->toArray();
         foreach ($data as $key => $value) {
             $data[$key]['id'] = "<div class='styled-checkbox'>
                         <input type='checkbox' name='cb' class='cb' id='$value[id]'>
                         <label for='$value[id]'></label>
                     </div>";
             $data[$key]['active'] = $value['active'] ? "<span class='tag btn-sm tag-outline-success'>$value[active]</span>" : '';
-            $data[$key]['borrow'] = $value['borrow'] ? "<span class='tag btn-sm tag-outline-info'>$value[borrow]</span>" : '';
             $data[$key]['inactive'] = $value['inactive'] ? "<span class='tag btn-sm tag-outline-warning'>$value[inactive]</span>" : '';
-            $data[$key]['deactive'] = $value['deactive'] ? "<span class='tag btn-sm tag-outline-primary'>$value[deactive]</span>" : '';
+            $data[$key]['deactive'] = $value['deactive'] ? "<span class='tag btn-sm tag-outline-info'>$value[deactive]</span>" : '';
             $data[$key]['broken'] = $value['broken'] ? "<span class='tag btn-sm tag-outline-danger'>$value[broken]</span>" : '';
-            $data[$key]['scrap'] = $value['scrap'] ? "<span class='tag btn-sm tag-outline-dark'>$value[scrap]</span>" : '';
+            $data[$key]['scrap'] = $value['scrap'] ? "<span class='tag btn-sm tag-outline-primary'>$value[scrap]</span>" : '';
             $data[$key]['total'] = "<span class='tag btn-sm " . ($value['mistake'] ? "tag-danger" : "tag-outline-secondary") . "'>$value[total]</span>";
             $data[$key]['vulnerable'] = $value['vulnerable'] ? "<span class='tag btn-sm tag-danger'>易损</span>" : '';
         }
@@ -102,20 +101,17 @@ class ToolController extends Controller
                     case '在用':
                         $tag = "success";
                         break;
-                    case '借用':
-                        $tag = "info";
-                        break;
                     case '待检':
                         $tag = "warning";
                         break;
                     case '封存':
-                        $tag = "primary";
+                        $tag = "info";
                         break;
                     case '损坏':
                         $tag = "danger";
                         break;
                     case '报废':
-                        $tag = "dark";
+                        $tag = "primary";
                         break;
                 }
                 $data[$key]['state'] = "<span class='tag btn-sm tag-$tag'>$value[state]</span>";

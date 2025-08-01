@@ -5,8 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UserRequest;
 use App\Models\Role;
 use App\Models\User;
-use App\Models\UsersView;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
@@ -15,19 +14,9 @@ class UserController extends Controller
         return view('users.user.index');
     }
 
-    public function list()
+    public function list(Request $request)
     {
-        $data = UsersView::select('id', 'username', 'role')->get()->toArray();
-        foreach ($data as $key => $value) {
-            $data[$key]['id'] = "<div class='styled-checkbox'>
-                        <input type='checkbox' name='cb' class='cb' id='$value[id]'>
-                        <label for='$value[id]'></label>
-                    </div>";
-            if ($value['role'] == '') {
-                $data[$key]['username'] = "<div class='text-danger'>$value[username]</div>";
-            }
-        }
-        return response()->json(['data' => array_map('array_values', $data)]);
+        return User::getList($request);
     }
 
     public function create()
@@ -55,12 +44,11 @@ class UserController extends Controller
 
     public function destroy($user)
     {
-        $id = DB::table("role_user")->selectRaw('GROUP_CONCAT(user_id) AS str')->whereIn('user_id', explode(',', $user))->first();
-        if ($id->str) {
-            $result = User::selectRaw('GROUP_CONCAT(username) AS name')->whereIn('id', explode(',', $id->str))->first();
-            return $result->name . '使用中,无法删除';
+        $ids = explode(',', $user);
+        if ($result = User::whereIn('id', $ids)->has('roles')->pluck('username')->implode(',')) {
+            return $result . '使用中,无法删除';
         } else {
-            return !!User::whereIn('id', explode(',', $user))->delete();
+            return !!User::whereIn('id', $ids)->delete();
         }
     }
 
@@ -68,7 +56,7 @@ class UserController extends Controller
     {
         $roles = Role::orderBy('id')->get();
         $myRoles = strpos($user, ',') ? '' : User::find($user)->roles;
-        return view('users.user.role', compact('user', 'roles', 'myRoles',));
+        return view('users.user.role', compact('roles', 'myRoles',));
     }
 
     public function storeRole($user)

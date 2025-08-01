@@ -9,12 +9,20 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/admin/assets/img/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/admin/assets/img/favicon-16x16.png">
     <!-- CSS样式 -->
-    <link rel="stylesheet" href="/admin/assets/vendors/css/base/bootstrap.min.css">
+    <link rel="stylesheet" href="/admin/assets/vendors/css/base/bootstrap.css">
     <link rel="stylesheet" href="/admin/assets/vendors/css/base/elisyam-1.2.css">
-    <link rel="stylesheet" href="/admin/assets/css/animate/animate.min.css">
+    <link rel="stylesheet" href="/admin/assets/vendors/css/animate/animate.css">
+    <link rel="stylesheet" href="/admin/assets/vendors/css/bootstrap-select/bootstrap-select.css">
+    <link rel="stylesheet" href="/admin/assets/vendors/css/vis-timeline/vis-timeline-graph2d.css">
+    <link rel="stylesheet" href="/admin/assets/vendors/css/swiper/swiper-bundle.css">
+    <link rel="stylesheet" href="/admin/assets/vendors/css/datatables/datatables.css">
+    <link rel="stylesheet" href="/admin/assets/vendors/css/datatables/fixedColumns.dataTables.css">
+    <link rel="stylesheet" href="/admin/assets/vendors/css/datatables/scroller.dataTables.css">
+    <link rel="stylesheet" href="/admin/assets/vendors/css/datatables/select.dataTables.css">
+    <link rel="stylesheet" href="/admin/assets/icons/css/all.min.css">
     @stack('page-css')
 </head>
-<body id="page-top">
+<body>
 <!-- 开始 加载 -->
 <div id="preloader">
     <div class="canvas">
@@ -168,10 +176,10 @@
         <div class="default-sidebar">
             <nav class="side-navbar box-scroll sidebar-scroll">
                 <ul class="list-unstyled">
-                    <li><a href="/"><i class="la la-home"></i><span>主页</span></a></li>
+                    <li><a href="/">主页</a></li>
                     @foreach($permissions->where('level',1) as $permission)
                         @can($permission->name)
-                            <li><a href="#dropdown-{{$permission->name}}" aria-expanded="false" data-toggle="collapse"><i class="{{$permission->icon}}"></i><span>{{$permission->description}}</span></a>
+                            <li><a href="#dropdown-{{$permission->name}}" aria-expanded="false" data-toggle="collapse">{{$permission->description}}</a>
                                 <ul id="dropdown-{{$permission->name}}" class="collapse list-unstyled pt-0 nav-tabs">
                                     @foreach($permissions->where('pid',$permission->id) as $p)
                                         @can($p->name)
@@ -215,17 +223,32 @@
 
 <!-- 开始 底层Js -->
 <script src="/admin/assets/vendors/js/base/jquery.min.js"></script>
-<script src="/admin/assets/vendors/js/base/jquery.base64.js?v=1.0"></script>
+<script src="/admin/assets/vendors/js/base/jquery.base64.js"></script>
 <script src="/admin/assets/vendors/js/base/jquery.cookie.js"></script>
-<script src="/admin/assets/vendors/js/base/aes.js?v=1.0"></script>
-<script src="/admin/assets/vendors/js/base/core.min.js"></script>
+<script src="/admin/assets/vendors/js/base/aes.js"></script>
+<script src="/admin/assets/vendors/js/base/core.js"></script>
 <!-- 结束 底层Js -->
 
 <!-- 开始 插件Js -->
 <script src="/admin/assets/vendors/js/datepicker/moment.min.js"></script>
-<script src="/admin/assets/vendors/js/nicescroll/nicescroll.min.js"></script>
-<script src="/admin/assets/vendors/js/noty/noty.min.js"></script>
-<script src="/admin/assets/vendors/js/app/app.js"></script>
+<script src="/admin/assets/vendors/js/nicescroll/nicescroll.js"></script>
+<script src="/admin/assets/vendors/js/noty/noty.js"></script>
+<script src="/admin/assets/vendors/js/bootstrap-select/bootstrap-select.js"></script>
+<script src="/admin/assets/vendors/js/chart/chart.js"></script>
+<script src="/admin/assets/vendors/js/datatables/datatables.js"></script>
+<script src="/admin/assets/vendors/js/datatables/dataTables.fixedColumns.js"></script>
+<script src="/admin/assets/vendors/js/datatables/dataTables.scroller.js"></script>
+<script src="/admin/assets/vendors/js/datatables/dataTables.select.js"></script>
+<script src="/admin/assets/vendors/js/datatables/jquery.dataTables.yadcf-2.0.js"></script>
+<script src="/admin/assets/vendors/js/datepicker/daterangepicker.js"></script>
+<script src="/admin/assets/vendors/js/swiper/swiper-bundle.js"></script>
+<script src="/admin/assets/vendors/js/vis-timeline/vis-timeline-graph2d.js"></script>
+<script src="/admin/assets/vendors/js/progress/circle-progress.js"></script>
+
+<script src="/admin/assets/js/app/app.js"></script>
+<script src="/admin/assets/js/components/datepicker/datepicker.js"></script>
+<script src="/admin/assets/js/components/swiper/swiper.js"></script>
+<script src="/admin/assets/js/components/tables/tables.js"></script>
 <!-- 结束 插件Js -->
 
 @stack('page-js-after')

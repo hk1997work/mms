@@ -39,9 +39,12 @@ class MainController extends Controller
         //证书数量
         $certificates = CertificatesView::orderBy('order')->get();
         $pdf_count = 0;
+        $check_pdf = '';
         foreach ($certificates as $certificate) {
             if (Storage::exists("public/certificate/$certificate->id.pdf")) {
                 $pdf_count += 1;
+            } else {
+                $check_pdf .= $certificate->certificate_no . ';';
             }
             if ($certificate->verification_date <= $end_year && $certificate->validity_date >= $start_year) {
                 $folderPath = "public/check/$certificate->id";
@@ -101,6 +104,6 @@ class MainController extends Controller
         $plans = DB::table('plan_views')->get();
         //备用
         $standbys = DB::table('standby_views')->get();
-        return view("main.index", compact('start_year', 'end_year', 'start_month', 'end_month', 'checks', 'copy', 'check_count', 'pdf_count', 'certificates', 'year_plan', 'month_plan', 'plans', 'standbys', 'positions'));
+        return view("main.index", compact('start_year', 'end_year', 'start_month', 'end_month', 'checks', 'copy', 'check_count', 'pdf_count', 'certificates', 'year_plan', 'month_plan', 'plans', 'standbys', 'positions', 'check_pdf'));
     }
 }

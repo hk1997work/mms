@@ -26,3 +26,11 @@
         <tbody></tbody>
     </table>
 @endsection
+@push('page-js-after-1')
+    <script>
+        $(document).on('mouseover', '[data-toggle="popover"]', function() {
+            $('[data-toggle="popover"]').popover();
+            $(this).popover('show');
+        });
+    </script>
+@endpush

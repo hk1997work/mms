@@ -236,7 +236,7 @@ class JiangsuController extends Controller
                 if (request()->session()->has('jiangsu_Authorization')) {
                     $Authorization = request()->session()->get('jiangsu_Authorization');
                     $JSESSIONID = request()->session()->get('jiangsu_JSESSIONID');
-                    $client->request('GET', 'https://serv.jsmi.com.cn/forms/zs/list?current=1&size=10&zsZsdwmc=南京巨龙钢管有限公司', [
+                    $result = $client->request('GET', 'https://serv.jsmi.com.cn/forms/zs/list?current=1&size=9999&zsZsh=&zsDdh=&zsWyxh=&zsQjmc=&zsZsdwmc=南京巨龙钢管有限公司&zsXhgg=&zsCcbh=&zsClfw=&zsZqd=&zsSbbh=&zsDyrqStart=2025-01-01', [
                         'cookie' => [
                             'Authorization' => $Authorization,
                             'JSESSIONID' => $JSESSIONID,
@@ -246,37 +246,37 @@ class JiangsuController extends Controller
                             'TENANT-ID' => '2',
                         ],
                     ]);
+                    $list = json_decode((string)$result->getBody())->data->records;
+                    request()->session()->put('jiangsu_list', $list);
                     return true;
                 }
             } catch (RequestException  $exception) {
                 session()->forget('jiangsu_Authorization');
             }
-            $res = $client->request('POST', 'https://serv.jsmi.com.cn/auth/oauth/token?randomStr=blockPuzzle&code=vz+/DYdEXOirYS+bLJNqBziFmXN4/KBwjK5vbMa9Rv3pkOfmNP+8oI4sggZaU/gHRC7iN3UCe0OpfdLMsniAdl/cveHjU7NZhukYtwiYllg=&grant_type=password', [
-                'form_params' => [
-                    'username' => '南京巨龙钢管有限公司',
-                    'password' => 'RBWv3JtZKCI=',
-                ],
+            exec("python F:/phpstudy_pro/WWW/laravel8/python/get_coordinate_form_path.py  2>&1 https://serv.jsmi.com.cn/code", $out, $status);
+
+            $res = $client->request('POST', 'https://serv.jsmi.com.cn/code/check?captchaType=blockPuzzle&pointJson=' . $this->jiangsu_encode($out[2], $out[0]) . '&token=' . $out[1], [
                 'headers' => [
                     'Authorization' => 'Basic cGlnOnBpZw==',
                     'TENANT-ID' => '2',
                 ],
             ]);
-            $Authorization = json_decode((string)$res->getBody())->access_token;
-            $JSESSIONID = explode(';', explode('=', $res->getHeaders()['Set-Cookie'][0])[1])[0];
-            $res = $client->request('GET', 'https://serv.jsmi.com.cn/forms/zs/list?current=1&size=9999&zsZsh=&zsDdh=&zsWyxh=&zsQjmc=&zsZsdwmc=南京巨龙钢管有限公司&zsXhgg=&zsCcbh=&zsClfw=&zsZqd=&zsSbbh=&zsDyrqStart=2024-06-01', [
-                'cookie' => [
-                    'Authorization' => $Authorization,
-                    'JSESSIONID' => $JSESSIONID,
+            var_dump($out[0]);
+            $res = $client->request('POST', 'https://serv.jsmi.com.cn/auth/oauth/token?randomStr=blockPuzzle&code=' . $this->jiangsu_encode($out[1] . '---' . $out[2], $out[0]) . '&grant_type=password', [
+                'form_params' => [
+                    'username' => '13155555418',
+                    'password' => 'RBWv3JtZKCI=',
                 ],
                 'headers' => [
-                    'Authorization' => 'Bearer ' . $Authorization,
+                    'Authorization' => 'Basic cGlnOnBpZw==',
                     'TENANT-ID' => '2',
+                    'isToken' => false,
                 ],
             ]);
-            $list = json_decode((string)$res->getBody())->data->records;
+            $Authorization = json_decode((string)$res->getBody())->access_token;
+            $JSESSIONID = explode(';', explode('=', $res->getHeaders()['Set-Cookie'][0])[1])[0];
             request()->session()->put('jiangsu_Authorization', $Authorization);
             request()->session()->put('jiangsu_JSESSIONID', $JSESSIONID);
-            request()->session()->put('jiangsu_list', $list);
         }
         return false;
     }

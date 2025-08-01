@@ -5,9 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\RoleRequest;
 use App\Models\Permission;
 use App\Models\Role;
-use App\Models\RolesView;
 use App\Models\Position;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 class RoleController extends Controller
 {
@@ -16,19 +15,9 @@ class RoleController extends Controller
         return view('users.role.index');
     }
 
-    public function list()
+    public function list(Request $request)
     {
-        $data = RolesView::select('id', 'name', 'user', 'permission', 'position',)->get()->toArray();
-        foreach ($data as $key => $value) {
-            $data[$key]['id'] = "<div class='styled-checkbox'>
-                        <input type='checkbox' name='cb' class='cb' id='$value[id]'>
-                        <label for='$value[id]'></label>
-                    </div>";
-            if ($value['user'] == '' || $value['permission'] == '' || $value['position'] == '') {
-                $data[$key]['name'] = "<div class='text-danger'>$value[name]</div>";
-            }
-        }
-        return response()->json(['data' => array_map('array_values', $data)]);
+        return Role::getList($request);
     }
 
     public function create()
@@ -55,13 +44,9 @@ class RoleController extends Controller
 
     public function destroy($role)
     {
-        $user = DB::table("role_user")->selectRaw('GROUP_CONCAT(role_id) AS str')->whereIn('role_id', explode(',', $role))->first();
-        $permission = DB::table("permission_role")->selectRaw('GROUP_CONCAT(role_id) AS str')->whereIn('role_id', explode(',', $role))->first();
-        $position = DB::table("position_role")->selectRaw('GROUP_CONCAT(role_id) AS str')->whereIn('role_id', explode(',', $role))->first();
-        if ($user->str || $permission->str || $position->str) {
-            $id = implode(',', [$user->str, $permission->str, $position->str]);
-            $result = Role::selectRaw('GROUP_CONCAT(name) AS name')->whereIn('id', array_unique(explode(',', $id)))->first();
-            return $result->name . '使用中,无法删除';
+        $ids = explode(',', $role);
+        if ($result = Role::whereIn('id', $ids)->has('users')->has('permissions')->has('positions')->pluck('name')->implode(',')) {
+            return $result . '使用中,无法删除';
         } else {
             return !!Role::whereIn('id', explode(',', $role))->delete();
         }
@@ -73,7 +58,7 @@ class RoleController extends Controller
         $positions = Position::orderBy('sort')->get();
         $myPermissions = strpos($role, ',') ? '' : Role::find($role)->permissions;
         $myPositions = strpos($role, ',') ? '' : Role::find($role)->positions;
-        return view('users.role.permission', compact('role', 'permissions', 'myPermissions', 'positions', 'myPositions',));
+        return view('users.role.permission', compact('permissions', 'myPermissions', 'positions', 'myPositions',));
     }
 
     public function storePermission($role)

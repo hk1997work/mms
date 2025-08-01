@@ -26,14 +26,9 @@
         </div>
     </div>
 @endsection
-@push('page-css-after-1')
-    <link rel="stylesheet" href="/admin/assets/css/swiper/swiper-bundle.css">
-@endpush
 @push('page-js-after-1')
     <script>
         let positions = {!! $positions !!};
     </script>
-    <script src="/admin/assets/vendors/js/swiper/swiper-bundle.js"></script>
-    <script src="/admin/assets/js/components/swiper/swiper.js"></script>
     <script src="/admin/assets/js/pages/check.js"></script>
 @endpush

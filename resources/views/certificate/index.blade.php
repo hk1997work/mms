@@ -35,7 +35,7 @@
             <li><a class="btn-delete check-multiple" data-menu="certificate" data-pos="right" href="#">删除</a></li>
             <li><a class="btn-open check-multiple" data-menu="certificate" href="#">打开</a></li>
             <li><a class="btn-download check-multiple" data-menu="certificate" href="#">下载</a></li>
-            @if($menu=='active'||$menu=='borrow')
+            @if($menu=='active')
                 <li><a class="btn-edit check-multiple" data-menu="print" data-pos="right" href="#">打印标签</a></li>
                 <li><a class="btn-show check-multiple" data-menu="supervision" data-pos="right" href="#">监督检查</a></li>
             @endif
@@ -67,14 +67,6 @@
         <tbody></tbody>
     </table>
 @endsection
-@push('page-css-after-1')
-    <link rel="stylesheet" href="/admin/assets/css/bootstrap-select/bootstrap-select.min.css">
-@endpush
 @push('page-js-after-1')
-    <script src="/admin/assets/vendors/js/datepicker/daterangepicker.js"></script>
-    <script src="/admin/assets/vendors/js/bootstrap-select/bootstrap-select.min.js"></script>
-
     <script src="/admin/assets/js/pages/certificate.js"></script>
-    <script src="/admin/assets/vendors/js/vis-timeline/vis-timeline-graph2d.min.js"></script>
-    <link rel="stylesheet" href="/admin/assets/css/vis-timeline/vis-timeline-graph2d.css">
 @endpush

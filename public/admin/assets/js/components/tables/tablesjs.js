@@ -6,17 +6,64 @@ let canSubmit = true;
 function initTable(table) {
     if (table.length > 0) {
         let options = {
-            language: {url: '/admin/assets/vendors/js/datatables/zh.json'},
-            ajax: {url: "/ajax_" + table.data('menu'), type: "POST", data: {"_token": csrf_token}},
+            language: {
+                url: '/admin/assets/vendors/js/datatables/zh.json'
+            },
+            ajax: {
+                url: "/ajax_" + table.data('menu'),
+                type: "POST",
+                data: {"_token": csrf_token}
+            },
             serverSide: true,
             scrollX: true,
             scrollY: $(window).height() - table.offset().top - 210,
-            scroller: {loadingIndicator: true,},
-            processing: true,
+            scroller: {
+                loadingIndicator: true,
+            },
+            deferRender: true,
+            paging: true,
             searchDelay: 500,
-            fixedColumns: {leftColumns: 1},
+            processing: true,
+            fixedColumns: {
+                leftColumns: 1
+            },
             order: [1, 'asc'],
-            columnDefs: [{orderable: false, targets: 0}],
+            columnDefs: [
+                {
+                    orderable: false,
+                    targets: 0,
+                    checkboxes: {
+                        selectRow: true
+                    }
+                }
+            ],
+            select: {
+                style: 'multi',
+                selector: 'td:first-child'
+            },
+            columns: [
+                {data: "id"},
+                {data: "username"},
+                {data: "roles"}
+            ]
+        }
+        if (table.attr('id') == 'no-ajax-table') {
+            delete options.ajax
+            $(".loader").fadeOut();
+            $("#preloader").fadeOut();
+        }
+        if (table.hasClass('nocheck')) {
+            delete options.order
+            delete options.fixedColumns
+            options.columnDefs = [
+                {orderable: false, targets: -1}
+            ]
+        }
+        if (table.hasClass('unsorted')) {
+            options.ordering = false;
+        }
+        if (table.hasClass('tl-100')) {
+            options.scrollY = $(window).height() - table.offset().top - 310;
         }
         return table.DataTable(options).on('xhr.dt', function () {
             $(".loader").fadeOut();

@@ -8,7 +8,6 @@ use App\Models\Factory;
 use App\Models\Nanjing;
 use App\Models\Number;
 use App\Models\Parameter;
-use App\Models\Position;
 use App\Models\PositionsView;
 use App\Models\Standard;
 use App\Models\StandardsView;
@@ -16,8 +15,8 @@ use App\Models\Tool;
 use Carbon\Carbon;
 use GuzzleHttp;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 
 class NanjingController extends Controller
 {
@@ -241,9 +240,42 @@ class NanjingController extends Controller
         for ($i = 1; $i < 3; $i++) {
             if (request()->session()->has('nanjing_headers')) {
                 $headers = request()->session()->get('nanjing_headers');
-                $res = $client->request('GET', 'http://58.213.156.66/cmiims/a/sys/adminECertQuery/listenceInfo?' . $this->nanjing_encode('{"pageNo":1,"pageSize":"10","orderBy":"","searchConditionFilter":[]}'), $headers);
-                if (substr($this->nanjing_decode((string)$res->getBody()), 0, 7) == '{"data"') {
-                    return true;
+                $confirm_res = $client->request('GET', 'http://58.213.156.66/cmiims/a/checkList/page?' . $this->nanjing_encode('{"pageNo":1,"pageSize":50}'), $headers);
+                $confirm_result = $this->nanjing_decode((string)$confirm_res->getBody());
+                $confirm_list = [];
+                $confirm_order = [];
+                $confirm_price = 0;
+                if (substr($confirm_result, 0, 7) == '{"data"') {
+                    $confirm_data = json_decode('[{"' . explode('":[{"', explode('"}],"', $confirm_result)[0])[1] . '"}]');
+                    foreach ($confirm_data as $value) {
+                        if ($value->feeConfirm == 0) {
+                            $value->check = true;
+                            $confirm_list[] = $value;
+                            $confirm_order[] = $value->orderNo;
+                            $confirm_price = $confirm_price + $value->totalActual;
+                        }
+                    }
+                    if ($confirm_list) {
+                        $confirm_str = '{"type":"1","orders":"'
+                            . implode($confirm_order, ',')
+                            . '","checkedOrderList":'
+                            . json_encode($confirm_list)
+                            . ',"total_prince":"'
+                            . number_format($confirm_price, 2)
+                            . '","dw_id":"11740","apply_company":"南京巨龙钢管有限公司","contacts":"刘迪龙","telphone_num":"13155555418","tax_header":"南京巨龙钢管有限公司","tax_type":"4","tax_payer":"91320191667351423J","tax_email":"130199362@qq.com"}';
+                        $client->post('http://58.213.156.66/cmiims/a/sys/payOnline/applyPayOnlineAndBatchVerify', ['body' => $this->nanjing_encode($confirm_str), 'headers' => ['Cookie' => $headers['headers']['Cookie'] . ';cmiims_login_name=13155555418;']]);
+                    }
+                    $get_list_res = $client->request('GET', 'http://58.213.156.66/cmiims/a/sys/adminECertQuery/listenceInfo?' .
+                        $this->nanjing_encode('{"pageNo":1,"pageSize":"9999","orderBy":"","beginTime":"2025-01-01","searchConditionFilter":[],"mindParam1":"' .
+                            $this->nanjing_encode('{"pageNo":1,"pageSize":"9999","orderBy":"","beginTime":"2025-01-01","searchConditionFilter":[]}') .
+                            '","mindParam2":"1c8316e832e2a6059985ec9ad686ef77"}')
+                        , $headers);
+                    $get_list_result = $this->nanjing_decode((string)$get_list_res->getBody());
+                    if (substr($get_list_result, 0, 7) == '{"data"') {
+                        $get_list_data = json_decode('[{"' . explode('":[{"', explode('"}],"', $get_list_result)[0])[1] . '"}]');
+                        request()->session()->put('nanjing_list', $get_list_data);
+                        return true;
+                    }
                 }
             }
             #获取验证码
@@ -257,11 +289,8 @@ class NanjingController extends Controller
             if (strlen($out[count($out) - 1]) == 4) {
                 $str = $this->nanjing_encode('{"userName":"13155555418","password":"Qq199362","userType":"0","validateCode":"' . $out[count($out) - 1] . '","type":"2","codeType":""}');
                 #登录
-                $client->post('http://58.213.156.66/cmiims/a/api/ajaxLogin', ['body' => $str, 'headers' => ['Cookie' => $session]]);
-                $res = $client->request('GET', 'http://58.213.156.66/cmiims/a/sys/adminECertQuery/listenceInfo?' . $this->nanjing_encode('{"pageNo":1,"pageSize":"9999","orderBy":"","beginTime":"2024-06-01","searchConditionFilter":[]}'), ['headers' => ['Cookie' => $session]]);
-                $list = json_decode('[{"' . explode('":[{"', explode('"}],"', $this->nanjing_decode((string)$res->getBody()))[0])[1] . '"}]');
+                $login_res = $client->post('http://58.213.156.66/cmiims/a/api/ajaxLogin', ['body' => $str, 'headers' => ['Cookie' => $session]]);
                 request()->session()->put('nanjing_headers', ['headers' => ['Cookie' => $session]]);
-                request()->session()->put('nanjing_list', $list);
             }
         }
         return false;

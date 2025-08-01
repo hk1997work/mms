@@ -25,7 +25,6 @@ Route::group(['namespace' => '\App\Http\Controllers'], function () {
             //证书管理
             Route::resource('/certificate', 'CertificateController');
             Route::resource('/active', 'CertificateController');
-            Route::resource('/borrow', 'CertificateController');
             Route::resource('/deactive', 'CertificateController');
             Route::resource('/scrap', 'CertificateController');
             Route::resource('/invalid', 'CertificateController');

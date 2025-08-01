@@ -16,7 +16,7 @@
                                 <div id="events-time"></div>
                             </div>
                         </div>
-                        <div class="widget widget-22 bg-gradient-03 has-shadow">
+                        <div class="widget widget-22 bg-gradient-03 has-shadow" title="{{$check_pdf}}">
                             <div class="widget-body h-100 d-flex align-items-center">
                                 <div class="section-title">
                                     <h3>电子证书</h3>
@@ -78,9 +78,11 @@
                                     @foreach($positions as $position)
                                         <div class="col-4 text-center no-padding">
                                             <div class="progress mt-2 ml-2 mr-2">
-                                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: {{$check_count[$position->name]['success']/$check_count[$position->name]['total']*100}}%">{{$check_count[$position->name]['success']}}</div>
+                                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar"
+                                                     style="width: {{$check_count[$position->name]['success']/$check_count[$position->name]['total']*100}}%">{{$check_count[$position->name]['success']}}</div>
                                                 <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" style="width: {{$check_count[$position->name]['info']/$check_count[$position->name]['total']*100}}%">{{$check_count[$position->name]['info']}}</div>
-                                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning" role="progressbar" style="width: {{$check_count[$position->name]['warning']/$check_count[$position->name]['total']*100}}%">{{$check_count[$position->name]['warning']}}</div>
+                                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning" role="progressbar"
+                                                     style="width: {{$check_count[$position->name]['warning']/$check_count[$position->name]['total']*100}}%">{{$check_count[$position->name]['warning']}}</div>
                                                 <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger" role="progressbar" style="width: {{$check_count[$position->name]['danger']/$check_count[$position->name]['total']*100}}%">{{$check_count[$position->name]['danger']}}</div>
                                             </div>
                                             <div class="heading">{{$position->name}}</div>
@@ -297,9 +299,6 @@
         </div>
     </div>
 @endsection
-@push('page-css')
-    <link rel="stylesheet" href="/admin/assets/css/swiper/swiper-bundle.css">
-@endpush
 @push('page-js-after')
     <script>
         let pdf_count = {{$pdf_count}};
@@ -307,9 +306,5 @@
         let year_plan = {!! json_encode($year_plan) !!};
         let month_plan = {{$month_plan}};
     </script>
-    <script src="/admin/assets/vendors/js/chart/chart.min.js"></script>
-    <script src="/admin/assets/vendors/js/progress/circle-progress.min.js"></script>
-    <script src="/admin/assets/vendors/js/swiper/swiper-bundle.js"></script>
-
     <script src="/admin/assets/js/dashboard/main.js"></script>
 @endpush

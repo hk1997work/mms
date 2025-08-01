@@ -1,7 +1,7 @@
 @extends('layout.show')
 @section('content_title')
-    @if($certificate->valid && $certificate->state!='借用')
-        @if($certificate->position=='备用')
+    @if($certificate->valid)
+        @if($certificate->position=='备用'||$certificate->position=='借用')
             <li><a class="active" data-toggle="tab" href="#apply-tab" role="tab" id="apply-btn">使用</a></li>
         @else
             @if($spares->count()!=0)
@@ -10,19 +10,20 @@
             <li><a @if($spares->count()==0) class="active" @endif data-toggle="tab" href="#replace-tab" role="tab" id="replace-btn">更新</a></li>
         @endif
     @endif
-    <li><a @if($certificate->valid==0||$certificate->state=='借用') class="active" @endif data-toggle="tab" href="#edit-tab" role="tab" id="edit-btn">修改</a></li>
+    <li><a @if($certificate->valid==0) class="active" @endif data-toggle="tab" href="#edit-tab" role="tab" id="edit-btn">修改</a></li>
 @endsection
 @section('content_form')
     <div class="tab-content">
-        <div role="tabpanel" class="tab-pane @if($certificate->valid==0||$certificate->state=='借用') show active @endif fade" id="edit-tab" aria-labelledby="edit-btn">
+        <div role="tabpanel" class="tab-pane @if($certificate->valid==0) show active @endif fade" id="edit-tab" aria-labelledby="edit-btn">
             <form action="" onsubmit="return false;">
                 {{method_field("put")}}
                 {{csrf_field()}}
                 <div class="row">
                     <div class="col-6 div-position_id">
+                        <input type="hidden" name="type" value="edit">
+                        <input type="hidden" name="position_id" value="{{$certificate->position_id}}">
                         <div class="sidebar-heading mt-3 mb-2">岗位</div>
                         <input type="text" class="form-control" value="{{$certificate->position}}" readonly>
-                        <input type="hidden" name="position_id" value="{{$certificate->position_id}}">
                     </div>
                     <div class="col-6 div-sn">
                         <div class="sidebar-heading mt-3 mb-2">序号</div>
@@ -132,8 +133,8 @@
                 </div>
             </form>
         </div>
-        @if($certificate->valid && $certificate->state!='借用')
-            @if($certificate->position=='备用')
+        @if($certificate->valid)
+            @if($certificate->position=='备用'||$certificate->position=='借用')
                 <div role="tabpanel" class="tab-pane show active fade" id="apply-tab" aria-labelledby="apply-btn">
                     <form action="" onsubmit="return false;">
                         {{method_field("put")}}

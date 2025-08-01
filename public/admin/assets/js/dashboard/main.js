@@ -124,7 +124,7 @@
         ctx.closePath();
     };
 
-    Chart.elements.RoundedTopRectangle = Chart.elements.Rectangle.extend({
+    Chart.elements.RoundedTopRectangle = Chart.elements.register({
         draw: function () {
             var ctx = this._chart.ctx;
             var vm = this._view;

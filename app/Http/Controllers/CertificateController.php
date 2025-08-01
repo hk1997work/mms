@@ -36,10 +36,7 @@ class CertificateController extends Controller
         $data = CertificatesView::select('id', 'order', 'position', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'remark', 'number_remark', 'unit3');
         switch ($path) {
             case 'active':
-                $data->where('state', '在用')->where('valid', 1);
-                break;
-            case 'borrow':
-                $data->where('state', '借用')->whereRaw('(number_id,validity_date) IN (SELECT `c`.`number_id`, max( `c`.`validity_date` ) AS `validity_date` FROM `certificates` `c` GROUP BY `c`.`number_id`)');
+                $data->where('valid', 1);
                 break;
             case 'invalid':
                 $data->where('valid', 0);
@@ -66,9 +63,9 @@ class CertificateController extends Controller
                         <input type='checkbox' name='cb' class='cb' id='$value[id]' data-url='/storage/certificate/$value[id].pdf'>
                         <label for='$value[id]'></label>
                     </div>";
-            if ($value['validity_date'] < Carbon::now()->format('Y-m-d') && ($path == 'active' || $path == 'borrow')) {
+            if ($value['validity_date'] < Carbon::now()->format('Y-m-d') && ($path == 'active')) {
                 $data[$key]['instrument'] = "<span class='tag btn-sm tag-danger'>$value[instrument]</span>";
-            } elseif ($value['validity_date'] < Carbon::now()->subMonth(-1)->format('Y-m-d') && ($path == 'active' || $path == 'borrow')) {
+            } elseif ($value['validity_date'] < Carbon::now()->subMonth(-1)->format('Y-m-d') && ($path == 'active')) {
                 $data[$key]['instrument'] = "<span class='tag btn-sm tag-warning'>$value[instrument]</span>";
             } else {
                 $data[$key]['instrument'] = $value['instrument'];
@@ -110,6 +107,8 @@ class CertificateController extends Controller
         $arr['department_id'] = $request->department_id;
         $arr['start'] = $request->start;
         $arr['times'] = $request->times;
+        $arr['replacement'] = $request->replacement;
+        $arr['replace_date'] = $request->replace_date;
         $arr['remark'] = $request->remark;
         $arr['start_date'] = $request->verification_date;
         $arr['end_date'] = $request->validity_date;
@@ -137,7 +136,7 @@ class CertificateController extends Controller
         $positions = PositionsView::where('str', 'like', '%' . $certificate->unit3_id . '%')->whereIn('level', [4, 5])->get();
         $tools = ToolsView::where('instrument', $certificate->instrument)->orderBy('instrument')->get();
         $standards = StandardsView::where('level', 2)->get();
-        $spares = CertificatesView::where('valid', 1)->where('position', '备用')->where('state', '!=', '借用')->where('instrument', $certificate->instrument)->orderBy('order')->get();
+        $spares = CertificatesView::where('valid', 1)->where('position', '备用')->where('instrument', $certificate->instrument)->orderBy('order')->get();
         return view('certificate.edit', compact('certificate', 'categories', 'departments', 'positions', 'tools', 'standards', 'spares'));
     }
 
@@ -207,7 +206,7 @@ class CertificateController extends Controller
             $new_number->state_id = Parameter::where('name', '在用')->first()->id;
             $new_number->save();
             return !!$certificate->save();
-        } else {
+        } elseif ($request->type == 'edit') {
             $certificate->department_id = $request->department_id;
             $certificate->category_id = $request->category_id;
             $certificate->verification_date = $request->verification_date;
