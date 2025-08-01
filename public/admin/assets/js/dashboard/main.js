@@ -3,6 +3,7 @@
 
     $("#preloader").fadeOut();
 
+    //日期控件
     function getDate() {
         var date = new Date();
         var weekday = date.getDay();
@@ -30,16 +31,19 @@
         document.getElementById('events-time').innerHTML = showTime;
         requestAnimationFrame(getDate);
     }
-
     getDate();
+
+    //调整窗口尺寸
     let container_fluid_height = window.innerHeight - $('.navbar-holder').height() - parseInt($('.container-fluid').css('padding-top')) - parseInt($('.container-fluid').css('padding-bottom'))
     $('#swiper-main').height(container_fluid_height)
     $('.list-group').height(container_fluid_height - document.querySelector('.today').getBoundingClientRect().height - parseInt($('.widget-body').css('padding-top')) - parseInt($('.widget-body').css('padding-bottom')))
     $('#swiper-main .swiper-slide >.row:eq(0)').css('min-height', container_fluid_height / 3 * 2)
+
     let swiper = new Swiper("#swiper-main", {
         loop: "true",
     });
 
+    //今日抽检-复制
     $('.btn-copy').click(function () {
         var htmlContent = $('#text-copy')[0].innerHTML;
         var tempTextArea = $('<textarea>');
@@ -55,6 +59,7 @@
         event.preventDefault()
     });
 
+    //今日抽检-抽检详情
     $('.btn-show').click(function () {
         $("#preloader")[0].style.display = 'block';
         $.ajax({
@@ -78,6 +83,7 @@
         event.preventDefault()
     });
 
+    //电子证书
     $('.certificate_per').circleProgress({
         value: (pdf_count / pdf_total),
         size: 140,
@@ -191,24 +197,33 @@
     Chart.controllers.roundedBar = Chart.controllers.bar.extend({
         dataElementType: Chart.elements.RoundedTopRectangle
     });
+
     var ctx = document.getElementById("orders").getContext('2d');
-    var myChart = new Chart(ctx, {
+
+    const labels = year_plan.map(item => parseInt(item.MONTH.split('-')[1]) + '月');
+    const sj_data = year_plan.map(item => item.sj);
+    const bj_data = year_plan.map(item => item.bj);
+
+    const myChart = new Chart(ctx, {
         type: 'roundedBar',
         data: {
-            labels: [parseInt(year_plan[0]['MONTH'].split('-')[1]) + '月', parseInt(year_plan[1]['MONTH'].split('-')[1]) + '月', parseInt(year_plan[2]['MONTH'].split('-')[1]) + '月', parseInt(year_plan[3]['MONTH'].split('-')[1]) + '月', parseInt(year_plan[4]['MONTH'].split('-')[1]) + '月', parseInt(year_plan[5]['MONTH'].split('-')[1]) + '月', parseInt(year_plan[6]['MONTH'].split('-')[1]) + '月', parseInt(year_plan[7]['MONTH'].split('-')[1]) + '月', parseInt(year_plan[8]['MONTH'].split('-')[1]) + '月', parseInt(year_plan[9]['MONTH'].split('-')[1]) + '月', parseInt(year_plan[10]['MONTH'].split('-')[1]) + '月', parseInt(year_plan[11]['MONTH'].split('-')[1]) + '月'],
-            datasets: [{
-                label: '送检',
-                data: [year_plan[0]['sj'], year_plan[1]['sj'], year_plan[2]['sj'], year_plan[3]['sj'], year_plan[4]['sj'], year_plan[5]['sj'], year_plan[6]['sj'], year_plan[7]['sj'], year_plan[8]['sj'], year_plan[9]['sj'], year_plan[10]['sj'], year_plan[11]['sj']],
-                borderColor: "#fff",
-                backgroundColor: "#5d5386",
-                hoverBackgroundColor: "#483d77"
-            }, {
-                label: '报检',
-                data: [year_plan[0]['bj'], year_plan[1]['bj'], year_plan[2]['bj'], year_plan[3]['bj'], year_plan[4]['bj'], year_plan[5]['bj'], year_plan[6]['bj'], year_plan[7]['bj'], year_plan[8]['bj'], year_plan[9]['bj'], year_plan[10]['bj'], year_plan[11]['bj']],
-                borderColor: "#fff",
-                backgroundColor: "#e4e8f0",
-                hoverBackgroundColor: "#dde1e9"
-            }]
+            labels: labels,
+            datasets: [
+                {
+                    label: '送检',
+                    data: sj_data,
+                    borderColor: "#fff",
+                    backgroundColor: "#5d5386",
+                    hoverBackgroundColor: "#483d77"
+                },
+                {
+                    label: '报检',
+                    data: bj_data,
+                    borderColor: "#fff",
+                    backgroundColor: "#e4e8f0",
+                    hoverBackgroundColor: "#dde1e9"
+                }
+            ]
         },
         options: {
             responsive: true,
@@ -222,6 +237,21 @@
                 xPadding: 5,
                 displayColors: false,
                 yPadding: 5,
+                callbacks: {
+                    label: function(tooltipItem) {
+                        const datasetLabel = tooltipItem.datasetIndex === 0 ? '送检' : '报检';
+                        const value = tooltipItem.yLabel;
+
+                        const instruments = year_plan[tooltipItem.index][
+                            tooltipItem.datasetIndex === 0 ? 'sj_instruments' : 'bj_instruments'
+                            ];
+
+                        return [
+                            `${datasetLabel}: ${value}`,
+                            ...instruments.split('<br>')
+                        ];
+                    }
+                }
             },
             legend: {
                 display: true,
@@ -252,7 +282,8 @@
                         display: false
                     },
                     ticks: {
-                        display: false
+                        display: false,
+                        beginAtZero: true
                     }
                 }]
             }

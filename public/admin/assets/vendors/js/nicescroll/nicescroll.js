@@ -27,15 +27,15 @@
 
   // globals
   var domfocus = false,
-    mousefocus = false,
-    tabindexcounter = 0,
-    ascrailcounter = 2000,
-    globalmaxzindex = 0;
+      mousefocus = false,
+      tabindexcounter = 0,
+      ascrailcounter = 2000,
+      globalmaxzindex = 0;
 
   var $ = jQuery,       // sandbox
-    _doc = document,
-    _win = window,
-    $window = $(_win);
+      _doc = document,
+      _win = window,
+      $window = $(_win);
 
   var delegatevents = [];
 
@@ -56,7 +56,7 @@
       var currTime = new Date().getTime();
       var timeToCall = Math.max(0, 16 - (currTime - anilasttime));
       var id = _win.setTimeout(function () { callback(currTime + timeToCall); },
-        timeToCall);
+          timeToCall);
       anilasttime = currTime + timeToCall;
       return id;
     };
@@ -140,10 +140,10 @@
     if (browserdetected) return browserdetected;
 
     var _el = _doc.createElement('DIV'),
-      _style = _el.style,
-      _agent = navigator.userAgent,
-      _platform = navigator.platform,
-      d = {};
+        _style = _el.style,
+        _agent = navigator.userAgent,
+        _platform = navigator.platform,
+        d = {};
 
     d.haspointerlock = "pointerLockElement" in _doc || "webkitPointerLockElement" in _doc || "mozPointerLockElement" in _doc;
 
@@ -2200,24 +2200,24 @@
     };
 
     this.getContentSize =
-      (self.ispage) ?
-        function () {
-          return {
-            w: Math.max(_doc.body.scrollWidth, _doc.documentElement.scrollWidth),
-            h: Math.max(_doc.body.scrollHeight, _doc.documentElement.scrollHeight)
-          };
-        } : (self.haswrapper) ?
-          function () {
-            return {
-              w: self.doc[0].offsetWidth,
-              h: self.doc[0].offsetHeight
-            };
-          } : function () {
-            return {
-              w: self.docscroll[0].scrollWidth,
-              h: self.docscroll[0].scrollHeight
-            };
-          };
+        (self.ispage) ?
+            function () {
+              return {
+                w: Math.max(_doc.body.scrollWidth, _doc.documentElement.scrollWidth),
+                h: Math.max(_doc.body.scrollHeight, _doc.documentElement.scrollHeight)
+              };
+            } : (self.haswrapper) ?
+                function () {
+                  return {
+                    w: self.doc[0].offsetWidth,
+                    h: self.doc[0].offsetHeight
+                  };
+                } : function () {
+                  return {
+                    w: self.docscroll[0].scrollWidth,
+                    h: self.docscroll[0].scrollHeight
+                  };
+                };
 
     this.onResize = function (e, page) {
 
@@ -2436,7 +2436,7 @@
         e.stopImmediatePropagation();
         if (e.preventManipulation) e.preventManipulation();  // IE10+
         return false;
-      };      
+      };
 
     } else {
 
@@ -2460,11 +2460,11 @@
       // Thanks to http://www.switchonthecode.com !!
       this.cancelEvent = function (e) {
         e = e || _win.event;
-        if (e) {          
+        if (e) {
           e.cancelBubble = true;
           e.cancel = true;
           e.returnValue = false;
-        }  
+        }
         return false;
       };
 
@@ -2507,7 +2507,7 @@
         de.l = [fn].concat(de.l);
       } else {
         de.a.push(self.id);
-        de.l.push(fn);        
+        de.l.push(fn);
       }
 
     };
@@ -3649,15 +3649,15 @@
     for (var a = 0, l = lst.length; a < l; a++) fn(el, lst[a]);
   }
   mplex(
-    NiceScrollArray.prototype, ['show', 'hide', 'toggle', 'onResize', 'resize', 'remove', 'stop', 'doScrollPos'],
-    function (e, n) {
-      e[n] = function () {
-        var args = arguments;
-        return this.each(function () {
-          this[n].apply(this, args);
-        });
-      };
-    }
+      NiceScrollArray.prototype, ['show', 'hide', 'toggle', 'onResize', 'resize', 'remove', 'stop', 'doScrollPos'],
+      function (e, n) {
+        e[n] = function () {
+          var args = arguments;
+          return this.each(function () {
+            this[n].apply(this, args);
+          });
+        };
+      }
   );
 
   jQuery.fn.getNiceScroll = function (index) {

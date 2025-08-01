@@ -1,32 +1,27 @@
-@import url(../../../icons/lineawesome/css/line-awesome.min.css);
-@import url(../../../icons/ionicons/css/ionicons.min.css);
-@import url(../../../icons/themify/css/themify-icons.min.css);
-@import url(../../../icons/meteocons/css/meteocons.min.css);
-
+/* Path: elisyam-1.2.css */
 html {
     font-size: 12px
 }
-
+/* Path: elisyam-1.2.css */
 body, html {
     height: 100%;
     user-select: none;
 }
-
+/* Path: elisyam-1.2.css */
 body {
-    font-family: "Montserrat", sans-serif;
     font-size: 1rem;
     font-weight: 500;
     line-height: 1.5;
     color: #98a8b4;
     background-color: #f9f9f9
 }
-
+/* Path: elisyam-1.2.css */
 a {
     color: #5d5386;
     text-decoration: none;
     transition: all 0.5s ease
 }
-
+/* Path: elisyam-1.2.css */
 a:focus, a:hover {
     color: #e76c90;
     text-decoration: underline
@@ -35,29 +30,29 @@ a:focus, a:hover {
 *[class*="icon-"] {
     transform: translateY(3px)
 }
-
+/* Path: elisyam-1.2.css */
 body {
     overflow-x: hidden
 }
-
+/* Path: elisyam-1.2.css */
 a, i, span {
     display: inline-block;
     text-decoration: none
 }
-
+/* Path: elisyam-1.2.css */
 a:hover, a:focus, i:hover, i:focus, span:hover, span:focus {
     text-decoration: none
 }
-
+/* Path: elisyam-1.2.css */
 ul {
     margin: 0;
     padding: 0
 }
-
+/* Path: elisyam-1.2.css */
 ol, ul, li {
     list-style: none
 }
-
+/* Path: elisyam-1.2.css */
 section {
     padding: 35px 0
 }
@@ -65,7 +60,7 @@ section {
 .section {
     padding: 35px 0
 }
-
+/* Path: elisyam-1.2.css */
 canvas {
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -73,39 +68,38 @@ canvas {
     -o-user-select: none;
     user-select: none
 }
-
+/* Path: elisyam-1.2.css */
 h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
     margin-bottom: .5rem;
-    font-family: "Noto Sans", sans-serif;
     line-height: 1.1;
     color: #2c304d
 }
-
+/* Path: elisyam-1.2.css */
 h1, .h1 {
     font-size: 2.5rem;
     font-weight: 600
 }
-
+/* Path: elisyam-1.2.css */
 h2, .h2 {
     font-size: 1.5rem;
     font-weight: 500
 }
-
+/* Path: elisyam-1.2.css */
 h3, .h3 {
     font-size: 1.35rem;
     font-weight: 500
 }
-
+/* Path: elisyam-1.2.css */
 h4, .h4 {
     font-size: 1.2rem;
     font-weight: 500
 }
-
+/* Path: elisyam-1.2.css */
 h5, .h5 {
     font-size: 1rem;
     font-weight: 500
 }
-
+/* Path: elisyam-1.2.css */
 h6, .h6 {
     font-size: .85rem;
     font-weight: 500
@@ -139,7 +133,7 @@ h6, .h6 {
     font-weight: 300;
     line-height: 1.1
 }
-
+/* Path: elisyam-1.2.css */
 #preloader {
     position: fixed;
     top: 0;
@@ -149,7 +143,7 @@ h6, .h6 {
     background-color: #fff;
     z-index: 999999
 }
-
+/* Path: elisyam-1.2.css */
 .canvas {
     position: absolute;
     margin: auto;
@@ -159,13 +153,13 @@ h6, .h6 {
     -ms-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%)
 }
-
+/* Path: elisyam-1.2.css */
 .loader-logo {
     display: block;
     width: 120px;
     margin-bottom: 25px
 }
-
+/* Path: elisyam-1.2.css */
 .spinner {
     animation: spinner 1s linear infinite;
     border: solid 5px transparent;
@@ -175,7 +169,7 @@ h6, .h6 {
     height: 60px;
     margin: 0 auto
 }
-
+/* Path: elisyam-1.2.css */
 @keyframes spinner {
     0% {
         transform: rotate(0deg)
@@ -237,11 +231,11 @@ h6, .h6 {
 .page-header-tools {
     display: inline-block
 }
-
+/* Path: elisyam-1.2.css */
 .container-fluid {
     padding: 30px
 }
-
+/* Path: elisyam-1.2.css */
 @media (max-width: 576px) {
     .container-fluid {
         padding: 15px
@@ -297,7 +291,7 @@ table {
 button, input {
     outline: none !important
 }
-
+/* Path: elisyam-1.2.css */
 .flex-row {
     display: flex
 }
@@ -315,7 +309,7 @@ button, input {
 .flex-row > [class*='col-'] > .widget-image {
     height: 100%
 }
-
+/* Path: elisyam-1.2.css */
 .flex-row.row:after, .flex-row.row:before {
     display: flex
 }
@@ -442,7 +436,7 @@ button, input {
 .pulse {
     animation-name: pulse
 }
-
+/* Path: elisyam-1.2.css */
 .logo-centered {
     width: 140px;
     margin: 0 auto
@@ -532,20 +526,19 @@ button, input {
         transform: translateX(-400px)
     }
 }
-
+/* Path: elisyam-1.2.css */
 .elisyam-bg {
     height: 100vh;
     width: 100%
 }
-
+/* Path: elisyam-1.2.css */
 .elisyam-overlay {
     width: 100%;
     height: 100%;
-    position: absolute;
     top: 0;
     left: 0
 }
-
+/* Path: elisyam-1.2.css */
 .elisyam-overlay.overlay-01 {
     background: linear-gradient(135deg, rgba(46, 52, 81, .4) 0%, rgba(52, 40, 104, .95) 100%)
 }
@@ -577,7 +570,7 @@ button, input {
 .elisyam-overlay.overlay-08 {
     background: linear-gradient(135deg, rgba(46, 52, 81, .85) 0%, rgba(46, 52, 81, .85) 100%)
 }
-
+/* Path: elisyam-1.2.css */
 .elisyam-bg.background-01 {
     background: url(../../../img/background/01.jpg) no-repeat;
     background-size: cover
@@ -725,7 +718,7 @@ a.btn.disabled, fieldset[disabled] a.btn {
     background-color: #fff;
     background-image: none
 }
-
+/* Path: elisyam-1.2.css */
 .btn-gradient-01, .btn-gradient-01 a {
     background: #e23f83;
     background: linear-gradient(to right, #e23f83 0%, #ea5844 100%);
@@ -736,7 +729,7 @@ a.btn.disabled, fieldset[disabled] a.btn {
     border: 0 none;
     padding: 12px 20px
 }
-
+/* Path: elisyam-1.2.css */
 .btn-gradient-01 i, .btn-gradient-01 a i {
     color: #fff;
     display: inline-block;
@@ -744,28 +737,28 @@ a.btn.disabled, fieldset[disabled] a.btn {
     vertical-align: middle;
     margin-right: .4rem
 }
-
+/* Path: elisyam-1.2.css */
 .btn-gradient-01:hover, .btn-gradient-01 a:hover {
     color: #fff;
     background-position: right center
 }
-
+/* Path: elisyam-1.2.css */
 .btn-gradient-01:active {
     color: #fff;
     background-color: #e23f83;
     border-color: #e23f83
 }
-
+/* Path: elisyam-1.2.css */
 .btn-gradient-01:focus, .btn-gradient-01.focus {
     color: #fff;
     box-shadow: none
 }
-
+/* Path: elisyam-1.2.css */
 .btn-gradient-01.disabled, .btn-gradient-01:disabled {
     background-color: none;
     opacity: .3
 }
-
+/* Path: elisyam-1.2.css */
 .btn-gradient-01:active, .btn-gradient-01.active, .show > .btn-gradient-01.dropdown-toggle {
     color: #fff;
     background-color: #e23f83;
@@ -1512,7 +1505,7 @@ a.btn.disabled, fieldset[disabled] a.btn {
     color: #fff;
     background-color: #2c304d
 }
-
+/* Path: elisyam-1.2.css */
 .btn-lg {
     padding: .75rem 2.5rem;
     font-size: 1rem;
@@ -1685,7 +1678,7 @@ a:hover.rounded-button {
 .bg-grey {
     background-color: #f6f6f6 !important
 }
-
+/* Path: elisyam-1.2.css */
 .bg-white {
     background-color: #fff !important
 }
@@ -2016,9 +2009,10 @@ span.badge-pulse-orange {
 .badge-rounded.danger {
     background: #fe195e
 }
-
+/* Path: elisyam-1.2.css */
 .page {
-    background: #f9f9f9
+    background: #f9f9f9;
+    overflow-x: hidden
 }
 
 .page .text-white {
@@ -2049,6 +2043,10 @@ span.badge-pulse-orange {
     overflow: hidden
 }
 
+.hidden-text {
+    visibility: hidden;
+}
+/* Path: elisyam-1.2.css */
 .no-padding {
     padding: 0 !important
 }
@@ -2251,10 +2249,6 @@ span.badge-pulse-orange {
 
 .margin-left-25 {
     margin-left: 25px !important
-}
-
-.page {
-    overflow-x: hidden
 }
 
 .overflow-y {
@@ -2850,21 +2844,18 @@ input[type="text"]:focus, input[type="password"]:focus, input[type="datetime"]:f
 .form-control::-moz-placeholder {
     font-size: .85rem;
     font-weight: 400;
-    font-family: "Montserrat", sans-serif;
     color: #94a4b0
 }
 
 .form-control::-webkit-input-placeholder {
     font-size: .85rem;
     font-weight: 400;
-    font-family: "Montserrat", sans-serif;
     color: #94a4b0
 }
 
 .form-control:-ms-input-placeholder {
     font-size: .85rem;
     font-weight: 400;
-    font-family: "Montserrat", sans-serif;
     color: #94a4b0
 }
 
@@ -2985,7 +2976,7 @@ form label {
 .input-group ul.dropdown-menu a:hover {
     color: #5d5386
 }
-
+/* Path: elisyam-1.2.css */
 .material-input input {
     font-size: 1rem;
     padding: 10px 10px 10px 5px;
@@ -2994,11 +2985,11 @@ form label {
     border: none;
     border-bottom: 1px solid #e4e8f0
 }
-
+/* Path: elisyam-1.2.css */
 .material-input input:focus {
     outline: none
 }
-
+/* Path: elisyam-1.2.css */
 .material-input label {
     color: #98a8b4;
     font-size: .9rem;
@@ -3011,19 +3002,19 @@ form label {
     -moz-transition: 0.2s ease all;
     -webkit-transition: 0.2s ease all
 }
-
+/* Path: elisyam-1.2.css */
 .material-input input:focus ~ label, .material-input input:valid ~ label {
     top: -20px;
     font-size: .8rem;
     color: #5d5386
 }
-
+/* Path: elisyam-1.2.css */
 .material-input .bar {
     position: relative;
     display: block;
     width: 100%
 }
-
+/* Path: elisyam-1.2.css */
 .material-input .bar:before, .material-input .bar:after {
     content: '';
     height: 1px;
@@ -3035,19 +3026,19 @@ form label {
     -moz-transition: 0.2s ease all;
     -webkit-transition: 0.2s ease all
 }
-
+/* Path: elisyam-1.2.css */
 .material-input .bar:before {
     left: 50%
 }
-
+/* Path: elisyam-1.2.css */
 .material-input .bar:after {
     right: 50%
 }
-
+/* Path: elisyam-1.2.css */
 .material-input input:focus ~ .bar:before, .material-input input:focus ~ .bar:after {
     width: 50%
 }
-
+/* Path: elisyam-1.2.css */
 .material-input .highlight {
     position: absolute;
     height: 60%;
@@ -3057,7 +3048,7 @@ form label {
     pointer-events: none;
     opacity: .5
 }
-
+/* Path: elisyam-1.2.css */
 .material-input input:focus ~ .highlight {
     -webkit-animation: inputHighlighter 0.3s ease;
     -moz-animation: inputHighlighter 0.3s ease;
@@ -3199,8 +3190,8 @@ section.forms form span, section.forms form small {
 }
 
 .styled-checkbox label:after {
-    font-family: 'Ionicons';
-    content: "\f383";
+    font-family: 'Font Awesome 6 Free Solid';
+    content: "\f00c";
     font-size: 1rem;
     left: 5px;
     margin: -9px 0 0;
@@ -3255,7 +3246,7 @@ section.forms form span, section.forms form small {
 }
 
 .check:after {
-    content: "\f383"
+    content: "\f00c"
 }
 
 .check.is-checked:after {
@@ -3376,7 +3367,7 @@ section.forms form span, section.forms form small {
     background-color: #5d5386;
     height: 8px;
     border: 0 none;
-    width: 0%;
+    width: 0;
     transition: width 0.6s ease
 }
 
@@ -4498,7 +4489,6 @@ section.forms form span, section.forms form small {
 }
 
 .tooltip-inner {
-    font-family: "Montserrat", sans-serif;
     font-size: 1rem;
     font-weight: 600;
     max-width: 200px;
@@ -4577,8 +4567,8 @@ section.forms form span, section.forms form small {
     top: 5%;
     left: 50%;
     width: 325px;
-    -webkit-transform: translate(-webkit-calc(-50% - .5px)) translateZ(0) scale(1, 1);
-    transform: translate(calc(-50% - .5px)) translateZ(0) scale(1, 1)
+    -webkit-transform: translate(-webkit-calc(-50% - 1px)) translateZ(0) scale(1, 1);
+    transform: translate(calc(-50% - 1px)) translateZ(0) scale(1, 1)
 }
 
 #noty_layout__topRight {
@@ -4603,8 +4593,8 @@ section.forms form span, section.forms form small {
     bottom: 5%;
     left: 50%;
     width: 325px;
-    -webkit-transform: translate(-webkit-calc(-50% - .5px)) translateZ(0) scale(1, 1);
-    transform: translate(calc(-50% - .5px)) translateZ(0) scale(1, 1)
+    -webkit-transform: translate(-webkit-calc(-50% - 1px)) translateZ(0) scale(1, 1);
+    transform: translate(calc(-50% - 1px)) translateZ(0) scale(1, 1)
 }
 
 #noty_layout__bottomRight {
@@ -4617,24 +4607,24 @@ section.forms form span, section.forms form small {
     top: 50%;
     left: 50%;
     width: 325px;
-    -webkit-transform: translate(-webkit-calc(-50% - .5px), -webkit-calc(-50% - .5px)) translateZ(0) scale(1, 1);
-    transform: translate(calc(-50% - .5px), calc(-50% - .5px)) translateZ(0) scale(1, 1)
+    -webkit-transform: translate(-webkit-calc(-50% - 1px), -webkit-calc(-50% - 1px)) translateZ(0) scale(1, 1);
+    transform: translate(calc(-50% - 1px), calc(-50% - 1px)) translateZ(0) scale(1, 1)
 }
 
 #noty_layout__centerLeft {
     top: 50%;
     left: 20px;
     width: 325px;
-    -webkit-transform: translate(0, -webkit-calc(-50% - .5px)) translateZ(0) scale(1, 1);
-    transform: translate(0, calc(-50% - .5px)) translateZ(0) scale(1, 1)
+    -webkit-transform: translate(0, -webkit-calc(-50% - 1px)) translateZ(0) scale(1, 1);
+    transform: translate(0, calc(-50% - 1px)) translateZ(0) scale(1, 1)
 }
 
 #noty_layout__centerRight {
     top: 50%;
     right: 20px;
     width: 325px;
-    -webkit-transform: translate(0, -webkit-calc(-50% - .5px)) translateZ(0) scale(1, 1);
-    transform: translate(0, calc(-50% - .5px)) translateZ(0) scale(1, 1)
+    -webkit-transform: translate(0, -webkit-calc(-50% - 1px)) translateZ(0) scale(1, 1);
+    transform: translate(0, calc(-50% - 1px)) translateZ(0) scale(1, 1)
 }
 
 .noty_progressbar {
@@ -6830,10 +6820,10 @@ nav.navbar .user-size.dropdown-menu a.logout:hover {
 
 .default-sidebar > .side-navbar a[data-toggle="collapse"]::before {
     font-size: .85rem;
-    content: '\f124';
+    content: '\f054';
     display: inline-block;
     transform: translateY(-50%);
-    font-family: 'ionicons';
+    font-family: 'Font Awesome 6 Free Solid';
     position: absolute;
     top: 50%;
     right: 20px
@@ -6850,14 +6840,13 @@ nav.navbar .user-size.dropdown-menu a.logout:hover {
 }
 
 .default-sidebar > .side-navbar a[aria-expanded="true"]::before {
-    content: '\f123'
+    content: '\f078'
 }
 
 .default-sidebar > .side-navbar a i {
-    font-size: 1.4rem;
+    font-size: 1rem;
     margin-right: 10px;
     transition: none;
-    vertical-align: -2px;
     color: #fff
 }
 
@@ -7209,7 +7198,6 @@ nav.navbar .user-size.dropdown-menu a.logout:hover {
     color: #aea9c3;
     font-size: 1rem;
     padding: 1.2rem 1.07rem;
-    font-family: 'Montserrat', sans-serif;
     display: block !important
 }
 
@@ -7414,7 +7402,6 @@ nav.navbar .user-size.dropdown-menu a.logout:hover {
 }
 
 .off-sidebar-header h2 {
-    font-family: "Montserrat", sans-serif;
     color: #5d5386;
     padding: 25px 0 0 15px;
     font-size: 1.2rem;
@@ -7864,7 +7851,7 @@ nav.navbar .user-size.dropdown-menu a.logout:hover {
 .widget-03.blog-image {
     background: url(../../../img/blog/blog-01.jpg);
     display: block;
-    background-position: 50% 0%;
+    background-position: 50% 0;
     background-size: cover
 }
 
@@ -9200,7 +9187,6 @@ nav.navbar .user-size.dropdown-menu a.logout:hover {
 .widget-20 .card-title {
     color: #fff;
     display: inline-block;
-    font-family: "Montserrat";
     font-size: 1.2rem;
     font-weight: 500;
     margin-bottom: 0;
@@ -9432,7 +9418,7 @@ nav.navbar .user-size.dropdown-menu a.logout:hover {
 .widget-24.bg-image {
     background: url(../../../img/background/08.jpg);
     display: block;
-    background-position: 50% 0%;
+    background-position: 50% 0;
     background-size: cover
 }
 
@@ -9836,7 +9822,7 @@ nav.navbar .user-size.dropdown-menu a.logout:hover {
 .widget-30.bg-image {
     background: url(../../../img/smarthome/06.jpg);
     display: block;
-    background-position: 50% 0%;
+    background-position: 50% 0;
     background-size: cover
 }
 
@@ -10007,7 +9993,7 @@ nav.navbar .user-size.dropdown-menu a.logout:hover {
 .widget-32.bg-image {
     background: url(../../../img/background/06.jpg);
     display: block;
-    background-position: 50% 0%;
+    background-position: 50% 0;
     background-size: cover
 }
 
@@ -10466,7 +10452,7 @@ footer.second-footer a:hover.nav-link {
 }
 
 .mail .publisher-bottom {
-    padding: 1rem 0%
+    padding: 1rem 0
 }
 
 .mail .publisher-btn {
@@ -11199,7 +11185,6 @@ a.fc-more:hover {
     font-size: 1rem;
     text-align: center;
     overflow: hidden;
-    font-family: "Ionicons", Courier, monospace;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -khtml-user-select: none;
@@ -11691,7 +11676,6 @@ a.fc-more:hover {
     overflow: hidden;
     line-height: 8px;
     font-size: 11px;
-    font-family: monospace;
     text-align: center;
     cursor: s-resize
 }
@@ -12248,7 +12232,7 @@ a.fc-more:hover {
         margin-bottom: 1.07rem
     }
 }
-
+/* Path: elisyam-1.2.css */
 .authentication-col-content {
     position: absolute;
     left: 0;
@@ -12266,14 +12250,14 @@ a.fc-more:hover {
     font-size: 3.2rem;
     font-weight: 700
 }
-
+/* Path: elisyam-1.2.css */
 .authentication-col-content .description {
     color: #fff;
     margin-top: 15px;
     font-size: 1.2rem;
     font-weight: 500
 }
-
+/* Path: elisyam-1.2.css */
 .authentication-form {
     font-size: .9rem;
     width: 70%;
@@ -12287,12 +12271,12 @@ a.fc-more:hover {
     margin-bottom: 30px;
     text-align: left
 }
-
+/* Path: elisyam-1.2.css */
 .authentication-form .group {
     position: relative;
     margin-bottom: 30px
 }
-
+/* Path: elisyam-1.2.css */
 .authentication-form .sign-btn {
     margin: 25px 0 0 0
 }
@@ -12302,13 +12286,13 @@ a.fc-more:hover {
     text-align: center;
     margin-top: 30px
 }
-
+/* Path: elisyam-1.2.css */
 @media (max-width: 991px) {
     .authentication-form {
         padding: 3rem
     }
 }
-
+/* Path: elisyam-1.2.css */
 @media (max-width: 572px) {
     .authentication-form {
         width: 100%;
@@ -12574,7 +12558,6 @@ a.fc-more:hover {
 }
 
 .coming-soon h1 {
-    font-family: "Montserrat", sans-serif;
     color: #2c304d;
     font-size: 3rem;
     margin-bottom: 0;
@@ -12616,7 +12599,6 @@ a.fc-more:hover {
 }
 
 .coming-soon #countdown span {
-    font-family: 'Montserrat', serif;
     font-size: 2.6rem;
     font-weight: 600;
     margin: 0;
@@ -13860,7 +13842,7 @@ a.fc-more:hover {
     }
 }
 
-#index-table, #off-sidebar-table, #no-ajax-table {
+#index-table, #off-sidebar-table {
     width: 100% !important;
     white-space: nowrap !important;
 }

@@ -658,7 +658,6 @@
 			    borderColor: "rgba(231, 108, 144, 0.8)",
 			    pointBorderColor: "#fff",
 			    pointBackgroundColor: "rgba(231, 108, 144, 1)",
-			    pointBorderColor: "#fff",
 			    data: [60, 70, 35, 20, 80]
 			}
 		]},

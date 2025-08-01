@@ -30,18 +30,21 @@ function initTable(table) {
                 sSortAscending: ": 以升序排列此列",
                 sSortDescending: ": 以降序排列此列"
             },
-            processing: true,
-            scrollX: true,
-            scrollY: $(window).height() - table.offset().top - 210,
-            fixedColumns: {
-                leftColumns: 1
-            },
-            lengthChange: false,
-            paging: false,
             ajax: {
                 url: "/ajax_" + table.data('menu'),
                 type: "POST",
                 data: {"_token": csrf_token}
+            },
+            scroller:{
+                loadingIndicator:  true
+            },
+            searchDelay: 500,
+            processing: true,
+            serverSide: true,
+            scrollX: true,
+            scrollY: $(window).height() - table.offset().top - 210,
+            fixedColumns: {
+                leftColumns: 1
             },
             order: [1, 'asc'],
             columnDefs: [
