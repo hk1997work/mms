@@ -11,9 +11,8 @@
             <div class="tab-content">
                 <div role="tabpanel" class="tab-pane show active fade">
                     @yield('content_form')
-                    <input type="hidden" class="sidebar-url" name="sidebar-url" value="">
                     <div class="enter-message">
-                        <button class="btn btn-outline-primary ripple btn-submit" type="submit">确 定</button>
+                        <button class="btn btn-outline-primary ripple btn-submit sidebar-url" type="submit">确 定</button>
                         <a class="btn btn-outline-secondary ripple sidebar-close" href="#">取 消</a>
                     </div>
                 </div>

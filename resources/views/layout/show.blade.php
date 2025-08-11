@@ -5,8 +5,14 @@
         </ul>
     </header>
     <div class="off-sidebar-content offcanvas-scroll auto-scroll">
-        <input type="hidden" class="sidebar-url" name="sidebar-url" value="">
-        <div class="sidebar-btn" hidden></div>
-        @yield('content_form')
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane show active fade">
+                <div class="sidebar-btn" hidden></div>
+                @yield('content_form')
+                <div class="enter-message">
+                    <button class="btn btn-outline-secondary ripple sidebar-close sidebar-url">取 消</button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

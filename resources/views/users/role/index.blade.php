@@ -11,12 +11,7 @@
     <table id="index-table" data-menu="role" class="table table-hover mb-0">
         <thead>
         <tr>
-            <th style="width:5%;">
-                <div class="styled-checkbox">
-                    <input type="checkbox" name="check-all" class="check-all" id="check-all">
-                    <label for="check-all"></label>
-                </div>
-            </th>
+            <th></th>
             <th>角色</th>
             <th>用户组</th>
             <th>权限组</th>

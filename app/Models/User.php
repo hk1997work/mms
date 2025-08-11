@@ -38,13 +38,13 @@ class User extends Authenticatable
         return DataTables::of($query)
             ->addColumn('roles', function ($data) {
                 return $data->roles->pluck('name')->map(function ($role) {
-                    return '<span class="tag btn-sm tag-secondary">' . e($role) . '</span>';
+                    return '<span class="badge bg-secondary-subtle border border-secondary-subtle text-secondary-emphasis">' . e($role) . '</span>';
                 })->implode(' ');
             })
             ->editColumn('username', function ($data) {
                 return count($data->roles)
                     ? e($data->username)
-                    : "<span class='tag btn-sm tag-danger'>" . e($data->username) . "</span>";
+                    : "<span class='badge bg-danger-subtle border border-danger-subtle text-danger-emphasis'>" . e($data->username) . "</span>";
             })
             ->filter(function ($query) use ($request) {
                 if (!empty($search = $request->search['value'])) {

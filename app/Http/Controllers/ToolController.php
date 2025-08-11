@@ -25,10 +25,6 @@ class ToolController extends Controller
         $type_id = isset($_GET['id']) ? $_GET['id'] : Position::where('level', 2)->orderBy('sort')->first()->id;
         $data = ToolsView::select('id', 'instrument', 'model', 'limit', 'accuracy', 'cycle', 'abc', 'active', 'inactive', 'deactive', 'broken', 'scrap', 'total', 'vulnerable', 'requirement', 'mistake')->where('type_id', $type_id)->get()->toArray();
         foreach ($data as $key => $value) {
-            $data[$key]['id'] = "<div class='styled-checkbox'>
-                        <input type='checkbox' name='cb' class='cb' id='$value[id]'>
-                        <label for='$value[id]'></label>
-                    </div>";
             $data[$key]['active'] = $value['active'] ? "<span class='tag btn-sm tag-outline-success'>$value[active]</span>" : '';
             $data[$key]['inactive'] = $value['inactive'] ? "<span class='tag btn-sm tag-outline-warning'>$value[inactive]</span>" : '';
             $data[$key]['deactive'] = $value['deactive'] ? "<span class='tag btn-sm tag-outline-info'>$value[deactive]</span>" : '';

@@ -1,166 +1,155 @@
 'use strict';
-let dataTable
-let offSidebarDataTable
+let dataTable;
+let offSidebarDataTable;
 let canSubmit = true;
 
+// 初始化表格
 function initTable(table) {
     if (table.length > 0) {
-        let options = {
+        let dt = table.DataTable({
             language: {url: '/admin/assets/vendors/js/datatables/zh.json'},
             ajax: {url: "/ajax_" + table.data('menu'), type: "POST", data: {"_token": csrf_token}},
             serverSide: true,
-            scrollX: true,
-            scrollY: $(window).height() - table.offset().top - 210,
-            scroller: {loadingIndicator: true,},
             processing: true,
+            scrollX: true,
+            scrollY: $(window).height() - table.offset().top - 130,
+            rowId: 0,
             searchDelay: 500,
-            fixedColumns: {leftColumns: 1},
             order: [1, 'asc'],
-            columnDefs: [{orderable: false, targets: 0}],
-        }
-        return table.DataTable(options).on('xhr.dt', function () {
-            $(".loader").fadeOut();
+            fixedColumns: {leftColumns: 1},
+            select: {style: 'multi', selector: 'td:first-child'},
+            columnDefs: [{orderable: false, render: DataTable.render.select(), targets: 0}],
+        });
+        dt.on('xhr.dt', function () {
+            let obj = $(this).closest('.table-responsive');
+            let count = dt.select.cumulative().rows.length;
+            btn_change(obj, count)
             $("#preloader").fadeOut();
         });
+        dt.on('select deselect', function (e, dtApi, type, indexes) {
+            let obj = $(this).closest('.table-responsive');
+            let count = dt.select.cumulative().rows.length + (e.type === 'select' ? indexes.length : -indexes.length);
+            btn_change(obj, count)
+        });
+        return dt;
     }
 }
 
-function checkboxChange(obj) {
-    let selectedCount = 0;
-    let allChecked = true;
-    let hide;
-    obj.find('.cb').each(function () {
-        if (!$(this).prop('checked')) {
-            allChecked = false;
-        } else {
-            selectedCount++;
-            if ($(this).data('hide') !== undefined) {
-                hide = $(this).data('hide')
-            }
-        }
-    });
-
-    if (selectedCount == 0) {
-        obj.find('.check-single').hide()
-        obj.find('.check-multiple').hide()
-    } else if (selectedCount == 1) {
-        obj.find('.check-single').show()
-        obj.find('.check-multiple').show()
+function btn_change(obj, count) {
+    if (count === 0) {
+        obj.find('.check-single').hide();
+        obj.find('.check-multiple').hide();
+    } else if (count === 1) {
+        obj.find('.check-single').show();
+        obj.find('.check-multiple').show();
     } else {
-        obj.find('.check-single').hide()
-        obj.find('.check-multiple').show()
+        obj.find('.check-single').hide();
+        obj.find('.check-multiple').show();
     }
-    if (hide) {
-        obj.find('.' + hide).hide()
-    }
-    return allChecked
 }
 
-function get_id(obj, btn) {
-    let id = []
-    let menus = []
-    obj.find('.cb:checked').each(function () {
-        id.push($(this).attr('id').replace('cb', ''))
-        if ($(this).data('menu') !== undefined) {
-            let menuValue = $(this).data('menu')
-            if (!menus.includes(menuValue)) {
-                menus.push(menuValue);
-            }
+function table_reload(table) {
+    table.ajax.reload(function () {
+        let pageInfo = table.page.info();
+        if (pageInfo.page >= pageInfo.pages) {
+            table.page('last').draw(false);
         }
-    });
-    if (menus.length == 1) {
-        obj.find(btn).data('menu', menus[0]);
-        return id.join(',')
-    } else if (menus.length == 0) {
-        return id.join(',')
-    }
-    return false
+    }, false)
 }
 
-//sidebar_ajax
-function sidebar_ajax(url, menu, title, pos, callback) {
+dataTable = initTable($('table'));
+
+function sidebar_ajax(btn, url, menu, callback) {
     if (canSubmit) {
         canSubmit = false;
-        if (callback == 'load') {
-            $("#preloader")[0].style.display = 'block';
-        }
+        let title = btn.text();
+        let sidebar = $('.from-' + btn.data('pos'));
         $.ajax({
-            url: url,
-            success: function (data) {
+            url: url, success: function (data) {
                 if (data) {
-                    $('.from-' + pos).html(data);
-                    $('.from-' + pos).find('.sidebar-btn').text(title)
-                    $('.from-' + pos).find('.sidebar-url').val(menu)
-                    $(window).trigger('resize')
-                    if ($('.from-' + pos).find($('#no-ajax-table')).length > 0) {
-                        initTable($('#no-ajax-table'))
-                    }
-                    if ($('.from-' + pos).find($('#off-sidebar-table')).length > 0) {
+                    sidebar.html(data)
+                        .find('.sidebar-btn').text(title).end()
+                        .find('.sidebar-url').attr('data-url', menu);
+                    if (sidebar.find('#off-sidebar-table').length > 0) {
                         offSidebarDataTable = initTable($('#off-sidebar-table')).on('xhr.dt', function () {
-                            $('.from-' + pos).addClass('is-visible');
+                            sidebar.addClass('is-visible');
                         });
-                        checkboxChange($('.from-' + pos))
                     } else {
-                        $('.from-' + pos).addClass('is-visible');
+                        void sidebar[0].offsetHeight;
+                        sidebar.addClass('is-visible');
                     }
                     if (callback) {
-                        $('.from-' + pos).find('.submit-add').attr('data-cb', callback)
+                        callback();
                     }
                 } else {
-                    notifications(title + '失败')
+                    notifications(title + '失败');
                 }
-                $("#preloader").fadeOut();
-            },
-            error: function (xhr) {
-                xhr.status == 401 ? document.location.reload() : notifications(title + '失败')
-                $("#preloader").fadeOut();
+            }, error: function (xhr) {
+                xhr.status == 401 ? document.location.reload() : notifications(title + '失败');
             },
         });
         setTimeout(() => {
             canSubmit = true;
         }, 800);
     } else {
-        notifications('操作间隔为1秒,请重试.')
+        notifications('操作太快,请重试.');
     }
 }
 
-//submit_ajax
-function submit_ajax(url, pos, btn, callback) {
-    let form = btn.closest('form')
+$('.table-responsive,.off-sidebar').on('click', '.btn-add', function () {
+    let table = offSidebarDataTable ? offSidebarDataTable : dataTable;
+    let id = table.select.cumulative().rows.join(',');
+    let menu = $(this).data('menu');
+    let url = '/' + menu + '/create' + (id ? '?id=' + id : '');
+    sidebar_ajax($(this), url, menu);
+});
+$('.table-responsive,.off-sidebar').on('click', ' .btn-edit', function () {
+    let table = offSidebarDataTable ? offSidebarDataTable : dataTable;
+    let id = table.select.cumulative().rows.join(',');
+    let menu = $(this).data('menu');
+    let url = '/' + menu + '/' + id + '/edit';
+    sidebar_ajax($(this), url, menu);
+});
+$('.table-responsive,.off-sidebar').on('click', ' .btn-show', function () {
+    let table = offSidebarDataTable ? offSidebarDataTable : dataTable;
+    let id = table.select.cumulative().rows.join(',');
+    let menu = $(this).data('menu');
+    let url = '/' + menu + '/' + id;
+    sidebar_ajax($(this), url, menu);
+});
+$('.table-responsive,.off-sidebar').on('click', ' .btn-delete', function () {
+    let menu = $(this).data('menu');
+    let url = '/delete';
+    sidebar_ajax($(this), url, menu);
+});
+
+//提交表单
+function submit_ajax(btn, url, callback) {
     if (canSubmit) {
         canSubmit = false;
-        if (callback == 'load') {
-            $("#preloader")[0].style.display = 'block';
-        }
-        let title = $('.from-' + pos).find('.sidebar-btn').text()
+        let sidebar = $('.from-' + btn.closest('.off-sidebar').data('pos'))
+        let form = sidebar.find('form')
+        let title = sidebar.find('.sidebar-btn').text()
         $.ajax({
-            url: url,
-            type: 'POST',
-            data: new FormData(btn.closest('form')[0]),
-            processData: false,  // 不处理数据
-            contentType: false,   // 不设置内容类型
-            success: function (result) {
+            url: url, type: 'POST', data: new FormData(form[0]), processData: false, contentType: false, success: function (result) {
                 if (result == true) {
-                    notifications(title + '成功');
-                    if (callback && typeof callback === 'function') {
+                    if (callback) {
                         callback();
-                    } else {
-                        if ($('#off-sidebar-table').length > 0) {
-                            offSidebarDataTable.ajax.reload(null, false)
-                        }
-                        if (dataTable) {
-                            dataTable.ajax.reload(function () {
-                                $(window).trigger('resize')
-                            }, false);
-                        }
                     }
-                    $('.from-' + pos).removeClass('is-visible');
+                    notifications(title + '成功');
+                    if (offSidebarDataTable) {
+                        table_reload(offSidebarDataTable)
+                    }
+                    if (dataTable) {
+                        table_reload(dataTable)
+                    }
+                    sidebar.removeClass('is-visible');
                 } else if (result == false) {
                     notifications(title + '失败');
                 } else {
                     notifications(result);
+                    sidebar.removeClass('is-visible');
                 }
-                $("#preloader").fadeOut();
             }, error: function (xhr) {
                 xhr.status == 401 ? document.location.reload() : notifications(title + '失败')
                 form.find(".warning-danger").remove();
@@ -175,162 +164,44 @@ function submit_ajax(url, pos, btn, callback) {
                     form.find('[class~="div-' + idx + '"]').find('.sidebar-heading,label.form-control-label').append(str);
                     form.find('[class~="div-' + idx + '"]').find('.form-control').removeClass('is-valid').addClass('is-invalid');
                 });
-                $("#preloader").fadeOut();
             }
         });
         setTimeout(() => {
             canSubmit = true;
         }, 800);
     } else {
-        notifications('操作间隔为1秒,请重试.')
+        notifications('操作太快,请重试.')
     }
 }
 
-$('.off-sidebar').on('change', '.is-valid,.is-invalid', function () {
-    $(this).closest(('[class~="div-' + $(this).attr('name') + '"]').replace('[]', '')).find(".warning-danger").remove();
-    $(this).closest(('[class~="div-' + $(this).attr('name') + '"]').replace('[]', '')).find(".form-control").removeClass('is-valid').removeClass('is-invalid');
-})
-
-dataTable = initTable($('table'));
-
-window.onbeforeunload = function (e) {
-    localStorage.setItem('scrollpos', $('.dataTables_scrollBody').scrollTop());
-};
-
-$('.dataTables_scrollBody').scrollTop(localStorage.getItem('scrollpos'));
-
-$('.table-responsive,.off-sidebar').on('draw.dt', 'table', function () {
-    checkboxChange($(this).closest('.ckp'))
-});
-
-$('.table-responsive,.off-sidebar').on('change', '.check-all', function () {
-    $(this).closest('.ckp').find("input:checkbox").prop('checked', $(this).prop("checked"));
-    checkboxChange($(this).closest('.ckp'))
-});
-
-$('.table-responsive,.off-sidebar').on('change', '.cb', function () {
-    let allChecked = checkboxChange($(this).closest('.ckp'))
-    $(this).closest('.ckp').find('.check-all').prop('checked', allChecked);
-});
-
-checkboxChange($('.table-responsive'))
-
-//增加框
-$('.widget-header,.table-responsive,.off-sidebar').on('click', '.btn-add', function () {
-    let id = $(this).data('id') ? $(this).data('id') : get_id($(this).closest('.ckp'))
-    let menu = $(this).data('menu')
-    let title = $(this).text()
-    let url = '/' + menu + '/create' + (id ? '?id=' + id : '')
-    let pos = $(this).data('pos')
-    let callback = $(this).data('cb')
-    sidebar_ajax(url, menu, title, pos, callback)
-})
-
-//修改框
-$('.table-responsive,.off-sidebar').on('click', '.btn-edit', function () {
-    let id = get_id($(this).closest('.ckp'), '.btn-edit')
-    let menu = $(this).data('menu')
-    let title = $(this).text()
-    let url = '/' + menu + '/' + id + '/edit'
-    let pos = $(this).data('pos')
-    sidebar_ajax(url, menu, title, pos)
-})
-
-//删除框
-$('.table-responsive,.off-sidebar').on('click', '.btn-delete', function () {
-    let id = get_id($(this).closest('.ckp'), '.btn-delete')
-    if (id) {
-        let menu = $(this).data('menu')
-        let title = $(this).text()
-        let url = '/delete'
-        let pos = $(this).data('pos')
-        sidebar_ajax(url, menu, title, pos)
-    } else {
-        notifications('选择数据类型不同,无法删除.')
-    }
-})
-
-//显示框
-$('.widget-header,.table-responsive,.off-sidebar').on('click', '.btn-show', function () {
-    let id = $(this).data('id') ? $(this).data('id') : get_id($(this).closest('.ckp'), '.btn-show')
-    id = id ? id : 0
-    let menu = $(this).data('menu')
-    let title = $(this).text()
-    let url = '/' + menu + '/' + id
-    let pos = $(this).data('pos')
-    sidebar_ajax(url, menu, title, pos)
-})
-
-//增加操作
 $('.table-responsive,.off-sidebar').on('click', '.submit-add', function () {
-    let pos = $(this).closest('.off-sidebar').data('pos')
-    let url = "/" + $('.from-' + pos).find('.sidebar-url').val()
-    let callback
-    if ($(this).data('cb') == 'load') {
-        callback = 'load'
-    } else if ($(this).data('cb')) {
-        callback = function () {
-            $('[name="' + $('.from-' + pos).find('.submit-add').data('cb') + '"]').trigger('change');
-        }
-    }
-    submit_ajax(url, pos, $(this), callback)
+    let url = "/" + $(this).data('url')
+    submit_ajax($(this), url)
 })
-
-//修改操作
 $('.table-responsive,.off-sidebar').on('click', '.submit-edit', function () {
-    let id
-    if ($(this).data('id')) {
-        id = $(this).data('id')
-    } else if ($('#off-sidebar-table').length > 0) {
-        id = get_id($('.off-sidebar'))
-    } else {
-        id = get_id($('.table-responsive'))
-    }
-    let pos = $(this).closest('.off-sidebar').data('pos')
-    let url = "/" + $('.from-' + pos).find('.sidebar-url').val() + '/' + id
-    submit_ajax(url, pos, $(this))
+    let table = offSidebarDataTable ? offSidebarDataTable : dataTable;
+    let id = table.select.cumulative().rows.join(',');
+    let url = "/" + $(this).data('url') + '/' + id
+    submit_ajax($(this), url)
 })
-
-//删除操作
 $('.table-responsive,.off-sidebar').on('click', '.submit-delete', function () {
-    let id
-    if ($(this).data('id')) {
-        id = $(this).data('id')
-    } else if ($('#off-sidebar-table').length > 0) {
-        id = get_id($('.off-sidebar'))
-    } else {
-        id = get_id($('.table-responsive'))
+    let table = offSidebarDataTable ? offSidebarDataTable : dataTable;
+    let id = table.select.cumulative().rows.join(',');
+    let url = '/' + $(this).data('url') + "/" + id
+    let callback = function () {
+        dataTable.context[0]._select_set = []
     }
-    let pos = $(this).closest('.off-sidebar').data('pos')
-    let url = '/' + $('.from-' + pos).find('.sidebar-url').val() + "/" + id
-    submit_ajax(url, pos, $(this))
+    submit_ajax($(this), url, callback)
 })
 
-// 移动操作
+
 $('.table-responsive,.off-sidebar').on('click', '.btn-move', function () {
+    let id = offSidebarDataTable ? offSidebarDataTable.select.cumulative().rows.join(',') : dataTable.select.cumulative().rows.join(',');
+    let sidebar = $('.from-' + $(this).closest('.off-sidebar').data('pos'))
     let menu = $(this).data('menu')
-    let id = get_id($(this).closest('.ckp'))
     let type = $(this).data('type')
-    $.ajax({
-        url: '/move/' + menu + '/' + id + '/' + type,
-        type: 'POST',
-        data: {'_token': csrf_token},
-        success: function (result) {
-            if (result == true) {
-                notifications('移动成功')
-                if ($('#off-sidebar-table').length > 0) {
-                    offSidebarDataTable.ajax.reload(null, false)
-                }
-                dataTable.ajax.reload(function () {
-                    $(window).trigger('resize')
-                }, false);
-            } else {
-                notifications(result);
-            }
-        }, error: function (xhr) {
-            xhr.status == 401 ? document.location.reload() : notifications('移动失败')
-        }
-    });
+    let url = '/move/' + menu + '/' + id + '/' + type
+    submit_ajax($(this), url)
 })
 
 //下载操作
@@ -350,23 +221,6 @@ $('.table-responsive,.off-sidebar').on('click', '.btn-open', function () {
     })
 })
 
-//提交操作
-$('.table-responsive,.off-sidebar').on('click', '.btn-submit', function () {
-    let id
-    if ($(this).data('id')) {
-        id = $(this).data('id')
-    } else if ($('#off-sidebar-table').length > 0) {
-        id = get_id($('.off-sidebar'))
-    } else {
-        id = get_id($('.table-responsive'))
-    }
-    let pos = $(this).closest('.off-sidebar').data('pos')
-    let url = "/" + $('.from-' + pos).find('.sidebar-url').val() + '/' + id
-    $('.from-' + pos).find('form').attr('action', url)
-    $('.from-' + pos).removeClass('is-visible');
-    $('.from-' + pos).find('form').submit()
-})
-
 //导入操作
 $('.submit-import').on('click', function () {
     $('[name="import-file"]').click()
@@ -378,19 +232,13 @@ $('[name="import-file"]').on('change', function () {
     if ($(this).val()) {
         let formData = new FormData($('#form-import')[0]);
         $.ajax({
-            url: url,
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function (result) {
+            url: url, type: 'POST', data: formData, processData: false, contentType: false, success: function (result) {
                 if (result == true) {
                     notifications('操作成功')
                 } else {
                     notifications(result);
                 }
-            },
-            error: function (xhr) {
+            }, error: function (xhr) {
                 xhr.status == 401 ? document.location.reload() : notifications('操作失败')
             }
         });
@@ -398,13 +246,19 @@ $('[name="import-file"]').on('change', function () {
     $('[name="import-file"]').val('')
 });
 
+// 修改输入时,去掉错误提示
+$('.off-sidebar').on('change', '.is-valid,.is-invalid', function () {
+    $(this).closest(('[class~="div-' + $(this).attr('name') + '"]').replace('[]', '')).find(".warning-danger").remove();
+    $(this).closest(('[class~="div-' + $(this).attr('name') + '"]').replace('[]', '')).find(".form-control").removeClass('is-valid').removeClass('is-invalid');
+})
+// 关闭窗口时,清空内容
 $(document).ready(function () {
     $('.off-sidebar').on('transitionend', function (event) {
         if (event.originalEvent && event.originalEvent.propertyName && event.originalEvent.propertyName === 'transform') {
             if ($(this).hasClass('is-visible') == false) {
-                $(this).html('')
+                $(this).empty();
             }
         }
     });
 });
-
+//清空选择

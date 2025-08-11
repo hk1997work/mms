@@ -10,9 +10,8 @@
             {{csrf_field()}}
             <div class="tab-content">
                 <div role="tabpanel" class="tab-pane show active fade">
-                    <input type="hidden" class="sidebar-url" name="sidebar-url" value="">
                     <div class="enter-message">
-                        <button class="btn btn-outline-danger ripple submit-delete">删 除</button>
+                        <button class="btn btn-outline-danger ripple submit-delete sidebar-url">删 除</button>
                         <button class="btn btn-outline-secondary ripple sidebar-close">取 消</button>
                     </div>
                 </div>

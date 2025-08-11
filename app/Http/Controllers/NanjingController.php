@@ -37,10 +37,7 @@ class NanjingController extends Controller
         foreach ($result as $value) {
             if (!in_array($value->zsbh, $nanjing) && !in_array($value->zsbh, $certificate)) {
                 $list[] = $value;
-                $certificates[$i]['id'] = "<div class='styled-checkbox'>
-                        <input type='checkbox' name='cb' class='cb' id='$value->zsbh' data-url='/download_nanjing/$value->zsbh?type=show'>
-                        <label for='$value->zsbh'></label>
-                    </div>";
+                $certificates[$i]['id'] = $value->zsbh;
                 $certificates[$i]['jdrq'] = $value->jdrq;
                 $certificates[$i]['zsbh'] = $value->zsbh;
                 $certificates[$i]['name'] = $value->name;

@@ -12,4 +12,9 @@ class Position extends Model
     protected $fillable = [
         'name', 'code', 'pid', 'level', 'sort', 'sign'
     ];
+
+    public function childs()
+    {
+        return $this->hasMany(Position::class, 'pid', 'id')->orderBy('sort')->with('childs');
+    }
 }
