@@ -12,7 +12,7 @@ function initTable(table) {
             serverSide: true,
             processing: true,
             scrollX: true,
-            scrollY: $(window).height() - table.offset().top - 130,
+            scrollY: $(window).height() - table.offset().top - 150,
             rowId: 0,
             searchDelay: 500,
             order: [1, 'asc'],
@@ -70,6 +70,7 @@ function sidebar_ajax(btn, url, menu, callback) {
                     sidebar.html(data)
                         .find('.sidebar-btn').text(title).end()
                         .find('.sidebar-url').attr('data-url', menu);
+                    $(window).trigger('resize')
                     if (sidebar.find('#off-sidebar-table').length > 0) {
                         offSidebarDataTable = initTable($('#off-sidebar-table')).on('xhr.dt', function () {
                             sidebar.addClass('is-visible');
@@ -261,4 +262,7 @@ $(document).ready(function () {
         }
     });
 });
-//清空选择
+
+$(window).resize(function () {
+    $('.auto-scroll').height($(window).height() - 110);
+});

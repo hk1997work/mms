@@ -45,7 +45,15 @@ class RoleController extends Controller
     public function destroy($role)
     {
         $ids = explode(',', $role);
-        if ($result = Role::whereIn('id', $ids)->has('users')->has('permissions')->has('positions')->pluck('name')->implode(',')) {
+        $result = Role::whereIn('id', $ids)
+            ->where(function ($query) {
+                $query->has('users')
+                    ->orHas('permissions')
+                    ->orHas('positions');
+            })
+            ->pluck('name')
+            ->implode(',');
+        if ($result) {
             return $result . '使用中,无法删除';
         } else {
             return !!Role::whereIn('id', explode(',', $role))->delete();
@@ -54,8 +62,8 @@ class RoleController extends Controller
 
     public function permission($role)
     {
-        $permissions = Permission::orderBy('sort')->get();
-        $positions = Position::orderBy('sort')->get();
+        $permissions = Permission::where('level', 1)->orderBy('sort')->get();
+        $positions = Position::where('level', 1)->orderBy('sort')->get();
         $myPermissions = strpos($role, ',') ? '' : Role::find($role)->permissions;
         $myPositions = strpos($role, ',') ? '' : Role::find($role)->positions;
         return view('users.role.permission', compact('permissions', 'myPermissions', 'positions', 'myPositions',));

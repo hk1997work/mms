@@ -1,4 +1,6 @@
 :root {
+    --primary: #5d5386;
+    --secondary: #e76c90;
     --dt-row-selected: #fff !important;
     --dt-row-selected-text: #212925 !important;
 }
@@ -14,6 +16,11 @@ body, html {
 
 main {
     padding-top: 50px;
+}
+
+input:focus, select, textarea {
+    outline: none;
+    box-shadow: none !important
 }
 
 #preloader {
@@ -42,7 +49,7 @@ main {
 .spinner {
     animation: spinner 1s linear infinite;
     border: solid 5px transparent;
-    border-top: solid 5px #5d5386;
+    border-top: solid 5px var(--primary);
     border-radius: 100%;
     width: 60px;
     height: 60px;
@@ -62,10 +69,19 @@ th div.dt-column-header {
     gap: 0 !important;
 }
 
+th, td {
+    vertical-align: middle !important;
+}
+
 th:first-child, td:first-child {
     width: 1.5%;
     text-align: center;
-    vertical-align: middle;
+}
+
+td input[type="checkbox"] {
+    margin: 0;
+    position: relative;
+    top: 2px;
 }
 
 .dt-container span.select-info {
@@ -73,7 +89,7 @@ th:first-child, td:first-child {
 }
 
 .off-sidebar {
-    background: rgba(46, 52, 81, .3);
+    background: rgba(46, 52, 81, 0);
     position: fixed;
     top: 0;
     left: 0;
@@ -81,7 +97,7 @@ th:first-child, td:first-child {
     width: 100%;
     visibility: hidden;
     z-index: 99999;
-    transition: visibility 0s 0.6s
+    transition: visibility 0s 0.6s, background 0.3s ease;
 }
 
 .off-sidebar::after {
@@ -92,38 +108,18 @@ th:first-child, td:first-child {
     height: 100%;
     background: transparent;
     cursor: pointer;
-    transition: background 0.3s 0.3s
+    transition: background 0.3s ease;
 }
 
 .off-sidebar.is-visible {
     visibility: visible;
-    transition: visibility 0s 0s
+    background: rgba(46, 52, 81, 0.3);
+    transition: visibility 0s, background 0.3s ease;
 }
 
 .off-sidebar.is-visible::after {
-    background: rgba(0, 0, 0, .6);
-    transition: background 0.3s 0s
-}
-
-.off-sidebar-close:before {
-    color: #aea9c3;
-    content: "\f191";
-    font-family: "LineAwesome";
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    height: 35px;
-    width: 35px;
-    line-height: 30px;
-    display: inline-block;
-    border: 2px solid #aea9c3;
-    border-radius: 50%;
-    overflow: hidden;
-    text-align: center;
-    white-space: nowrap;
-    font-size: 1.2rem;
-    font-weight: 500;
-    opacity: .4
+    background: rgba(0, 0, 0, 0.6);
+    transition: background 0.3s ease;
 }
 
 .off-sidebar-container {
@@ -133,37 +129,63 @@ th:first-child, td:first-child {
     height: 100%;
     top: 0;
     z-index: 1;
-    transition-property: transform;
-    transition-duration: 0.3s;
-    transition-delay: 0.3s
+    transition: transform 0.3s ease;
+    padding: 10px;
 }
 
+.off-sidebar-content {
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 0 1.07rem;
+    overflow: auto;
+}
 
 .from-right .off-sidebar-container {
     right: 0;
-    -webkit-transform: translate3d(100%, 0, 0);
-    -ms-transform: translate3d(100%, 0, 0);
-    transform: translate3d(100%, 0, 0)
+    transform: translate3d(100%, 0, 0);
 }
 
 .from-left .off-sidebar-container {
     width: 60%;
     left: 0;
-    -webkit-transform: translate3d(-100%, 0, 0);
-    -ms-transform: translate3d(-100%, 0, 0);
-    transform: translate3d(-100%, 0, 0)
+    transform: translate3d(-100%, 0, 0);
 }
 
 .from-up .off-sidebar-container {
     width: 100%;
-    -webkit-transform: translateY(-100%);
-    -ms-transform: translateY(-100%);
-    transform: translateY(-100%)
+    transform: translateY(-100%);
 }
 
 .is-visible .off-sidebar-container {
-    -webkit-transform: translate3d(0, 0, 0);
-    -ms-transform: translate3d(0, 0, 0);
     transform: translate3d(0, 0, 0);
-    transition-delay: 0s
+}
+
+.noty_bar {
+    margin: 4px 0;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid transparent;
+    border-radius: .25rem
+}
+
+.noty_bar .noty_body {
+    font-weight: 600;
+    padding: .8rem 1rem
+}
+
+.noty_type__notification {
+    background-color: rgba(44, 48, 77, .9);
+    color: #fff
+}
+
+.noty_type__notification.noty_has_timeout.noty_has_progressbar .noty_progressbar {
+    background-color: var(--secondary);
+    opacity: 1
+}
+
+.form-control:focus {
+    border-color: var(--primary)
 }

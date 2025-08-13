@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="/admin/assets/vendors/css/datatables/datatables.css">
     <link rel="stylesheet" href="/admin/assets/vendors/css/datatables/fixedColumns.dataTables.css">
     <link rel="stylesheet" href="/admin/assets/vendors/css/datatables/scroller.dataTables.css">
+    <link rel="stylesheet" href="/admin/assets/vendors/css/noty/noty.css">
     <link rel="stylesheet" href="/admin/assets/icons/css/all.min.css">
     @stack('page-css')
 </head>
@@ -31,7 +32,7 @@
 </div>
 
 <header>
-    <nav class="navbar navbar-expand-sm fixed-top">
+    <nav class="navbar navbar-expand-sm bg-white fixed-top">
         <div class="container-fluid">
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -84,7 +85,6 @@
 <script src="/admin/assets/vendors/js/base/bootstrap.bundle.js"></script>
 
 <script src="/admin/assets/vendors/js/datepicker/moment.min.js"></script>
-<script src="/admin/assets/vendors/js/nicescroll/nicescroll.js"></script>
 <script src="/admin/assets/vendors/js/noty/noty.js"></script>
 <script src="/admin/assets/vendors/js/bootstrap-select/bootstrap-select.js"></script>
 <script src="/admin/assets/vendors/js/chart/chart.js"></script>

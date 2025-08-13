@@ -1,21 +1,19 @@
 <div class="off-sidebar-container">
-    <header class="off-sidebar-header">
-        <ul class="button-nav nav nav-tabs mt-3 mb-3 ml-4" role="tablist">
-            <li><a class="active sidebar-btn" data-toggle="tab" role="tab"></a></li>
-        </ul>
-    </header>
-    <div class="off-sidebar-content offcanvas-scroll auto-scroll">
-        <form action="" onsubmit="return false;">
-            {{method_field("delete")}}
-            {{csrf_field()}}
-            <div class="tab-content">
-                <div role="tabpanel" class="tab-pane show active fade">
-                    <div class="enter-message">
-                        <button class="btn btn-outline-danger ripple submit-delete sidebar-url">删 除</button>
-                        <button class="btn btn-outline-secondary ripple sidebar-close">取 消</button>
-                    </div>
+    <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <button class="nav-link active sidebar-btn" data-bs-toggle="tab"></button>
+        </li>
+    </ul>
+    <form action="" onsubmit="return false;">
+        {{method_field("delete")}}
+        {{csrf_field()}}
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane show active">
+                <div class="position-fixed bottom-0 end-0 p-3">
+                    <button class="btn btn-outline-danger submit-delete sidebar-url">删 除</button>
+                    <button class="btn btn-outline-secondary sidebar-close">取 消</button>
                 </div>
             </div>
-        </form>
-    </div>
+        </div>
+    </form>
 </div>

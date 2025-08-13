@@ -1,27 +1,18 @@
 @extends('layout.main')
 
 @section('content')
-    <!-- 开始 行 -->
     <div class="row flex-row">
         <div class="col-12">
-            <!-- 开始 列表 -->
-            <div class="widget has-shadow">
-                <div class="widget-header bordered d-flex align-items-center">
-                    <h2 class="page-title"></h2>
-                    <ul class="nav nav-tabs">
-                        @yield('content_btn')
-                    </ul>
-                </div>
-                <div class="widget-body">
-                    <div class="table-responsive ckp">
-                        @yield("content_table")
-                    </div>
-                </div>
+            <div class="d-flex align-items-center">
+                <ul class="nav">
+                    @yield('content_btn')
+                </ul>
             </div>
-            <!-- 结束 列表 -->
+            <div class="table-responsive">
+                @yield("content_table")
+            </div>
         </div>
     </div>
-    <!-- 结束 行 -->
 @endsection
 
 @push('page-css')

@@ -48,29 +48,29 @@ class Role extends Model
         return DataTables::of($query)
             ->addColumn('users', function ($data) {
                 return $data->users->pluck('username')->map(function ($user) {
-                    return '<span class="tag btn-sm tag-primary">' . e($user) . '</span>';
+                    return '<span class="badge bg-secondary-subtle border border-secondary-subtle text-secondary-emphasis">' . e($user) . '</span>';
                 })->implode(' ');
             })
             ->addColumn('permissions', function ($data) use ($permissions) {
                 $ids = $data->permissions->pluck('id');
                 return $permissions->map(function ($permission) use ($ids) {
                     if ($ids->contains($permission->id)) {
-                        $html = "<a class='tag btn-sm tag-outline-primary' href='#' data-html='true' data-toggle='popover' data-trigger='hover' data-placement='top' data-content='";
+                        $html = "<a class='badge btn btn-outline-secondary text-secondary-emphasis' href='#' data-bs-html='true' data-bs-toggle='popover' data-bs-trigger='hover' data-bs-placement='top' data-bs-content='";
                         $html .= $permission->childs->map(function ($permission) use ($ids) {
                             $html = $ids->contains($permission->id)
-                                ? '<span class="tag btn-sm tag-primary">' . e($permission->description) . '</span> '
-                                : '<span class="tag btn-sm tag-secondary">' . e($permission->description) . '</span> ';
+                                ? '<span class="badge bg-primary-subtle border border-primary-subtle text-primary-emphasis my-1">' . e($permission->description) . '</span> '
+                                : '<span class="badge bg-light-subtle border border-light-subtle text-light-emphasis my-1">' . e($permission->description) . '</span> ';
                             $html .= $permission->childs->map(function ($permission) use ($ids) {
                                 return $ids->contains($permission->id)
-                                    ? '<span class="tag btn-sm tag-primary">' . e($permission->description) . '</span>'
-                                    : '<span class="tag btn-sm tag-secondary">' . e($permission->description) . '</span>';
+                                    ? '<span class="badge bg-primary-subtle border border-primary-subtle text-primary-emphasis my-1">' . e($permission->description) . '</span>'
+                                    : '<span class="badge bg-light-subtle border border-light-subtle text-light-emphasis my-1">' . e($permission->description) . '</span>';
                             })->implode('');;
                             return $html;
                         })->implode('<br>');
                         $html .= "'>" . e($permission->description) . "</a>";
                         return $html;
                     } else {
-                        return '<span class="tag btn-sm tag-secondary hidden-text">' . e($permission->description) . '</span>';
+                        return '<span class="badge btn btn-outline-secondary text-secondary-emphasis invisible">' . e($permission->description) . '</span>';
                     }
                 })->implode(' ');
             })
@@ -78,23 +78,23 @@ class Role extends Model
                 $ids = $data->positions->pluck('id');
                 return $positions->map(function ($position) use ($ids) {
                     if ($ids->contains($position->id)) {
-                        $html = "<a class='tag btn-sm tag-outline-primary' href='#' data-html='true' data-toggle='popover' data-trigger='hover' data-placement='top' data-content='";
+                        $html = "<a class='badge btn btn-outline-secondary text-secondary-emphasis' href='#' data-bs-html='true' data-bs-toggle='popover' data-bs-trigger='hover' data-bs-placement='top' data-bs-content='";
                         $html .= $position->childs->map(function ($position) use ($ids) {
                             return $ids->contains($position->id)
-                                ? '<span class="tag btn-sm tag-primary">' . e($position->name) . '</span> '
-                                : '<span class="tag btn-sm tag-secondary">' . e($position->name) . '</span> ';
+                                ? '<span class="badge bg-primary-subtle border border-primary-subtle text-primary-emphasis my-1">' . e($position->name) . '</span> '
+                                : '<span class="badge bg-light-subtle border border-light-subtle text-light-emphasis my-1">' . e($position->name) . '</span> ';
                         })->implode('<br>');
                         $html .= "'>" . e($position->name) . "</a>";
                         return $html;
                     } else {
-                        return '<span class="tag btn-sm tag-secondary hidden-text">' . e($position->name) . '</span>';
+                        return '<span class="badge btn btn-outline-secondary text-secondary-emphasis invisible">' . e($position->name) . '</span>';
                     }
                 })->implode(' ');
             })
-            ->editColumn('role', function ($data) {
+            ->editColumn('name', function ($data) {
                 return count($data->users) && count($data->permissions) && count($data->positions)
-                    ? e($data->role)
-                    : "<span class='tag btn-sm tag-danger'>" . e($data->role) . "</span>";
+                    ? e($data->name)
+                    : "<span class='badge bg-danger-subtle border border-danger-subtle text-danger-emphasis'>" . e($data->name) . "</span>";
             })
             ->filter(function ($query) use ($request) {
                 if (!empty($search = $request->search['value'])) {
