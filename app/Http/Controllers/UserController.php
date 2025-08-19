@@ -25,10 +25,10 @@ class UserController extends Controller
                     : "<span class='badge bg-danger-subtle border border-danger-subtle text-danger-emphasis'>" . e($data->username) . "</span>";
             })
             ->addColumn('roles', function ($data) {
-                $roles = explode(',', $data->roles);
+                $arrays = explode(',', $data->roles);
                 $badges = [];
-                foreach ($roles as $role) {
-                    $badges[] = "<span class='badge bg-secondary-subtle border border-secondary-subtle text-secondary-emphasis'>" . e($role) . "</span>";
+                foreach ($arrays as $array) {
+                    $badges[] = "<span class='badge bg-secondary-subtle border border-secondary-subtle text-secondary-emphasis'>" . e($array) . "</span>";
                 }
                 return implode(' ', $badges);
             })
