@@ -45,7 +45,11 @@ class UserController extends Controller
     public function destroy($user)
     {
         $ids = explode(',', $user);
-        if ($result = User::whereIn('id', $ids)->has('roles')->pluck('username')->implode(',')) {
+        $result = User::whereIn('id', $ids)
+            ->has('roles')
+            ->pluck('username')
+            ->implode(',');
+        if ($result) {
             return $result . '使用中,无法删除';
         } else {
             return !!User::whereIn('id', $ids)->delete();

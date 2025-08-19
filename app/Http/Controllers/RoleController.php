@@ -56,7 +56,7 @@ class RoleController extends Controller
         if ($result) {
             return $result . '使用中,无法删除';
         } else {
-            return !!Role::whereIn('id', explode(',', $role))->delete();
+            return !!Role::whereIn('id', $ids)->delete();
         }
     }
 

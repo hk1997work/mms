@@ -244,5 +244,37 @@ class Controller extends BaseController
         $str = base64_encode($str);
         return $str;
     }
+
+    public function moveUpDown($model, $type)
+    {
+        $query = $model::where('pid', $model->pid);
+        if ($type) {
+            $result = $query->where('sort', '<', $model->sort)->max('sort');
+        } else {
+            $result = $query->where('sort', '>', $model->sort)->min('sort');
+        }
+        if ($result) {
+            $exchangeModel = $model::where('sort', $result)->first();
+            $exchangeModel->sort = $model->sort;
+            $model->sort = $result;
+
+            $this->updateSortStr($model);
+            $this->updateSortStr($exchangeModel);
+
+            return !!$model->save() && !!$exchangeModel->save();
+        }
+        return $type ? '已经是最顶层,无法上移' : '已经是最底层,无法下移';
+    }
+
+    public function updateSortStr($model)
+    {
+        $model->sort_str = $model->pid == 0
+            ? $model->sort
+            : $model::find($model->pid)->sort_str . ',' . $model->sort;
+        $model->save();
+        $model::where('pid', $model->id)->get()->each(function ($child) use ($model) {
+            $this->updateSortStr($child);
+        });
+    }
 }
 

@@ -1,26 +1,18 @@
 @extends('layout.index')
 @section('content_table')
-    <div class="btn-group mb-3">
-        <ul class="button-nav nav nav-tabs mt-3 mb-3 ml-3" role="tablist">
-            <li><a class="btn-add" data-pos="right" data-menu="position" href="#">增加</a></li>
-            <li><a class="btn-delete check-multiple" data-pos="right" data-menu="position" href="#">删除</a></li>
-            <li><a class="btn-edit check-single" data-pos="right" data-menu="position" href="#">修改</a></li>
-            <li><a class="btn-show check-single" data-pos="left" data-menu="position" href="#">查看</a></li>
-            <li><a class="btn-move check-single" data-menu="position" data-type="1" href="#">上移</a></li>
-            <li><a class="btn-move check-single" data-menu="position" data-type="0" href="#">下移</a></li>
-        </ul>
-    </div>
-    <table id="index-table" data-menu="position" class="table table-hover mb-0 unsorted">
+    <ul class="nav">
+        <li class="nav-item"><a class="nav-link btn-add" data-menu="position" href="#" data-pos="right">增加</a></li>
+        <li class="nav-item"><a class="nav-link btn-delete check-multiple" data-menu="position" href="#" data-pos="right">删除</a></li>
+        <li class="nav-item"><a class="nav-link btn-edit check-single" data-menu="position" href="#" data-pos="right">修改</a></li>
+        <li class="nav-item"><a class="nav-link btn-show check-single" data-menu="position" href="#" data-pos="left">查看</a></li>
+        <li class="nav-item"><a class="nav-link btn-move check-single" data-menu="position" href="#" data-type="1">上移</a></li>
+        <li class="nav-item"><a class="nav-link btn-move check-single" data-menu="position" href="#" data-type="0">下移</a></li>
+    </ul>
+    <table id="index-table" data-menu="position" class="table table-hover table-list">
         <thead>
         <tr>
-            <th style="width:5%;">
-                <div class="styled-checkbox">
-                    <input type="checkbox" name="check-all" class="check-all" id="check-all">
-                    <label for="check-all"></label>
-                </div>
-            </th>
-            <th>岗位</th>
             <th></th>
+            <th>岗位</th>
             <th></th>
             <th></th>
             <th></th>
@@ -38,11 +30,9 @@
             $.ajax({
                 url: "/certificate_sn/" + form.find('[name="position_id"]').val(),
                 success: function (data) {
-                    if (data) {
-                        form.find('[name="sn"]').val(data).trigger('change');
-                    } else {
-                        notifications('序号加载失败');
-                    }
+                    data
+                        ? form.find('[name="sn"]').val(data).trigger('change')
+                        : notifications('序号加载失败');
                 },
                 error: function (xhr) {
                     xhr.status == 401 ? document.location.reload() : notifications('序号加载失败')

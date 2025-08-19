@@ -28,23 +28,19 @@ class User extends Authenticatable
 
     public function getList($request)
     {
-        $query = User::select([
-            'id',
-            'username',
-        ])->with([
-            'roles:name',
-        ]);
+        $query = self::select('id', 'username')
+            ->with('roles:name');
 
         return DataTables::of($query)
-            ->addColumn('roles', function ($data) {
-                return $data->roles->pluck('name')->map(function ($role) {
-                    return '<span class="badge bg-secondary-subtle border border-secondary-subtle text-secondary-emphasis">' . e($role) . '</span>';
-                })->implode(' ');
-            })
             ->editColumn('username', function ($data) {
                 return count($data->roles)
                     ? e($data->username)
                     : "<span class='badge bg-danger-subtle border border-danger-subtle text-danger-emphasis'>" . e($data->username) . "</span>";
+            })
+            ->addColumn('roles', function ($data) {
+                return $data->roles->pluck('name')->map(function ($role) {
+                    return "<span class='badge bg-secondary-subtle border border-secondary-subtle text-secondary-emphasis'>" . e($role) . "</span>";
+                })->implode(' ');
             })
             ->filter(function ($query) use ($request) {
                 if (!empty($search = $request->search['value'])) {
@@ -53,8 +49,8 @@ class User extends Authenticatable
                         foreach ($terms as $term) {
                             $q->where(function ($innerQ) use ($term) {
                                 $innerQ->where('username', 'like', "%$term%")
-                                    ->orWhereHas('roles', function ($roleQuery) use ($term) {
-                                        $roleQuery->where('name', 'like', "%$term%");
+                                    ->orWhereHas('roles', function ($innerQ) use ($term) {
+                                        $innerQ->where('name', 'like', "%$term%");
                                     });
                             });
                         }

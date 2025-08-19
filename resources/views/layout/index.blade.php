@@ -3,7 +3,7 @@
 @section('content')
     <div class="row flex-row">
         <div class="col-12">
-            <div class="d-flex align-items-center">
+            <div class="d-flex align-items-center justify-content-end">
                 <ul class="nav">
                     @yield('content_btn')
                 </ul>

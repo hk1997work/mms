@@ -35,42 +35,36 @@ class Role extends Model
     public function getList($request)
     {
         $permissions = Permission::where('level', 1)->orderBy('sort')->get();
-        $positions = Position::where('level', 2)->orderBy('sort')->get();
-        $query = Role::select([
-            'id',
-            'name',
-        ])->with([
-            'users:username',
-            'permissions:id',
-            'positions:id',
-        ]);
+        $positions = Position::where('level', 1)->orderBy('sort')->get();
+        $query = self::select('id', 'name')
+            ->with('users:username', 'permissions:id', 'positions:id');
 
         return DataTables::of($query)
             ->addColumn('users', function ($data) {
                 return $data->users->pluck('username')->map(function ($user) {
-                    return '<span class="badge bg-secondary-subtle border border-secondary-subtle text-secondary-emphasis">' . e($user) . '</span>';
+                    return "<span class='badge bg-secondary-subtle border border-secondary-subtle text-secondary-emphasis'>" . e($user) . "</span>";
                 })->implode(' ');
             })
             ->addColumn('permissions', function ($data) use ($permissions) {
                 $ids = $data->permissions->pluck('id');
                 return $permissions->map(function ($permission) use ($ids) {
                     if ($ids->contains($permission->id)) {
-                        $html = "<a class='badge btn btn-outline-secondary text-secondary-emphasis' href='#' data-bs-html='true' data-bs-toggle='popover' data-bs-trigger='hover' data-bs-placement='top' data-bs-content='";
-                        $html .= $permission->childs->map(function ($permission) use ($ids) {
+                        $html = '<a class="badge btn btn-outline-secondary text-secondary-emphasis" href="#" data-bs-html="true" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-placement="top" data-bs-content="';
+                        $html .= $permission->children->map(function ($permission) use ($ids) {
                             $html = $ids->contains($permission->id)
-                                ? '<span class="badge bg-primary-subtle border border-primary-subtle text-primary-emphasis my-1">' . e($permission->description) . '</span> '
-                                : '<span class="badge bg-light-subtle border border-light-subtle text-light-emphasis my-1">' . e($permission->description) . '</span> ';
-                            $html .= $permission->childs->map(function ($permission) use ($ids) {
+                                ? "<span class='badge bg-primary-subtle border border-primary-subtle text-primary-emphasis my-1'>" . e($permission->description) . "</span> "
+                                : "<span class='badge bg-light-subtle border border-light-subtle text-light-emphasis my-1'>" . e($permission->description) . "</span> ";
+                            $html .= $permission->children->map(function ($permission) use ($ids) {
                                 return $ids->contains($permission->id)
-                                    ? '<span class="badge bg-primary-subtle border border-primary-subtle text-primary-emphasis my-1">' . e($permission->description) . '</span>'
-                                    : '<span class="badge bg-light-subtle border border-light-subtle text-light-emphasis my-1">' . e($permission->description) . '</span>';
+                                    ? "<span class='badge bg-primary-subtle border border-primary-subtle text-primary-emphasis my-1'>" . e($permission->description) . "</span>"
+                                    : "<span class='badge bg-light-subtle border border-light-subtle text-light-emphasis my-1'>" . e($permission->description) . "</span>";
                             })->implode('');;
                             return $html;
                         })->implode('<br>');
-                        $html .= "'>" . e($permission->description) . "</a>";
+                        $html .= '"> ' . e($permission->description) . '</a>';
                         return $html;
                     } else {
-                        return '<span class="badge btn btn-outline-secondary text-secondary-emphasis invisible">' . e($permission->description) . '</span>';
+                        return "<span class='badge btn btn-outline-secondary text-secondary-emphasis invisible'>" . e($permission->description) . "</span>";
                     }
                 })->implode(' ');
             })
@@ -78,16 +72,16 @@ class Role extends Model
                 $ids = $data->positions->pluck('id');
                 return $positions->map(function ($position) use ($ids) {
                     if ($ids->contains($position->id)) {
-                        $html = "<a class='badge btn btn-outline-secondary text-secondary-emphasis' href='#' data-bs-html='true' data-bs-toggle='popover' data-bs-trigger='hover' data-bs-placement='top' data-bs-content='";
-                        $html .= $position->childs->map(function ($position) use ($ids) {
+                        $html = '<a class="badge btn btn-outline-secondary text-secondary-emphasis" href="#" data-bs-html="true" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-placement="top" data-bs-content="';
+                        $html .= $position->children->map(function ($position) use ($ids) {
                             return $ids->contains($position->id)
-                                ? '<span class="badge bg-primary-subtle border border-primary-subtle text-primary-emphasis my-1">' . e($position->name) . '</span> '
-                                : '<span class="badge bg-light-subtle border border-light-subtle text-light-emphasis my-1">' . e($position->name) . '</span> ';
+                                ? "<span class='badge bg-primary-subtle border border-primary-subtle text-primary-emphasis my-1'>" . e($position->name) . "</span> "
+                                : "<span class='badge bg-light-subtle border border-light-subtle text-light-emphasis my-1'>" . e($position->name) . "</span> ";
                         })->implode('<br>');
-                        $html .= "'>" . e($position->name) . "</a>";
+                        $html .= '"> ' . e($position->name) . '</a>';
                         return $html;
                     } else {
-                        return '<span class="badge btn btn-outline-secondary text-secondary-emphasis invisible">' . e($position->name) . '</span>';
+                        return "<span class='badge btn btn-outline-secondary text-secondary-emphasis invisible'>" . e($position->name) . "</span>";
                     }
                 })->implode(' ');
             })
@@ -102,15 +96,15 @@ class Role extends Model
                     $query->where(function ($q) use ($terms) {
                         foreach ($terms as $term) {
                             $q->where(function ($innerQ) use ($term) {
-                                $innerQ->where('role', 'like', "%$term%")
-                                    ->orWhereHas('users', function ($roleQuery) use ($term) {
-                                        $roleQuery->where('username', 'like', "%$term%");
+                                $innerQ->where('name', 'like', "%$term%")
+                                    ->orWhereHas('users', function ($innerQ) use ($term) {
+                                        $innerQ->where('username', 'like', "%$term%");
                                     })
-                                    ->orWhereHas('permissions', function ($roleQuery) use ($term) {
-                                        $roleQuery->where('description', 'like', "%$term%");
+                                    ->orWhereHas('permissions', function ($innerQ) use ($term) {
+                                        $innerQ->where('description', 'like', "%$term%");
                                     })
-                                    ->orWhereHas('positions', function ($roleQuery) use ($term) {
-                                        $roleQuery->where('name', 'like', "%$term%");
+                                    ->orWhereHas('positions', function ($innerQ) use ($term) {
+                                        $innerQ->where('name', 'like', "%$term%");
                                     });
                             });
                         }

@@ -1,7 +1,7 @@
 @extends('layout.index')
 @section('content_table')
     <div class="btn-group mb-3">
-        <ul class="button-nav nav nav-tabs mt-3 mb-3 ml-3" role="tablist">
+        <ul class="button-nav nav nav-tabs mt-3 mb-3 ml-3">
             <li><a class="btn-show check-single" data-menu="certificate" data-pos="up" href="#">查看</a></li>
             <li><a class="btn-show check-single" data-menu="confirm" data-pos="left" href="#">验证</a></li>
         </ul>

@@ -17,53 +17,9 @@ class PositionController extends Controller
         return view('position.index');
     }
 
-    public function list()
+    public function list(Request $request)
     {
-        $data = PositionsView::select('id', 'name1', 'name2', 'name3', 'name4', 'name5', 'code', 'count', 'total', 'level', 'sign')->get()->toArray();
-        foreach ($data as $key => $value) {
-            $data[$key]['id'] = "<div class='styled-checkbox'>
-                        <input type='checkbox' name='cb' class='cb' id='$value[id]'>
-                        <label for='$value[id]'></label>
-                    </div>";
-            if ($value['level'] == 1) {
-                $data[$key]['name1'] = "<span class='tag btn-sm " . ($value['total'] == 0 && $value['sign'] == 0 ? ' tag-danger' : 'tag-outline-primary') . "'>$value[name1]</span>";
-                $data[$key]['name2'] = "<span class='btn btn-outline-secondary btn-sm btn-add ripple' data-pos='right' data-menu='position' data-id='$value[id]'>增加</span>";
-                $data[$key]['count'] = "<span class='tag btn-sm " . ($value['sign'] ? ' tag-outline-danger' : 'tag-outline-secondary') . "'>$value[count]" . ($value['count'] == $value['total'] ? '' : '/' . $value['total']) . "</span>";;
-            }
-            if ($value['level'] == 2) {
-                $data[$key]['name1'] = $value['name2'];
-                $data[$key]['name2'] = "<span class='tag btn-sm " . ($value['total'] == 0 && $value['sign'] == 0 ? ' tag-danger' : 'tag-outline-primary') . "'>$value[name1]</span>";
-                $data[$key]['name3'] = "<span class='btn btn-outline-secondary btn-sm btn-add ripple' data-pos='right' data-menu='position' data-id='$value[id]'>增加</span>";
-                $data[$key]['count'] = "<span class='tag btn-sm " . ($value['sign'] ? ' tag-outline-danger' : 'tag-outline-secondary') . "'>$value[count]" . ($value['count'] == $value['total'] ? '' : '/' . $value['total']) . "</span>";;
-            }
-            if ($value['level'] == 3) {
-                $data[$key]['name1'] = $value['name3'];
-                $data[$key]['name2'] = $value['name2'];
-                $data[$key]['name3'] = "<span class='tag btn-sm " . ($value['total'] == 0 && $value['sign'] == 0 ? ' tag-danger' : 'tag-outline-warning') . "'>$value[name1]</span>";
-                $data[$key]['name4'] = "<span class='btn btn-outline-secondary btn-sm btn-add ripple' data-pos='right' data-menu='position' data-id='$value[id]'>增加</span>";
-                $data[$key]['count'] = "<span class='tag btn-sm " . ($value['sign'] ? ' tag-outline-danger' : 'tag-outline-secondary') . "'>$value[count]" . ($value['count'] == $value['total'] ? '' : '/' . $value['total']) . "</span>";;
-            }
-            if ($value['level'] == 4) {
-                $data[$key]['name1'] = $value['name4'];
-                $data[$key]['name2'] = $value['name3'];
-                $data[$key]['name3'] = $value['name2'];
-                $data[$key]['name4'] = "<span class='tag btn-sm " . ($value['total'] == 0 && $value['sign'] == 0 ? ' tag-danger' : 'tag-outline-success') . "'>$value[name1]</span>";
-                $data[$key]['name5'] = "<span class='btn btn-outline-secondary btn-sm btn-add ripple' data-pos='right' data-menu='position' data-id='$value[id]'>增加</span>";
-                $data[$key]['count'] = "<span class='tag btn-sm " . ($value['sign'] ? ' tag-outline-danger' : 'tag-outline-secondary') . "'>$value[count]" . ($value['count'] == $value['total'] ? '' : '/' . $value['total']) . "</span>";;
-            }
-            if ($value['level'] == 5) {
-                $data[$key]['name1'] = $value['name5'];
-                $data[$key]['name2'] = $value['name4'];
-                $data[$key]['name3'] = $value['name3'];
-                $data[$key]['name4'] = $value['name2'];
-                $data[$key]['name5'] = "<span class='tag btn-sm " . ($value['total'] == 0 && $value['sign'] == 0 ? ' tag-danger' : 'tag-outline-info') . "'>$value[name1]</span>";
-                $data[$key]['code'] = "<span class='tag btn-sm tag-info'>$value[code]</span>";
-                $data[$key]['count'] = "<span class='tag btn-sm " . ($value['sign'] ? ' tag-outline-danger' : 'tag-outline-secondary') . "'>$value[count]" . ($value['count'] == $value['total'] ? '' : '/' . $value['total']) . "</span>";;
-            }
-            unset($data[$key]['level']);
-            unset($data[$key]['total']);
-        }
-        return response()->json(['data' => array_map('array_values', $data)]);
+        return Position::getList($request);
     }
 
     public function create()
@@ -71,6 +27,54 @@ class PositionController extends Controller
         $id = isset($_GET['id']) ? $_GET['id'] : 0;
         $position = Position::find($id);
         return view('position.create', compact('position'));
+    }
+
+    public function store(PositionRequest $request)
+    {
+        $parent = Position::find($request->pid);
+        $arr['name'] = $request->name;
+        $arr['code'] = $request->code;
+        $arr['pid'] = $request->pid;
+        $arr['level'] = isset($parent->level) ? $parent->level + 1 : 1;
+        $arr['sort'] = Position::max('id') + 1;
+        $arr['sort_str'] = isset($parent->sort_str) ? $parent->sort_str . ',' . $arr['sort'] : $arr['sort'];
+        $arr['sign'] = $request->sign;
+        return !!Position::create($arr);
+    }
+
+    public function edit(Position $position)
+    {
+        return view('position.edit', compact('position'));
+    }
+
+    public function update(PositionRequest $request, Position $position)
+    {
+        $position->name = $request->name;
+        $position->code = $request->code;
+        $position->sign = $request->sign;
+        return !!$position->save();
+    }
+
+    public function destroy($position)
+    {
+        $ids = explode(',', $position);
+        $result = Position::whereIn('id', $ids)
+            ->where(function ($query) {
+                $query->has('children')
+                    ->orHas('certificates');
+            })
+            ->pluck('name')
+            ->implode(',');
+        if ($result) {
+            return $result . '使用中,无法删除';
+        } else {
+            return !!Position::whereIn('id', $ids)->delete();
+        }
+    }
+
+    public function move(Position $position, $type)
+    {
+        return $this->moveUpDown($position, $type);
     }
 
     public function show(Position $position)
@@ -97,58 +101,6 @@ class PositionController extends Controller
             $data[$key]['valid'] = "<span class='tag btn-sm " . ($value['valid'] ? "tag-success'>有效" : "tag-danger'>失效") . "</span>";
         }
         return response()->json(['data' => array_map('array_values', $data)]);
-    }
-
-    public function store(PositionRequest $request)
-    {
-        $parent = Position::find($request->pid);
-        $arr['name'] = $request->name;
-        $arr['code'] = $request->code;
-        $arr['pid'] = $request->pid;
-        $arr['level'] = isset($parent->level) ? $parent->level + 1 : 1;
-        $arr['sort'] = Position::max('id') + 1;
-        $arr['sign'] = $request->sign;
-        return !!Position::create($arr);
-    }
-
-    public function edit(Position $position)
-    {
-        return view('position.edit', compact('position'));
-    }
-
-    public function update(PositionRequest $request, Position $position)
-    {
-        $position->name = $request->name;
-        $position->code = $request->code;
-        $position->sign = $request->sign;
-        return !!$position->save();
-    }
-
-    public function destroy($position)
-    {
-        $certificate = Certificate::selectRaw('GROUP_CONCAT(position_id) AS str')->whereIn('position_id', explode(',', $position))->first();
-        $pid = Position::selectRaw('GROUP_CONCAT(pid) AS str')->whereIn('pid', explode(',', $position))->whereNotIn('id', explode(',', $position))->first();
-        if ($certificate->str || $pid->str) {
-            $id = implode(',', [$certificate->str, $pid->str]);
-            $result = Position::selectRaw('GROUP_CONCAT(name) AS name')->whereIn('id', array_unique(explode(',', $id)))->first();
-            return $result->name . '使用中,无法删除';
-        }
-        return !!Position::whereIn('id', explode(',', $position))->delete();
-    }
-
-    public function move(Position $position, $type)
-    {
-        if ($type) {
-            $result = Position::where('pid', "$position->pid")->where('sort', '<', $position->sort)->max('sort');
-        } else {
-            $result = Position::where('pid', "$position->pid")->where('sort', '>', $position->sort)->min('sort');
-        }
-        if ($result) {
-            $position_exchange = Position::where('sort', $result)->first();
-            $position_exchange->sort = $position->sort;
-            $position->sort = $result;
-            return !!$position->save() && !!$position_exchange->save();
-        } else return $type ? '已经是最顶层,无法上移' : '已经是最底层,无法下移';
     }
 
     public function sn(Certificate $certificate)
@@ -184,6 +136,8 @@ class PositionController extends Controller
                 $itemB->save();
             }
             return true;
-        } else return $type ? '已经是最顶层,无法上移' : '已经是最底层,无法下移';
+        } else {
+            return $type ? '已经是最顶层,无法上移' : '已经是最底层,无法下移';
+        }
     }
 }

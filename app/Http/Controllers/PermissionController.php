@@ -4,8 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\PermissionRequest;
 use App\Models\Permission;
-use App\Models\PermissionsView;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 class PermissionController extends Controller
 {
@@ -15,30 +14,9 @@ class PermissionController extends Controller
         return view('users.permission.index');
     }
 
-    public function list()
+    public function list(Request $request)
     {
-        $data = PermissionsView::select('id', 'description1', 'description2', 'description3', 'name', 'role', 'level')->get()->toArray();
-        foreach ($data as $key => $value) {
-            $data[$key]['id'] = "<div class='styled-checkbox'>
-                        <input type='checkbox' name='cb' class='cb' id='$value[id]'>
-                        <label for='$value[id]'></label>
-                    </div>";
-            if ($value['level'] == 1) {
-                $data[$key]['description1'] = "<span class='tag btn-sm " . ($value['role'] == '' ? 'tag-danger' : 'tag-outline-warning') . "'>$value[description1]</span>";
-                $data[$key]['description2'] = "<span class='btn btn-outline-secondary btn-sm btn-add ripple' data-pos='right' data-menu='permission' data-id='$value[id]'>增加</span>";
-            }
-            if ($value['level'] == 2) {
-                $data[$key]['description1'] = $value['description2'];
-                $data[$key]['description2'] = "<span class='tag btn-sm " . ($value['role'] == '' ? 'tag-danger' : 'tag-outline-success') . "'>$value[description1]</span>";
-                $data[$key]['description3'] = "<span class='btn btn-outline-secondary btn-sm btn-add ripple' data-pos='right' data-menu='permission' data-id='$value[id]'>增加</span>";
-            }
-            if ($value['level'] == 3) {
-                $data[$key]['description1'] = $value['description3'];
-                $data[$key]['description3'] = "<span class='tag btn-sm " . ($value['role'] == '' ? 'tag-danger' : 'tag-outline-info') . "'>$value[description1]</span>";
-            }
-            unset($data[$key]->level);
-        }
-        return response()->json(['data' => array_map('array_values', $data)]);
+        return Permission::getList($request);
     }
 
     public function create()
@@ -55,6 +33,7 @@ class PermissionController extends Controller
         $arr['pid'] = $request->pid;
         $arr['level'] = isset($parent->level) ? $parent->level + 1 : 1;
         $arr['sort'] = Permission::max('sort') + 1;
+        $arr['sort_str'] = isset($parent->sort_str) ? $parent->sort_str . ',' . $arr['sort'] : $arr['sort'];
         return !!Permission::create($arr);
     }
 
@@ -72,28 +51,23 @@ class PermissionController extends Controller
 
     public function destroy($permission)
     {
-        $role = DB::table("permission_role")->selectRaw('GROUP_CONCAT(permission_id) AS str')->whereIn('permission_id', explode(',', $permission))->first();
-        $pid = Permission::selectRaw('GROUP_CONCAT(pid) AS str')->whereIn('pid', explode(',', $permission))->whereNotIn('id', explode(',', $permission))->first();
-        if ($role->str || $pid->str) {
-            $id = implode(',', [$role->str, $pid->str]);
-            $result = Permission::selectRaw('GROUP_CONCAT(description) AS name')->whereIn('id', array_unique(explode(',', $id)))->first();
-            return $result->name . '使用中,无法删除';
+        $ids = explode(',', $permission);
+        $result = Permission::whereIn('id', $ids)
+            ->where(function ($query) {
+                $query->has('children')
+                    ->orHas('roles');
+            })
+            ->pluck('description')
+            ->implode(',');
+        if ($result) {
+            return $result . '使用中,无法删除';
+        } else {
+            return !!Permission::whereIn('id', $ids)->delete();
         }
-        return !!Permission::whereIn('id', explode(',', $permission))->delete();
     }
 
     public function move(Permission $permission, $type)
     {
-        if ($type) {
-            $result = Permission::where('pid', "$permission->pid")->where('sort', '<', $permission->sort)->max('sort');
-        } else {
-            $result = Permission::where('pid', "$permission->pid")->where('sort', '>', $permission->sort)->min('sort');
-        }
-        if ($result) {
-            $permission_exchange = Permission::where('sort', $result)->first();
-            $permission_exchange->sort = $permission->sort;
-            $permission->sort = $result;
-            return !!$permission->save() && !!$permission_exchange->save();
-        } else return $type ? '已经是最顶层,无法上移' : '已经是最底层,无法下移';
+        return $this->moveUpDown($permission, $type);
     }
 }

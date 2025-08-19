@@ -4,7 +4,7 @@
         <div class="sidebar-heading mt-3 mb-2">岗位名称</div>
         <input type="text" name="name" class="form-control">
     </div>
-    @if(isset($position)&&$position->level==4)
+    @if(isset($position)&&$position->level==3)
         <div class="col-12 div-code">
             <div class="sidebar-heading mt-3 mb-2">编号</div>
             <input type="text" name="code" class="form-control">

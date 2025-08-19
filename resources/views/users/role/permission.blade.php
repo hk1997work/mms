@@ -15,11 +15,11 @@
                     <div class="mt-2">
                         <input type="checkbox" class="btn-check" name="permission[]" id="permission{{$permission_1->id}}" value="{{$permission_1->id}}" data-level="1" @if($myPermissions!=''&&$myPermissions->contains($permission_1)) checked @endif>
                         <label class="btn btn-sm" for="permission{{$permission_1->id}}">{{$permission_1->description}}</label><br>
-                        @foreach($permission_1->childs as $permission_2)
+                        @foreach($permission_1->children as $permission_2)
                             <div class="mt-2 ms-5">
                                 <input type="checkbox" class="btn-check" name="permission[]" id="permission{{$permission_2->id}}" value="{{$permission_2->id}}" data-level="2" data-pid="permission{{$permission_1->id}}" @if($myPermissions!=''&&$myPermissions->contains($permission_2)) checked @endif>
                                 <label class="btn btn-sm" for="permission{{$permission_2->id}}">{{$permission_2->description}}</label><br>
-                                @foreach($permission_2->childs as $permission_3)
+                                @foreach($permission_2->children as $permission_3)
                                     <div class="mt-2 ms-5">
                                         <input type="checkbox" class="btn-check" name="permission[]" id="permission{{$permission_3->id}}" value="{{$permission_3->id}}" data-level="3" data-pid="permission{{$permission_2->id}}" data-ppid="permission{{$permission_1->id}}"
                                                @if($myPermissions!=''&&$myPermissions->contains($permission_3)) checked @endif>
@@ -38,11 +38,11 @@
                     <div class="mt-2">
                         <input type="checkbox" class="btn-check" name="position[]" id="position{{$position_1->id}}" value="{{$position_1->id}}" data-level="1" @if($myPositions!=''&&$myPositions->contains($position_1)) checked @endif>
                         <label class="btn btn-sm" for="position{{$position_1->id}}">{{$position_1->name}}</label><br>
-                        @foreach($position_1->childs as $position_2)
+                        @foreach($position_1->children as $position_2)
                             <div class="mt-2 ms-5">
                                 <input type="checkbox" class="btn-check" name="position[]" id="position{{$position_2->id}}" value="{{$position_2->id}}" data-level="2" data-pid="position{{$position_1->id}}" @if($myPositions!=''&&$myPositions->contains($position_2)) checked @endif>
                                 <label class="btn btn-sm" for="position{{$position_2->id}}">{{$position_2->name}}</label><br>
-                                @foreach($position_2->childs as $position_3)
+                                @foreach($position_2->children as $position_3)
                                     <div class="mt-2 ms-5">
                                         <input type="checkbox" class="btn-check" name="position[]" id="position{{$position_3->id}}" value="{{$position_3->id}}" data-level="3" data-pid="position{{$position_2->id}}" data-ppid="position{{$position_1->id}}"
                                                @if($myPositions!=''&&$myPositions->contains($position_3)) checked @endif>

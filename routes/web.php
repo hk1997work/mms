@@ -117,11 +117,6 @@ Route::group(['namespace' => '\App\Http\Controllers'], function () {
         Route::get('/download/{extension}/{path}/{id}/{filename}', function ($extension, $path, $id, $filename) {
             return response()->download(storage_path("app\public\\$path\\$id.$extension"), "$filename.$extension");
         });
-        //导入台账
-        Route::get('/mould/certificate', function () {
-            return response()->download(storage_path("app\public\mould\标准台账模板.xlsx"), "导入模板.xlsx");
-        });
-        Route::put('/import/certificate', 'ImportController@update');
 
         //API
         //证书参数

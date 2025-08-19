@@ -3,10 +3,9 @@ let dataTable;
 let offSidebarDataTable;
 let canSubmit = true;
 
-// 初始化表格
 function initTable(table) {
     if (table.length > 0) {
-        let dt = table.DataTable({
+        let options = {
             language: {url: '/admin/assets/vendors/js/datatables/zh.json'},
             ajax: {url: "/ajax_" + table.data('menu'), type: "POST", data: {"_token": csrf_token}},
             serverSide: true,
@@ -18,18 +17,24 @@ function initTable(table) {
             order: [1, 'asc'],
             fixedColumns: {leftColumns: 1},
             select: {style: 'multi', selector: 'td:first-child'},
-            columnDefs: [{orderable: false, render: DataTable.render.select(), targets: 0}],
-        });
+            columnDefs: [{orderable: false, render: DataTable.render.select(), targets: 0} ,{ type: 'string', targets: '_all' }],
+        };
+        if (table.hasClass('table-list')) {
+            options.ordering = false;
+            options.scroller = true;
+            options.select = {style: 'multi', selector: 'td:first-child', headerCheckbox: false};
+        }
+        let dt = table.DataTable(options);
         dt.on('xhr.dt', function () {
             let obj = $(this).closest('.table-responsive');
             let count = dt.select.cumulative().rows.length;
-            btn_change(obj, count)
+            btn_change(obj, count);
             $("#preloader").fadeOut();
         });
         dt.on('select deselect', function (e, dtApi, type, indexes) {
             let obj = $(this).closest('.table-responsive');
             let count = dt.select.cumulative().rows.length + (e.type === 'select' ? indexes.length : -indexes.length);
-            btn_change(obj, count)
+            btn_change(obj, count);
         });
         return dt;
     }
@@ -54,7 +59,7 @@ function table_reload(table) {
         if (pageInfo.page >= pageInfo.pages) {
             table.page('last').draw(false);
         }
-    }, false)
+    }, false);
 }
 
 dataTable = initTable($('table'));
@@ -70,7 +75,7 @@ function sidebar_ajax(btn, url, menu, callback) {
                     sidebar.html(data)
                         .find('.sidebar-btn').text(title).end()
                         .find('.sidebar-url').attr('data-url', menu);
-                    $(window).trigger('resize')
+                    $(window).trigger('resize');
                     if (sidebar.find('#off-sidebar-table').length > 0) {
                         offSidebarDataTable = initTable($('#off-sidebar-table')).on('xhr.dt', function () {
                             sidebar.addClass('is-visible');
@@ -99,7 +104,7 @@ function sidebar_ajax(btn, url, menu, callback) {
 
 $('.table-responsive,.off-sidebar').on('click', '.btn-add', function () {
     let table = offSidebarDataTable ? offSidebarDataTable : dataTable;
-    let id = table.select.cumulative().rows.join(',');
+    let id = $(this).data('id') ? $(this).data('id') : table.select.cumulative().rows.join(',');
     let menu = $(this).data('menu');
     let url = '/' + menu + '/create' + (id ? '?id=' + id : '');
     sidebar_ajax($(this), url, menu);
@@ -128,21 +133,23 @@ $('.table-responsive,.off-sidebar').on('click', ' .btn-delete', function () {
 function submit_ajax(btn, url, callback) {
     if (canSubmit) {
         canSubmit = false;
-        let sidebar = $('.from-' + btn.closest('.off-sidebar').data('pos'))
-        let form = sidebar.find('form')
-        let title = sidebar.find('.sidebar-btn').text()
+        let sidebar = $('.from-' + btn.closest('.off-sidebar').data('pos'));
+        let title = sidebar.length ? sidebar.find('.sidebar-btn').text() : btn.text();
+        let form = sidebar.find('form');
+        let data = new FormData(form[0]);
+        if (!form[0]) data.append('_token', csrf_token);
         $.ajax({
-            url: url, type: 'POST', data: new FormData(form[0]), processData: false, contentType: false, success: function (result) {
+            url: url, type: 'POST', data: data, processData: false, contentType: false, success: function (result) {
                 if (result == true) {
                     if (callback) {
                         callback();
                     }
                     notifications(title + '成功');
                     if (offSidebarDataTable) {
-                        table_reload(offSidebarDataTable)
+                        table_reload(offSidebarDataTable);
                     }
                     if (dataTable) {
-                        table_reload(dataTable)
+                        table_reload(dataTable);
                     }
                     sidebar.removeClass('is-visible');
                 } else if (result == false) {
@@ -152,7 +159,7 @@ function submit_ajax(btn, url, callback) {
                     sidebar.removeClass('is-visible');
                 }
             }, error: function (xhr) {
-                xhr.status == 401 ? document.location.reload() : notifications(title + '失败')
+                xhr.status == 401 ? document.location.reload() : notifications(title + '失败');
                 form.find(".warning-danger").remove();
                 form.find('.form-control').removeClass('is-invalid').addClass('is-valid');
                 let json = JSON.parse(xhr.responseText);
@@ -171,44 +178,41 @@ function submit_ajax(btn, url, callback) {
             canSubmit = true;
         }, 800);
     } else {
-        notifications('操作太快,请重试.')
+        notifications('操作太快,请重试.');
     }
 }
 
 $('.table-responsive,.off-sidebar').on('click', '.submit-add', function () {
-    let url = "/" + $(this).data('url')
-    submit_ajax($(this), url)
+    let url = "/" + $(this).data('url');
+    submit_ajax($(this), url);
 })
 $('.table-responsive,.off-sidebar').on('click', '.submit-edit', function () {
     let table = offSidebarDataTable ? offSidebarDataTable : dataTable;
     let id = table.select.cumulative().rows.join(',');
-    let url = "/" + $(this).data('url') + '/' + id
-    submit_ajax($(this), url)
+    let url = "/" + $(this).data('url') + '/' + id;
+    submit_ajax($(this), url);
 })
 $('.table-responsive,.off-sidebar').on('click', '.submit-delete', function () {
     let table = offSidebarDataTable ? offSidebarDataTable : dataTable;
     let id = table.select.cumulative().rows.join(',');
-    let url = '/' + $(this).data('url') + "/" + id
+    let url = '/' + $(this).data('url') + "/" + id;
     let callback = function () {
-        dataTable.context[0]._select_set = []
+        dataTable.context[0]._select_set = [];
     }
-    submit_ajax($(this), url, callback)
+    submit_ajax($(this), url, callback);
 })
-
-
 $('.table-responsive,.off-sidebar').on('click', '.btn-move', function () {
-    let id = offSidebarDataTable ? offSidebarDataTable.select.cumulative().rows.join(',') : dataTable.select.cumulative().rows.join(',');
-    let sidebar = $('.from-' + $(this).closest('.off-sidebar').data('pos'))
-    let menu = $(this).data('menu')
-    let type = $(this).data('type')
-    let url = '/move/' + menu + '/' + id + '/' + type
-    submit_ajax($(this), url)
+    let table = offSidebarDataTable ? offSidebarDataTable : dataTable;
+    let id = table.select.cumulative().rows.join(',');
+    let url = '/move/' + $(this).data('menu') + '/' + id + '/' + $(this).data('type');
+    submit_ajax($(this), url);
 })
 
 //下载操作
 $('.table-responsive,.off-sidebar').on('click', '.btn-download', function () {
     let menu = $(this).data('menu')
-    let id = get_id($(this).closest('.ckp'))
+    let table = offSidebarDataTable ? offSidebarDataTable : dataTable;
+    let id = table.select.cumulative().rows.join(',');
     $.each(id.split(','), function (index, value) {
         window.open('/download_' + menu + '/' + value);
     })
@@ -216,36 +220,12 @@ $('.table-responsive,.off-sidebar').on('click', '.btn-download', function () {
 
 //打开操作
 $('.table-responsive,.off-sidebar').on('click', '.btn-open', function () {
-    let id = get_id($(this).closest('.ckp'))
+    let table = offSidebarDataTable ? offSidebarDataTable : dataTable;
+    let id = table.select.cumulative().rows.join(',');
     $.each(id.split(','), function (index, value) {
         window.open($('#' + value).data('url'));
     })
 })
-
-//导入操作
-$('.submit-import').on('click', function () {
-    $('[name="import-file"]').click()
-})
-
-$('[name="import-file"]').on('change', function () {
-    let menu = $(this).data('menu')
-    let url = 'import/' + menu
-    if ($(this).val()) {
-        let formData = new FormData($('#form-import')[0]);
-        $.ajax({
-            url: url, type: 'POST', data: formData, processData: false, contentType: false, success: function (result) {
-                if (result == true) {
-                    notifications('操作成功')
-                } else {
-                    notifications(result);
-                }
-            }, error: function (xhr) {
-                xhr.status == 401 ? document.location.reload() : notifications('操作失败')
-            }
-        });
-    }
-    $('[name="import-file"]').val('')
-});
 
 // 修改输入时,去掉错误提示
 $('.off-sidebar').on('change', '.is-valid,.is-invalid', function () {
@@ -262,7 +242,7 @@ $(document).ready(function () {
         }
     });
 });
-
+// 设置表格高度
 $(window).resize(function () {
     $('.auto-scroll').height($(window).height() - 110);
 });

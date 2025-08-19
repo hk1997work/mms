@@ -4,7 +4,7 @@
         <div class="sidebar-heading mt-3 mb-2">岗位名称</div>
         <input type="text" name="name" class="form-control" value="{{$position->name}}">
     </div>
-    @if($position->level==5)
+    @if($position->level==4)
         <div class="col-12 div-code">
             <div class="sidebar-heading mt-3 mb-2">编号</div>
             <input type="text" name="code" class="form-control" value="{{$position->code}}">
