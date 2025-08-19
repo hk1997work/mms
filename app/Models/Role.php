@@ -34,8 +34,8 @@ class Role extends Model
 
     public function getList($request)
     {
-        $permissions = Permission::where('level', 1)->orderBy('sort')->get();
-        $positions = Position::where('level', 1)->orderBy('sort')->get();
+        $permissions = Permission::where('level', 1)->orderBy('sort')->with('children')->get();
+        $positions = Position::where('level', 1)->orderBy('sort')->with('children')->get();
         $query = self::select('id', 'name')
             ->with('users:username', 'permissions:id', 'positions:id');
 
