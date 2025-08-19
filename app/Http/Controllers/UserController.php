@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UserRequest;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\UsersView;
 use Illuminate\Http\Request;
+use Yajra\DataTables\DataTables;
 
 class UserController extends Controller
 {
@@ -16,7 +18,35 @@ class UserController extends Controller
 
     public function list(Request $request)
     {
-        return User::getList($request);
+        return DataTables::of(UsersView::query())
+            ->editColumn('username', function ($data) {
+                return $data->roles
+                    ? e($data->username)
+                    : "<span class='badge bg-danger-subtle border border-danger-subtle text-danger-emphasis'>" . e($data->username) . "</span>";
+            })
+            ->addColumn('roles', function ($data) {
+                $roles = explode(',', $data->roles);
+                $badges = [];
+                foreach ($roles as $role) {
+                    $badges[] = "<span class='badge bg-secondary-subtle border border-secondary-subtle text-secondary-emphasis'>" . e($role) . "</span>";
+                }
+                return implode(' ', $badges);
+            })
+            ->filter(function ($query) use ($request) {
+                if (!empty($search = $request->search['value'])) {
+                    $terms = explode(' ', $search);
+                    $query->where(function ($q) use ($terms) {
+                        foreach ($terms as $term) {
+                            $q->where(function ($innerQ) use ($term) {
+                                $innerQ->where('username', 'like', "%$term%")
+                                    ->orWhere('roles', 'like', "%$term%");
+                            });
+                        }
+                    });
+                }
+            })
+            ->rawColumns([1, 2])
+            ->make(false);
     }
 
     public function create()
