@@ -20,12 +20,12 @@ class UserController extends Controller
     {
         return DataTables::of(UsersView::query())
             ->editColumn('username', function ($data) {
-                return $data->roles
+                return $data->role
                     ? e($data->username)
                     : "<span class='badge bg-danger-subtle border border-danger-subtle text-danger-emphasis'>" . e($data->username) . "</span>";
             })
-            ->addColumn('roles', function ($data) {
-                $arrays = explode(',', $data->roles);
+            ->addColumn('role', function ($data) {
+                $arrays = explode(',', $data->role);
                 $badges = [];
                 foreach ($arrays as $array) {
                     $badges[] = "<span class='badge bg-secondary-subtle border border-secondary-subtle text-secondary-emphasis'>" . e($array) . "</span>";
@@ -39,7 +39,7 @@ class UserController extends Controller
                         foreach ($terms as $term) {
                             $q->where(function ($innerQ) use ($term) {
                                 $innerQ->where('username', 'like', "%$term%")
-                                    ->orWhere('roles', 'like', "%$term%");
+                                    ->orWhere('role', 'like', "%$term%");
                             });
                         }
                     });
