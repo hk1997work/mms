@@ -8,14 +8,6 @@
     $('.off-sidebar').on('click', '.sidebar-close', function () {
         $(this).closest('.off-sidebar').removeClass('is-visible');
     });
-
-    $('.dropdown').on('show.bs.dropdown', function (e) {
-        $(this).find('.dropdown-menu').first().stop(true, true).slideDown(200);
-    });
-
-    $('.dropdown').on('hide.bs.dropdown', function (e) {
-        $(this).find('.dropdown-menu').first().stop(true, true).slideUp(200);
-    });
 })(jQuery);
 
 function notifications(text) {

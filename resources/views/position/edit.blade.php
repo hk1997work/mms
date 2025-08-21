@@ -13,8 +13,8 @@
     <div class="col-12 div-sign">
         <div class="sidebar-heading mt-3 mb-2">状态</div>
         <select name="sign" class="custom-select form-control">
-            <option value="0" @if($position->sign==0)selected @endif>有效</option>
-            <option value="1" @if($position->sign==1)selected @endif>失效</option>
+            <option value="1" @if($position->sign==1)selected @endif>有效</option>
+            <option value="0" @if($position->sign==0)selected @endif>失效</option>
         </select>
     </div>
 @endsection

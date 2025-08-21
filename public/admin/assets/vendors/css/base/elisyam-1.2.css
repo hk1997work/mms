@@ -18,9 +18,13 @@ main {
     padding-top: 50px;
 }
 
-input:focus, select, textarea {
+input:focus, select, textarea, button {
     outline: none;
     box-shadow: none !important
+}
+
+table {
+    white-space: nowrap;
 }
 
 #preloader {

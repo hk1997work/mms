@@ -7,33 +7,54 @@ use App\Models\Factory;
 use App\Models\NumbersView;
 use App\Models\Parameter;
 use App\Models\Position;
-use App\Models\PositionsView;
 use App\Models\Tool;
 use App\Models\ToolsView;
+use Illuminate\Http\Request;
+use Yajra\DataTables\DataTables;
 
 class ToolController extends Controller
 {
     public function index()
     {
-        $type = Position::find(isset($_GET['id']) ? $_GET['id'] : Position::where('level', 2)->orderBy('sort')->first()->id);
-        $types = Position::where('level', 2)->get();
+        $pid = Position::where('level', 1)->where('name', '备用')->first()->id;
+        $type = Position::find(isset($_GET['id']) ? $_GET['id'] : Position::where('pid', $pid)->orderBy('sort')->first()->id);
+        $types = Position::where('pid', $pid)->orderBy('sort')->get();
         return view('tools.tool.index', compact('type', 'types'));
     }
 
-    public function list()
+    public function list(Request $request)
     {
-        $type_id = isset($_GET['id']) ? $_GET['id'] : Position::where('level', 2)->orderBy('sort')->first()->id;
-        $data = ToolsView::select('id', 'instrument', 'model', 'limit', 'accuracy', 'cycle', 'abc', 'active', 'inactive', 'deactive', 'broken', 'scrap', 'total', 'vulnerable', 'requirement', 'mistake')->where('type_id', $type_id)->get()->toArray();
-        foreach ($data as $key => $value) {
-            $data[$key]['active'] = $value['active'] ? "<span class='tag btn-sm tag-outline-success'>$value[active]</span>" : '';
-            $data[$key]['inactive'] = $value['inactive'] ? "<span class='tag btn-sm tag-outline-warning'>$value[inactive]</span>" : '';
-            $data[$key]['deactive'] = $value['deactive'] ? "<span class='tag btn-sm tag-outline-info'>$value[deactive]</span>" : '';
-            $data[$key]['broken'] = $value['broken'] ? "<span class='tag btn-sm tag-outline-danger'>$value[broken]</span>" : '';
-            $data[$key]['scrap'] = $value['scrap'] ? "<span class='tag btn-sm tag-outline-primary'>$value[scrap]</span>" : '';
-            $data[$key]['total'] = "<span class='tag btn-sm " . ($value['mistake'] ? "tag-danger" : "tag-outline-secondary") . "'>$value[total]</span>";
-            $data[$key]['vulnerable'] = $value['vulnerable'] ? "<span class='tag btn-sm tag-danger'>易损</span>" : '';
-        }
-        return response()->json(['data' => array_map('array_values', $data)]);
+        return DataTables::of(ToolsView::query()->where('type_id', $_GET['id']))
+            ->editColumn('active', function ($data) {
+                return $this->toBadges($data->active ?: null, 'success');
+            })
+            ->editColumn('inactive', function ($data) {
+                return $this->toBadges($data->inactive ?: null, 'warning');
+            })
+            ->editColumn('deactive', function ($data) {
+                return $this->toBadges($data->deactive ?: null, 'info');
+            })
+            ->editColumn('broken', function ($data) {
+                return $this->toBadges($data->broken ?: null, 'danger');
+            })
+            ->editColumn('scrap', function ($data) {
+                return $this->toBadges($data->scrap ?: null, 'dark');
+            })
+            ->editColumn('total', function ($data) {
+                return $this->toBadges($data->total, $data->total && !$data->mistake ? 'primary' : 'danger');
+            })
+            ->editColumn('vulnerable', function ($data) {
+                return $this->toBadges($data->vulnerable ? '易损' : null, 'danger');
+            })
+            ->filter(function ($query) use ($request) {
+                $this->toSearch($query, $request, ['instrument', 'model', 'limit', 'accuracy', 'cycle', 'abc', 'requirement']);
+            })
+            ->order(function ($query) use ($request) {
+                $this->toOrder($query, $request);
+            })
+            ->rawColumns([7, 8, 9, 10, 11, 12, 13])
+            ->removeColumn('type_id', 'mistake')
+            ->make(false);
     }
 
     public function create()
@@ -134,12 +155,6 @@ class ToolController extends Controller
 
     public function destroy($tool)
     {
-        $id = Factory::selectRaw('GROUP_CONCAT(tool_id) AS str')->whereIn('tool_id', explode(',', $tool))->first();
-        if ($id->str) {
-            $result = Tool::selectRaw('GROUP_CONCAT(instrument) AS name')->whereIn('id', explode(',', $id->str))->first();
-            return $result->name . '使用中,无法删除';
-        } else {
-            return !!Tool::whereIn('id', explode(',', $tool))->delete();
-        }
+        return $this->delete(Tool::class, $tool, ['factory'], 'instrument');
     }
 }

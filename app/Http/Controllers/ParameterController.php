@@ -6,6 +6,7 @@ use App\Http\Requests\ParameterRequest;
 use App\Models\Parameter;
 use App\Models\ParametersView;
 use Illuminate\Http\Request;
+use Yajra\DataTables\DataTables;
 
 class ParameterController extends Controller
 {
@@ -16,7 +17,26 @@ class ParameterController extends Controller
 
     public function list(Request $request)
     {
-        return Parameter::getList($request);
+
+        return DataTables::of(ParametersView::query())
+            ->editColumn('name1', function ($data) {
+                return $this->toLevel($data, 1, 'name', 'parameter', 'warning', $data->count);
+            })
+            ->editColumn('name2', function ($data) {
+                return $this->toLevel($data, 2, 'name', 'parameter', 'success', $data->count);
+            })
+            ->editColumn('count', function ($data) {
+                return $this->toBadges($data->count, 'secondary');
+            })
+            ->filter(function ($query) use ($request) {
+                $this->toSearch($query, $request, ['name1', 'name2']);
+            })
+            ->order(function ($query) use ($request) {
+                $this->toOrder($query, $request);
+            })
+            ->removeColumn('level')
+            ->rawColumns([1, 2, 3])
+            ->make(false);
     }
 
     public function create()
@@ -32,7 +52,6 @@ class ParameterController extends Controller
         $arr['pid'] = $request->pid;
         $arr['level'] = isset($parent->level) ? $parent->level + 1 : 1;
         $arr['sort'] = Parameter::max('sort') + 1;
-        $arr['sort_str'] = isset($parent->sort_str) ? $parent->sort_str . ',' . $arr['sort'] : $arr['sort'];
         return !!Parameter::create($arr);
     }
 
@@ -49,24 +68,7 @@ class ParameterController extends Controller
 
     public function destroy($parameter)
     {
-        $ids = explode(',', $parameter);
-        $result = Parameter::whereIn('id', $ids)
-            ->where(function ($query) {
-                $query->has('children')
-                    ->orHas('category')
-                    ->orHas('department')
-                    ->orHas('cycle')
-                    ->orHas('abc')
-                    ->orHas('plan')
-                    ->orHas('state');
-            })
-            ->pluck('name')
-            ->implode(',');
-        if ($result) {
-            return $result . '使用中,无法删除';
-        } else {
-            return !!Parameter::whereIn('id', $ids)->delete();
-        }
+        return $this->delete(Parameter::class, $parameter, ['children', 'category', 'department', 'cycle', 'abc', 'plan', 'state'], 'name');
     }
 
     public function move(Parameter $parameter, $type)

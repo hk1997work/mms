@@ -245,7 +245,86 @@ class Controller extends BaseController
         return $str;
     }
 
-    public function moveUpDown($model, $type)
+
+    function toValidText($text, $valid)
+    {
+        return $valid
+            ? e($text)
+            : "<span class='badge bg-danger-subtle border border-danger-subtle text-danger-emphasis'>" . e($text) . "</span>";
+    }
+
+    function toBadges($str, $type)
+    {
+        $texts = explode(',', $str);
+        $badges = [];
+        foreach ($texts as $text) {
+            $badges[] = "<span class='badge bg-" . e($type) . "-subtle border border-" . e($type) . "-subtle text-" . e($type) . "-emphasis'>" . e($text) . "</span>";
+        }
+        return implode(' ', $badges);
+    }
+
+    function toManyBadges($str, $items, $field, $level)
+    {
+        $ids = explode(',', $str);
+        return $items->map(function ($item) use ($ids, $field, $level) {
+            if (in_array($item->id, $ids)) {
+                $html = '<a class="badge btn btn-outline-secondary text-secondary-emphasis" href="#" data-bs-html="true" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-placement="top" data-bs-content="';
+                $html .= $item->children->map(function ($item) use ($ids, $field, $level) {
+                    $html = in_array($item->id, $ids)
+                        ? "<span class='badge bg-primary-subtle border border-primary-subtle text-primary-emphasis my-1'>" . e($item->{$field}) . "</span> "
+                        : "<span class='badge bg-light-subtle border border-light-subtle text-light-emphasis my-1'>" . e($item->{$field}) . "</span> ";
+                    if ($level == 3) {
+                        $html .= $item->children->map(function ($item) use ($ids, $field) {
+                            return in_array($item->id, $ids)
+                                ? "<span class='badge bg-primary-subtle border border-primary-subtle text-primary-emphasis my-1'>" . e($item->{$field}) . "</span>"
+                                : "<span class='badge bg-light-subtle border border-light-subtle text-light-emphasis my-1'>" . e($item->{$field}) . "</span>";
+                        })->implode(' ');
+                    }
+                    return $html;
+                })->implode('<br>');
+                $html .= '"> ' . e($item->{$field}) . '</a>';
+                return $html;
+            } else {
+                return "<span class='badge btn btn-outline-secondary text-secondary-emphasis invisible'>" . e($item->{$field}) . "</span>";
+            }
+        })->implode(' ');
+    }
+
+    function toLevel($data, $column, $field, $menu, $type, $valid)
+    {
+        $type = $valid ? $type : 'danger';
+        $text = $field . ($data->level - $column + 1);
+        if ($data->level == $column) {
+            return "<span class='badge bg-" . e($type) . "-subtle border border-" . e($type) . "-subtle text-" . e($type) . "-emphasis'>" . e($data->{$text}) . "</span>";
+        } elseif ($data->level == $column - 1) {
+            return "<span class='badge btn btn-outline-secondary text-secondary-emphasis btn-add' data-pos='right' data-menu='" . e($menu) . "' data-id='" . e($data->id) . "'>增加</span>";
+        } elseif ($data->level > ($column - 2)) {
+            return "<span class='badge text-dark-emphasis'>" . e($data->{$text}) . "</span>";
+        }
+    }
+
+    function toSearch($query, $request, $searchFields)
+    {
+        if (empty($searchValue = $request->search['value'])) {
+            return $query;
+        }
+        $terms = array_filter(explode(' ', $searchValue));
+        return $query->where(function ($q) use ($terms, $searchFields) {
+            foreach ($terms as $term) {
+                $q->where(function ($innerQ) use ($term, $searchFields) {
+                    foreach ($searchFields as $field) {
+                        $innerQ->orWhere($field, 'like', "%{$term}%");
+                    }
+                });
+            }
+        });
+    }
+
+    function toOrder($query, $request)
+    {
+    }
+
+    function moveUpDown($model, $type)
     {
         $query = $model::where('pid', $model->pid);
         if ($type) {
@@ -258,23 +337,27 @@ class Controller extends BaseController
             $exchangeModel->sort = $model->sort;
             $model->sort = $result;
 
-            $this->updateSortStr($model);
-            $this->updateSortStr($exchangeModel);
-
             return !!$model->save() && !!$exchangeModel->save();
         }
         return $type ? '已经是最顶层,无法上移' : '已经是最底层,无法下移';
     }
 
-    public function updateSortStr($model)
+    function delete($model, $str, $terms, $field)
     {
-        $model->sort_str = $model->pid == 0
-            ? $model->sort
-            : $model::find($model->pid)->sort_str . ',' . $model->sort;
-        $model->save();
-        $model::where('pid', $model->id)->get()->each(function ($child) use ($model) {
-            $this->updateSortStr($child);
-        });
+        $ids = explode(',', $str);
+        $result = $model::whereIn('id', $ids)
+            ->where(function ($query) use ($terms) {
+                foreach ($terms as $term) {
+                    $query->orHas($term);
+                }
+            })
+            ->pluck($field)
+            ->implode(',');
+        if ($result) {
+            return $result . '使用中,无法删除';
+        } else {
+            return !!$model::whereIn('id', $ids)->delete();
+        }
     }
 }
 

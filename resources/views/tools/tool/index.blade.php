@@ -1,32 +1,25 @@
 @extends('layout.index')
 @section('content_btn')
     <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" data-toggle="dropdown">{{$type->name}}<i class="ion-android-arrow-dropdown"></i></a>
-        <div class="dropdown-menu">
+        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">{{$type->name}}<i class="ion-android-arrow-dropdown"></i></a>
+        <ul class="dropdown-menu dropdown-menu-end">
             @foreach($types as $value)
-                <a class="dropdown-item" href="?id={{$value->id}}">{{$value->name}}</a>
+                <li><a class="dropdown-item" href="?id={{$value->id}}">{{$value->name}}</a></li>
             @endforeach
-        </div>
+        </ul>
     </li>
 @endsection
 @section('content_table')
-    <div class="btn-group mb-3">
-        <ul class="button-nav nav nav-tabs mt-3 mb-3 ml-3" role="tablist">
-            <li><a class="btn-add" data-pos="right" data-menu="tool" data-id='{{$type->id}}' href="#">增加</a></li>
-            <li><a class="btn-delete check-multiple" data-pos="right" data-menu="tool" href="#">删除</a></li>
-            <li><a class="btn-edit check-single" data-pos="right" data-menu="tool" href="#">修改</a></li>
-            <li><a class="btn-show check-single" data-pos="left" data-menu="tool" href="#">查看</a></li>
-        </ul>
-    </div>
-    <table id="index-table" data-menu="tool?id={{$type->id}}" class="table table-hover mb-0">
+    <ul class="nav">
+        <li class="nav-item"><a class="nav-link btn-add" data-menu="tool" href="#" data-pos="right" data-id="{{$type->id}}">增加</a></li>
+        <li class="nav-item"><a class="nav-link btn-delete check-multiple" data-menu="tool" href="#" data-pos="right">删除</a></li>
+        <li class="nav-item"><a class="nav-link btn-edit check-single" data-menu="tool" href="#" data-pos="right">修改</a></li>
+        <li class="nav-item"><a class="nav-link btn-show check-single" data-menu="tool" href="#" data-pos="left">查看</a></li>
+    </ul>
+    <table id="index-table" data-menu="tool?id={{$type->id}}" class="table table-hover">
         <thead>
         <tr>
-            <th style="width:5%;">
-                <div class="styled-checkbox">
-                    <input type="checkbox" name="check-all" class="check-all" id="check-all">
-                    <label for="check-all"></label>
-                </div>
-            </th>
+            <th></th>
             <th>器具名称</th>
             <th>规格型号</th>
             <th>测量范围</th>

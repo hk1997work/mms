@@ -8,7 +8,7 @@ use App\Models\CertificatesView;
 use App\Models\Position;
 use App\Models\PositionsView;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Yajra\DataTables\DataTables;
 
 class PositionController extends Controller
 {
@@ -19,7 +19,34 @@ class PositionController extends Controller
 
     public function list(Request $request)
     {
-        return Position::getList($request);
+        return DataTables::of(PositionsView::query())
+            ->editColumn('name1', function ($data) {
+                return $this->toLevel($data, 1, 'name', 'position', 'dark', $data->sign);
+            })
+            ->editColumn('name2', function ($data) {
+                return $this->toLevel($data, 2, 'name', 'position', 'warning', $data->sign);
+            })
+            ->editColumn('name3', function ($data) {
+                return $this->toLevel($data, 3, 'name', 'position', 'success', $data->sign);
+            })
+            ->editColumn('name4', function ($data) {
+                return $this->toLevel($data, 4, 'name', 'position', 'info', $data->sign);
+            })
+            ->editColumn('code', function ($data) {
+                return $this->toBadges($data->code, 'primary');
+            })
+            ->editColumn('count', function ($data) {
+                return $this->toBadges($data->count == $data->total ? $data->total : $data->count . '/' . $data->total, $data->count || !$data->sign ? 'secondary' : 'danger');
+            })
+            ->filter(function ($query) use ($request) {
+                $this->toSearch($query, $request, ['name1', 'name2', 'name3', 'name4', 'code']);
+            })
+            ->order(function ($query) use ($request) {
+                $this->toOrder($query, $request);
+            })
+            ->rawColumns([1, 2, 3, 4, 5, 6])
+            ->removeColumn('total', 'level', 'sign')
+            ->make(false);
     }
 
     public function create()
@@ -37,7 +64,6 @@ class PositionController extends Controller
         $arr['pid'] = $request->pid;
         $arr['level'] = isset($parent->level) ? $parent->level + 1 : 1;
         $arr['sort'] = Position::max('id') + 1;
-        $arr['sort_str'] = isset($parent->sort_str) ? $parent->sort_str . ',' . $arr['sort'] : $arr['sort'];
         $arr['sign'] = $request->sign;
         return !!Position::create($arr);
     }
@@ -57,19 +83,7 @@ class PositionController extends Controller
 
     public function destroy($position)
     {
-        $ids = explode(',', $position);
-        $result = Position::whereIn('id', $ids)
-            ->where(function ($query) {
-                $query->has('children')
-                    ->orHas('certificates');
-            })
-            ->pluck('name')
-            ->implode(',');
-        if ($result) {
-            return $result . '使用中,无法删除';
-        } else {
-            return !!Position::whereIn('id', $ids)->delete();
-        }
+        return $this->delete(Position::class, $position, ['children', 'certificate', 'tool'], 'name');
     }
 
     public function move(Position $position, $type)

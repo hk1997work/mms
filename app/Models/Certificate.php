@@ -15,6 +15,6 @@ class Certificate extends Model
 
     public function standards()
     {
-        return $this->belongsToMany(StandardsView::class, 'standard_certificate', 'certificate_id', 'standard_id')->withPivot(['certificate_id', 'standard_id'])->orderBy('standard_id');
+        return $this->belongsToMany(Standard::class);
     }
 }

@@ -16,7 +16,7 @@ class User extends Authenticatable
     //当前用户所有角色
     public function roles()
     {
-        return $this->belongsToMany(Role::class, 'role_user', 'user_id', 'role_id')->orderBy('role_id');
+        return $this->belongsToMany(Role::class);
     }
 
     //用户是否有权限

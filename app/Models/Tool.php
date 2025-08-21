@@ -12,4 +12,9 @@ class Tool extends Model
     protected $fillable = [
         'instrument', 'model', 'limit', 'accuracy', 'requirement', 'type_id', 'cycle_id', 'abc_id', 'plan_id', 'vulnerable'
     ];
+
+    public function factory()
+    {
+        return $this->hasMany(Factory::class);
+    }
 }

@@ -20,30 +20,16 @@ class UserController extends Controller
     {
         return DataTables::of(UsersView::query())
             ->editColumn('username', function ($data) {
-                return $data->role
-                    ? e($data->username)
-                    : "<span class='badge bg-danger-subtle border border-danger-subtle text-danger-emphasis'>" . e($data->username) . "</span>";
+                return $this->toValidText($data->username, $data->role);
             })
             ->addColumn('role', function ($data) {
-                $arrays = explode(',', $data->role);
-                $badges = [];
-                foreach ($arrays as $array) {
-                    $badges[] = "<span class='badge bg-secondary-subtle border border-secondary-subtle text-secondary-emphasis'>" . e($array) . "</span>";
-                }
-                return implode(' ', $badges);
+                return $this->toBadges($data->role, 'secondary');
             })
             ->filter(function ($query) use ($request) {
-                if (!empty($search = $request->search['value'])) {
-                    $terms = explode(' ', $search);
-                    $query->where(function ($q) use ($terms) {
-                        foreach ($terms as $term) {
-                            $q->where(function ($innerQ) use ($term) {
-                                $innerQ->where('username', 'like', "%$term%")
-                                    ->orWhere('role', 'like', "%$term%");
-                            });
-                        }
-                    });
-                }
+                $this->toSearch($query, $request, ['username', 'role']);
+            })
+            ->order(function ($query) use ($request) {
+                $this->toOrder($query, $request);
             })
             ->rawColumns([1, 2])
             ->make(false);
@@ -74,16 +60,7 @@ class UserController extends Controller
 
     public function destroy($user)
     {
-        $ids = explode(',', $user);
-        $result = User::whereIn('id', $ids)
-            ->has('roles')
-            ->pluck('username')
-            ->implode(',');
-        if ($result) {
-            return $result . '使用中,无法删除';
-        } else {
-            return !!User::whereIn('id', $ids)->delete();
-        }
+        return $this->delete(User::class, $user, ['roles'], 'username');
     }
 
     public function role($user)
