@@ -9,20 +9,18 @@ function initTable(table) {
             language: {url: '/admin/assets/vendors/js/datatables/zh.json'},
             ajax: {url: "/ajax_" + table.data('menu'), type: "POST", data: {"_token": csrf_token}},
             serverSide: true,
-            processing: true,
             scrollX: true,
             scrollY: $(window).height() - table.offset().top - 150,
             rowId: 0,
             searchDelay: 500,
             order: [1, 'asc'],
             fixedColumns: {leftColumns: 1},
-            select: {style: 'multi', selector: 'td:first-child'},
-            columnDefs: [{orderable: false, render: DataTable.render.select(), targets: 0} ,{ type: 'string', targets: '_all' }],
+            select: {style: 'multi', selector: 'td:first-child', headerCheckbox: false},
+            scroller: true,
+            columnDefs: [{orderable: false, render: DataTable.render.select(), targets: 0}, {type: 'string', targets: '_all'}],
         };
-        if (table.hasClass('table-list')) {
+        if (table.hasClass('table-tree')) {
             options.ordering = false;
-            options.scroller = true;
-            options.select = {style: 'multi', selector: 'td:first-child', headerCheckbox: false};
         }
         let dt = table.DataTable(options);
         dt.on('xhr.dt', function () {

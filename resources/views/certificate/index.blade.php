@@ -46,12 +46,7 @@
     <table id="index-table" data-menu="certificate?id={{$type->id}}&path={{$menu}}" class="table table-hover mb-0">
         <thead>
         <tr>
-            <th style="width:5%;">
-                <div class="styled-checkbox">
-                    <input type="checkbox" name="check-all" class="check-all" id="check-all">
-                    <label for="check-all"></label>
-                </div>
-            </th>
+            <th></th>
             <th>序号</th>
             <th>岗位</th>
             <th>证书编号</th>

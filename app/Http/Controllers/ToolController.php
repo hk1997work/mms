@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ToolRequest;
-use App\Models\Factory;
 use App\Models\NumbersView;
 use App\Models\Parameter;
 use App\Models\Position;
@@ -24,7 +23,7 @@ class ToolController extends Controller
 
     public function list(Request $request)
     {
-        return DataTables::of(ToolsView::query()->where('type_id', $_GET['id']))
+        return DataTables::of(ToolsView::where('type_id', $_GET['id']))
             ->editColumn('active', function ($data) {
                 return $this->toBadges($data->active ?: null, 'success');
             })

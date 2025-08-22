@@ -7,7 +7,7 @@
         <li class="nav-item"><a class="nav-link btn-move check-single" data-menu="parameter" href="#" data-type="1">上移</a></li>
         <li class="nav-item"><a class="nav-link btn-move check-single" data-menu="parameter" href="#" data-type="0">下移</a></li>
     </ul>
-    <table id="index-table" data-menu="parameter" class="table table-hover table-list">
+    <table id="index-table" data-menu="parameter" class="table table-hover table-tree">
         <thead>
         <tr>
             <th></th>

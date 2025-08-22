@@ -245,14 +245,6 @@ class Controller extends BaseController
         return $str;
     }
 
-
-    function toValidText($text, $valid)
-    {
-        return $valid
-            ? e($text)
-            : "<span class='badge bg-danger-subtle border border-danger-subtle text-danger-emphasis'>" . e($text) . "</span>";
-    }
-
     function toBadges($str, $type)
     {
         $texts = explode(',', $str);

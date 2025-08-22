@@ -14,9 +14,11 @@ use App\Models\StandardsView;
 use App\Models\Tool;
 use App\Models\ToolsView;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+use Yajra\DataTables\DataTables;
 
 
 class CertificateController extends Controller
@@ -28,58 +30,56 @@ class CertificateController extends Controller
         return view("certificate.index", compact('types', 'type'));
     }
 
-    public function list()
+    public function list(Request $request)
     {
-
         $path = $_GET['path'];
-        $type_id = isset($_GET['id']) ? $_GET['id'] : Position::where('level', 2)->orderBy('sort')->first()->id;
-        $data = CertificatesView::select('id', 'order', 'position', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'remark', 'number_remark', 'unit3');
+        $id = $_GET['id'];
+        $query = CertificatesView::where(function ($query) use ($id) {
+            $query->where('type_id', $id)
+                ->orWhere('unit_id', $id);
+        });;
         switch ($path) {
             case 'active':
-                $data->where('valid', 1);
+                $query->where('valid', 1);
                 break;
             case 'invalid':
-                $data->where('valid', 0);
+                $query->where('valid', 0);
                 break;
             case 'deactive':
-                $data->where('state', '封存');
+                $query->where('state', '封存');
                 break;
             case 'scrap':
-                $data->where('state', '报废');
+                $query->where('state', '报废');
                 break;
         }
-        if ($path == 'active' || $path == 'invalid') {
-            $data = $data->where(function ($query) use ($type_id) {
-                $query->where('unit1_id', $type_id)
-                    ->orWhere('unit2_id', $type_id)
-                    ->orWhere('unit3_id', $type_id)
-                    ->orWhere('unit4_id', $type_id)
-                    ->orWhere('position_id', $type_id);
-            });
-        }
-        $data = $data->orderBy('validity_date')->get()->toArray();
-        foreach ($data as $key => $value) {
-            $data[$key]['id'] = "<div class='styled-checkbox'>
-                        <input type='checkbox' name='cb' class='cb' id='$value[id]' data-url='/storage/certificate/$value[id].pdf'>
-                        <label for='$value[id]'></label>
-                    </div>";
-            if ($value['validity_date'] < Carbon::now()->format('Y-m-d') && ($path == 'active')) {
-                $data[$key]['instrument'] = "<span class='tag btn-sm tag-danger'>$value[instrument]</span>";
-            } elseif ($value['validity_date'] < Carbon::now()->subMonth(-1)->format('Y-m-d') && ($path == 'active')) {
-                $data[$key]['instrument'] = "<span class='tag btn-sm tag-warning'>$value[instrument]</span>";
-            } else {
-                $data[$key]['instrument'] = $value['instrument'];
-            }
-            $data[$key]['remark'] = $data[$key]['remark'] . ($data[$key]['number_remark'] ? '<div class="text-primary">' . $data[$key]['number_remark'] . '</div>' : '');
-            if ($path == 'active' && $value['position'] != '备用' && ($value['unit3'] == '计量器具' || $value['unit3'] == '检测仪表')) {
-                $folderPath = "public/check/$value[id]";
-                if (!Storage::exists($folderPath) || !count(Storage::files($folderPath))) {
-                    $data[$key]['remark'] = "<span class='text-danger'>检查</span>" . $data[$key]['remark'];
+        return DataTables::of($query)
+            ->editColumn('instrument', function ($data) use ($path) {
+                if ($data->validity_date < Carbon::now()->format('Y-m-d') && ($path == 'active')) {
+                    return $this->toBadges($data->instrument, 'danger');
+                } elseif ($data->validity_date < Carbon::now()->subMonth(-1)->format('Y-m-d') && ($path == 'active')) {
+                    return $this->toBadges($data->instrument, 'warning');
+                } else {
+                    return $data->instrument;
                 }
-            }
-            unset($data[$key]['unit3']);
-        }
-        return response()->json(['data' => array_map('array_values', $data)]);
+            })
+            ->editColumn('remark', function ($data) use ($path) {
+                if ($path == 'active' && $data->position != '备用') {
+                    $folderPath = "public/check/$data->id";
+                    if (!Storage::exists($folderPath) || !count(Storage::files($folderPath))) {
+                        return $this->toBadges('检查', 'danger') . ' ' . $data->remark;
+                    }
+                } else {
+                    return $data->remark;
+                }
+            })
+            ->filter(function ($query) use ($request) {
+                $this->toSearch($query, $request, ['username', 'role']);
+            })
+            ->order(function ($query) use ($request) {
+                $this->toOrder($query, $request);
+            })
+            ->rawColumns([4, 7, 10])
+            ->make(false);
     }
 
     public function create()

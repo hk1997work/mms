@@ -5,7 +5,7 @@
         <li class="nav-item"><a class="nav-link btn-delete check-multiple" data-menu="standard" href="#" data-pos="right">删除</a></li>
         <li class="nav-item"><a class="nav-link btn-edit check-single" data-menu="standard" href="#" data-pos="right">修改</a></li>
     </ul>
-    <table id="index-table" data-menu="standard" class="table table-hover table-list">
+    <table id="index-table" data-menu="standard" class="table table-hover table-tree">
         <thead>
         <tr>
             <th></th>
