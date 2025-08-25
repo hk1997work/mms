@@ -225,7 +225,6 @@ class NanjingController extends Controller
         $res = $client->request('GET', 'http://58.213.156.66' . $json->data);
         if (isset($_GET['type'])) {
             return response($res->getBody())->header('Content-Type', 'application/pdf');
-
         } else {
             return response((string)$res->getBody())->header('Content-Type', 'application/pdf')->header('Content-Disposition', 'attachment; filename="' . $nanjing . '.pdf"');
         }
@@ -254,7 +253,7 @@ class NanjingController extends Controller
                     }
                     if ($confirm_list) {
                         $confirm_str = '{"type":"1","orders":"'
-                            . implode($confirm_order, ',')
+                            . implode(',', $confirm_order)
                             . '","checkedOrderList":'
                             . json_encode($confirm_list)
                             . ',"total_prince":"'
@@ -262,10 +261,14 @@ class NanjingController extends Controller
                             . '","dw_id":"11740","apply_company":"南京巨龙钢管有限公司","contacts":"刘迪龙","telphone_num":"13155555418","tax_header":"南京巨龙钢管有限公司","tax_type":"4","tax_payer":"91320191667351423J","tax_email":"130199362@qq.com"}';
                         $client->post('http://58.213.156.66/cmiims/a/sys/payOnline/applyPayOnlineAndBatchVerify', ['body' => $this->nanjing_encode($confirm_str), 'headers' => ['Cookie' => $headers['headers']['Cookie'] . ';cmiims_login_name=13155555418;']]);
                     }
-                    $get_list_res = $client->request('GET', 'http://58.213.156.66/cmiims/a/sys/adminECertQuery/listenceInfo?' .
-                        $this->nanjing_encode('{"pageNo":1,"pageSize":"9999","orderBy":"","beginTime":"2025-01-01","searchConditionFilter":[],"mindParam1":"' .
+                    $get_list_res = $client->request(
+                        'GET',
+                        'http://58.213.156.66/cmiims/a/sys/adminECertQuery/listenceInfo?' .
+                        $this->nanjing_encode(
+                            '{"pageNo":1,"pageSize":"9999","orderBy":"","beginTime":"2025-01-01","searchConditionFilter":[],"mindParam1":"' .
                             $this->nanjing_encode('{"pageNo":1,"pageSize":"9999","orderBy":"","beginTime":"2025-01-01","searchConditionFilter":[]}') .
-                            '","mindParam2":"1c8316e832e2a6059985ec9ad686ef77"}')
+                            '","mindParam2":"1c8316e832e2a6059985ec9ad686ef77"}'
+                        )
                         , $headers);
                     $get_list_result = $this->nanjing_decode((string)$get_list_res->getBody());
                     if (substr($get_list_result, 0, 7) == '{"data"') {
@@ -286,7 +289,7 @@ class NanjingController extends Controller
             if (strlen($out[count($out) - 1]) == 4) {
                 $str = $this->nanjing_encode('{"userName":"13155555418","password":"Qq199362","userType":"0","validateCode":"' . $out[count($out) - 1] . '","type":"2","codeType":""}');
                 #登录
-                $login_res = $client->post('http://58.213.156.66/cmiims/a/api/ajaxLogin', ['body' => $str, 'headers' => ['Cookie' => $session]]);
+                $client->post('http://58.213.156.66/cmiims/a/api/ajaxLogin', ['body' => $str, 'headers' => ['Cookie' => $session]]);
                 request()->session()->put('nanjing_headers', ['headers' => ['Cookie' => $session]]);
             }
         }

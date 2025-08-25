@@ -27,7 +27,6 @@ class PermissionController extends Controller
             })
             ->editColumn('description3', function ($data) {
                 return $this->toLevel($data, 3, 'description', 'permission', 'info', $data->role);
-
             })
             ->editColumn('role', function ($data) {
                 return $this->toBadges($data->role, 'secondary');
@@ -35,9 +34,7 @@ class PermissionController extends Controller
             ->filter(function ($query) use ($request) {
                 $this->toSearch($query, $request, ['description1', 'description2', 'description3', 'name', 'role']);
             })
-            ->order(function ($query) use ($request) {
-                $this->toOrder($query, $request);
-            })
+            ->setTotalRecords(Permission::count())
             ->removeColumn('level')
             ->rawColumns([1, 2, 3, 5])
             ->make(false);

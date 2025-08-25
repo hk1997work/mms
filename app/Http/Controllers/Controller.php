@@ -312,8 +312,15 @@ class Controller extends BaseController
         });
     }
 
-    function toOrder($query, $request)
+    function toOrder($query, $request, $lists)
     {
+        if (empty($request->order)) {
+            return $query;
+        }
+        $order = $request->order[0];
+        $columnIndex = $order['column'];
+        $direction = $order['dir'];
+        return $query->orderBy($lists[$columnIndex], $direction);
     }
 
     function moveUpDown($model, $type)

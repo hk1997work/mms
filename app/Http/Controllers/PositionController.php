@@ -21,29 +21,27 @@ class PositionController extends Controller
     {
         return DataTables::of(PositionsView::query())
             ->editColumn('name1', function ($data) {
-                return $this->toLevel($data, 1, 'name', 'position', 'dark', $data->sign);
+                return $this->toLevel($data, 1, 'name', 'position', 'dark', $data->count || !$data->sign);
             })
             ->editColumn('name2', function ($data) {
-                return $this->toLevel($data, 2, 'name', 'position', 'warning', $data->sign);
+                return $this->toLevel($data, 2, 'name', 'position', 'warning', $data->count || !$data->sign);
             })
             ->editColumn('name3', function ($data) {
-                return $this->toLevel($data, 3, 'name', 'position', 'success', $data->sign);
+                return $this->toLevel($data, 3, 'name', 'position', 'success', $data->count || !$data->sign);
             })
             ->editColumn('name4', function ($data) {
-                return $this->toLevel($data, 4, 'name', 'position', 'info', $data->sign);
+                return $this->toLevel($data, 4, 'name', 'position', 'info', $data->count || !$data->sign);
             })
             ->editColumn('code', function ($data) {
                 return $this->toBadges($data->code, 'primary');
             })
             ->editColumn('count', function ($data) {
-                return $this->toBadges($data->count == $data->total ? $data->total : $data->count . '/' . $data->total, $data->count || !$data->sign ? 'secondary' : 'danger');
+                return $this->toBadges($data->count == $data->total ? $data->total : $data->count . '/' . $data->total, $data->sign ? 'secondary' : 'danger');
             })
             ->filter(function ($query) use ($request) {
                 $this->toSearch($query, $request, ['name1', 'name2', 'name3', 'name4', 'code']);
             })
-            ->order(function ($query) use ($request) {
-                $this->toOrder($query, $request);
-            })
+            ->setTotalRecords(Position::count())
             ->rawColumns([1, 2, 3, 4, 5, 6])
             ->removeColumn('total', 'level', 'sign')
             ->make(false);

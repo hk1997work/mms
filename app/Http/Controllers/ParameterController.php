@@ -31,9 +31,7 @@ class ParameterController extends Controller
             ->filter(function ($query) use ($request) {
                 $this->toSearch($query, $request, ['name1', 'name2']);
             })
-            ->order(function ($query) use ($request) {
-                $this->toOrder($query, $request);
-            })
+            ->setTotalRecords(Parameter::count())
             ->removeColumn('level')
             ->rawColumns([1, 2, 3])
             ->make(false);

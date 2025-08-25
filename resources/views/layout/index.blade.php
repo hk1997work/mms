@@ -1,7 +1,7 @@
 @extends('layout.main')
 
 @section('content')
-    <div class="row flex-row">
+    <div class="row flex-row index">
         <div class="col-12">
             <div class="d-flex align-items-center justify-content-end">
                 <ul class="nav">

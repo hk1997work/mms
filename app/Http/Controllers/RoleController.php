@@ -38,8 +38,9 @@ class RoleController extends Controller
                 $this->toSearch($query, $request, ['name', 'user', 'permission', 'position']);
             })
             ->order(function ($query) use ($request) {
-                $this->toOrder($query, $request);
+                $this->toOrder($query, $request, ['id', 'name', 'user', 'permission', 'position']);
             })
+            ->setTotalRecords(Role::count())
             ->removeColumn('permission_id', 'position_id')
             ->rawColumns([1, 2, 3, 4])
             ->make(false);

@@ -49,8 +49,9 @@ class ToolController extends Controller
                 $this->toSearch($query, $request, ['instrument', 'model', 'limit', 'accuracy', 'cycle', 'abc', 'requirement']);
             })
             ->order(function ($query) use ($request) {
-                $this->toOrder($query, $request);
+                $this->toOrder($query, $request, ['id', 'instrument', 'model', 'limit', 'accuracy', 'cycle', 'abc', 'active', 'inactive', 'deactive', 'broken', 'scrap', 'total', 'vulnerable', 'requirement']);
             })
+            ->setTotalRecords(Tool::where('type_id', $_GET['id'])->count())
             ->rawColumns([7, 8, 9, 10, 11, 12, 13])
             ->removeColumn('type_id', 'mistake')
             ->make(false);

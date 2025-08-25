@@ -25,6 +25,13 @@ class UserController extends Controller
             ->editColumn('role', function ($data) {
                 return $this->toBadges($data->role, 'secondary');
             })
+            ->filter(function ($query) use ($request) {
+                $this->toSearch($query, $request, ['username', 'role']);
+            })
+            ->order(function ($query) use ($request) {
+                $this->toOrder($query, $request, ['id', 'username', 'role']);
+            })
+            ->setTotalRecords(User::count())
             ->rawColumns([1, 2])
             ->make(false);
     }
