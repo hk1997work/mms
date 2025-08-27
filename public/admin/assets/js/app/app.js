@@ -1,5 +1,11 @@
 (function ($) {
     'use strict';
+    $(window).on("load", function () {
+        if (document.querySelectorAll('table').length == 0) {
+            $("#preloader").fadeOut();
+        }
+    });
+
     $(document).on('mouseover', '[data-bs-toggle="popover"]', function () {
         $(this).popover();
         $(this).popover('show');

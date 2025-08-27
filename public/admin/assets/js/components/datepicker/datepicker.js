@@ -13,5 +13,12 @@
                 format: 'YYYY-MM-DD'
             }
         });
+
+        $('#daterange').daterangepicker({
+            autoApply: true,
+            locale: {
+                format: 'YYYY-MM-DD'
+            }
+        });
     });
 })(jQuery);

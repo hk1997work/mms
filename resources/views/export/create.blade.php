@@ -1,7 +1,7 @@
 @extends('layout.create')
 @section('content_form')
     <div class="col-12">
-        <table id="no-ajax-table" class="table table-hover mb-0">
+        <table id="off-sidebar-table" class="table table-hover table-data">
             <thead>
             <tr>
                 <th></th>
@@ -13,14 +13,8 @@
             </thead>
             <tbody>
             @foreach($certificates as $certificate)
-                <tr>
-                    <td style="width:5%;">
-                        <div class="styled-checkbox">
-                            <input type="checkbox" name="cb[{{$certificate->order}}]" id="cb[{{$certificate->order}}]"
-                                   @if(in_array($certificate->order, $settings)) checked @endif>
-                            <label for="cb[{{$certificate->order}}]"></label>
-                        </div>
-                    </td>
+                <tr class="{{ in_array($certificate->order, $settings) ? 'selected' : '' }}">
+                    <td>{{$certificate->order}}</td>
                     <td>{{$certificate->order}}</td>
                     <td>{{$certificate->position}}</td>
                     <td>{{$certificate->instrument}}</td>

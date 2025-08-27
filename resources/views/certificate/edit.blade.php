@@ -403,7 +403,7 @@
                 @if($spares->count()!=0)
                     <div role="tabpanel" class="tab-pane show active" id="spare-tab" aria-labelledby="spare-btn">
                         <div class="col-12">
-                            <table id="off-sidebar-table" class="table table-hover table-data">
+                            <table id="off-sidebar-table" class="table table-hover table-data table-unselect">
                                 <thead>
                                 <tr>
                                     <th>序号</th>
@@ -436,7 +436,7 @@
                                                     <input type="hidden" name="type" value="spare">
                                                     <input type="hidden" name="id" value="{{$certificate->id}}">
                                                     <input type="hidden" name="cause" value="待检">
-                                                    <button class="btn btn-outline-secondary btn-sm submit-edit" data-id="{{$spare->id}}">更换</button>
+                                                    <button class="btn btn-outline-secondary btn-sm submit-edit sidebar-url" data-id="{{$spare->id}}">更换</button>
                                                 </form>
                                                 <form action="" onsubmit="return false;">
                                                     {{method_field("put")}}
@@ -444,7 +444,7 @@
                                                     <input type="hidden" name="type" value="spare">
                                                     <input type="hidden" name="id" value="{{$certificate->id}}">
                                                     <input type="hidden" name="cause" value="损坏">
-                                                    <button class="btn btn-outline-secondary btn-sm submit-edit mx-1" data-id="{{$spare->id}}">损坏</button>
+                                                    <button class="btn btn-outline-secondary btn-sm submit-edit sidebar-url mx-1" data-id="{{$spare->id}}">损坏</button>
                                                 </form>
                                             </div>
                                         </td>

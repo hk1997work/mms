@@ -19,6 +19,11 @@ function initTable(table) {
             select: {style: 'multi', selector: 'td:first-child', headerCheckbox: false},
             scroller: true,
             columnDefs: [{orderable: false, render: DataTable.render.select(), targets: 0}, {type: 'string', targets: '_all'}],
+            rowCallback: function (row, data) {
+                if ($(row).hasClass('selected')) {
+                    this.api().row(row).select();
+                }
+            }
         };
         if (table.hasClass('table-tree')) {
             options.ordering = false;
@@ -28,10 +33,12 @@ function initTable(table) {
         }
         if (table.hasClass('table-data')) {
             options.serverSide = false;
-            options.select = false;
-            options.order = false;
-            options.columnDefs = [{type: 'string', orderable: false, targets: '_all'}];
             delete options.ajax;
+        }
+        if (table.hasClass('table-unselect')) {
+            options.select = false;
+            options.columnDefs = [{type: 'string', orderable: false, targets: '_all'}];
+            options.order = false;
         }
         let dt = table.DataTable(options);
         dt.on('xhr.dt', function () {
@@ -60,15 +67,6 @@ function btn_change(obj, count) {
         obj.find('.check-single').css('visibility', 'hidden');
         obj.find('.check-multiple').css('visibility', 'visible');
     }
-}
-
-function table_reload(table) {
-    table.ajax.reload(function () {
-        let pageInfo = table.page.info();
-        if (pageInfo.page >= pageInfo.pages) {
-            table.page('last').draw(false);
-        }
-    }, false);
 }
 
 dataTable = initTable($('table'));
@@ -154,11 +152,11 @@ function submit_ajax(btn, url, callback) {
                         callback();
                     }
                     notifications(title + '成功');
-                    if (offSidebarDataTable) {
-                        table_reload(offSidebarDataTable);
+                    if (offSidebarDataTable && offSidebarDataTable.settings()[0].oInit.ajax) {
+                        offSidebarDataTable.reload(null, false);
                     }
-                    if (dataTable) {
-                        table_reload(dataTable);
+                    if (dataTable && dataTable.settings()[0].oInit.ajax) {
+                        dataTable.reload(null, false);
                     }
                     sidebar.removeClass('is-visible');
                 } else if (result == false) {
@@ -192,12 +190,14 @@ function submit_ajax(btn, url, callback) {
 }
 
 $('.index,.off-sidebar').on('click', '.submit-add', function () {
-    let url = "/" + $(this).data('url');
+    let table = offSidebarDataTable ? offSidebarDataTable : dataTable;
+    let id = table.select.cumulative().rows.join(',');
+    let url = "/" + $(this).data('url') + (id ? '?id=' + id : '');
     submit_ajax($(this), url);
 })
 $('.index,.off-sidebar').on('click', '.submit-edit', function () {
     let table = offSidebarDataTable ? offSidebarDataTable : dataTable;
-    let id = table.select.cumulative().rows.join(',');
+    let id = $(this).data('id') ? $(this).data('id') : table.select.cumulative().rows.join(',');
     let url = "/" + $(this).data('url') + '/' + id;
     submit_ajax($(this), url);
 })
