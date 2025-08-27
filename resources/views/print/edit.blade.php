@@ -8,8 +8,8 @@
         <div class="sidebar-heading mt-3 mb-2">起始列(1-5)</div>
         <input type="text" name="column" class="form-control" value="1">
     </div>
-    <div class="col-12 styled-checkbox ml-3">
-        <input type="checkbox" name="check_position" id="check_position" class="form-control">
+    <div class="col-12">
+        <input type="checkbox" name="check_position" id="check_position">
         <label class="sidebar-heading mt-3 mb-2" for="check_position">打印岗位信息</label>
     </div>
 @endsection

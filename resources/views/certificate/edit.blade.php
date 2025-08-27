@@ -108,9 +108,9 @@
                     </div>
                     <div class="col-6 div-standard_id">
                         <div class="sidebar-heading mt-3 mb-2">检定标准</div>
-                        <select name="standard_id[]" class="form-control form-select" data-live-search="true" multiple>
+                        <select name="standard_id[]" class="form-control form-select" data-live-search="true" multiple title="请选择...">
                             @foreach($standards as $standard)
-                                <option value="{{$standard->id}}" @if($certificate->standards->contains($standard->id)) selected @endif>{{$standard->name2}}{{Str::limit($standard->name1,35)}}-</option>
+                                <option value="{{$standard->id}}" @if($certificate->standards->contains($standard->id)) selected @endif>{{$standard->name2}}-{{Str::limit($standard->name1,35)}}</option>
                             @endforeach
                         </select>
                     </div>
@@ -137,7 +137,7 @@
                 </div>
                 <div class="position-fixed bottom-0 end-0 p-3">
                     <button class="btn btn-outline-primary submit-edit sidebar-url">确 定</button>
-                    <button class="btn btn-outline-secondary sidebar-close">取 消</button>
+                    <button class="btn btn-outline-secondary sidebar-close">返 回</button>
                 </div>
             </form>
         </div>
@@ -255,7 +255,7 @@
                         </div>
                         <div class="position-fixed bottom-0 end-0 p-3">
                             <button class="btn btn-outline-primary submit-edit sidebar-url">确 定</button>
-                            <button class="btn btn-outline-secondary sidebar-close">取 消</button>
+                            <button class="btn btn-outline-secondary sidebar-close">返 回</button>
                         </div>
                     </form>
                 </div>
@@ -367,7 +367,7 @@
                             </div>
                             <div class="col-6 div-standard_id">
                                 <div class="sidebar-heading mt-3 mb-2">检定标准</div>
-                                <select name="standard_id[]" class="form-control form-select" data-live-search="true" multiple>
+                                <select name="standard_id[]" class="form-control form-select" data-live-search="true" multiple title="请选择...">
                                     @foreach($standards as $standard)
                                         <option value="{{$standard->id}}">{{$standard->name1}}-{{Str::limit($standard->name2,35)}}</option>
                                     @endforeach
@@ -396,7 +396,7 @@
                         </div>
                         <div class="position-fixed bottom-0 end-0 p-3">
                             <button class="btn btn-outline-primary submit-edit sidebar-url">确 定</button>
-                            <button class="btn btn-outline-secondary sidebar-close">取 消</button>
+                            <button class="btn btn-outline-secondary sidebar-close">返 回</button>
                         </div>
                     </form>
                 </div>
@@ -454,7 +454,7 @@
                             </table>
                         </div>
                         <div class="position-fixed bottom-0 end-0 p-3">
-                            <button class="btn btn-outline-secondary sidebar-close">取 消</button>
+                            <button class="btn btn-outline-secondary sidebar-close">返 回</button>
                         </div>
                     </div>
                 @endif

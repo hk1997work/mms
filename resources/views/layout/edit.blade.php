@@ -16,7 +16,7 @@
             @yield('content_form')
             <div class="position-fixed bottom-0 end-0 p-3">
                 <button class="btn btn-outline-primary submit-edit sidebar-url">确 定</button>
-                <button class="btn btn-outline-secondary sidebar-close">取 消</button>
+                <button class="btn btn-outline-secondary sidebar-close">返 回</button>
             </div>
         </form>
     </div>

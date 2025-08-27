@@ -29,7 +29,7 @@ function initTable(table) {
         if (table.hasClass('table-data')) {
             options.serverSide = false;
             options.select = false;
-            options.order=false;
+            options.order = false;
             options.columnDefs = [{type: 'string', orderable: false, targets: '_all'}];
             delete options.ajax;
         }
@@ -224,6 +224,15 @@ $('.index,.off-sidebar').on('click', '.btn-download , .btn-open', function () {
     $.each(id.split(','), function (index, value) {
         window.open('/download_' + menu + '/' + value + type);
     })
+})
+$('.index,.off-sidebar').on('click', '.btn-submit', function () {
+    let table = offSidebarDataTable ? offSidebarDataTable : dataTable;
+    let id = table.select.cumulative().rows.join(',');
+    let pos = $(this).closest('.off-sidebar').data('pos')
+    let url = "/" + $(this).data('url') + '/' + id;
+    $('.from-' + pos).find('form').attr('action', url)
+    $('.from-' + pos).removeClass('is-visible');
+    $('.from-' + pos).find('form').submit()
 })
 
 // 修改输入时,去掉错误提示

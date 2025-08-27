@@ -409,6 +409,7 @@ $('.table-responsive,.off-sidebar').on('click', '.btn-submit', function () {
     }
     let pos = $(this).closest('.off-sidebar').data('pos')
     let url = "/" + $('.from-' + pos).find('.sidebar-url').val() + '/' + id
+    alert(url)
     $('.from-' + pos).find('form').attr('action', url)
     $('.from-' + pos).removeClass('is-visible');
     $('.from-' + pos).find('form').submit()

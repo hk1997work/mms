@@ -8,11 +8,9 @@ use App\Models\CertificatesView;
 use App\Models\Number;
 use App\Models\Parameter;
 use App\Models\Position;
-use App\Models\PositionsView;
 use App\Models\Standard;
 use App\Models\StandardsView;
 use App\Models\Tool;
-use App\Models\ToolsView;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -35,7 +33,7 @@ class CertificateController extends Controller
     public function list(Request $request)
     {
         $path = $_GET['path'];
-        $query = CertificatesView::where('type_id', $_GET['id']);
+        $query = CertificatesView::select('id', 'order', 'position', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'remark')->where('type_id', $_GET['id']);
         if (isset($_GET['position'])) {
             $query->where('unit_id', $_GET['position']);
         }
@@ -69,7 +67,6 @@ class CertificateController extends Controller
             ->order(function ($query) use ($request) {
                 $this->toOrder($query, $request, ['id', 'order', 'position', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'remark']);
             })
-            ->removeColumn('valid', 'type_id', 'unit_id', 'state')
             ->rawColumns([4])
             ->make(false);
     }
@@ -224,7 +221,7 @@ class CertificateController extends Controller
 
     public function show(Certificate $certificate)
     {
-        $certificates = DB::table('certificates_views')->where('position_id', $certificate->position_id)->where('sn', $certificate->sn)->orderBy('verification_date', 'desc')->get();
+        $certificates = CertificatesView::where('position_id', $certificate->position_id)->where('sn', $certificate->sn)->orderBy('verification_date', 'desc')->get();
         foreach ($certificates as $c) {
             $c->path = "storage/jpg/$c->id";
             if (!File::exists($c->path)) {

@@ -1,13 +1,15 @@
 @extends('layout.show')
 @section('content_title')
     @foreach($certificates as $certificate)
-        <li><a data-toggle="tab" href="#tab-{{$certificate->id}}" role="tab" id="btn-{{$certificate->id}}" hidden></a></li>
+        <li>
+            <button data-toggle="tab" data-target="#tab-{{$certificate->id}}" id="btn-{{$certificate->id}}" hidden></button>
+        </li>
     @endforeach
 @endsection
 @section('content_form')
     <div class="tab-content">
         @foreach($certificates as $certificate)
-            <div role="tabpanel" class="tab-pane @if($certificate->id==$disable) show active @endif fade" id="tab-{{$certificate->id}}" aria-labelledby="btn-{{$certificate->id}}">
+            <div role="tabpanel" class="tab-pane @if($certificate->id==$disable) show active @endif" id="tab-{{$certificate->id}}" aria-labelledby="btn-{{$certificate->id}}">
                 <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 row">
                         <div class="col-4">
@@ -104,28 +106,24 @@
                         </div>
                     </div>
                     <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12">
-                        <div>
-                            <ul class="nav nav-tabs nav-fill" role="tablist">
-                                @for($page=0;$page<count($certificate->files);$page++)
-                                    <li class="nav-item">
-                                        <a class="nav-link @if($page==0) active @endif" id="just-tab-{{$certificate->id}}-{{$page+1}}" data-toggle="tab" href="#j-tab-{{$certificate->id}}-{{$page+1}}" role="tab">{{$page+1}}</a>
-                                    </li>
-                                @endfor
-                            </ul>
-                            <div class="tab-content basic-scroll pt-3" style="height: auto;overflow: auto">
-                                @for($page=0;$page<count($certificate->files);$page++)
-                                    <div class="tab-pane fade @if($page==0) show active @endif" id="j-tab-{{$certificate->id}}-{{$page+1}}" role="tabpanel" aria-labelledby="just-tab-{{$certificate->id}}-{{$page+1}}">
-                                        <div class="div-img">
-                                            <img src="/{{$certificate->path}}/{{$page}}.jpg" style="max-width: 100%;min-height: 570px" loading="lazy">
-                                        </div>
-                                    </div>
-                                @endfor
-                            </div>
+                        <ul class="nav nav-tabs nav-fill" role="tablist">
+                            @for($page=0;$page<count($certificate->files);$page++)
+                                <li class="nav-item">
+                                    <a class="nav-link @if($page==0) active @endif" id="just-tab-{{$certificate->id}}-{{$page+1}}" data-toggle="tab" href="#tab-{{$certificate->id}}-{{$page+1}}" role="tab">{{$page+1}}</a>
+                                </li>
+                            @endfor
+                        </ul>
+                        <div class="tab-content d-flex overflow-auto">
+                            @for($page=0;$page<count($certificate->files);$page++)
+                                <div role="tabpanel" class="tab-pane @if($page==0) show active @endif" id="tab-{{$certificate->id}}-{{$page+1}}" aria-labelledby="just-tab-{{$certificate->id}}-{{$page+1}}">
+                                    <img class="w-100" src="/{{$certificate->path}}/{{$page}}.jpg" loading="lazy">
+                                </div>
+                            @endfor
                         </div>
                     </div>
                 </div>
-                <div class="enter-message">
-                    <button class="btn btn-outline-secondary ripple sidebar-close">取 消</button>
+                <div class="position-fixed bottom-0 end-0 p-3">
+                    <button class="btn btn-outline-secondary sidebar-close sidebar-url">返 回</button>
                 </div>
             </div>
         @endforeach

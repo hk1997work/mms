@@ -53,7 +53,7 @@ class ToolController extends Controller
             })
             ->setTotalRecords(Tool::where('type_id', $_GET['id'])->count())
             ->rawColumns([7, 8, 9, 10, 11, 12, 13])
-            ->removeColumn('type_id', 'mistake')
+            ->removeColumn('type_id', 'mistake', 'plan')
             ->make(false);
     }
 
