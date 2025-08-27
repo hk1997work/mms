@@ -27,6 +27,9 @@
                     <tbody></tbody>
                 </table>
             </div>
+            <div class="position-fixed bottom-0 end-0 p-3">
+                <button class="btn btn-outline-secondary sidebar-close sidebar-url">取 消</button>
+            </div>
         </div>
     </div>
 @endsection

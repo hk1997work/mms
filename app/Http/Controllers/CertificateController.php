@@ -263,6 +263,10 @@ class CertificateController extends Controller
 
     public function download(CertificatesView $certificate)
     {
-        return response()->download(storage_path("app/public/certificate/$certificate->id.pdf"), "$certificate->order--$certificate->instrument--$certificate->number--【$certificate->verification_date" . '至' . "$certificate->validity_date" . "】.pdf");
+        if (isset($_GET['type'])) {
+            return response()->file(storage_path("app/public/certificate/$certificate->id.pdf"));
+        } else {
+            return response()->download(storage_path("app/public/certificate/$certificate->id.pdf"), "$certificate->order--$certificate->instrument--$certificate->number--【$certificate->verification_date" . '至' . "$certificate->validity_date" . "】.pdf");
+        }
     }
 }

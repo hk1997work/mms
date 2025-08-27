@@ -26,6 +26,13 @@ function initTable(table) {
         if (table.hasClass('table-local')) {
             options.serverSide = false;
         }
+        if (table.hasClass('table-data')) {
+            options.serverSide = false;
+            options.select = false;
+            options.order=false;
+            options.columnDefs = [{type: 'string', orderable: false, targets: '_all'}];
+            delete options.ajax;
+        }
         let dt = table.DataTable(options);
         dt.on('xhr.dt', function () {
             let obj = $(this).closest('.table-responsive');
@@ -79,7 +86,7 @@ function sidebar_ajax(btn, url, menu, callback) {
                         .find('.sidebar-url').attr('data-url', menu);
                     $(window).trigger('resize');
                     if (sidebar.find('#off-sidebar-table').length > 0) {
-                        offSidebarDataTable = initTable($('#off-sidebar-table')).on('xhr.dt', function () {
+                        offSidebarDataTable = initTable($('#off-sidebar-table')).on('xhr.dt init.dt', function () {
                             sidebar.addClass('is-visible');
                         });
                     } else {
@@ -137,9 +144,9 @@ function submit_ajax(btn, url, callback) {
         canSubmit = false;
         let sidebar = $('.from-' + btn.closest('.off-sidebar').data('pos'));
         let title = sidebar.length ? sidebar.find('.sidebar-btn').text() : btn.text();
-        let form = sidebar.find('form');
+        let form = btn.closest('form');
         let data = new FormData(form[0]);
-
+        if (!form[0]) data.append('_token', csrf_token);
         $.ajax({
             url: url, type: 'POST', data: data, processData: false, contentType: false, success: function (result) {
                 if (result == true) {

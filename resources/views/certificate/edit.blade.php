@@ -1,4 +1,4 @@
-@extends('layout.edit')
+@extends('layout.show')
 @section('content_title')
     @if($certificate->valid)
         @if($certificate->position=='备用'||$certificate->position=='借用')
@@ -135,6 +135,10 @@
                         <input type="file" class="btn btn-secondary btn-square btn-sm" name="file_certificate" accept="application/pdf">
                     </div>
                 </div>
+                <div class="position-fixed bottom-0 end-0 p-3">
+                    <button class="btn btn-outline-primary submit-edit sidebar-url">确 定</button>
+                    <button class="btn btn-outline-secondary sidebar-close">取 消</button>
+                </div>
             </form>
         </div>
         @if($certificate->valid)
@@ -248,6 +252,10 @@
                                 <div class="sidebar-heading mt-3 mb-2">备注</div>
                                 <input type="text" name="remark" class="form-control" value="{{$certificate->remark}}">
                             </div>
+                        </div>
+                        <div class="position-fixed bottom-0 end-0 p-3">
+                            <button class="btn btn-outline-primary submit-edit sidebar-url">确 定</button>
+                            <button class="btn btn-outline-secondary sidebar-close">取 消</button>
                         </div>
                     </form>
                 </div>
@@ -386,12 +394,16 @@
                                 <input type="file" class="btn btn-secondary btn-square btn-sm" name="file_certificate" accept="application/pdf">
                             </div>
                         </div>
+                        <div class="position-fixed bottom-0 end-0 p-3">
+                            <button class="btn btn-outline-primary submit-edit sidebar-url">确 定</button>
+                            <button class="btn btn-outline-secondary sidebar-close">取 消</button>
+                        </div>
                     </form>
                 </div>
                 @if($spares->count()!=0)
                     <div role="tabpanel" class="tab-pane show active" id="spare-tab" aria-labelledby="spare-btn">
                         <div class="col-12">
-                            <table id="no-ajax-table" class="table table-hover mb-0 nocheck">
+                            <table id="off-sidebar-table" class="table table-hover table-data">
                                 <thead>
                                 <tr>
                                     <th>序号</th>
@@ -416,28 +428,33 @@
                                         <td>{{$spare->validity_date}}</td>
                                         <td>{{$spare->department}}</td>
                                         <td>{{$spare->remark}}</td>
-                                        <td class="row">
-                                            <form action="" onsubmit="return false;">
-                                                {{method_field("put")}}
-                                                {{csrf_field()}}
-                                                <input type="hidden" name="type" value="spare">
-                                                <input type="hidden" name="id" value="{{$certificate->id}}">
-                                                <input type="hidden" name="cause" value="待检">
-                                                <btn class="btn btn-outline-secondary btn-sm ripple submit-edit mr-2" data-id="{{$spare->id}}">更换</btn>
-                                            </form>
-                                            <form action="" onsubmit="return false;">
-                                                {{method_field("put")}}
-                                                {{csrf_field()}}
-                                                <input type="hidden" name="type" value="spare">
-                                                <input type="hidden" name="id" value="{{$certificate->id}}">
-                                                <input type="hidden" name="cause" value="损坏">
-                                                <btn class="btn btn-outline-secondary btn-sm ripple submit-edit" data-id="{{$spare->id}}">损坏</btn>
-                                            </form>
+                                        <td>
+                                            <div class="d-flex">
+                                                <form action="" onsubmit="return false;">
+                                                    {{method_field("put")}}
+                                                    {{csrf_field()}}
+                                                    <input type="hidden" name="type" value="spare">
+                                                    <input type="hidden" name="id" value="{{$certificate->id}}">
+                                                    <input type="hidden" name="cause" value="待检">
+                                                    <button class="btn btn-outline-secondary btn-sm submit-edit" data-id="{{$spare->id}}">更换</button>
+                                                </form>
+                                                <form action="" onsubmit="return false;">
+                                                    {{method_field("put")}}
+                                                    {{csrf_field()}}
+                                                    <input type="hidden" name="type" value="spare">
+                                                    <input type="hidden" name="id" value="{{$certificate->id}}">
+                                                    <input type="hidden" name="cause" value="损坏">
+                                                    <button class="btn btn-outline-secondary btn-sm submit-edit mx-1" data-id="{{$spare->id}}">损坏</button>
+                                                </form>
+                                            </div>
                                         </td>
                                     </tr>
                                 @endforeach
                                 </tbody>
                             </table>
+                        </div>
+                        <div class="position-fixed bottom-0 end-0 p-3">
+                            <button class="btn btn-outline-secondary sidebar-close">取 消</button>
                         </div>
                     </div>
                 @endif
