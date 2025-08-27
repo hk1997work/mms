@@ -9,6 +9,7 @@ function initTable(table) {
             language: {url: '/admin/assets/vendors/js/datatables/zh.json'},
             ajax: {url: "/ajax_" + table.data('menu'), type: "POST", data: {"_token": csrf_token}},
             serverSide: true,
+            deferRender: true,
             scrollX: true,
             scrollY: $(window).height() - table.offset().top - 150,
             rowId: 0,
@@ -21,6 +22,9 @@ function initTable(table) {
         };
         if (table.hasClass('table-tree')) {
             options.ordering = false;
+        }
+        if (table.hasClass('table-local')) {
+            options.serverSide = false;
         }
         let dt = table.DataTable(options);
         dt.on('xhr.dt', function () {
@@ -40,14 +44,14 @@ function initTable(table) {
 
 function btn_change(obj, count) {
     if (count === 0) {
-        obj.find('.check-single').hide();
-        obj.find('.check-multiple').hide();
+        obj.find('.check-single').css('visibility', 'hidden');
+        obj.find('.check-multiple').css('visibility', 'hidden');
     } else if (count === 1) {
-        obj.find('.check-single').show();
-        obj.find('.check-multiple').show();
+        obj.find('.check-single').css('visibility', 'visible');
+        obj.find('.check-multiple').css('visibility', 'visible');
     } else {
-        obj.find('.check-single').hide();
-        obj.find('.check-multiple').show();
+        obj.find('.check-single').css('visibility', 'hidden');
+        obj.find('.check-multiple').css('visibility', 'visible');
     }
 }
 
@@ -100,28 +104,28 @@ function sidebar_ajax(btn, url, menu, callback) {
     }
 }
 
-$('.table-responsive,.off-sidebar').on('click', '.btn-add', function () {
+$('.index,.off-sidebar').on('click', '.btn-add', function () {
     let table = offSidebarDataTable ? offSidebarDataTable : dataTable;
     let id = $(this).data('id') ? $(this).data('id') : table.select.cumulative().rows.join(',');
     let menu = $(this).data('menu');
     let url = '/' + menu + '/create' + (id ? '?id=' + id : '');
     sidebar_ajax($(this), url, menu);
 });
-$('.table-responsive,.off-sidebar').on('click', ' .btn-edit', function () {
+$('.index,.off-sidebar').on('click', ' .btn-edit', function () {
     let table = offSidebarDataTable ? offSidebarDataTable : dataTable;
     let id = table.select.cumulative().rows.join(',');
     let menu = $(this).data('menu');
     let url = '/' + menu + '/' + id + '/edit';
     sidebar_ajax($(this), url, menu);
 });
-$('.table-responsive,.off-sidebar').on('click', ' .btn-show', function () {
+$('.index,.off-sidebar').on('click', ' .btn-show', function () {
     let table = offSidebarDataTable ? offSidebarDataTable : dataTable;
     let id = table.select.cumulative().rows.join(',');
     let menu = $(this).data('menu');
     let url = '/' + menu + '/' + id;
     sidebar_ajax($(this), url, menu);
 });
-$('.table-responsive,.off-sidebar').on('click', ' .btn-delete', function () {
+$('.index,.off-sidebar').on('click', ' .btn-delete', function () {
     let menu = $(this).data('menu');
     let url = '/delete';
     sidebar_ajax($(this), url, menu);
@@ -135,7 +139,7 @@ function submit_ajax(btn, url, callback) {
         let title = sidebar.length ? sidebar.find('.sidebar-btn').text() : btn.text();
         let form = sidebar.find('form');
         let data = new FormData(form[0]);
-        if (!form[0]) data.append('_token', csrf_token);
+
         $.ajax({
             url: url, type: 'POST', data: data, processData: false, contentType: false, success: function (result) {
                 if (result == true) {
@@ -159,7 +163,7 @@ function submit_ajax(btn, url, callback) {
             }, error: function (xhr) {
                 xhr.status == 401 ? document.location.reload() : notifications(title + '失败');
                 form.find(".warning-danger").remove();
-                form.find('.form-control').removeClass('is-invalid').addClass('is-valid');
+                form.find('.form-control:not([readonly])').removeClass('is-invalid').addClass('is-valid');
                 let json = JSON.parse(xhr.responseText);
                 $.each(json.errors, function (idx, obj) {
                     if (idx.includes('.')) {
@@ -180,17 +184,17 @@ function submit_ajax(btn, url, callback) {
     }
 }
 
-$('.table-responsive,.off-sidebar').on('click', '.submit-add', function () {
+$('.index,.off-sidebar').on('click', '.submit-add', function () {
     let url = "/" + $(this).data('url');
     submit_ajax($(this), url);
 })
-$('.table-responsive,.off-sidebar').on('click', '.submit-edit', function () {
+$('.index,.off-sidebar').on('click', '.submit-edit', function () {
     let table = offSidebarDataTable ? offSidebarDataTable : dataTable;
     let id = table.select.cumulative().rows.join(',');
     let url = "/" + $(this).data('url') + '/' + id;
     submit_ajax($(this), url);
 })
-$('.table-responsive,.off-sidebar').on('click', '.submit-delete', function () {
+$('.index,.off-sidebar').on('click', '.submit-delete', function () {
     let table = offSidebarDataTable ? offSidebarDataTable : dataTable;
     let id = table.select.cumulative().rows.join(',');
     let url = '/' + $(this).data('url') + "/" + id;
@@ -199,29 +203,19 @@ $('.table-responsive,.off-sidebar').on('click', '.submit-delete', function () {
     }
     submit_ajax($(this), url, callback);
 })
-$('.table-responsive,.off-sidebar').on('click', '.btn-move', function () {
+$('.index,.off-sidebar').on('click', '.btn-move', function () {
     let table = offSidebarDataTable ? offSidebarDataTable : dataTable;
     let id = table.select.cumulative().rows.join(',');
     let url = '/move/' + $(this).data('menu') + '/' + id + '/' + $(this).data('type');
     submit_ajax($(this), url);
 })
-
-//下载操作
-$('.table-responsive,.off-sidebar').on('click', '.btn-download', function () {
+$('.index,.off-sidebar').on('click', '.btn-download , .btn-open', function () {
     let menu = $(this).data('menu')
     let table = offSidebarDataTable ? offSidebarDataTable : dataTable;
     let id = table.select.cumulative().rows.join(',');
+    let type = $(this).hasClass('btn-open') ? '?type=show' : '';
     $.each(id.split(','), function (index, value) {
-        window.open('/download_' + menu + '/' + value);
-    })
-})
-
-//打开操作
-$('.table-responsive,.off-sidebar').on('click', '.btn-open', function () {
-    let table = offSidebarDataTable ? offSidebarDataTable : dataTable;
-    let id = table.select.cumulative().rows.join(',');
-    $.each(id.split(','), function (index, value) {
-        window.open($('#' + value).data('url'));
+        window.open('/download_' + menu + '/' + value + type);
     })
 })
 
@@ -235,6 +229,9 @@ $(document).ready(function () {
     $('.off-sidebar').on('transitionend', function (event) {
         if (event.originalEvent && event.originalEvent.propertyName && event.originalEvent.propertyName === 'transform') {
             if ($(this).hasClass('is-visible') == false) {
+                if ($(this).find('#off-sidebar-table').length) {
+                    offSidebarDataTable = null;
+                }
                 $(this).empty();
             }
         }
@@ -242,5 +239,5 @@ $(document).ready(function () {
 });
 // 设置表格高度
 $(window).resize(function () {
-    $('.auto-scroll').height($(window).height() - 110);
+    $('.auto-scroll').height($(window).height() - 90);
 });

@@ -25,19 +25,20 @@ class CertificateController extends Controller
 {
     public function index()
     {
-        $type = Position::find(isset($_GET['id']) ? $_GET['id'] : Position::where('level', 2)->orderBy('sort')->first()->id);
-        $types = Position::orderBy('sort')->get();
-        return view("certificate.index", compact('types', 'type'));
+        $types = Position::where('pid', Position::where('level', 1)->where('name', '备用')->first()->id)->orderBy('sort')->get();
+        $type = isset($_GET['id']) ? Position::find($_GET['id']) : $types->first();
+        $positions = Position::where('name', $type->name)->orderBy('sort')->with('parent')->get();
+        $position = isset($_GET['position']) ? Position::find($_GET['position']) : null;
+        return view("certificate.index", compact('type', 'types', 'position', 'positions'));
     }
 
     public function list(Request $request)
     {
         $path = $_GET['path'];
-        $id = $_GET['id'];
-        $query = CertificatesView::where(function ($query) use ($id) {
-            $query->where('type_id', $id)
-                ->orWhere('unit_id', $id);
-        });;
+        $query = CertificatesView::where('type_id', $_GET['id']);
+        if (isset($_GET['position'])) {
+            $query->where('unit_id', $_GET['position']);
+        }
         switch ($path) {
             case 'active':
                 $query->where('valid', 1);
@@ -62,23 +63,14 @@ class CertificateController extends Controller
                     return $data->instrument;
                 }
             })
-            ->editColumn('remark', function ($data) use ($path) {
-                if ($path == 'active' && $data->position != '备用') {
-                    $folderPath = "public/check/$data->id";
-                    if (!Storage::exists($folderPath) || !count(Storage::files($folderPath))) {
-                        return $this->toBadges('检查', 'danger') . ' ' . $data->remark;
-                    }
-                } else {
-                    return $data->remark;
-                }
-            })
             ->filter(function ($query) use ($request) {
-                $this->toSearch($query, $request, ['username', 'role']);
+                $this->toSearch($query, $request, ['order', 'position', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'remark']);
             })
             ->order(function ($query) use ($request) {
-                $this->toOrder($query, $request);
+                $this->toOrder($query, $request, ['id', 'order', 'position', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'remark']);
             })
-            ->rawColumns([4, 7, 10])
+            ->removeColumn('valid', 'type_id', 'unit_id', 'state')
+            ->rawColumns([4])
             ->make(false);
     }
 
@@ -86,9 +78,9 @@ class CertificateController extends Controller
     {
         $categories = Parameter::where('pid', Parameter::where('name', '证书类型')->first()->id)->orderBy('sort')->get();
         $departments = Parameter::where('pid', Parameter::where('name', '检定部门')->first()->id)->orderBy('sort')->get();
-        $position = Position::find($_GET['id']);
-        $positions = PositionsView::where('str', 'like', '%' . $position->id . '%')->whereIn('level', [4, 5])->get();
-        $tools = Tool::where('type_id', ($position->level == 2) ? $position->id : $position->pid)->orderBy('instrument')->get();
+        $type = Position::find($_GET['id']);
+        $positions = Position::where('name', $type->name)->with('children')->get();
+        $tools = Tool::where('type_id', $type->id)->orderBy('instrument')->get();
         $standards = StandardsView::where('level', 2)->get();
         return view('certificate.create', compact('categories', 'departments', 'positions', 'tools', 'standards'));
     }
@@ -133,8 +125,9 @@ class CertificateController extends Controller
     {
         $categories = Parameter::where('pid', Parameter::where('name', '证书类型')->first()->id)->orderBy('sort')->get();
         $departments = Parameter::where('pid', Parameter::where('name', '检定部门')->first()->id)->orderBy('sort')->get();
-        $positions = PositionsView::where('str', 'like', '%' . $certificate->unit3_id . '%')->whereIn('level', [4, 5])->get();
-        $tools = ToolsView::where('instrument', $certificate->instrument)->orderBy('instrument')->get();
+        $type = Position::find($certificate->type_id);
+        $positions = Position::where('name', $type->name)->with('children')->get();
+        $tools = Tool::where('instrument', $certificate->instrument)->get();
         $standards = StandardsView::where('level', 2)->get();
         $spares = CertificatesView::where('valid', 1)->where('position', '备用')->where('instrument', $certificate->instrument)->orderBy('order')->get();
         return view('certificate.edit', compact('certificate', 'categories', 'departments', 'positions', 'tools', 'standards', 'spares'));

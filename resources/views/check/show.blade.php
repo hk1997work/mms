@@ -20,9 +20,6 @@
                     @endforeach
                 </div>
             @endforeach
-            <div class="enter-message">
-                <button class="btn btn-outline-secondary ripple sidebar-close">返 回</button>
-            </div>
         </div>
     </div>
 @endsection

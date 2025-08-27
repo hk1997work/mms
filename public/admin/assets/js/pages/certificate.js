@@ -1,8 +1,8 @@
 //日期格式
 Date.prototype.format = function (fmt) {
     let o = {
-        "M+": this.getMonth() + 1,                 //月
-        "d+": this.getDate(),                    //日
+        "M+": this.getMonth() + 1,
+        "d+": this.getDate(),
     };
     if (/(y+)/.test(fmt)) {
         fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
@@ -150,8 +150,8 @@ $('.off-sidebar').on('change', '[name="number_id"]', function () {
             url: path,
             success: function (data) {
                 if (data) {
-                    form.find('[name="start"]').val(data['start']);
-                    form.find('[name="times"]').val(data['times']);
+                    form.find('[name="start"]').val(data['start']).trigger('change');
+                    form.find('[name="times"]').val(data['times']).trigger('change');
                 } else {
                     notifications('启动时间、检定次数加载失败');
                 }

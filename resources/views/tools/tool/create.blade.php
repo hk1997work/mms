@@ -18,7 +18,7 @@
     </div>
     <div class="col-12 div-cycle_id">
         <div class="sidebar-heading mt-3 mb-2">检定周期</div>
-        <select name="cycle_id" class="custom-select form-control">
+        <select name="cycle_id" class="form-control form-select">
             <option value="" selected disabled>请选择...</option>
             @foreach($cycles as $cycle)
                 <option value={{$cycle->id}}>{{$cycle->name}}</option>
@@ -27,7 +27,7 @@
     </div>
     <div class="col-12 div-abc_id">
         <div class="sidebar-heading mt-3 mb-2">ABC类</div>
-        <select name="abc_id" class="custom-select form-control">
+        <select name="abc_id" class="form-control form-select">
             <option value="" selected disabled>请选择...</option>
             @foreach($abcs as $abc)
                 <option value={{$abc->id}}>{{$abc->name}}</option>
@@ -36,7 +36,7 @@
     </div>
     <div class="col-12 div-plan_id">
         <div class="sidebar-heading mt-3 mb-2">检定计划</div>
-        <select name="plan_id" class="custom-select form-control">
+        <select name="plan_id" class="form-control form-select">
             <option value="" selected disabled>请选择...</option>
             @foreach($plans as $plan)
                 <option value={{$plan->id}}>{{$plan->name}}</option>
@@ -45,7 +45,7 @@
     </div>
     <div class="col-12 div-vulnerable">
         <div class="sidebar-heading mt-3 mb-2">易损</div>
-        <select name="vulnerable" class="custom-select form-control">
+        <select name="vulnerable" class="form-control form-select">
             <option value="" selected disabled>请选择...</option>
             <option value="1">是</option>
             <option value="0">否</option>

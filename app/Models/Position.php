@@ -16,7 +16,12 @@ class Position extends Model
 
     public function children()
     {
-        return $this->hasMany(Position::class, 'pid')->select('id', 'pid', 'name')->with('children');
+        return $this->hasMany(Position::class, 'pid')->select('id', 'pid', 'name', 'code')->with('children');
+    }
+
+    public function parent()
+    {
+        return $this->belongsTo(Position::class, 'pid')->select('id', 'pid', 'name');
     }
 
     public function certificate()

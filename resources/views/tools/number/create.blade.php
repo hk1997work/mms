@@ -6,16 +6,12 @@
     </div>
     <div class="col-12 div-state_id">
         <div class="sidebar-heading mt-3 mb-2">管理状态</div>
-        <select name="state_id" class="custom-select form-control">
+        <select name="state_id" class="form-control form-select">
             <option value="" selected disabled>请选择...</option>
             @foreach($states->where('name','!=','在用') as $state)
                 <option value='{{$state->id}}' @if(isset($name)&&$state->name=='待检') selected @endif>{{$state->name}}</option>
             @endforeach
         </select>
-    </div>
-    <div class="col-12 div-remark">
-        <div class="sidebar-heading mt-3 mb-2">备注</div>
-        <input type="text" name="remark" class="form-control">
     </div>
     <input type="hidden" name="factory_id" value="{{$factory_id}}">
 @endsection

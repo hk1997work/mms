@@ -4,7 +4,7 @@
         <div class="widget-body no-padding hidden">
             <div class="swiper-unit">
                 <div class="swiper-wrapper">
-                    @foreach($positions->where('level',3) as $position)
+                    @foreach($positions->where('level',1) as $position)
                         <div class="swiper-slide author-name">{{$position->name1}}</div>
                     @endforeach
                 </div>
@@ -30,5 +30,6 @@
     <script>
         let positions = {!! $positions !!};
     </script>
+    <script src="/admin/assets/js/components/swiper/swiper/swiper.js"></script>
     <script src="/admin/assets/js/pages/check.js"></script>
 @endpush

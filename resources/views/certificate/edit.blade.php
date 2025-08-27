@@ -1,20 +1,28 @@
-@extends('layout.show')
+@extends('layout.edit')
 @section('content_title')
     @if($certificate->valid)
         @if($certificate->position=='备用'||$certificate->position=='借用')
-            <li><a class="active" data-toggle="tab" href="#apply-tab" role="tab" id="apply-btn">使用</a></li>
+            <li class="nav-item">
+                <button class="nav-link active" data-toggle="tab" data-target="#apply-tab" id="apply-btn">使用</button>
+            </li>
         @else
             @if($spares->count()!=0)
-                <li><a class="active" data-toggle="tab" href="#spare-tab" role="tab" id="spare-btn">备用</a></li>
+                <li class="nav-item">
+                    <button class="nav-link active" data-toggle="tab" data-target="#spare-tab" id="spare-btn">备用</button>
+                </li>
             @endif
-            <li><a @if($spares->count()==0) class="active" @endif data-toggle="tab" href="#replace-tab" role="tab" id="replace-btn">更新</a></li>
+            <li class="nav-item">
+                <button class="nav-link @if($spares->count()==0) active @endif" data-toggle="tab" data-target="#replace-tab" id="replace-btn">更新</button>
+            </li>
         @endif
     @endif
-    <li><a @if($certificate->valid==0) class="active" @endif data-toggle="tab" href="#edit-tab" role="tab" id="edit-btn">修改</a></li>
+    <li class="nav-item">
+        <button class="nav-link @if($certificate->valid==0) active @endif" data-toggle="tab" data-target="#edit-tab" id="edit-btn">修改</button>
+    </li>
 @endsection
 @section('content_form')
     <div class="tab-content">
-        <div role="tabpanel" class="tab-pane @if($certificate->valid==0) show active @endif fade" id="edit-tab" aria-labelledby="edit-btn">
+        <div role="tabpanel" class="tab-pane @if($certificate->valid==0) show active @endif" id="edit-tab" aria-labelledby="edit-btn">
             <form action="" onsubmit="return false;">
                 {{method_field("put")}}
                 {{csrf_field()}}
@@ -58,7 +66,7 @@
                     </div>
                     <div class="col-6 div-department_id">
                         <div class="sidebar-heading mt-3 mb-2">检定部门</div>
-                        <select name="department_id" class="custom-select form-control">
+                        <select name="department_id" class="form-control form-select">
                             <option value="" selected disabled>请选择...</option>
                             @foreach($departments as $department)
                                 <option value="{{$department->id}}" @if($certificate->department_id==$department->id) selected @endif>{{$department->name}}</option>
@@ -71,7 +79,7 @@
                     </div>
                     <div class="col-6 div-category_id">
                         <div class="sidebar-heading mt-3 mb-2">证书类型</div>
-                        <select name="category_id" class="custom-select form-control">
+                        <select name="category_id" class="form-control form-select">
                             <option value="" selected disabled>请选择...</option>
                             @foreach($categories as $category)
                                 <option value="{{$category->id}}" @if($certificate->category_id==$category->id) selected @endif>{{$category->name}}</option>
@@ -100,9 +108,9 @@
                     </div>
                     <div class="col-6 div-standard_id">
                         <div class="sidebar-heading mt-3 mb-2">检定标准</div>
-                        <select name="standard_id[]" class="form-control" data-live-search="true" multiple>
+                        <select name="standard_id[]" class="form-control form-select" data-live-search="true" multiple>
                             @foreach($standards as $standard)
-                                <option value="{{$standard->id}}" @if($certificate->standards->contains($standard->id)) selected @endif>{{$standard->name1}}-{{Str::limit($standard->name2,35)}}</option>
+                                <option value="{{$standard->id}}" @if($certificate->standards->contains($standard->id)) selected @endif>{{$standard->name2}}{{Str::limit($standard->name1,35)}}-</option>
                             @endforeach
                         </select>
                     </div>
@@ -127,15 +135,11 @@
                         <input type="file" class="btn btn-secondary btn-square btn-sm" name="file_certificate" accept="application/pdf">
                     </div>
                 </div>
-                <div class="enter-message">
-                    <button class="btn btn-outline-primary ripple submit-edit">确 定</button>
-                    <button class="btn btn-outline-secondary ripple sidebar-close">取 消</button>
-                </div>
             </form>
         </div>
         @if($certificate->valid)
             @if($certificate->position=='备用'||$certificate->position=='借用')
-                <div role="tabpanel" class="tab-pane show active fade" id="apply-tab" aria-labelledby="apply-btn">
+                <div role="tabpanel" class="tab-pane show active" id="apply-tab" aria-labelledby="apply-btn">
                     <form action="" onsubmit="return false;">
                         {{method_field("put")}}
                         {{csrf_field()}}
@@ -143,14 +147,16 @@
                             <input type="hidden" name="type" value="apply">
                             <div class="col-6 div-position_id">
                                 <div class="sidebar-heading mt-3 mb-2">岗位</div>
-                                <select name="position_id" class="custom-select form-control">
+                                <select name="position_id" class="form-control form-select">
                                     <option value="" selected disabled>请选择...</option>
-                                    @foreach($positions->where('level',4) as $p1)
-                                        <optgroup label="{{$p1->name1}}">
-                                            @foreach($positions->where('pid',$p1->id) as $p2)
-                                                <option value="{{$p2->id}}">{{$p2->name1}}-{{$p2->code}}</option>
-                                            @endforeach
-                                        </optgroup>
+                                    @foreach($positions as $p1)
+                                        @foreach($p1->children as $p2)
+                                            <optgroup label="{{$p2->name}}">
+                                                @foreach($p2->children as $p3)
+                                                    <option value="{{$p3->id}}">{{$p3->name}}-{{$p3->code}}</option>
+                                                @endforeach
+                                            </optgroup>
+                                        @endforeach
                                     @endforeach
                                 </select>
                             </div>
@@ -243,14 +249,10 @@
                                 <input type="text" name="remark" class="form-control" value="{{$certificate->remark}}">
                             </div>
                         </div>
-                        <div class="enter-message">
-                            <button class="btn btn-outline-primary ripple submit-edit">确 定</button>
-                            <button class="btn btn-outline-secondary ripple sidebar-close">取 消</button>
-                        </div>
                     </form>
                 </div>
             @else
-                <div role="tabpanel" class="tab-pane @if($spares->count()==0) show active @endif fade" id="replace-tab" aria-labelledby="replace-btn">
+                <div role="tabpanel" class="tab-pane @if($spares->count()==0) show active @endif" id="replace-tab" aria-labelledby="replace-btn">
                     <form action="" onsubmit="return false;">
                         {{method_field("put")}}
                         {{csrf_field()}}
@@ -259,7 +261,7 @@
                             <input type="hidden" name="id" value="{{$certificate->id}}">
                             <div class="col-3 div-cause">
                                 <div class="sidebar-heading mt-3 mb-2">更换原因</div>
-                                <select name="cause" class="custom-select form-control">
+                                <select name="cause" class="form-control form-select">
                                     <option value="待检">更换</option>
                                     <option value="损坏">损坏</option>
                                 </select>
@@ -275,7 +277,7 @@
                             </div>
                             <div class="col-6 div-tool_id">
                                 <div class="sidebar-heading mt-3 mb-2">器具名称</div>
-                                <select name="tool_id" class="custom-select form-control" data-live-search="true">
+                                <select name="tool_id" class="form-control form-select" data-live-search="true">
                                     <option title="请选择..." value="" selected disabled>请选择...</option>
                                     @foreach($tools as $tool)
                                         <option title="{{$tool->instrument}}" value="{{$tool->id}}">{{$tool->instrument}}--{{$tool->model}}</option>
@@ -289,7 +291,7 @@
                             <div class="col-6 div-factory_id">
                                 <div class="sidebar-heading mt-3 mb-2">生产厂家</div>
                                 <div class="input-group">
-                                    <select name="factory_id" class="custom-select form-control" disabled>
+                                    <select name="factory_id" class="form-control form-select" disabled>
                                         <option value="" selected disabled>请选择...</option>
                                     </select>
                                     <span class="input-group-addon addon-primary btn-add factory_add" data-pos='right' data-menu='factory' data-cb="tool_id" hidden>增加</span>
@@ -302,7 +304,7 @@
                             <div class="col-6 div-number_id">
                                 <div class="sidebar-heading mt-3 mb-2">出厂编号</div>
                                 <div class="input-group">
-                                    <select name="number_id" class="custom-select form-control" disabled>
+                                    <select name="number_id" class="form-control form-select" disabled>
                                         <option value="" selected disabled>请选择...</option>
                                     </select>
                                     <span class="input-group-addon addon-primary btn-add number_add" data-pos='right' data-menu='number' data-cb="factory_id" hidden>增加</span>
@@ -315,7 +317,7 @@
                             </div>
                             <div class="col-6 div-department_id">
                                 <div class="sidebar-heading mt-3 mb-2">检定部门</div>
-                                <select name="department_id" class="custom-select form-control">
+                                <select name="department_id" class="form-control form-select">
                                     <option value="" selected disabled>请选择...</option>
                                     @foreach($departments as $department)
                                         <option value="{{$department->id}}">{{$department->name}}</option>
@@ -328,7 +330,7 @@
                             </div>
                             <div class="col-6 div-category_id">
                                 <div class="sidebar-heading mt-3 mb-2">证书类型</div>
-                                <select name="category_id" class="custom-select form-control">
+                                <select name="category_id" class="form-control form-select">
                                     <option value="" selected disabled>请选择...</option>
                                     @foreach($categories as $category)
                                         <option value="{{$category->id}}">{{$category->name}}</option>
@@ -357,7 +359,7 @@
                             </div>
                             <div class="col-6 div-standard_id">
                                 <div class="sidebar-heading mt-3 mb-2">检定标准</div>
-                                <select name="standard_id[]" class="form-control" data-live-search="true" multiple>
+                                <select name="standard_id[]" class="form-control form-select" data-live-search="true" multiple>
                                     @foreach($standards as $standard)
                                         <option value="{{$standard->id}}">{{$standard->name1}}-{{Str::limit($standard->name2,35)}}</option>
                                     @endforeach
@@ -384,14 +386,10 @@
                                 <input type="file" class="btn btn-secondary btn-square btn-sm" name="file_certificate" accept="application/pdf">
                             </div>
                         </div>
-                        <div class="enter-message">
-                            <button class="btn btn-outline-primary ripple submit-edit">确 定</button>
-                            <button class="btn btn-outline-secondary ripple sidebar-close">取 消</button>
-                        </div>
                     </form>
                 </div>
                 @if($spares->count()!=0)
-                    <div role="tabpanel" class="tab-pane show active fade" id="spare-tab" aria-labelledby="spare-btn">
+                    <div role="tabpanel" class="tab-pane show active" id="spare-tab" aria-labelledby="spare-btn">
                         <div class="col-12">
                             <table id="no-ajax-table" class="table table-hover mb-0 nocheck">
                                 <thead>
@@ -441,10 +439,6 @@
                                 </tbody>
                             </table>
                         </div>
-                        <div class="enter-message">
-                            <button class="btn btn-outline-primary ripple submit-edit">确 定</button>
-                            <button class="btn btn-outline-secondary ripple sidebar-close">取 消</button>
-                        </div>
                     </div>
                 @endif
             @endif
@@ -454,10 +448,9 @@
         $('[name="tool_id"],[name="standard_id[]"]').selectpicker();
         $('[name="verification_date"]:not(:read-only)').daterangepicker({
             singleDatePicker: true,
+            autoApply: true,
+            parentEl: $('.off-sidebar-container'),
             container: '[name="verification_date"]',
-            locale: {
-                format: 'YYYY-MM-DD'
-            }
         });
     </script>
 @endsection

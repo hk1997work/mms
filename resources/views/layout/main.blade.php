@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="/admin/assets/vendors/css/datatables/datatables.css">
     <link rel="stylesheet" href="/admin/assets/vendors/css/datatables/fixedColumns.dataTables.css">
     <link rel="stylesheet" href="/admin/assets/vendors/css/datatables/scroller.dataTables.css">
+    <link rel="stylesheet" href="/admin/assets/vendors/css/datepicker/daterangepicker.css">
     <link rel="stylesheet" href="/admin/assets/vendors/css/noty/noty.css">
     <link rel="stylesheet" href="/admin/assets/icons/css/all.min.css">
     @stack('page-css')
@@ -84,7 +85,7 @@
 <script src="/admin/assets/vendors/js/base/core.js"></script>
 <script src="/admin/assets/vendors/js/base/bootstrap.bundle.js"></script>
 
-<script src="/admin/assets/vendors/js/datepicker/moment.min.js"></script>
+<script src="/admin/assets/vendors/js/datepicker/moment-with-locales.js"></script>
 <script src="/admin/assets/vendors/js/noty/noty.js"></script>
 <script src="/admin/assets/vendors/js/bootstrap-select/bootstrap-select.js"></script>
 <script src="/admin/assets/vendors/js/chart/chart.js"></script>
@@ -102,7 +103,9 @@
 <script src="/admin/assets/js/components/datepicker/datepicker.js"></script>
 <script src="/admin/assets/js/components/swiper/swiper.js"></script>
 <script src="/admin/assets/js/components/tables/tables.js"></script>
-
+<script>
+    moment.locale('zh-cn');
+</script>
 @stack('page-js-after')
 
 </body>

@@ -282,8 +282,9 @@ class Controller extends BaseController
         })->implode(' ');
     }
 
-    function toLevel($data, $column, $field, $menu, $type, $valid)
+    function toLevel($data, $column, $field, $menu, $type, $valid, $level = null)
     {
+        $data->level = $level ?: $data->level;
         $type = $valid ? $type : 'danger';
         $text = $field . ($data->level - $column + 1);
         if ($data->level == $column) {

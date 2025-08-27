@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\CertificatesView;
 use App\Models\Position;
-use App\Models\PositionsView;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;

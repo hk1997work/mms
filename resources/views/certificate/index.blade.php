@@ -2,48 +2,40 @@
 @section('content_btn')
     @if($menu=='active'||$menu=='invalid')
         <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" data-toggle="dropdown">
-                {{$type->level==2?$type->name:$types->find($type->pid)->name}}
-                <i class="ion-android-arrow-dropdown"></i>
-            </a>
-            <div class="dropdown-menu">
-                @foreach($types->where('level',2) as $value)
-                    <a class="dropdown-item" href="?id={{$value->id}}">{{$value->name}}</a>
+            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">{{$type->name}}<i class="ion-android-arrow-dropdown"></i></a>
+            <ul class="dropdown-menu dropdown-menu-end">
+                @foreach($types as $value)
+                    <li><a class="dropdown-item" href="?id={{$value->id}}">{{$value->name}}</a></li>
                 @endforeach
-            </div>
+            </ul>
         </li>
         <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" data-toggle="dropdown">
-                {{$type->level==2?'全部':$type->name}}
-                <i class="ion-android-arrow-dropdown"></i>
-            </a>
-            <div class="dropdown-menu">
-                <a class="dropdown-item" href="?id={{$type->level==2?$type->id:$type->pid}}">全部</a>
-                @foreach($types->where('pid',$type->level==2?$type->id:$type->pid) as $value)
-                    <a class="dropdown-item" href="?id={{$value->id}}">{{$value->name}}</a>
+            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">{{$position?$position->parent->name:'全部'}}<i class="ion-android-arrow-dropdown"></i></a>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <a class="dropdown-item" href="?id={{$type->id}}">全部</a>
+                @foreach($positions as $value)
+                    <li><a class="dropdown-item" href="?id={{$type->id}}&position={{$value->id}}">{{$value->parent->name}}</a></li>
                 @endforeach
-            </div>
+            </ul>
         </li>
     @endif
 @endsection
 @section('content_table')
-    <div class="btn-group mb-3">
-        <ul class="button-nav nav nav-tabs mt-3 mb-3 ml-3" role="tablist">
-            @if($menu=='active')
-                <li><a class="btn-add" data-menu="certificate" data-id='{{$type->id}}' data-pos="left" href="#">增加</a></li>
-            @endif
-            <li><a class="btn-delete check-multiple" data-menu="certificate" data-pos="right" href="#">删除</a></li>
-            <li><a class="btn-open check-multiple" data-menu="certificate" href="#">打开</a></li>
-            <li><a class="btn-download check-multiple" data-menu="certificate" href="#">下载</a></li>
-            @if($menu=='active')
-                <li><a class="btn-edit check-multiple" data-menu="print" data-pos="right" href="#">打印标签</a></li>
-                <li><a class="btn-show check-multiple" data-menu="supervision" data-pos="right" href="#">监督检查</a></li>
-            @endif
-            <li><a class="btn-edit check-single" data-menu="certificate" data-pos="left" href="#">修改</a></li>
-            <li><a class="btn-show check-single" data-menu="certificate" data-pos="up" href="#">查看</a></li>
-        </ul>
-    </div>
-    <table id="index-table" data-menu="certificate?id={{$type->id}}&path={{$menu}}" class="table table-hover mb-0">
+    <ul class="nav">
+        @if($menu=='active')
+            <li class="nav-item"><a class="nav-link btn-add" data-menu="certificate" href="#" data-pos="left" data-id="{{$type->id}}">增加</a></li>
+        @endif
+        <li class="nav-item"><a class="nav-link btn-delete check-multiple" data-menu="certificate" href="#" data-pos="right">删除</a></li>
+        <li class="nav-item"><a class="nav-link btn-open check-multiple" data-menu="certificate" href="#">打开</a></li>
+        <li class="nav-item"><a class="nav-link btn-download check-multiple" data-menu="certificate" href="#">下载</a></li>
+        @if($menu=='active')
+            <li class="nav-item"><a class="nav-link btn-edit check-multiple" data-menu="print" href="#" data-pos="right">打印标签</a></li>
+            <li class="nav-item"><a class="nav-link btn-show check-multiple" data-menu="supervision" href="#" data-pos="right">监督检查</a></li>
+        @endif
+        <li class="nav-item"><a class="nav-link btn-edit check-single" data-menu="certificate" href="#" data-pos="left">修改</a></li>
+        <li class="nav-item"><a class="nav-link btn-show check-single" data-menu="certificate" href="#" data-pos="up">查看</a></li>
+    </ul>
+    <table id="index-table" data-menu="certificate?id={{$type->id}}&path={{$menu}}{{$position?'&position='.$position->id:''}}" class="table table-hover">
         <thead>
         <tr>
             <th></th>

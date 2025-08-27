@@ -3,14 +3,16 @@
     <div class="row">
         <div class="col-6 div-position_id">
             <div class="sidebar-heading mt-3 mb-2">岗位</div>
-            <select name="position_id" class="custom-select form-control">
+            <select name="position_id" class="form-control form-select">
                 <option value="" selected disabled>请选择...</option>
-                @foreach($positions->where('level',4) as $p1)
-                    <optgroup label="{{$p1->name1}}">
-                        @foreach($positions->where('pid',$p1->id) as $p2)
-                            <option value="{{$p2->id}}">{{$p2->name1}}-{{$p2->code}}</option>
-                        @endforeach
-                    </optgroup>
+                @foreach($positions as $p1)
+                    @foreach($p1->children as $p2)
+                        <optgroup label="{{$p2->name}}">
+                            @foreach($p2->children as $p3)
+                                <option value="{{$p3->id}}">{{$p3->name}}-{{$p3->code}}</option>
+                            @endforeach
+                        </optgroup>
+                    @endforeach
                 @endforeach
             </select>
         </div>
@@ -20,7 +22,7 @@
         </div>
         <div class="col-6 div-tool_id">
             <div class="sidebar-heading mt-3 mb-2">器具名称</div>
-            <select name="tool_id" class="custom-select form-control" data-live-search="true">
+            <select name="tool_id" class="form-control form-select" data-live-search="true">
                 <option title="请选择..." value="" selected disabled>请选择...</option>
                 @foreach($tools as $tool)
                     <option title="{{$tool->instrument}}" value="{{$tool->id}}">{{$tool->instrument}}--{{$tool->model}}</option>
@@ -34,10 +36,10 @@
         <div class="col-6 div-factory_id">
             <div class="sidebar-heading mt-3 mb-2">生产厂家</div>
             <div class="input-group">
-                <select name="factory_id" class="custom-select form-control" disabled>
+                <select name="factory_id" class="form-control form-select" disabled>
                     <option value="" selected disabled>请选择...</option>
                 </select>
-                <span class="input-group-addon addon-primary btn-add factory_add" data-pos='right' data-menu='factory' data-cb="tool_id" hidden>增加</span>
+                <span class="btn btn-outline-secondary btn-add factory_add" data-pos='right' data-menu='factory' data-cb="tool_id" hidden>增加</span>
             </div>
         </div>
         <div class="col-6 div-limit">
@@ -47,10 +49,10 @@
         <div class="col-6 div-number_id">
             <div class="sidebar-heading mt-3 mb-2">出厂编号</div>
             <div class="input-group">
-                <select name="number_id" class="custom-select form-control" disabled>
+                <select name="number_id" class="form-control form-select" disabled>
                     <option value="" selected disabled>请选择...</option>
                 </select>
-                <span class="input-group-addon addon-primary btn-add number_add" data-pos='right' data-menu='number' data-cb="factory_id" hidden>增加</span>
+                <span class="btn btn-outline-secondary btn-add number_add" data-pos='right' data-menu='number' data-cb="factory_id" hidden>增加</span>
             </div>
         </div>
         <div class="col-6 div-accuracy">
@@ -59,7 +61,7 @@
         </div>
         <div class="col-6 div-department_id">
             <div class="sidebar-heading mt-3 mb-2">检定部门</div>
-            <select name="department_id" class="custom-select form-control">
+            <select name="department_id" class="form-control form-select">
                 <option value="" selected disabled>请选择...</option>
                 @foreach($departments as $department)
                     <option value="{{$department->id}}">{{$department->name}}</option>
@@ -73,7 +75,7 @@
 
         <div class="col-6 div-category_id">
             <div class="sidebar-heading mt-3 mb-2">证书类型</div>
-            <select name="category_id" class="custom-select form-control">
+            <select name="category_id" class="form-control form-select form-control">
                 <option value="" selected disabled>请选择...</option>
                 @foreach($categories as $category)
                     <option value="{{$category->id}}">{{$category->name}}</option>
@@ -102,9 +104,9 @@
         </div>
         <div class="col-6 div-standard_id">
             <div class="sidebar-heading mt-3 mb-2">检定标准</div>
-            <select name="standard_id[]" class="form-control" data-live-search="true" multiple>
+            <select name="standard_id[]" class="form-control form-select" data-live-search="true" multiple title="请选择...">
                 @foreach($standards as $standard)
-                    <option value="{{$standard->id}}">{{$standard->name1}}-{{Str::limit($standard->name2,35)}}</option>
+                    <option value="{{$standard->id}}">{{$standard->name2}}-{{Str::limit($standard->name1,35)}}</option>
                 @endforeach
             </select>
         </div>
@@ -126,17 +128,16 @@
         </div>
         <div class="col-6">
             <div class="sidebar-heading mt-3 mb-2">上传证书</div>
-            <input type="file" class="btn btn-secondary btn-square btn-sm" name="file_certificate" accept="application/pdf">
+            <input type="file" class="btn btn-secondary btn-sm" name="file_certificate" accept="application/pdf">
         </div>
     </div>
     <script>
         $('[name="tool_id"],[name="standard_id[]"]').selectpicker();
         $('[name="verification_date"]').daterangepicker({
             singleDatePicker: true,
+            autoApply: true,
+            parentEl: $('.off-sidebar-container'),
             container: '[name="verification_date"]',
-            locale: {
-                format: 'YYYY-MM-DD'
-            }
         });
         $('[name="verification_date"]').on('change', function () {
             $('[name="start"]').val($('[name="verification_date"]').val().substring(0, 4))

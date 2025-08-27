@@ -2,15 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Certificate;
 use App\Models\CertificatesView;
-use App\Models\ChecksView;
-use App\Models\Filter;
-use App\Models\Position;
 use App\Models\PositionsView;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 
@@ -19,13 +14,7 @@ class CheckController extends Controller
 {
     public function index()
     {
-        $positions = PositionsView::selectRaw('name1,name3,level,MIN(code) AS code,MIN(sort) AS sort')->where(function ($query) {
-            $query->whereIn('name1', ['计量器具', '检测仪表'])
-                ->orWhereIn('name2', ['计量器具', '检测仪表'])
-                ->orWhereIn('name3', ['计量器具', '检测仪表'])
-                ->orWhereIn('name4', ['计量器具', '检测仪表']);
-        })->whereIn('level', [3, 5])->where('sign', 0)->where('count', '!=', 0)
-            ->groupBy('name1', 'name3', 'level')->orderBy(DB::raw('MIN(`code`)'))->orderBy(DB::raw('MIN(`sort`)'))->get();
+        $positions = PositionsView::select('name1','name4')->whereIn('level',[1,4])->get();
         return view("check.index", compact('positions'));
     }
 
@@ -38,19 +27,15 @@ class CheckController extends Controller
         $file = $request->file('file');
         if ($file->isValid()) {
             $date = date("Y-m-d H'i's");
-
             $compressedImage = Image::make($file->getRealPath())
                 ->resize(800, null, function ($constraint) {
                     $constraint->aspectRatio();
                     $constraint->upsize();
                 })
                 ->encode($file->getClientOriginalExtension(), 75);
-
             $folderPath = "public/check/$request->certificate_id";
             $fileName = $date . '.' . $file->getClientOriginalExtension();
-
             $compressedImageHash = hash('sha256', $compressedImage->__toString());
-
             $existingFiles = Storage::files($folderPath);
             foreach ($existingFiles as $existingFile) {
                 $existingFilePath = storage_path("app/$existingFile");
@@ -66,7 +51,7 @@ class CheckController extends Controller
 
     public function update($position)
     {
-        $certificates = CertificatesView::where('valid', 1)->where('position', $position)->whereIn('type', ['计量器具', '检测仪表'])->where('sign', 0)->orderBy('order')->get();
+        $certificates = CertificatesView::where('valid', 1)->where('position', $position)->whereIn('type', ['计量器具', '检测仪表'])->where('sign', 1)->orderBy('order')->get();
         foreach ($certificates as $certificate) {
             $folderPath = "storage/check/$certificate->id";
             if (file_exists($folderPath) && is_dir($folderPath)) {

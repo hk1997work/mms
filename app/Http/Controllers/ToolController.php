@@ -108,13 +108,19 @@ class ToolController extends Controller
         return view('tools.tool.show', compact('tool'));
     }
 
-    public function list_show()
+    public function list_show(Request $request)
     {
         $id = $_GET['id'];
-        $data = NumbersView::select('id', 'factory', 'number', 'state', 'times', 'remark', 'mistake')->where('tool_id', $id)->get()->toArray();
-        foreach ($data as $key => $value) {
-            if ($data[$key]['number']) {
-                switch ($data[$key]['state']) {
+        return DataTables::of(NumbersView::where('tool_id', $id))
+            ->editColumn('name1', function ($data) {
+                return $this->toLevel($data, 1, 'name', 'number', 'warning', !$data->mistake, $data->state_id ? 2 : 1);
+            })
+            ->editColumn('name2', function ($data) {
+                return $this->toLevel($data, 2, 'name', 'number', 'success', !$data->mistake, $data->state_id ? 2 : 1);
+            })
+            ->editColumn('state', function ($data) {
+                $tag = '';
+                switch ($data->state) {
                     case '在用':
                         $tag = "success";
                         break;
@@ -128,29 +134,19 @@ class ToolController extends Controller
                         $tag = "danger";
                         break;
                     case '报废':
-                        $tag = "primary";
+                        $tag = "dark";
                         break;
                 }
-                $data[$key]['state'] = "<span class='tag btn-sm tag-$tag'>$value[state]</span>";
-                $data[$key]['number'] = $value['mistake'] == 1 ? "<span class='tag btn-sm tag-danger'>$value[number]</span>" : $value['number'];
-                $data[$key]['remark'] = $value['remark'];
-                $data[$key]['id'] = "<div class='styled-checkbox'>
-                        <input type='checkbox' name='cb' class='cb' data-menu='number' id='$value[id]cb'>
-                        <label for='$value[id]cb'></label>
-                    </div>";
-            } else {
-                $data[$key]['factory'] = $value['mistake'] == 1 ? "<span class='tag btn-sm tag-danger'>$value[factory]</span>" : $value['factory'];
-                $data[$key]['number'] = "<span class='btn btn-outline-secondary btn-sm btn-add ripple' data-pos='right' data-menu='number' data-id='$value[id]'>增加</span>";
-                $data[$key]['remark'] = '';
-                $data[$key]['id'] = "<div class='styled-checkbox'>
-                        <input type='checkbox' name='cb' class='cb' data-menu='factory' data-hide='btn-show' id='$value[id]cb'>
-                        <label for='$value[id]cb'></label>
-                    </div>";
-            }
-
-            unset($data[$key]['mistake']);
-        }
-        return response()->json(['data' => array_map('array_values', $data)]);
+                return $this->toBadges($data->state, $tag);
+            })
+            ->editColumn('times', function ($data) {
+                return $this->toBadges($data->times, $data->times ? 'secondary' : 'danger');
+            })
+            ->filter(function ($query) use ($request) {
+                $this->toSearch($query, $request, ['factory', 'number', 'state']);
+            })
+            ->rawColumns([1, 2, 3, 4])
+            ->make(false);
     }
 
     public function destroy($tool)

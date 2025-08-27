@@ -22,7 +22,6 @@ class NumberController extends Controller
     {
         $arr['factory_id'] = $request->factory_id;
         $arr['number'] = $request->number;
-        $arr['remark'] = $request->remark;
         $arr['state_id'] = $request->state_id;
         return !!Number::create($arr);
     }
@@ -36,7 +35,6 @@ class NumberController extends Controller
     public function update(NumberRequest $request, Number $number)
     {
         $number->number = $request->number;
-        $number->remark = $request->remark;
         $number->state_id = $request->state_id;
         $state = Parameter::find($request->state_id);
         if ($state->name == '在用') {
