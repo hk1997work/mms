@@ -4,10 +4,6 @@
         <div class="sidebar-btn" hidden></div>
     </ul>
     <div class="off-sidebar-content auto-scroll">
-        <div class="tab-content">
-            <div class="tab-pane show active">
-                @yield('content_form')
-            </div>
-        </div>
+        @yield('content_form')
     </div>
 </div>

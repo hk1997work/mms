@@ -18,6 +18,10 @@ main {
     padding-top: 50px;
 }
 
+.popover {
+    max-width: 500px !important;
+}
+
 /* input */
 input:focus, select, textarea, button {
     outline: none;

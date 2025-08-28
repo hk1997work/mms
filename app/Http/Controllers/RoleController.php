@@ -29,10 +29,10 @@ class RoleController extends Controller
                 return $this->toBadges($data->user, 'secondary');
             })
             ->editColumn('permission', function ($data) use ($permissions) {
-                return $this->toManyBadges($data->permission_id, $permissions, 'description', 3);
+                return $this->toManyBadges($data->permission_id, $permissions, 'description');
             })
             ->editColumn('position', function ($data) use ($positions) {
-                return $this->toManyBadges($data->position_id, $positions, 'name', 2);
+                return $this->toManyBadges($data->position_id, $positions, 'name');
             })
             ->filter(function ($query) use ($request) {
                 $this->toSearch($query, $request, ['name', 'user', 'permission', 'position']);

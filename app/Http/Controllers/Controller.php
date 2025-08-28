@@ -255,23 +255,21 @@ class Controller extends BaseController
         return implode(' ', $badges);
     }
 
-    function toManyBadges($str, $items, $field, $level)
+    function toManyBadges($str, $items, $field)
     {
         $ids = explode(',', $str);
-        return $items->map(function ($item) use ($ids, $field, $level) {
+        return $items->map(function ($item) use ($ids, $field) {
             if (in_array($item->id, $ids)) {
                 $html = '<a class="badge btn btn-outline-secondary text-secondary-emphasis" href="#" data-bs-html="true" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-placement="top" data-bs-content="';
-                $html .= $item->children->map(function ($item) use ($ids, $field, $level) {
+                $html .= $item->children->map(function ($item) use ($ids, $field) {
                     $html = in_array($item->id, $ids)
                         ? "<span class='badge bg-primary-subtle border border-primary-subtle text-primary-emphasis my-1'>" . e($item->{$field}) . "</span> "
                         : "<span class='badge bg-light-subtle border border-light-subtle text-light-emphasis my-1'>" . e($item->{$field}) . "</span> ";
-                    if ($level == 3) {
-                        $html .= $item->children->map(function ($item) use ($ids, $field) {
-                            return in_array($item->id, $ids)
-                                ? "<span class='badge bg-primary-subtle border border-primary-subtle text-primary-emphasis my-1'>" . e($item->{$field}) . "</span>"
-                                : "<span class='badge bg-light-subtle border border-light-subtle text-light-emphasis my-1'>" . e($item->{$field}) . "</span>";
-                        })->implode(' ');
-                    }
+                    $html .= $item->children->map(function ($item) use ($ids, $field) {
+                        return in_array($item->id, $ids)
+                            ? "<span class='badge bg-primary-subtle border border-primary-subtle text-primary-emphasis my-1'>" . e($item->{$field}) . "</span>"
+                            : "<span class='badge bg-light-subtle border border-light-subtle text-light-emphasis my-1'>" . e($item->{$field}) . "</span>";
+                    })->implode(' ');
                     return $html;
                 })->implode('<br>');
                 $html .= '"> ' . e($item->{$field}) . '</a>';
@@ -296,17 +294,17 @@ class Controller extends BaseController
         }
     }
 
-    function toSearch($query, $request, $searchFields)
+    function toSearch($query, $request, $lists)
     {
-        if (empty($searchValue = $request->search['value'])) {
+        if (empty($search = $request->search['value'])) {
             return $query;
         }
-        $terms = array_filter(explode(' ', $searchValue));
-        return $query->where(function ($q) use ($terms, $searchFields) {
+        $terms = array_filter(explode(' ', $search));
+        return $query->where(function ($q) use ($terms, $lists) {
             foreach ($terms as $term) {
-                $q->where(function ($innerQ) use ($term, $searchFields) {
-                    foreach ($searchFields as $field) {
-                        $innerQ->orWhere($field, 'like', "%{$term}%");
+                $q->where(function ($innerQ) use ($term, $lists) {
+                    foreach ($lists as $list) {
+                        $innerQ->orWhere($list, 'like', "%{$term}%");
                     }
                 });
             }
@@ -315,13 +313,10 @@ class Controller extends BaseController
 
     function toOrder($query, $request, $lists)
     {
-        if (empty($request->order)) {
+        if (empty($order = $request->order)) {
             return $query;
         }
-        $order = $request->order[0];
-        $columnIndex = $order['column'];
-        $direction = $order['dir'];
-        return $query->orderBy($lists[$columnIndex], $direction);
+        return $query->orderBy($lists[$order[0]['column']], $order[0]['dir']);
     }
 
     function moveUpDown($model, $type)
@@ -342,13 +337,13 @@ class Controller extends BaseController
         return $type ? '已经是最顶层,无法上移' : '已经是最底层,无法下移';
     }
 
-    function delete($model, $str, $terms, $field)
+    function delete($model, $str, $lists, $field)
     {
         $ids = explode(',', $str);
         $result = $model::whereIn('id', $ids)
-            ->where(function ($query) use ($terms) {
-                foreach ($terms as $term) {
-                    $query->orHas($term);
+            ->where(function ($query) use ($lists) {
+                foreach ($lists as $list) {
+                    $query->orHas($list);
                 }
             })
             ->pluck($field)
