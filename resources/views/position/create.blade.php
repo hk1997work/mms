@@ -1,21 +1,9 @@
 @extends('layout.create')
 @section('content_form')
-    <div class="col-12 div-name">
-        <div class="sidebar-heading mt-3 mb-2">岗位名称</div>
-        <input type="text" name="name" class="form-control">
-    </div>
-    @if(isset($position)&&$position->level==3)
-        <div class="col-12 div-code">
-            <div class="sidebar-heading mt-3 mb-2">编号</div>
-            <input type="text" name="code" class="form-control">
-        </div>
-    @endif
-    <div class="col-12 div-sign">
-        <div class="sidebar-heading mt-3 mb-2">状态</div>
-        <select name="sign" class="form-control form-select">
-            <option value="1">有效</option>
-            <option value="0">失效</option>
-        </select>
-    </div>
     <input type="hidden" name="pid" value="{{isset($position->id)?$position->id:0}}">
+    @include('layout.input',['name'=>'name','label'=>'岗位名称','type'=>'text','value'=>'','state'=>''])
+    @if(isset($position->level)&&$position->level==3)
+        @include('layout.input',['name'=>'code','label'=>'编号','type'=>'text','value'=>'','state'=>''])
+    @endif
+    @include('layout.select',['name'=>'sign','label'=>'启用','selected'=>null])
 @endsection

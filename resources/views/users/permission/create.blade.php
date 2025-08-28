@@ -1,12 +1,6 @@
 @extends('layout.create')
 @section('content_form')
-    <div class="col-12 div-name">
-        <div class="sidebar-heading mt-3 mb-2">权限名称</div>
-        <input type="text" name="name" class="form-control">
-    </div>
-    <div class="col-12 div-description">
-        <div class="sidebar-heading mt-3 mb-2">权限描述</div>
-        <input type="text" name="description" class="form-control">
-    </div>
     <input type="hidden" name="pid" value="{{$id}}">
+    @include('layout.input',['name'=>'name','label'=>'权限名称','type'=>'text','value'=>'','state'=>''])
+    @include('layout.input',['name'=>'description','label'=>'权限描述','type'=>'text','value'=>'','state'=>''])
 @endsection

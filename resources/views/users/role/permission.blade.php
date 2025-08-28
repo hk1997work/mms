@@ -1,10 +1,10 @@
 @extends('layout.edit')
 @section('content_title')
     <li class="nav-item">
-        <button class="nav-link active" data-toggle="tab" data-target="#permission-tab" id="permission-btn">权限配置</button>
+        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#permission-tab" id="permission-btn">权限配置</button>
     </li>
     <li class="nav-item">
-        <button class="nav-link" data-toggle="tab" data-target="#position-tab" id="position-btn">岗位配置</button>
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#position-tab" id="position-btn">岗位配置</button>
     </li>
 @endsection
 @section('content_form')

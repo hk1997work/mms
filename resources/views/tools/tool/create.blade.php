@@ -1,59 +1,13 @@
 @extends('layout.create')
 @section('content_form')
-    <div class="col-12 div-instrument">
-        <div class="sidebar-heading mt-3 mb-2">器具名称</div>
-        <input type="text" name="instrument" class="form-control">
-    </div>
-    <div class="col-12 div-model">
-        <div class="sidebar-heading mt-3 mb-2">规格型号</div>
-        <input type="text" name="model" class="form-control">
-    </div>
-    <div class="col-12 div-limit">
-        <div class="sidebar-heading mt-3 mb-2">测量范围</div>
-        <input type="text" name="limit" class="form-control">
-    </div>
-    <div class="col-12 div-accuracy">
-        <div class="sidebar-heading mt-3 mb-2">精确度</div>
-        <input type="text" name="accuracy" class="form-control">
-    </div>
-    <div class="col-12 div-cycle_id">
-        <div class="sidebar-heading mt-3 mb-2">检定周期</div>
-        <select name="cycle_id" class="form-control form-select">
-            <option value="" selected disabled>请选择...</option>
-            @foreach($cycles as $cycle)
-                <option value={{$cycle->id}}>{{$cycle->name}}</option>
-            @endforeach
-        </select>
-    </div>
-    <div class="col-12 div-abc_id">
-        <div class="sidebar-heading mt-3 mb-2">ABC类</div>
-        <select name="abc_id" class="form-control form-select">
-            <option value="" selected disabled>请选择...</option>
-            @foreach($abcs as $abc)
-                <option value={{$abc->id}}>{{$abc->name}}</option>
-            @endforeach
-        </select>
-    </div>
-    <div class="col-12 div-plan_id">
-        <div class="sidebar-heading mt-3 mb-2">检定计划</div>
-        <select name="plan_id" class="form-control form-select">
-            <option value="" selected disabled>请选择...</option>
-            @foreach($plans as $plan)
-                <option value={{$plan->id}}>{{$plan->name}}</option>
-            @endforeach
-        </select>
-    </div>
-    <div class="col-12 div-vulnerable">
-        <div class="sidebar-heading mt-3 mb-2">易损</div>
-        <select name="vulnerable" class="form-control form-select">
-            <option value="" selected disabled>请选择...</option>
-            <option value="1">是</option>
-            <option value="0">否</option>
-        </select>
-    </div>
-    <div class="col-12 div-requirement">
-        <div class="sidebar-heading mt-3 mb-2">检定要求</div>
-        <input type="text" name="requirement" class="form-control">
-    </div>
     <input type="hidden" name="type_id" value="{{$type_id}}">
+    @include('layout.input',['name'=>'instrument','label'=>'器具名称','type'=>'text','value'=>'','state'=>''])
+    @include('layout.input',['name'=>'model','label'=>'规格型号','type'=>'text','value'=>'','state'=>''])
+    @include('layout.input',['name'=>'limit','label'=>'测量范围','type'=>'text','value'=>'','state'=>''])
+    @include('layout.input',['name'=>'accuracy','label'=>'精确度','type'=>'text','value'=>'','state'=>''])
+    @include('layout.select',['name'=>'cycle_id','label'=>'检定周期','selected'=>null,'items'=>$cycles,'id'=>'id','field'=>'name'])
+    @include('layout.select',['name'=>'abc_id','label'=>'ABC类','selected'=>null,'items'=>$abcs,'id'=>'id','field'=>'name'])
+    @include('layout.select',['name'=>'plan_id','label'=>'检定计划','selected'=>null,'items'=>$plans,'id'=>'id','field'=>'name'])
+    @include('layout.select',['name'=>'vulnerable','label'=>'易损','selected'=>null])
+    @include('layout.input',['name'=>'requirement','label'=>'检定要求','type'=>'text','value'=>'','state'=>''])
 @endsection

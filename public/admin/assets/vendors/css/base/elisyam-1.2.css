@@ -18,11 +18,12 @@ main {
     padding-top: 50px;
 }
 
+/* 提示框 */
 .popover {
     max-width: 500px !important;
 }
 
-/* input */
+/* 输入框 */
 input:focus, select, textarea, button {
     outline: none;
     box-shadow: none !important
