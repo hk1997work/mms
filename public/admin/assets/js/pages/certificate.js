@@ -1,8 +1,7 @@
 //日期格式
 Date.prototype.format = function (fmt) {
     let o = {
-        "M+": this.getMonth() + 1,
-        "d+": this.getDate(),
+        "M+": this.getMonth() + 1, "d+": this.getDate(),
     };
     if (/(y+)/.test(fmt)) {
         fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
@@ -19,15 +18,13 @@ Date.prototype.format = function (fmt) {
 $('.off-sidebar').on('change', '[name="position_id"]', function () {
     let form = $(this).closest('form')
     $.ajax({
-        url: "/certificate_sn/" + form.find('[name="position_id"]').val(),
-        success: function (data) {
+        url: "/certificate_sn/" + form.find('[name="position_id"]').val(), success: function (data) {
             if (data) {
                 form.find('[name="sn"]').val(data).trigger('change');
             } else {
                 notifications('序号加载失败');
             }
-        },
-        error: function (xhr) {
+        }, error: function (xhr) {
             xhr.status == 401 ? document.location.reload() : notifications('序号加载失败')
         }
     })
@@ -37,8 +34,7 @@ $('.off-sidebar').on('change', '[name="position_id"]', function () {
 $('.off-sidebar').on('change', '[name="tool_id"]', function () {
     let form = $(this).closest('form')
     $.ajax({
-        url: "/certificate_info/" + form.find('[name="tool_id"]').val(),
-        success: function (data) {
+        url: "/certificate_info/" + form.find('[name="tool_id"]').val(), success: function (data) {
             if (data) {
                 form.find('[name="model"]').val(data['model']);
                 form.find('[name="limit"]').val(data['limit']);
@@ -49,8 +45,7 @@ $('.off-sidebar').on('change', '[name="tool_id"]', function () {
             } else {
                 notifications('器具名称加载失败');
             }
-        },
-        error: function (xhr) {
+        }, error: function (xhr) {
             xhr.status == 401 ? document.location.reload() : notifications('器具名称加载失败')
         }
     })
@@ -71,8 +66,7 @@ $('.off-sidebar').on('change', '[name="tool_id"]', function () {
         form.find('[name="number_id"]').empty();
         form.find('[name="number_id"]').append("<option value='' selected disabled>请选择...</option>");
         $.ajax({
-            url: path,
-            success: function (data) {
+            url: path, success: function (data) {
                 if (data) {
                     if (data.length) {
                         form.find('[name="factory_id"]').attr("disabled", false);
@@ -90,8 +84,7 @@ $('.off-sidebar').on('change', '[name="tool_id"]', function () {
                     form.find('[name="factory_id"]').attr("disabled", true)
                     notifications('生产厂家加载失败');
                 }
-            },
-            error: function (xhr) {
+            }, error: function (xhr) {
                 xhr.status == 401 ? document.location.reload() : notifications('生产厂家加载失败')
                 form.find('[name="factory_id"]').attr("disabled", true)
             }
@@ -112,8 +105,7 @@ $('.off-sidebar').on('change', '[name="factory_id"]', function () {
         form.find('[name="number_id"]').empty();
         form.find('[name="number_id"]').append("<option value='' selected disabled>请选择...</option>");
         $.ajax({
-            url: path,
-            success: function (data) {
+            url: path, success: function (data) {
                 if (data) {
                     if (data.length) {
                         form.find('[name="number_id"]').attr("disabled", false);
@@ -131,8 +123,7 @@ $('.off-sidebar').on('change', '[name="factory_id"]', function () {
                     form.find('[name="number_id"]').attr("disabled", true)
                     notifications('出厂编号加载失败');
                 }
-            },
-            error: function (xhr) {
+            }, error: function (xhr) {
                 xhr.status == 401 ? document.location.reload() : notifications('出厂编号加载失败')
                 form.find('[name="number_id"]').attr("disabled", true)
             }
@@ -147,16 +138,14 @@ $('.off-sidebar').on('change', '[name="number_id"]', function () {
     if (form.find('[name="number_id"]').val() != null) {
         let path = "/certificate_number/" + form.find('[name="number_id"]').val();
         $.ajax({
-            url: path,
-            success: function (data) {
+            url: path, success: function (data) {
                 if (data) {
                     form.find('[name="start"]').val(data['start']).trigger('change');
                     form.find('[name="times"]').val(data['times']).trigger('change');
                 } else {
                     notifications('启动时间、检定次数加载失败');
                 }
-            },
-            error: function (xhr) {
+            }, error: function (xhr) {
                 xhr.status == 401 ? document.location.reload() : notifications('启动时间、检定次数加载失败');
             }
         })
@@ -196,10 +185,7 @@ $('.off-sidebar').on('change', '[name="file_certificate"]', function () {
     if (form.find('[name="file_certificate"]').val()) {
         $("#preloader")[0].style.display = 'block';
         $.ajax({
-            url: "/pdf",
-            type: "POST",
-            data: new FormData(form[0]),
-            processData: false,  // 不处理数据
+            url: "/pdf", type: "POST", data: new FormData(form[0]), processData: false,  // 不处理数据
             contentType: false,   // 不设置内容类型
             success: function (result) {
                 if (typeof result === 'object') {
@@ -224,7 +210,8 @@ $('.off-sidebar').on('change', '[name="file_certificate"]', function () {
                     if (result['number_id'] && form.find('[name="tool_id"] option').filter(function () {
                         return $(this).val() == result['tool_id']
                     }).length > 0) {
-                        form.find('[name="tool_id"]').selectpicker('val', result['tool_id'])
+                        form.find('[name="tool_id"]').val(result['tool_id']).trigger('change');
+                        form.find('[name="tool_id"]').selectpicker('refresh');
                         form.find(".div-factory_id").append("<input type='hidden' class='ff' value='" + result['factory_id'] + "'>");
                         form.find(".div-number_id").append("<input type='hidden' class='nn' value='" + result['number_id'] + "'>");
                     }
@@ -232,8 +219,7 @@ $('.off-sidebar').on('change', '[name="file_certificate"]', function () {
                     notifications(result)
                 }
                 $("#preloader").fadeOut();
-            },
-            error: function (xhr) {
+            }, error: function (xhr) {
                 xhr.status == 401 ? document.location.reload() : notifications('上传证书失败')
                 $("#preloader").fadeOut();
             }

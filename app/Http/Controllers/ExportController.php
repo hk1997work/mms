@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CertificatesView;
+use App\Models\Parameter;
 use App\Models\Position;
 use App\Models\Setting;
 use Illuminate\Http\Request;
@@ -15,8 +16,9 @@ class ExportController extends Controller
 {
     public function index()
     {
-        $positions = Position::select('name', 'level')->whereIn('level', [1, 2])->distinct()->get();
-        return view("export.index", compact('positions'));
+        $positions = Position::select('name', 'level')->whereIn('level', [1, 2, 3])->distinct()->get();
+        $categories = Parameter::where('pid', Parameter::where('name', '证书类型')->first()->id)->get();
+        return view("export.index", compact('positions', 'categories'));
     }
 
     public function create()
@@ -42,7 +44,7 @@ class ExportController extends Controller
 
     public function update(Request $request)
     {
-        $certificates = CertificatesView::whereIn('type', $request->type)->whereIn('unit', $request->position);
+        $certificates = CertificatesView::whereIn('type', $request->type)->whereIn('unit', $request->position)->whereIn('class', $request->class)->whereIn('category', $request->category);
         if (isset($request->daterange)) {
             $start_date = substr($request->daterange, 0, 10);
             $end_date = substr($request->daterange, -10);
@@ -53,10 +55,16 @@ class ExportController extends Controller
         $path = "storage/" . \Auth::user()->id;
         $types = $request->check_type == 'on' ? $request->type : [$request->type];
         $positions = $request->check_position == 'on' ? $request->position : [$request->position];
+        $classes = $request->check_class == 'on' ? $request->class : [$request->class];
+        $categories = $request->check_category == 'on' ? $request->category : [$request->category];
         foreach ($types as $type) {
             foreach ($positions as $position) {
-                $clonedCertificates = clone $certificates;
-                $this->export($clonedCertificates, $request->contents, $type, $position);
+                foreach ($classes as $class) {
+                    foreach ($categories as $category) {
+                        $clonedCertificates = clone $certificates;
+                        $this->export($clonedCertificates, $request->contents, $type, $position, $class, $category);
+                    }
+                }
             }
         }
         $zip = new ZipArchive();
@@ -78,7 +86,7 @@ class ExportController extends Controller
         }
     }
 
-    public function export($certificates, $contents, $type, $position)
+    public function export($certificates, $contents, $type, $position, $class, $category)
     {
         $path = "storage/" . \Auth::user()->id;
         $filename = '';
@@ -93,6 +101,18 @@ class ExportController extends Controller
         } else {
             $positions[] = $position;
             $filename = $filename . $position;
+        }
+        if (is_array($class)) {
+            $classes = $class;
+        } else {
+            $classes[] = $class;
+            $filename = $filename . $class;
+        }
+        if (is_array($category)) {
+            $categories = $category;
+        } else {
+            $categories[] = $category;
+            $filename = $filename . $category;
         }
         $styleArray = [
             'alignment' => [
@@ -112,7 +132,7 @@ class ExportController extends Controller
                 'formatCode' => '@',
             ],
         ];
-        $certificates = $certificates->whereIn('type', $types)->whereIn('unit', $positions)->orderBy('order')->orderBy('start_date')->get();
+        $certificates = $certificates->whereIn('type', $types)->whereIn('unit', $positions)->whereIn('class', $classes)->whereIn('category', $categories)->orderBy('order')->orderBy('start_date')->get();
         if ($certificates->count() == 0) {
             return;
         }

@@ -9,7 +9,7 @@
         {{method_field("put")}}
         {{csrf_field()}}
         <div class="row m-0">
-            <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+            <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12">
                 <div>文件类型</div>
                 <select name="contents[]" class="selectpicker w-100" multiple title="请选择...">
                     <option selected>台账</option>
@@ -19,7 +19,25 @@
                     <option>监理资料</option>
                 </select>
             </div>
-            <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+            <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12">
+                <div>证书类型</div>
+                <select name="category[]" class="selectpicker w-100" multiple title="请选择...">
+                    @foreach($categories as $category)
+                        <option selected>{{$category->name}}</option>
+                    @endforeach
+                </select>
+                <div>
+                    <input type="checkbox" name="check_category" id="check_category">
+                    <label for="check_category">导出多个文件</label>
+                </div>
+            </div>
+            <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12">
+                <div>选择日期</div>
+                <input type="text" class="form-control w-100" name="daterange" id="daterange" disabled>
+                <input type="checkbox" name="check_daterange" id="check_daterange">
+                <label for="check_daterange">选择日期范围</label>
+            </div>
+            <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12">
                 <div>计量类别</div>
                 <select name="type[]" class="selectpicker w-100" multiple title="请选择...">
                     @foreach($positions->where('level',2) as $position)
@@ -31,7 +49,7 @@
                     <label for="check_type">导出多个文件</label>
                 </div>
             </div>
-            <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
+            <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12">
                 <div>单位</div>
                 <select name="position[]" class="selectpicker w-100" multiple title="请选择...">
                     @foreach($positions->where('level',1) as $position)
@@ -43,11 +61,17 @@
                     <label for="check_position">导出多个文件</label>
                 </div>
             </div>
-            <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12">
-                <div>选择日期</div>
-                <input type="text" class="form-control w-100" name="daterange" id="daterange" disabled>
-                <input type="checkbox" name="check_daterange" id="check_daterange">
-                <label for="check_daterange">选择日期范围</label>
+            <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12">
+                <div>班组</div>
+                <select name="class[]" class="selectpicker w-100" multiple title="请选择...">
+                    @foreach($positions->where('level',3) as $position)
+                        <option selected>{{$position->name}}</option>
+                    @endforeach
+                </select>
+                <div>
+                    <input type="checkbox" name="check_class" id="check_class">
+                    <label for="check_class">导出多个文件</label>
+                </div>
             </div>
             <div class="d-flex align-items-center justify-content-end">
                 <button class="btn btn-outline-primary" type="submit">下 载</button>

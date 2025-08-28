@@ -1,7 +1,7 @@
 @extends('layout.show')
 @section('content_title')
     @if($certificate->valid)
-        @if($certificate->position=='备用'||$certificate->position=='借用')
+        @if($certificate->position=='备用')
             <li class="nav-item">
                 <button class="nav-link active" data-toggle="tab" data-target="#apply-tab" id="apply-btn">使用</button>
             </li>
@@ -142,7 +142,7 @@
             </form>
         </div>
         @if($certificate->valid)
-            @if($certificate->position=='备用'||$certificate->position=='借用')
+            @if($certificate->position=='备用')
                 <div role="tabpanel" class="tab-pane show active" id="apply-tab" aria-labelledby="apply-btn">
                     <form action="" onsubmit="return false;">
                         {{method_field("put")}}
@@ -302,7 +302,7 @@
                                     <select name="factory_id" class="form-control form-select" disabled>
                                         <option value="" selected disabled>请选择...</option>
                                     </select>
-                                    <span class="input-group-addon addon-primary btn-add factory_add" data-pos='right' data-menu='factory' data-cb="tool_id" hidden>增加</span>
+                                    <span class="btn btn-outline-secondary btn-add factory_add" data-pos='right' data-menu='factory' data-cb="tool_id" hidden>增加</span>
                                 </div>
                             </div>
                             <div class="col-6 div-limit">
@@ -315,7 +315,7 @@
                                     <select name="number_id" class="form-control form-select" disabled>
                                         <option value="" selected disabled>请选择...</option>
                                     </select>
-                                    <span class="input-group-addon addon-primary btn-add number_add" data-pos='right' data-menu='number' data-cb="factory_id" hidden>增加</span>
+                                    <span class="btn btn-outline-secondary btn-add number_add" data-pos='right' data-menu='number' data-cb="factory_id" hidden>增加</span>
                                     <input type="hidden" name="number" value="{{$certificate->number_id}}">
                                 </div>
                             </div>
@@ -369,7 +369,7 @@
                                 <div class="sidebar-heading mt-3 mb-2">检定标准</div>
                                 <select name="standard_id[]" class="form-control form-select" data-live-search="true" multiple title="请选择...">
                                     @foreach($standards as $standard)
-                                        <option value="{{$standard->id}}">{{$standard->name1}}-{{Str::limit($standard->name2,35)}}</option>
+                                        <option value="{{$standard->id}}">{{$standard->name2}}-{{Str::limit($standard->name1,35)}}</option>
                                     @endforeach
                                 </select>
                             </div>

@@ -44,7 +44,7 @@ for x, y in product(range(big_img.shape[1] - small_img.shape[1] + 1), range(big_
 
     if similarity > best_similarity:
         best_similarity = similarity
-        best_x_coordinate = x - 1
+        best_x_coordinate = x
 print(jsonJS['data']['repData']['secretKey'])
 print(jsonJS['data']['repData']['token'])
 print('{"x":' + str(best_x_coordinate) + ',"y":5}')

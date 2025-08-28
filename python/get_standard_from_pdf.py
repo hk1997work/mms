@@ -78,7 +78,7 @@ def get_data_from_database():
         database="erp"
     )
     cursor = db_connection.cursor()
-    query = "SELECT id,CONCAT(name1,'-',REPLACE(REPLACE(SUBSTRING_INDEX(name2, '《', 1), 'I', '1'), 'O', '0')) as standard FROM standards_views WHERE `level`=2"
+    query = "SELECT id,CONCAT(name2,'-',REPLACE(REPLACE(SUBSTRING_INDEX(name1, '《', 1), 'I', '1'), 'O', '0')) as standard FROM standards_views WHERE `level`=2"
     cursor.execute(query)
 
     result = cursor.fetchall()
