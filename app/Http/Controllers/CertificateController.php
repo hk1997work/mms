@@ -13,7 +13,6 @@ use App\Models\StandardsView;
 use App\Models\Tool;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\DataTables;
