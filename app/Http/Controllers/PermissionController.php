@@ -20,13 +20,13 @@ class PermissionController extends Controller
     {
         return DataTables::of(PermissionsView::query())
             ->editColumn('description1', function ($data) {
-                return $this->toLevel($data, 1, 'description', 'permission', 'warning', $data->role);
+                return $this->toLevel($data, $data->level, 1, 'description', 'permission', 'warning', $data->role);
             })
             ->editColumn('description2', function ($data) {
-                return $this->toLevel($data, 2, 'description', 'permission', 'success', $data->role);
+                return $this->toLevel($data, $data->level, 2, 'description', 'permission', 'success', $data->role);
             })
             ->editColumn('description3', function ($data) {
-                return $this->toLevel($data, 3, 'description', 'permission', 'info', $data->role);
+                return $this->toLevel($data, $data->level, 3, 'description', 'permission', 'info', $data->role);
             })
             ->editColumn('role', function ($data) {
                 return $this->toBadges($data->role, 'secondary');

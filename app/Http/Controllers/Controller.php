@@ -255,6 +255,13 @@ class Controller extends BaseController
         return implode(' ', $badges);
     }
 
+    function toValidate($str, $validate)
+    {
+        return $validate
+            ? e($str)
+            : "<span class='badge bg-danger-subtle border border-danger-subtle text-danger-emphasis'>" . e($str) . "</span>";
+    }
+
     function toManyBadges($str, $items, $field)
     {
         $ids = explode(',', $str);
@@ -280,16 +287,15 @@ class Controller extends BaseController
         })->implode(' ');
     }
 
-    function toLevel($data, $column, $field, $menu, $type, $valid, $level = null)
+    function toLevel($data, $level, $column, $field, $menu, $type, $validate)
     {
-        $data->level = $level ?: $data->level;
-        $type = $valid ? $type : 'danger';
+        $type = $validate ? $type : 'danger';
         $text = $field . ($data->level - $column + 1);
-        if ($data->level == $column) {
+        if ($level == $column) {
             return "<span class='badge bg-" . e($type) . "-subtle border border-" . e($type) . "-subtle text-" . e($type) . "-emphasis'>" . e($data->{$text}) . "</span>";
-        } elseif ($data->level == $column - 1) {
+        } elseif ($level == $column - 1) {
             return "<span class='badge btn btn-outline-secondary text-secondary-emphasis btn-add' data-pos='right' data-menu='" . e($menu) . "' data-id='" . e($data->id) . "'>增加</span>";
-        } elseif ($data->level > ($column - 2)) {
+        } elseif ($level > ($column - 2)) {
             return "<span class='badge text-dark-emphasis'>" . e($data->{$text}) . "</span>";
         }
     }

@@ -20,7 +20,7 @@ class UserController extends Controller
     {
         return DataTables::of(UsersView::query())
             ->editColumn('username', function ($data) {
-                return $data->role ? $data->username : $this->toBadges($data->username, 'danger');
+                return $this->toValidate($data->username, $data->role);
             })
             ->editColumn('role', function ($data) {
                 return $this->toBadges($data->role, 'secondary');

@@ -113,10 +113,10 @@ class ToolController extends Controller
         $id = $_GET['id'];
         return DataTables::of(NumbersView::where('tool_id', $id))
             ->editColumn('name1', function ($data) {
-                return $this->toLevel($data, 1, 'name', 'number', 'warning', !$data->mistake, $data->state_id ? 2 : 1);
+                return $this->toLevel($data, $data->state_id ? 2 : 1, 1, 'name', 'number', 'warning', !$data->mistake);
             })
             ->editColumn('name2', function ($data) {
-                return $this->toLevel($data, 2, 'name', 'number', 'success', !$data->mistake, $data->state_id ? 2 : 1);
+                return $this->toLevel($data, $data->state_id ? 2 : 1, 2, 'name', 'number', 'success', !$data->mistake);
             })
             ->editColumn('state', function ($data) {
                 $tag = '';
