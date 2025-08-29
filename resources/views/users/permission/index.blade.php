@@ -1,23 +1,11 @@
 @extends('layout.index')
 @section('content_table')
     <ul class="nav">
-        <li class="nav-item"><a class="nav-link btn-add" data-menu="permission" href="#" data-pos="right">增加</a></li>
-        <li class="nav-item"><a class="nav-link btn-delete check-multiple" data-menu="permission" href="#" data-pos="right">删除</a></li>
-        <li class="nav-item"><a class="nav-link btn-edit check-single" data-menu="permission" href="#" data-pos="right">修改</a></li>
-        <li class="nav-item"><a class="nav-link btn-move check-single" data-menu="permission" href="#" data-type="1">上移</a></li>
-        <li class="nav-item"><a class="nav-link btn-move check-single" data-menu="permission" href="#" data-type="0">下移</a></li>
+        @include('template.nav',['label'=>'增加','menu'=>'permission','class'=>'btn-add'])
+        @include('template.nav',['label'=>'删除','menu'=>'permission','class'=>'btn-delete check-multiple'])
+        @include('template.nav',['label'=>'修改','menu'=>'permission','class'=>'btn-edit check-single'])
+        @include('template.nav',['label'=>'上移','menu'=>'permission','class'=>'btn-move check-single','type'=>1])
+        @include('template.nav',['label'=>'下移','menu'=>'permission','class'=>'btn-move check-single','type'=>0])
     </ul>
-    <table id="index-table" data-menu="permission" class="table table-hover table-tree">
-        <thead>
-        <tr>
-            <th></th>
-            <th>权限</th>
-            <th></th>
-            <th></th>
-            <th>权限名称</th>
-            <th>角色组</th>
-        </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+    @include('template.table',['menu'=>'permission','fields'=>['权限','','','权限名称','角色组'],'class'=>'table-tree'])
 @endsection

@@ -1,21 +1,10 @@
 @extends('layout.index')
 @section('content_table')
     <ul class="nav">
-        <li class="nav-item"><a class="nav-link btn-add" data-menu="role" href="#" data-pos="right">增加</a></li>
-        <li class="nav-item"><a class="nav-link btn-delete check-multiple" data-menu="role" href="#" data-pos="right">删除</a></li>
-        <li class="nav-item"><a class="nav-link btn-edit check-multiple" data-menu="permissions" href="#" data-pos="right">配置</a></li>
-        <li class="nav-item"><a class="nav-link btn-edit check-single" data-menu="role" href="#" data-pos="right">修改</a></li>
+        @include('template.nav',['label'=>'增加','menu'=>'role','class'=>'btn-add'])
+        @include('template.nav',['label'=>'删除','menu'=>'role','class'=>'btn-delete check-multiple'])
+        @include('template.nav',['label'=>'配置','menu'=>'permissions','class'=>'btn-edit check-multiple'])
+        @include('template.nav',['label'=>'修改','menu'=>'role','class'=>'btn-edit check-single'])
     </ul>
-    <table id="index-table" data-menu="role" class="table table-hover">
-        <thead>
-        <tr>
-            <th></th>
-            <th>角色</th>
-            <th>用户组</th>
-            <th>权限组</th>
-            <th>岗位组</th>
-        </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+    @include('template.table',['menu'=>'role','fields'=>['角色','用户组','权限组','岗位组']])
 @endsection

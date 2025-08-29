@@ -1,21 +1,11 @@
 @extends('layout.index')
 @section('content_table')
     <ul class="nav">
-        <li class="nav-item"><a class="nav-link btn-add" data-menu="parameter" href="#" data-pos="right">增加</a></li>
-        <li class="nav-item"><a class="nav-link btn-delete check-multiple" data-menu="parameter" href="#" data-pos="right">删除</a></li>
-        <li class="nav-item"><a class="nav-link btn-edit check-single" data-menu="parameter" href="#" data-pos="right">修改</a></li>
-        <li class="nav-item"><a class="nav-link btn-move check-single" data-menu="parameter" href="#" data-type="1">上移</a></li>
-        <li class="nav-item"><a class="nav-link btn-move check-single" data-menu="parameter" href="#" data-type="0">下移</a></li>
+        @include('template.nav',['label'=>'增加','menu'=>'parameter','class'=>'btn-add'])
+        @include('template.nav',['label'=>'删除','menu'=>'parameter','class'=>'btn-delete check-multiple'])
+        @include('template.nav',['label'=>'修改','menu'=>'parameter','class'=>'btn-edit check-single'])
+        @include('template.nav',['label'=>'上移','menu'=>'parameter','class'=>'btn-move check-single','type'=>1])
+        @include('template.nav',['label'=>'下移','menu'=>'parameter','class'=>'btn-move check-single','type'=>0])
     </ul>
-    <table id="index-table" data-menu="parameter" class="table table-hover table-tree">
-        <thead>
-        <tr>
-            <th></th>
-            <th>分类</th>
-            <th>参数</th>
-            <th>数量</th>
-        </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+    @include('template.table',['menu'=>'parameter','fields'=>['分类','参数','数量'],'class'=>'table-tree'])
 @endsection
