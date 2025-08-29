@@ -23,7 +23,7 @@ class RoleController extends Controller
         $positions = Position::where('level', 1)->orderBy('sort')->with('children')->get();
         return DataTables::of(RolesView::query())
             ->editColumn('name', function ($data) {
-                return $data->user && $data->permission && $data->position ? $data->name : $this->toBadges($data->name, 'danger');
+                return $this->toValidate($data->name, $data->user && $data->permission && $data->position);
             })
             ->editColumn('user', function ($data) {
                 return $this->toBadges($data->user, 'secondary');

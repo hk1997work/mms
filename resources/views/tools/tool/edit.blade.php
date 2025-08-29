@@ -4,9 +4,9 @@
     @include('template.input',['name'=>'model','label'=>'规格型号','value'=>$tool->model])
     @include('template.input',['name'=>'limit','label'=>'测量范围','value'=>$tool->limit])
     @include('template.input',['name'=>'accuracy','label'=>'精确度','value'=>$tool->accuracy])
-    @include('template.select',['name'=>'cycle_id','label'=>'检定周期','selected'=>$tool->cycle_id,'items'=>$cycles,'value'=>'id','valid'=>'id','field'=>'name'])
-    @include('template.select',['name'=>'abc_id','label'=>'ABC类','selected'=>$tool->abc_id,'items'=>$abcs,'value'=>'id','valid'=>'id','field'=>'name'])
-    @include('template.select',['name'=>'plan_id','label'=>'检定计划','selected'=>$tool->plan_id,'items'=>$plans,'value'=>'id','valid'=>'id','field'=>'name'])
+    @include('template.select',['name'=>'cycle_id','label'=>'检定周期','selected'=>$tool->cycle_id,'items'=>$cycles,'value'=>'id','validate'=>'id','field'=>'name'])
+    @include('template.select',['name'=>'abc_id','label'=>'ABC类','selected'=>$tool->abc_id,'items'=>$abcs,'value'=>'id','validate'=>'id','field'=>'name'])
+    @include('template.select',['name'=>'plan_id','label'=>'检定计划','selected'=>$tool->plan_id,'items'=>$plans,'value'=>'id','validate'=>'id','field'=>'name'])
     @include('template.select',['name'=>'vulnerable','label'=>'易损','selected'=>$tool->vulnerable])
     @include('template.input',['name'=>'requirement','label'=>'检定要求','value'=>$tool->requirement])
 @endsection

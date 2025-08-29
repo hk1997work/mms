@@ -1,14 +1,14 @@
 @extends('layout.index')
 @section('content_table')
     <ul class="nav">
-        @include('template.nav',['label'=>'增加','menu'=>'position','class'=>'btn-add'])
-        @include('template.nav',['label'=>'删除','menu'=>'position','class'=>'btn-delete check-multiple'])
-        @include('template.nav',['label'=>'修改','menu'=>'position','class'=>'btn-edit check-single'])
-        @include('template.nav',['label'=>'查看','menu'=>'position','class'=>'btn-show check-single','pos'=>'left'])
-        @include('template.nav',['label'=>'上移','menu'=>'position','class'=>'btn-move check-single','type'=>1])
-        @include('template.nav',['label'=>'下移','menu'=>'position','class'=>'btn-move check-single','type'=>0])
+        @include('template.nav-btn',['label'=>'增加','menu'=>'position','class'=>'btn-add'])
+        @include('template.nav-btn',['label'=>'删除','menu'=>'position','class'=>'btn-delete check-multiple'])
+        @include('template.nav-btn',['label'=>'修改','menu'=>'position','class'=>'btn-edit check-single'])
+        @include('template.nav-btn',['label'=>'查看','menu'=>'position','class'=>'btn-show check-single','pos'=>'left'])
+        @include('template.nav-btn',['label'=>'上移','menu'=>'position','class'=>'btn-move check-single','type'=>1])
+        @include('template.nav-btn',['label'=>'下移','menu'=>'position','class'=>'btn-move check-single','type'=>0])
     </ul>
-    @include('template.table',['menu'=>'position','fields'=>['岗位','','','','编号','数量'],'class'=>'table-tree'])
+    @include('template.table',['menu'=>'position','fields'=>['','岗位','','','','编号','数量'],'class'=>'table-tree'])
 @endsection
 @push('page-js-after-1')
     <script>
