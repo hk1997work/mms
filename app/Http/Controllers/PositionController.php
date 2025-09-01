@@ -36,7 +36,7 @@ class PositionController extends Controller
                 return $this->toBadges($data->code, 'primary');
             })
             ->editColumn('count', function ($data) {
-                return $this->toBadges($data->count == $data->total ? $data->total : $data->count . '/' . $data->total, $data->sign ? 'secondary' : 'danger');
+                return $this->toValidateBadge($data->count == $data->total ? $data->total : $data->count . '/' . $data->total, 'secondary', $data->sign);
             })
             ->filter(function ($query) use ($request) {
                 $this->toSearch($query, $request, ['name1', 'name2', 'name3', 'name4', 'code']);
@@ -94,25 +94,24 @@ class PositionController extends Controller
         return view('position.show', compact('position'));
     }
 
-    public function list_show()
+    public function list_show(Request $request)
     {
         $id = $_GET['id'];
-        $data = CertificatesView::selectRaw('MAX(id) AS id,`order`,position,instrument,MAX(valid) AS valid,MIN(verification_date) AS verification_date,COUNT(*) AS count')
-            ->where('position', '<>', '备用')->where(function ($query) use ($id) {
-                $query->where('unit1_id', $id)
-                    ->orWhere('unit2_id', $id)
-                    ->orWhere('unit3_id', $id)
-                    ->orWhere('unit4_id', $id)
-                    ->orWhere('position_id', $id);
-            })->groupBy('order', 'position', 'position_id', 'instrument')->get()->toArray();
-        foreach ($data as $key => $value) {
-            $data[$key]['id'] = "<div class='styled-checkbox'>
-                        <input type='checkbox' name='cb' class='cb' id='$value[id]cb'>
-                        <label for='$value[id]cb'></label>
-                    </div>";
-            $data[$key]['valid'] = "<span class='tag btn-sm " . ($value['valid'] ? "tag-success'>有效" : "tag-danger'>失效") . "</span>";
-        }
-        return response()->json(['data' => array_map('array_values', $data)]);
+        $query = CertificatesView::selectRaw('MAX(id) AS id,`order`,position,instrument,MAX(valid) AS valid,MIN(verification_date) AS verification_date,COUNT(*) AS count')
+            ->where('position_id', $id)->orWhere('class_id',$id)->orWhere('unit_id',$id)->orWhere('type_id',$id)
+            ->groupBy('order', 'position', 'position_id', 'instrument');
+        return DataTables::of($query)
+            ->editColumn('valid', function ($data)  {
+               return $this->toValidateBadge($data->valid?'有效':'失效','success',$data->valid);
+            })
+            ->filter(function ($query) use ($request) {
+                $this->toSearch($query, $request, ['order', 'position', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'remark']);
+            })
+            ->order(function ($query) use ($request) {
+                $this->toOrder($query, $request, ['id', 'order', 'position', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'remark']);
+            })
+            ->rawColumns([4])
+            ->make(false);
     }
 
     public function sn(Certificate $certificate)

@@ -32,9 +32,9 @@ class CertificateController extends Controller
     public function list(Request $request)
     {
         $path = $_GET['path'];
-        $query = CertificatesView::select('id', 'order', 'position', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'remark')->where('type_id', $_GET['id']);
+        $query = CertificatesView::select('id', 'order', 'position1', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'remark')->where('type_id', $_GET['id']);
         if (isset($_GET['position'])) {
-            $query->where('unit_id', $_GET['position']);
+            $query->where('position_id3', $_GET['position']);
         }
         switch ($path) {
             case 'active':
@@ -61,10 +61,10 @@ class CertificateController extends Controller
                 }
             })
             ->filter(function ($query) use ($request) {
-                $this->toSearch($query, $request, ['order', 'position', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'remark']);
+                $this->toSearch($query, $request, ['order', 'position1', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'remark']);
             })
             ->order(function ($query) use ($request) {
-                $this->toOrder($query, $request, ['id', 'order', 'position', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'remark']);
+                $this->toOrder($query, $request, ['id', 'order', 'position1', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'remark']);
             })
             ->rawColumns([4])
             ->make(false);

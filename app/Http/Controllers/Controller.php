@@ -257,9 +257,12 @@ class Controller extends BaseController
 
     function toValidate($str, $validate)
     {
-        return $validate
-            ? e($str)
-            : "<span class='badge bg-danger-subtle border border-danger-subtle text-danger-emphasis'>" . e($str) . "</span>";
+        return $validate ? e($str) : "<span class='badge bg-danger-subtle border border-danger-subtle text-danger-emphasis'>" . e($str) . "</span>";
+    }
+
+    function toValidateBadge($str, $type, $validate)
+    {
+        return $this->toBadges($str, $validate ? $type : 'danger');
     }
 
     function toManyBadges($str, $items, $field)
@@ -325,20 +328,23 @@ class Controller extends BaseController
         return $query->orderBy($lists[$order[0]['column']], $order[0]['dir']);
     }
 
-    function moveUpDown($model, $type)
+    function moveUpDown($model, $type,$filter='pid',$order='sort')
     {
-        $query = $model::where('pid', $model->pid);
+        $query = $model::where($filter, $model[$filter]);
         if ($type) {
-            $result = $query->where('sort', '<', $model->sort)->max('sort');
+            $result = $query->where($order, '<', $model[$order])->max($order);
         } else {
-            $result = $query->where('sort', '>', $model->sort)->min('sort');
+            $result = $query->where($order, '>', $model[$order])->min($order);
         }
         if ($result) {
-            $exchangeModel = $model::where('sort', $result)->first();
+
+
+            $exchangeModel = $model::where($order, $result)->first();
             $exchangeModel->sort = $model->sort;
             $model->sort = $result;
 
             return !!$model->save() && !!$exchangeModel->save();
+
         }
         return $type ? '已经是最顶层,无法上移' : '已经是最底层,无法下移';
     }

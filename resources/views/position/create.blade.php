@@ -5,5 +5,5 @@
     @if(isset($position->level)&&$position->level==3)
         @include('template.input',['name'=>'code','label'=>'编号'])
     @endif
-    @include('template.select',['name'=>'sign','label'=>'启用'])
+    @include('template.select',['name'=>'sign','label'=>'启用','selected'=>'1'])
 @endsection
