@@ -9,6 +9,6 @@
         @include('template.nav-btn',['label'=>'上移','menu'=>'sn','class'=>'btn-move check-single','type'=>1])
         @include('template.nav-btn',['label'=>'下移','menu'=>'sn','class'=>'btn-move check-single','type'=>0])
     </ul>
-    @include('template.table',['menu'=>"position_show?id=$position->id",'fields'=>['','序号','岗位','器具名称','管理状态','首次使用日期','证书数量'],'id'=>'off-sidebar'])
+    @include('template.table',['menu'=>"position_show?id=$position->id",'fields'=>['','序号','岗位','器具名称','管理状态','首次使用日期','证书数量'],'id'=>'off-sidebar','class'=>'table-local'])
     @include('template.btn')
 @endsection

@@ -19,7 +19,7 @@ class PositionController extends Controller
 
     public function list(Request $request)
     {
-        return DataTables::of(PositionsView::query())
+        return DataTables::of(PositionsView::select('id', 'name1', 'name2', 'name3', 'name4', 'code', 'count', 'total', 'level', 'sign'))
             ->editColumn('name1', function ($data) {
                 return $this->toLevel($data, $data->level, 1, 'name', 'position', 'dark', $data->count || !$data->sign);
             })
@@ -97,18 +97,12 @@ class PositionController extends Controller
     public function list_show(Request $request)
     {
         $id = $_GET['id'];
-        $query = CertificatesView::selectRaw('MAX(id) AS id,`order`,position,instrument,MAX(valid) AS valid,MIN(verification_date) AS verification_date,COUNT(*) AS count')
-            ->where('position_id', $id)->orWhere('class_id',$id)->orWhere('unit_id',$id)->orWhere('type_id',$id)
-            ->groupBy('order', 'position', 'position_id', 'instrument');
+        $query = CertificatesView::selectRaw("MAX(id) AS id,`order`,position1,instrument,MAX(valid) AS valid,MIN(verification_date) AS verification_date,COUNT(*) AS count")
+            ->where('position_id1', $id)->orWhere('position_id2', $id)->orWhere('position_id3', $id)->orWhere('position_id4', $id)
+            ->groupBy('order', 'position1', 'position_id1', 'instrument');
         return DataTables::of($query)
-            ->editColumn('valid', function ($data)  {
-               return $this->toValidateBadge($data->valid?'有效':'失效','success',$data->valid);
-            })
-            ->filter(function ($query) use ($request) {
-                $this->toSearch($query, $request, ['order', 'position', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'remark']);
-            })
-            ->order(function ($query) use ($request) {
-                $this->toOrder($query, $request, ['id', 'order', 'position', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'remark']);
+            ->editColumn('valid', function ($data) {
+                return $this->toValidateBadge($data->valid ? '有效' : '失效', 'success', $data->valid);
             })
             ->rawColumns([4])
             ->make(false);
@@ -116,7 +110,7 @@ class PositionController extends Controller
 
     public function sn(Certificate $certificate)
     {
-        $positions = PositionsView::where('id4', PositionsView::find($certificate->position_id)->id4)->get();
+        $positions = PositionsView::where('name3', PositionsView::find($certificate->position_id)->name3)->get();
         return view('position.sn', compact('certificate', 'positions'));
     }
 
@@ -130,25 +124,6 @@ class PositionController extends Controller
 
     public function moveSn(Certificate $certificate, $type)
     {
-        if ($type) {
-            $result = Certificate::where('position_id', "$certificate->position_id")->where('sn', '<', $certificate->sn)->max('sn');
-        } else {
-            $result = Certificate::where('position_id', "$certificate->position_id")->where('sn', '>', $certificate->sn)->min('sn');
-        }
-        if ($result) {
-            $a = Certificate::where('position_id', $certificate->position_id)->where('sn', $certificate->sn)->get();
-            $b = Certificate::where('position_id', $certificate->position_id)->where('sn', $result)->get();
-            foreach ($a as $itemA) {
-                $itemA->sn = $result;
-                $itemA->save();
-            }
-            foreach ($b as $itemB) {
-                $itemB->sn = $certificate->sn;
-                $itemB->save();
-            }
-            return true;
-        } else {
-            return $type ? '已经是最顶层,无法上移' : '已经是最底层,无法下移';
-        }
+        return $this->moveUpDown($certificate, $type, 'position_id', 'sn');
     }
 }

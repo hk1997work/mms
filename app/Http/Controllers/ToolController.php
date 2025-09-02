@@ -40,13 +40,13 @@ class ToolController extends Controller
                 return $this->toBadges($data->scrap ?: null, 'dark');
             })
             ->editColumn('total', function ($data) {
-                return $this->toBadges($data->total, $data->total && !$data->mistake ? 'primary' : 'danger');
+                return $this->toValidateBadge($data->total, 'primary', $data->total && !$data->mistake);
             })
             ->editColumn('vulnerable', function ($data) {
-                return $this->toBadges($data->vulnerable ? '易损' : null, 'danger');
+                return $this->toValidate($data->vulnerable ? '易损' : null, !$data->vulnerable);
             })
             ->filter(function ($query) use ($request) {
-                $this->toSearch($query, $request, ['instrument', 'model', 'limit', 'accuracy', 'cycle', 'abc', 'requirement']);
+                $this->toSearch($query, $request, ['instrument', 'model', 'limit', 'accuracy', 'cycle', 'abc', 'requirement', 'vulnerable'], 'vulnerable', ['', '易损']);
             })
             ->order(function ($query) use ($request) {
                 $this->toOrder($query, $request, ['id', 'instrument', 'model', 'limit', 'accuracy', 'cycle', 'abc', 'active', 'inactive', 'deactive', 'broken', 'scrap', 'total', 'vulnerable', 'requirement']);
@@ -140,10 +140,10 @@ class ToolController extends Controller
                 return $this->toBadges($data->state, $tag);
             })
             ->editColumn('times', function ($data) {
-                return $this->toBadges($data->times, $data->times ? 'secondary' : 'danger');
+                return $this->toValidateBadge($data->times, 'secondary', $data->times);
             })
             ->filter(function ($query) use ($request) {
-                $this->toSearch($query, $request, ['factory', 'number', 'state']);
+                $this->toSearch($query, $request, ['name1', 'name2', 'state']);
             })
             ->rawColumns([1, 2, 3, 4])
             ->make(false);

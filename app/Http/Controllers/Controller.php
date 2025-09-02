@@ -293,7 +293,7 @@ class Controller extends BaseController
     function toLevel($data, $level, $column, $field, $menu, $type, $validate)
     {
         $type = $validate ? $type : 'danger';
-        $text = $field . ($data->level - $column + 1);
+        $text = $field . ($level - $column + 1);
         if ($level == $column) {
             return "<span class='badge bg-" . e($type) . "-subtle border border-" . e($type) . "-subtle text-" . e($type) . "-emphasis'>" . e($data->{$text}) . "</span>";
         } elseif ($level == $column - 1) {
@@ -303,17 +303,24 @@ class Controller extends BaseController
         }
     }
 
-    function toSearch($query, $request, $lists)
+    function toSearch($query, $request, $lists, $field = null, $words = null)
     {
         if (empty($search = $request->search['value'])) {
             return $query;
         }
         $terms = array_filter(explode(' ', $search));
-        return $query->where(function ($q) use ($terms, $lists) {
+        return $query->where(function ($q) use ($terms, $lists, $field, $words) {
             foreach ($terms as $term) {
-                $q->where(function ($innerQ) use ($term, $lists) {
+                $q->where(function ($innerQ) use ($term, $lists, $field, $words) {
                     foreach ($lists as $list) {
-                        $innerQ->orWhere($list, 'like', "%{$term}%");
+                        if ($list == $field) {
+                            $index = array_search($term, $words);
+                            if ($index !== false) {
+                                $innerQ->orWhere($list, $index);
+                            }
+                        } else {
+                            $innerQ->orWhere($list, 'like', "%{$term}%");
+                        }
                     }
                 });
             }
@@ -328,7 +335,7 @@ class Controller extends BaseController
         return $query->orderBy($lists[$order[0]['column']], $order[0]['dir']);
     }
 
-    function moveUpDown($model, $type,$filter='pid',$order='sort')
+    function moveUpDown($model, $type, $filter = 'pid', $order = 'sort')
     {
         $query = $model::where($filter, $model[$filter]);
         if ($type) {
@@ -337,14 +344,17 @@ class Controller extends BaseController
             $result = $query->where($order, '>', $model[$order])->min($order);
         }
         if ($result) {
-
-
-            $exchangeModel = $model::where($order, $result)->first();
-            $exchangeModel->sort = $model->sort;
-            $model->sort = $result;
-
-            return !!$model->save() && !!$exchangeModel->save();
-
+            $a = $model::where($filter, $model[$filter])->where($order, $model[$order])->get();
+            $b = $model::where($filter, $model[$filter])->where($order, $result)->get();
+            foreach ($a as $itemA) {
+                $itemA[$order] = $result;
+                $itemA->save();
+            }
+            foreach ($b as $itemB) {
+                $itemB[$order] = $model[$order];
+                $itemB->save();
+            }
+            return true;
         }
         return $type ? '已经是最顶层,无法上移' : '已经是最底层,无法下移';
     }

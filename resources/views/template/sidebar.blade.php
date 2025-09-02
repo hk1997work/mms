@@ -9,7 +9,7 @@
             </li>
         @endif
     </ul>
-    <div class="off-sidebar-content auto-scroll">
+    <div class="off-sidebar-content auto-scroll table-responsive">
         <form action="" @if(($class??'')=='btn-submit') method="post" enctype="multipart/form-data" @else onsubmit="return false;" @endif>
             {{$method??''}}
             {{csrf_field()}}

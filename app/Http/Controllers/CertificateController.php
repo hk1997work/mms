@@ -220,7 +220,7 @@ class CertificateController extends Controller
 
     public function show(Certificate $certificate)
     {
-        $certificates = CertificatesView::where('position_id', $certificate->position_id)->where('sn', $certificate->sn)->orderBy('verification_date', 'desc')->get();
+        $certificates = CertificatesView::where('position_id1', $certificate->position_id)->where('sn', $certificate->sn)->orderBy('verification_date', 'desc')->get();
         foreach ($certificates as $c) {
             $c->path = "storage/jpg/$c->id";
             if (!File::exists($c->path)) {

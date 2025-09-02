@@ -14,7 +14,7 @@
                     <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 row">
                         <div class="col-4">
                             <div class="sidebar-heading mt-3 mb-2">岗位</div>
-                            <input type="text" class="form-control" value="{{$certificate->position}}" readonly>
+                            <input type="text" class="form-control" value="{{$certificate->position1}}" readonly>
                         </div>
                         <div class="col-4">
                             <div class="sidebar-heading mt-3 mb-2">序号</div>

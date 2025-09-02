@@ -137,7 +137,7 @@ $('.index,.off-sidebar').on('click', ' .btn-delete', function () {
 });
 
 //提交表单
-function submit_ajax(btn, url, callback) {
+function submit_ajax(btn, url, show = true, callback) {
     if (canSubmit) {
         canSubmit = false;
         let sidebar = $('.from-' + btn.closest('.off-sidebar').data('pos'));
@@ -153,18 +153,23 @@ function submit_ajax(btn, url, callback) {
                     }
                     notifications(title + '成功');
                     if (offSidebarDataTable && offSidebarDataTable.settings()[0].oInit.ajax) {
+                        offSidebarDataTable.context[0]._select_set = [];
                         offSidebarDataTable.ajax.reload(null, false);
                     }
                     if (dataTable && dataTable.settings()[0].oInit.ajax) {
                         dataTable.context[0]._select_set = [];
                         dataTable.ajax.reload(null, false);
                     }
-                    sidebar.removeClass('is-visible');
+                    if (show) {
+                        sidebar.removeClass('is-visible');
+                    }
                 } else if (result == false) {
                     notifications(title + '失败');
                 } else {
                     notifications(result);
-                    sidebar.removeClass('is-visible');
+                    if (show) {
+                        sidebar.removeClass('is-visible');
+                    }
                 }
             }, error: function (xhr) {
                 xhr.status == 401 ? document.location.reload() : notifications(title + '失败');
@@ -212,7 +217,7 @@ $('.index,.off-sidebar').on('click', '.btn-move', function () {
     let table = offSidebarDataTable ? offSidebarDataTable : dataTable;
     let id = table.select.cumulative().rows.join(',');
     let url = '/move/' + $(this).data('menu') + '/' + id + '/' + $(this).data('type');
-    submit_ajax($(this), url);
+    submit_ajax($(this), url, false);
 })
 $('.index,.off-sidebar').on('click', '.btn-download , .btn-open', function () {
     let menu = $(this).data('menu')
