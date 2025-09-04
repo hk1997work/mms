@@ -189,7 +189,7 @@ class JiangsuController extends Controller
         return view('jiangsu.show');
     }
 
-    public function list_show()
+    public function listShow()
     {
         $data = Jiangsu::select('id', 'verification_date', 'certificate_no', 'instrument', 'model', 'number', 'remark')->where('remark', '!=', '安全')->get()->toArray();
         foreach ($data as $key => $value) {

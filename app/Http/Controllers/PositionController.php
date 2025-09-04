@@ -81,7 +81,7 @@ class PositionController extends Controller
 
     public function destroy($position)
     {
-        return $this->delete(Position::class, $position, ['children', 'certificate', 'tool'], 'name');
+        return $this->delete(Position::class, $position, ['children', 'certificates', 'tools'], 'name');
     }
 
     public function move(Position $position, $type)
@@ -94,7 +94,7 @@ class PositionController extends Controller
         return view('position.show', compact('position'));
     }
 
-    public function list_show(Request $request)
+    public function listShow(Request $request)
     {
         $id = $_GET['id'];
         $query = CertificatesView::selectRaw("MAX(id) AS id,`order`,position1,instrument,MAX(valid) AS valid,MIN(verification_date) AS verification_date,COUNT(*) AS count")
@@ -117,7 +117,7 @@ class PositionController extends Controller
     public function updateSn(Request $request, Certificate $certificate)
     {
         if (Certificate::where('position_id', $request->position_id)->where('sn', $request->sn)->exists()) {
-            return '序号重复';
+            return response()->json(['errors' => ['sn' => ['序号重复']],], 422);
         }
         return !!Certificate::where('position_id', $certificate->position_id)->where('sn', $certificate->sn)->update(['position_id' => $request->position_id, 'sn' => $request->sn]);
     }

@@ -13,8 +13,8 @@ class Tool extends Model
         'instrument', 'model', 'limit', 'accuracy', 'requirement', 'type_id', 'cycle_id', 'abc_id', 'plan_id', 'vulnerable'
     ];
 
-    public function factory()
+    public function factories()
     {
-        return $this->hasMany(Factory::class);
+        return $this->hasMany(Number::class,'pid');
     }
 }

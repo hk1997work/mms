@@ -60,12 +60,12 @@ Route::group(['namespace' => '\App\Http\Controllers'], function () {
             Route::resource('/nanjing', 'NanjingController');
             Route::post('/ajax_nanjing', 'NanjingController@list');
             Route::get('/download_nanjing/{nanjing}', 'NanjingController@download');
-            Route::post('/ajax_nanjing_show', 'NanjingController@list_show');
+            Route::post('/ajax_nanjing_show', 'NanjingController@listShow');
             //江苏省
             Route::resource('/jiangsu', 'JiangsuController');
             Route::post('/ajax_jiangsu', 'JiangsuController@list');
             Route::get('/download_jiangsu/{jiangsu}', 'JiangsuController@download');
-            Route::post('/ajax_jiangsu_show', 'JiangsuController@list_show');
+            Route::post('/ajax_jiangsu_show', 'JiangsuController@listShow');
         });
 
         //计量管理
@@ -73,7 +73,7 @@ Route::group(['namespace' => '\App\Http\Controllers'], function () {
             //岗位管理
             Route::resource('/position', 'PositionController');
             Route::post('/ajax_position', 'PositionController@list');
-            Route::post('/ajax_position_show', 'PositionController@list_show');
+            Route::post('/ajax_position_show', 'PositionController@listShow');
             Route::post('/move/position/{position}/{type}', 'PositionController@move');
             Route::get('/sn/{certificate}/edit', 'PositionController@sn');
             Route::put('/sn/{certificate}', 'PositionController@updateSn');
@@ -81,7 +81,7 @@ Route::group(['namespace' => '\App\Http\Controllers'], function () {
             //量具管理
             Route::resource('/tool', 'ToolController');
             Route::post('/ajax_tool', 'ToolController@list');
-            Route::post('/ajax_tool_show', 'ToolController@list_show');
+            Route::post('/ajax_tool_show', 'ToolController@listShow');
             //厂家管理
             Route::resource('/factory', 'FactoryController');
             //编号管理

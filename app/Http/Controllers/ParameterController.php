@@ -66,7 +66,7 @@ class ParameterController extends Controller
 
     public function destroy($parameter)
     {
-        return $this->delete(Parameter::class, $parameter, ['children', 'category', 'department', 'cycle', 'abc', 'plan', 'state'], 'name');
+        return $this->delete(Parameter::class, $parameter, ['children', 'categories', 'departments', 'cycles', 'abcs', 'plans', 'states'], 'name');
     }
 
     public function move(Parameter $parameter, $type)

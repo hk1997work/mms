@@ -188,7 +188,7 @@ class NanjingController extends Controller
         return view('nanjing.show');
     }
 
-    public function list_show()
+    public function listShow()
     {
         $data = Nanjing::select('id', 'verification_date', 'certificate_no', 'instrument', 'model', 'number', 'remark')->where('remark', '!=', '安全')->get()->toArray();
         foreach ($data as $key => $value) {

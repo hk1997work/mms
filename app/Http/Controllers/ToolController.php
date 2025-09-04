@@ -46,7 +46,7 @@ class ToolController extends Controller
                 return $this->toValidate($data->vulnerable ? '易损' : null, !$data->vulnerable);
             })
             ->filter(function ($query) use ($request) {
-                $this->toSearch($query, $request, ['instrument', 'model', 'limit', 'accuracy', 'cycle', 'abc', 'requirement', 'vulnerable'], 'vulnerable', ['', '易损']);
+                $this->toSearch($query, $request, ['instrument', 'model', 'limit', 'accuracy', 'cycle', 'abc', 'vulnerable', 'requirement'], 'vulnerable', ['', '易损']);
             })
             ->order(function ($query) use ($request) {
                 $this->toOrder($query, $request, ['id', 'instrument', 'model', 'limit', 'accuracy', 'cycle', 'abc', 'active', 'inactive', 'deactive', 'broken', 'scrap', 'total', 'vulnerable', 'requirement']);
@@ -108,15 +108,15 @@ class ToolController extends Controller
         return view('tools.tool.show', compact('tool'));
     }
 
-    public function list_show(Request $request)
+    public function listShow(Request $request)
     {
         $id = $_GET['id'];
-        return DataTables::of(NumbersView::where('tool_id', $id))
+        return DataTables::of(NumbersView::select('id', 'name1', 'name2', 'state', 'count', 'remark', 'level', 'mistake')->where('pid', $id))
             ->editColumn('name1', function ($data) {
-                return $this->toLevel($data, $data->state_id ? 2 : 1, 1, 'name', 'number', 'warning', !$data->mistake);
+                return $this->toLevel($data, $data->level, 1, 'name', 'number', 'secondary', !$data->mistake);
             })
             ->editColumn('name2', function ($data) {
-                return $this->toLevel($data, $data->state_id ? 2 : 1, 2, 'name', 'number', 'success', !$data->mistake);
+                return $this->toLevel($data, $data->level, 2, 'name', 'number', 'secondary', !$data->mistake);
             })
             ->editColumn('state', function ($data) {
                 $tag = '';
@@ -139,18 +139,16 @@ class ToolController extends Controller
                 }
                 return $this->toBadges($data->state, $tag);
             })
-            ->editColumn('times', function ($data) {
-                return $this->toValidateBadge($data->times, 'secondary', $data->times);
+            ->editColumn('count', function ($data) {
+                return $this->toValidateBadge($data->count, 'secondary', $data->count);
             })
-            ->filter(function ($query) use ($request) {
-                $this->toSearch($query, $request, ['name1', 'name2', 'state']);
-            })
+            ->removeColumn('level', 'mistake')
             ->rawColumns([1, 2, 3, 4])
             ->make(false);
     }
 
     public function destroy($tool)
     {
-        return $this->delete(Tool::class, $tool, ['factory'], 'instrument');
+        return $this->delete(Tool::class, $tool, ['factories'], 'instrument');
     }
 }

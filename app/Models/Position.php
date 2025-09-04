@@ -21,15 +21,15 @@ class Position extends Model
 
     public function parent()
     {
-        return $this->belongsTo(Position::class, 'pid')->select('id', 'pid', 'name');
+        return $this->belongsTo(Position::class, 'pid');
     }
 
-    public function certificate()
+    public function certificates()
     {
         return $this->hasMany(Certificate::class, 'position_id');
     }
 
-    public function tool()
+    public function tools()
     {
         return $this->hasMany(Tool::class, 'type_id');
     }

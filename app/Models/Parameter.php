@@ -18,32 +18,32 @@ class Parameter extends Model
         return $this->hasMany(Parameter::class,'pid')->select('id', 'pid', 'name')->with('children');
     }
 
-    public function category()
+    public function categories()
     {
         return $this->hasMany(Certificate::class, 'category_id');
     }
 
-    public function department()
+    public function departments()
     {
         return $this->hasMany(Certificate::class, 'department_id');
     }
 
-    public function cycle()
+    public function cycles()
     {
         return $this->hasMany(Tool::class, 'cycle_id');
     }
 
-    public function abc()
+    public function abcs()
     {
         return $this->hasMany(Tool::class, 'abc_id');
     }
 
-    public function plan()
+    public function plans()
     {
         return $this->hasMany(Tool::class, 'plan_id');
     }
 
-    public function state()
+    public function states()
     {
         return $this->hasMany(Number::class, 'state_id');
     }

@@ -141,7 +141,7 @@ function submit_ajax(btn, url, show = true, callback) {
     if (canSubmit) {
         canSubmit = false;
         let sidebar = $('.from-' + btn.closest('.off-sidebar').data('pos'));
-        let title = sidebar.length ? sidebar.find('.sidebar-btn').text() : btn.text();
+        let title = btn.hasClass('btn-move') ? btn.text() : sidebar.find('.sidebar-btn').text();
         let form = btn.closest('form');
         let data = new FormData(form[0]);
         if (!form[0]) data.append('_token', csrf_token);
