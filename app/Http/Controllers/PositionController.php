@@ -110,7 +110,7 @@ class PositionController extends Controller
 
     public function sn(Certificate $certificate)
     {
-        $positions = PositionsView::where('name3', PositionsView::find($certificate->position_id)->name3)->get();
+        $positions = Position::where('name', PositionsView::find($certificate->position_id)->name3)->with('children')->get();
         return view('position.sn', compact('certificate', 'positions'));
     }
 

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\NanjingRequest;
 use App\Models\Certificate;
-use App\Models\Factory;
 use App\Models\Nanjing;
 use App\Models\Number;
 use App\Models\Parameter;

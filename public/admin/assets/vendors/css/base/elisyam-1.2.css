@@ -37,6 +37,10 @@ input:focus, select, textarea, button {
     background-color: #e9ecef;
 }
 
+input[type="file"] {
+    width: 100%
+}
+
 /* 加载动画 */
 #preloader {
     position: fixed;

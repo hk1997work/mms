@@ -14,11 +14,9 @@
             {{$method??''}}
             {{csrf_field()}}
             @yield('content_form')
-            <div class="position-fixed bottom-0 end-0 p-3">
-                @if(isset($class))
-                    @include('template.btn',['color'=>$color??'primary','class'=>$class,'label'=>$label??'确 定'])
-                @endif
-            </div>
+            @if(isset($class))
+                @include('template.btn',['color'=>$color??'primary','class'=>$class,'label'=>$label??'确 定'])
+            @endif
         </form>
     </div>
 </div>

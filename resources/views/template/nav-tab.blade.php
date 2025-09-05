@@ -1,3 +1,3 @@
 <li class="nav-item">
-    <button class="nav-link {{isset($active)?' active':''}}" data-bs-toggle="tab" data-bs-target="#{{$name}}-tab" id="{{$name}}-btn">{{$label}}</button>
+    <button class="nav-link {{$active?'active':''}}" data-bs-toggle="tab" data-bs-target="#{{$name}}-tab" id="{{$name}}-btn" {{$state??''}}>{{$label}}</button>
 </li>

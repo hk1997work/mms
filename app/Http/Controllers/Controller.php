@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Jobs\Pdf2Jpg;
 use App\Models\Certificate;
-use App\Models\Factory;
 use App\Models\Number;
 use App\Models\Parameter;
 use App\Models\ToolsView;
@@ -35,13 +34,13 @@ class Controller extends BaseController
 
     function getFactories($tool_id)
     {
-        $factories = Factory::where('tool_id', $tool_id)->orderBy('factory')->get();
+        $factories = Number::where('pid', $tool_id)->where('level', 1)->orderBy('name')->get();
         return $factories;
     }
 
-    function getNumbers(Factory $factory_id)
+    function getNumbers($factory_id)
     {
-        $numbers = Number::where('factory_id', $factory_id->id)->where(function ($query) {
+        $numbers = Number::where('pid', $factory_id)->where(function ($query) {
             if (isset($_GET['number_id']) && $_GET['number_id'] == 0) {
                 $query->where('state_id', Parameter::where('name', '待检')->first()->id)
                     ->orWhere('state_id', Parameter::where('name', '在用')->first()->id);
@@ -49,7 +48,7 @@ class Controller extends BaseController
                 $query->where('state_id', Parameter::where('name', '待检')->first()->id)
                     ->orWhere('id', isset($_GET['number_id']) ? $_GET['number_id'] : 0);
             }
-        })->orderBy('number')->get();
+        })->orderBy('name')->get();
         return $numbers;
     }
 
@@ -92,12 +91,12 @@ class Controller extends BaseController
                 if (Certificate::where('certificate_no', $result['certificate_no'])->where('certificate_no', '<>', $request->certificate_no)->count()) {
                     $result['exist'] = 1;
                 }
-                $number = Number::where('number', $result['number'])->get();
+                $number = Number::where('name', $result['number'])->get();
                 if ($number->count() == 1) {
-                    $factory = Factory::where('id', $number->first()->factory_id)->first();
+                    $factory = Number::where('id', $number->first()->pid)->first();
                     $result['number_id'] = $number->first()->id;
                     $result['factory_id'] = $factory->id;
-                    $result['tool_id'] = $factory->tool_id;
+                    $result['tool_id'] = $factory->pid;
                 }
                 return $result;
             } else {

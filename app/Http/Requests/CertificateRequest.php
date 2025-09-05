@@ -2,8 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Factory;
-use App\Models\Number;
 use App\Models\Parameter;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -49,7 +47,7 @@ class CertificateRequest extends FormRequest
                 'position_id' => 'required',
                 'sn' => [
                     'required',
-                    Rule::unique('certificates')->where('valid', 1)->where('position_id', $this->position_id)->ignore($this->route('certificate')),
+                    Rule::unique('certificates')->where('valid', 1)->where('position_id', $this->position_id1)->ignore($this->route('certificate')),
                 ],
                 'tool_id' => 'required',
                 'factory_id' => 'required',

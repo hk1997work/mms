@@ -124,7 +124,7 @@ Route::group(['namespace' => '\App\Http\Controllers'], function () {
         Route::get('/certificate_info/{tool}', 'Controller@getInfo');
         Route::get('/certificate_factories/{tool_id}', 'Controller@getFactories');
         Route::get('/certificate_numbers/{factory_id}', 'Controller@getNumbers');
-        Route::get('/certificate_number/{number}', 'Controller@getNumber');
+        Route::get('/certificate_number/{number_id}', 'Controller@getNumber');
     });
     //登录页面
     Route::get('/login', 'LoginController@index')->name('login');

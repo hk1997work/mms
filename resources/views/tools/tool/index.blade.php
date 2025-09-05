@@ -1,13 +1,6 @@
 @extends('layout.index')
 @section('content_btn')
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">{{$type->name}}<i class="ion-android-arrow-dropdown"></i></a>
-        <ul class="dropdown-menu dropdown-menu-end">
-            @foreach($types as $value)
-                <li><a class="dropdown-item" href="?id={{$value->id}}">{{$value->name}}</a></li>
-            @endforeach
-        </ul>
-    </li>
+    @include('template.dropdown',['label'=>$type->name,'items'=>$types,'id'=>'id','field'=>'name'])
 @endsection
 @section('content_table')
     <ul class="nav">

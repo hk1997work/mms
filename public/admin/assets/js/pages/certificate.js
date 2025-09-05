@@ -18,8 +18,7 @@ Date.prototype.format = function (fmt) {
 $('.off-sidebar').on('change', '[name="position_id"]', function () {
     let form = $(this).closest('form')
     $.ajax({
-        url: "/certificate_sn/" + form.find('[name="position_id"]').val(),
-        success: function (data) {
+        url: "/certificate_sn/" + form.find('[name="position_id"]').val(), success: function (data) {
             if (data) {
                 form.find('[name="sn"]').val(data).trigger('change');
             } else {
@@ -35,8 +34,7 @@ $('.off-sidebar').on('change', '[name="position_id"]', function () {
 $('.off-sidebar').on('change', '[name="tool_id"]', function () {
     let form = $(this).closest('form')
     $.ajax({
-        url: "/certificate_info/" + form.find('[name="tool_id"]').val(),
-        success: function (data) {
+        url: "/certificate_info/" + form.find('[name="tool_id"]').val(), success: function (data) {
             if (data) {
                 form.find('[name="model"]').val(data['model']);
                 form.find('[name="limit"]').val(data['limit']);
@@ -68,20 +66,14 @@ $('.off-sidebar').on('change', '[name="tool_id"]', function () {
         form.find('[name="number_id"]').empty();
         form.find('[name="number_id"]').append("<option value='' selected disabled>请选择...</option>");
         $.ajax({
-            url: path,
-            success: function (data) {
-                if (data) {
-                    if (data.length) {
-                        form.find('[name="factory_id"]').attr("disabled", false);
-                        for (const key in data) {
-                            form.find('[name="factory_id"]').append("<option value=" + data[key]['id'] + ">" + data[key]['factory'] + "</option>");
-                            if (form.find(".ff").val() == data[key]['id']) {
-                                form.find('[name="factory_id"]').val(form.find(".ff").val()).trigger('change');
-                            }
+            url: path, success: function (data) {
+                if (data && data.length) {
+                    form.find('[name="factory_id"]').attr("disabled", false);
+                    for (const key in data) {
+                        form.find('[name="factory_id"]').append("<option value=" + data[key]['id'] + ">" + data[key]['name'] + "</option>");
+                        if (form.find(".ff").val() == data[key]['id']) {
+                            form.find('[name="factory_id"]').val(form.find(".ff").val()).trigger('change');
                         }
-                    } else {
-                        form.find('[name="factory_id"]').attr("disabled", true)
-                        notifications('未录入生产厂家');
                     }
                 } else {
                     form.find('[name="factory_id"]').attr("disabled", true)
@@ -108,20 +100,14 @@ $('.off-sidebar').on('change', '[name="factory_id"]', function () {
         form.find('[name="number_id"]').empty();
         form.find('[name="number_id"]').append("<option value='' selected disabled>请选择...</option>");
         $.ajax({
-            url: path,
-            success: function (data) {
-                if (data) {
-                    if (data.length) {
-                        form.find('[name="number_id"]').attr("disabled", false);
-                        for (const key in data) {
-                            form.find('[name="number_id"]').append("<option value=" + data[key]['id'] + ">" + data[key]['number'] + "</option>");
-                            if (form.find(".nn").val() == data[key]['id']) {
-                                form.find('[name="number_id"]').val(form.find(".nn").val()).trigger('change');
-                            }
+            url: path, success: function (data) {
+                if (data && data.length) {
+                    form.find('[name="number_id"]').attr("disabled", false);
+                    for (const key in data) {
+                        form.find('[name="number_id"]').append("<option value=" + data[key]['id'] + ">" + data[key]['name'] + "</option>");
+                        if (form.find(".nn").val() == data[key]['id']) {
+                            form.find('[name="number_id"]').val(form.find(".nn").val()).trigger('change');
                         }
-                    } else {
-                        form.find('[name="number_id"]').attr("disabled", true)
-                        notifications('未录入出厂编号');
                     }
                 } else {
                     form.find('[name="number_id"]').attr("disabled", true)
@@ -142,8 +128,7 @@ $('.off-sidebar').on('change', '[name="number_id"]', function () {
     if (form.find('[name="number_id"]').val() != null) {
         let path = "/certificate_number/" + form.find('[name="number_id"]').val();
         $.ajax({
-            url: path,
-            success: function (data) {
+            url: path, success: function (data) {
                 if (data) {
                     form.find('[name="start"]').val(data['start']).trigger('change');
                     form.find('[name="times"]').val(data['times']).trigger('change');

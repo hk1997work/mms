@@ -125,7 +125,7 @@ class CertificateController extends Controller
         $positions = Position::where('name', $type->name)->with('children')->get();
         $tools = Tool::where('instrument', $certificate->instrument)->get();
         $standards = StandardsView::where('level', 2)->get();
-        $spares = CertificatesView::where('valid', 1)->where('position', '备用')->where('instrument', $certificate->instrument)->orderBy('order')->get();
+        $spares = CertificatesView::where('valid', 1)->where('position1', '备用')->where('instrument', $certificate->instrument)->orderBy('order')->get();
         return view('certificate.edit', compact('certificate', 'categories', 'departments', 'positions', 'tools', 'standards', 'spares'));
     }
 
@@ -145,7 +145,7 @@ class CertificateController extends Controller
             $certificate->save();
             $old_certificate = CertificatesView::find($request->id);
             $old_number = Number::find($old_certificate->number_id);
-            $old_number->state_id = Parameter::where('name', $request->cause)->first()->id;
+            $old_number->state_id = Parameter::where('name', $request->cause ? '损坏' : '待检')->first()->id;
             $old_number->save();
 
             $arr['sn'] = $certificate->sn;
@@ -184,7 +184,7 @@ class CertificateController extends Controller
             $old->end_date = Carbon::parse(date('Y-m-d'))->min($old->validity_date)->max($certificate->verification_date)->subDay();
             $old->save();
             $old_number = Number::find($old->number_id);
-            $old_number->state_id = Parameter::where('name', $request->cause)->first()->id;
+            $old_number->state_id = Parameter::where('name', $request->cause ? '损坏' : '待检')->first()->id;
             $old_number->save();
 
             $certificate->sn = $old->sn;

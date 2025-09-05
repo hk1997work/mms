@@ -1,130 +1,55 @@
 @extends('layout.show')
 @section('content_title')
     @foreach($certificates as $certificate)
-        <li>
-            <button data-toggle="tab" data-target="#tab-{{$certificate->id}}" id="btn-{{$certificate->id}}" hidden></button>
-        </li>
+        @include('template.nav-tab',['name'=>$certificate->id,'label'=>$certificate->id,'active'=>$loop->first])
     @endforeach
 @endsection
 @section('content_form')
     <div class="tab-content">
         @foreach($certificates as $certificate)
-            <div role="tabpanel" class="tab-pane @if($certificate->id==$disable) show active @endif" id="tab-{{$certificate->id}}" aria-labelledby="btn-{{$certificate->id}}">
+            <div role="tabpanel" class="tab-pane @if($certificate->id==$disable) show active @endif" id="{{$certificate->id}}-tab" aria-labelledby="{{$certificate->id}}-btn">
                 <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 row">
-                        <div class="col-4">
-                            <div class="sidebar-heading mt-3 mb-2">岗位</div>
-                            <input type="text" class="form-control" value="{{$certificate->position1}}" readonly>
-                        </div>
-                        <div class="col-4">
-                            <div class="sidebar-heading mt-3 mb-2">序号</div>
-                            <input type="text" class="form-control" value="{{$certificate->sn}}" readonly>
-                        </div>
-                        <div class="col-4">
-                            <div class="sidebar-heading mt-3 mb-2">证书名称</div>
-                            <input type="text" class="form-control" value="{{$certificate->certificate_name}}" readonly>
-                        </div>
-                        <div class="col-4">
-                            <div class="sidebar-heading mt-3 mb-2">器具名称</div>
-                            <input type="text" class="form-control" value="{{$certificate->instrument}}" readonly>
-                        </div>
-                        <div class="col-4">
-                            <div class="sidebar-heading mt-3 mb-2">生产厂家</div>
-                            <input type="text" class="form-control" value="{{$certificate->factory}}" readonly>
-                        </div>
-                        <div class="col-4">
-                            <div class="sidebar-heading mt-3 mb-2">出厂编号</div>
-                            <input type="text" class="form-control" value="{{$certificate->number}}" readonly>
-                        </div>
-                        <div class="col-4">
-                            <div class="sidebar-heading mt-3 mb-2">检定日期</div>
-                            <input type="text" class="form-control" value="{{$certificate->verification_date}}" readonly>
-                        </div>
-                        <div class="col-4">
-                            <div class="sidebar-heading mt-3 mb-2">有效期</div>
-                            <input type="text" class="form-control" value="{{$certificate->validity_date}}" readonly>
-                        </div>
-                        <div class="col-4">
-                            <div class="sidebar-heading mt-3 mb-2">检定部门</div>
-                            <input type="text" class="form-control" value="{{$certificate->department}}" readonly>
-                        </div>
-                        <div class="col-4">
-                            <div class="sidebar-heading mt-3 mb-2">规格型号</div>
-                            <input type="text" class="form-control" value="{{$certificate->model}}" readonly>
-                        </div>
-                        <div class="col-4">
-                            <div class="sidebar-heading mt-3 mb-2">测量范围</div>
-                            <input type="text" class="form-control" value="{{$certificate->limit}}" readonly>
-                        </div>
-                        <div class="col-4">
-                            <div class="sidebar-heading mt-3 mb-2">精确度</div>
-                            <input type="text" class="form-control" value="{{$certificate->accuracy}}" readonly>
-                        </div>
-                        <div class="col-4">
-                            <div class="sidebar-heading mt-3 mb-2">检定周期</div>
-                            <input type="text" class="form-control" value="{{$certificate->cycle}}" readonly>
-                        </div>
-                        <div class="col-4">
-                            <div class="sidebar-heading mt-3 mb-2">ABC</div>
-                            <input type="text" class="form-control" value="{{$certificate->abc}}" readonly>
-                        </div>
-                        <div class="col-4">
-                            <div class="sidebar-heading mt-3 mb-2">检定计划</div>
-                            <input type="text" class="form-control" value="{{$certificate->plan}}" readonly>
-                        </div>
-                        <div class="col-4">
-                            <div class="sidebar-heading mt-3 mb-2">统一编号</div>
-                            <input type="text" class="form-control" value="{{$certificate->certificate_no}}" readonly>
-                        </div>
-                        <div class="col-4">
-                            <div class="sidebar-heading mt-3 mb-2">证书类型</div>
-                            <input type="text" class="form-control" value="{{$certificate->category}}" readonly>
-                        </div>
-                        <div class="col-4">
-                            <div class="sidebar-heading mt-3 mb-2">检定标准</div>
-                            <input type="text" class="form-control" value="{{$certificate->standard}}" readonly>
-                        </div>
-                        <div class="col-4">
-                            <div class="sidebar-heading mt-3 mb-2">启用时间</div>
-                            <input type="text" class="form-control" value="{{$certificate->start}}" readonly>
-                        </div>
-                        <div class="col-4">
-                            <div class="sidebar-heading mt-3 mb-2">检定次数</div>
-                            <input type="text" class="form-control" value="{{$certificate->times}}" readonly>
-                        </div>
-                        <div class="col-4">
-                            <div class="sidebar-heading mt-3 mb-2">备注</div>
-                            <input type="text" class="form-control" value="{{$certificate->remark}}{{$certificate->number_remark}}" readonly>
-                        </div>
-                        <div class="col-4">
-                            <div class="sidebar-heading mt-3 mb-2">开始日期</div>
-                            <input type="text" class="form-control" value="{{$certificate->start_date}}" readonly>
-                        </div>
-                        <div class="col-4">
-                            <div class="sidebar-heading mt-3 mb-2">结束日期</div>
-                            <input type="text" class="form-control" value="{{$certificate->end_date}}" readonly>
-                        </div>
+                        @include('template.input',['name'=>'position_id','label'=>'岗位','value'=>$certificate->position1,'col'=>'4','state'=>'readonly'])
+                        @include('template.input',['name'=>'sn','label'=>'序号','value'=>$certificate->sn,'col'=>'4','state'=>'readonly'])
+                        @include('template.input',['name'=>'certificate_name','label'=>'证书名称','value'=>$certificate->certificate_name,'col'=>'4','state'=>'readonly'])
+                        @include('template.input',['name'=>'instrument','label'=>'器具名称','value'=>$certificate->instrument,'col'=>'4','state'=>'readonly'])
+                        @include('template.input',['name'=>'factory','label'=>'生产厂家','value'=>$certificate->factory,'col'=>'4','state'=>'readonly'])
+                        @include('template.input',['name'=>'number','label'=>'出厂编号','value'=>$certificate->number,'col'=>'4','state'=>'readonly'])
+                        @include('template.input',['name'=>'verification_date','label'=>'检定日期','value'=>$certificate->verification_date,'col'=>'4','state'=>'readonly'])
+                        @include('template.input',['name'=>'validity_date','label'=>'有效期','value'=>$certificate->validity_date,'col'=>'4','state'=>'readonly'])
+                        @include('template.input',['name'=>'department','label'=>'检定部门','value'=>$certificate->department,'col'=>'4','state'=>'readonly'])
+                        @include('template.input',['name'=>'model','label'=>'规格型号','value'=>$certificate->model,'col'=>'4','state'=>'readonly'])
+                        @include('template.input',['name'=>'limit','label'=>'测量范围','value'=>$certificate->limit,'col'=>'4','state'=>'readonly'])
+                        @include('template.input',['name'=>'accuracy','label'=>'精确度','value'=>$certificate->accuracy,'col'=>'4','state'=>'readonly'])
+                        @include('template.input',['name'=>'cycle','label'=>'检定周期','value'=>$certificate->cycle,'col'=>'4','state'=>'readonly'])
+                        @include('template.input',['name'=>'abc','label'=>'ABC','value'=>$certificate->abc,'col'=>'4','state'=>'readonly'])
+                        @include('template.input',['name'=>'plan','label'=>'检定计划','value'=>$certificate->plan,'col'=>'4','state'=>'readonly'])
+                        @include('template.input',['name'=>'certificate_no','label'=>'统一编号','value'=>$certificate->certificate_no,'col'=>'4','state'=>'readonly'])
+                        @include('template.input',['name'=>'category','label'=>'证书类型','value'=>$certificate->category,'col'=>'4','state'=>'readonly'])
+                        @include('template.input',['name'=>'standard','label'=>'检定标准','value'=>$certificate->standard,'col'=>'4','state'=>'readonly'])
+                        @include('template.input',['name'=>'start','label'=>'启用时间','value'=>$certificate->start,'col'=>'4','state'=>'readonly'])
+                        @include('template.input',['name'=>'times','label'=>'检定次数','value'=>$certificate->times,'col'=>'4','state'=>'readonly'])
+                        @include('template.input',['name'=>'remark','label'=>'备注','value'=>$certificate->remark,'col'=>'4','state'=>'readonly'])
+                        @include('template.input',['name'=>'start_date','label'=>'开始日期','value'=>$certificate->start_date,'col'=>'4','state'=>'readonly'])
+                        @include('template.input',['name'=>'end_date','label'=>'结束日期','value'=>$certificate->end_date,'col'=>'4','state'=>'readonly'])
                     </div>
                     <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12">
                         <ul class="nav nav-tabs nav-fill" role="tablist">
                             @for($page=0;$page<count($certificate->files);$page++)
-                                <li class="nav-item">
-                                    <a class="nav-link @if($page==0) active @endif" id="just-tab-{{$certificate->id}}-{{$page+1}}" data-toggle="tab" href="#tab-{{$certificate->id}}-{{$page+1}}" role="tab">{{$page+1}}</a>
-                                </li>
+                                @include('template.nav-tab',['name'=>$certificate->id.'-'.($page+1),'label'=>$page+1,'active'=>$page==0])
                             @endfor
                         </ul>
                         <div class="tab-content d-flex overflow-auto">
                             @for($page=0;$page<count($certificate->files);$page++)
-                                <div role="tabpanel" class="tab-pane @if($page==0) show active @endif" id="tab-{{$certificate->id}}-{{$page+1}}" aria-labelledby="just-tab-{{$certificate->id}}-{{$page+1}}">
+                                <div role="tabpanel" class="tab-pane @if($page==0) show active @endif" id="{{$certificate->id}}-{{$page+1}}-tab" aria-labelledby="{{$certificate->id}}-{{$page+1}}-btn">
                                     <img class="w-100" src="/{{$certificate->path}}/{{$page}}.jpg" loading="lazy">
                                 </div>
                             @endfor
                         </div>
                     </div>
                 </div>
-                <div class="position-fixed bottom-0 end-0 p-3">
-                    <button class="btn btn-outline-secondary sidebar-close sidebar-url">返 回</button>
-                </div>
+                @include('template.btn')
             </div>
         @endforeach
         <div class="col-12 mt-2" id="timeline"></div>
@@ -154,7 +79,7 @@
             timeline.setSelection([{{$disable}}]);
             timeline.on('select', function (properties) {
                 if (properties.items.length > 0) {
-                    $('#btn-' + properties.items[0]).click()
+                    $('#' + properties.items[0] + '-btn').click()
                     selected = properties.items[0]
                 }
                 if (properties.items.length == 0) {

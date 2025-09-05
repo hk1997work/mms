@@ -41,15 +41,21 @@ function initTable(table) {
             options.order = false;
         }
         let dt = table.DataTable(options);
+        let userTriggered = false;
         dt.on('xhr.dt', function () {
             let obj = $(this).closest('.table-responsive');
             let count = dt.select.cumulative().rows.length;
             btn_change(obj, count);
             $("#preloader").fadeOut();
         });
+        dt.on('user-select', function () {
+            userTriggered = true;
+        });
         dt.on('select deselect', function (e, dtApi, type, indexes) {
+            if (!userTriggered) return;
             let obj = $(this).closest('.table-responsive');
             let count = dt.select.cumulative().rows.length + (e.type === 'select' ? indexes.length : -indexes.length);
+            userTriggered = false
             btn_change(obj, count);
         });
         return dt;
@@ -174,7 +180,7 @@ function submit_ajax(btn, url, show = true, callback) {
             }, error: function (xhr) {
                 xhr.status == 401 ? document.location.reload() : notifications(title + '失败');
                 form.find(".warning-danger").remove();
-                form.find('.form-control:not([readonly])').removeClass('is-invalid').addClass('is-valid');
+                form.find('.form-control:not([readonly], [disabled])').removeClass('is-invalid').addClass('is-valid');
                 let json = JSON.parse(xhr.responseText);
                 $.each(json.errors, function (idx, obj) {
                     if (idx.includes('.')) {

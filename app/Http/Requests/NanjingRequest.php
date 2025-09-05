@@ -2,10 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Factory;
-use App\Models\Number;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class NanjingRequest extends FormRequest
 {
