@@ -100,9 +100,9 @@
                         <div class="row">
                             <input type="hidden" name="type" value="replace">
                             <input type="hidden" name="id" value="{{$certificate->id}}">
-                            <input type="hidden" name="position_id" value="{{$certificate->position_id}}">
+                            <input type="hidden" name="position_id" value="{{$certificate->position_id1}}">
                             <input type="hidden" name="number" value="{{$certificate->number_id}}">
-                            @include('template.select',['name'=>'cause','label'=>'损坏','col'=>'3'])
+                            @include('template.select',['name'=>'cause','label'=>'损坏','selected'=>'0','col'=>'3'])
                             @include('template.input',['name'=>'position_id','label'=>'岗位','value'=>$certificate->position1,'col'=>'3','state'=>'disabled'])
                             @include('template.input',['name'=>'sn','label'=>'序号','value'=>$certificate->sn,'col'=>'6','state'=>'readonly'])
                             @include('template.select-picker',['name'=>'tool_id','label'=>'器具名称','items'=>$tools,'value'=>'id','title'=>'instrument','field1'=>'instrument','field2'=>'model','col'=>'6'])
@@ -132,7 +132,7 @@
                 @if($spares->count()!=0)
                     <div role="tabpanel" class="tab-pane show active" id="spare-tab" aria-labelledby="spare-btn">
                         <div class="col-12">
-                            <table id="off-sidebar-table" class="table table-hover table-data table-unselect">
+                            <table class="table table-hover">
                                 <thead>
                                 <tr>
                                     <th>序号</th>

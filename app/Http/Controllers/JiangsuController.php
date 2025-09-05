@@ -190,12 +190,6 @@ class JiangsuController extends Controller
     public function listShow()
     {
         $data = Jiangsu::select('id', 'verification_date', 'certificate_no', 'instrument', 'model', 'number', 'remark')->where('remark', '!=', '安全')->get()->toArray();
-        foreach ($data as $key => $value) {
-            $data[$key]['id'] = "<div class='styled-checkbox'>
-                        <input type='checkbox' name='cb' class='cb' id='$value[certificate_no]' data-url='/download_jiangsu/$value[certificate_no]?type=download'>
-                        <label for='$value[certificate_no]'></label>
-                    </div>";
-        }
         return response()->json(['data' => array_map('array_values', $data)]);
     }
 
@@ -259,7 +253,6 @@ class JiangsuController extends Controller
                     'TENANT-ID' => '2',
                 ],
             ]);
-            var_dump($out[0]);
             $res = $client->request('POST', 'https://serv.jsmi.com.cn/auth/oauth/token?randomStr=blockPuzzle&code=' . $this->jiangsu_encode($out[1] . '---' . $out[2], $out[0]) . '&grant_type=password', [
                 'form_params' => [
                     'username' => '13155555418',
