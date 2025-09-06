@@ -289,15 +289,15 @@ class Controller extends BaseController
         })->implode(' ');
     }
 
-    function toLevel($data, $level, $column, $field, $menu, $type, $validate)
+    function toLevel($data, $column, $field, $menu, $type, $validate)
     {
         $type = $validate ? $type : 'danger';
-        $text = $field . ($level - $column + 1);
-        if ($level == $column) {
+        $text = $field . ($data->level - $column + 1);
+        if ($data->level == $column) {
             return "<span class='badge bg-" . e($type) . "-subtle border border-" . e($type) . "-subtle text-" . e($type) . "-emphasis'>" . e($data->{$text}) . "</span>";
-        } elseif ($level == $column - 1) {
+        } elseif ($data->level == $column - 1) {
             return "<span class='badge btn btn-outline-secondary text-secondary-emphasis btn-add' data-pos='right' data-menu='" . e($menu) . "' data-id='" . e($data->id) . "'>增加</span>";
-        } elseif ($level > ($column - 2)) {
+        } elseif ($data->level > ($column - 2)) {
             return "<span class='badge text-dark-emphasis'>" . e($data->{$text}) . "</span>";
         }
     }

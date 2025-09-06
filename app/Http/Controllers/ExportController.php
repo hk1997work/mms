@@ -17,13 +17,13 @@ class ExportController extends Controller
     public function index()
     {
         $positions = Position::select('name', 'level')->whereIn('level', [1, 2, 3])->distinct()->get();
-        $categories = Parameter::where('pid', Parameter::where('name', '证书类型')->first()->id)->get();
+        $categories = Parameter::where('pid', Parameter::where('name', '证书类型')->first()->id)->orderBy('sort')->get();
         return view("export.index", compact('positions', 'categories'));
     }
 
     public function create()
     {
-        $certificates = CertificatesView::where('valid', 1)->where('type', '计量器具')->where('sign', 1)->orderBy('order')->get();
+        $certificates = CertificatesView::where('valid', 1)->where('position3', '计量器具')->where('sign', 1)->orderBy('order')->get();
         if (Setting::first()) {
             $settings = explode(',', Setting::first()->order);
         } else {

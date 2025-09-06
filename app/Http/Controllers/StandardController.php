@@ -19,10 +19,10 @@ class StandardController extends Controller
     {
         return DataTables::of(StandardsView::query())
             ->editColumn('name1', function ($data) {
-                return $this->toLevel($data, $data->level, 1, 'name', 'standard', 'warning', $data->count);
+                return $this->toLevel($data, 1, 'name', 'standard', 'warning', $data->count);
             })
             ->editColumn('name2', function ($data) {
-                return $this->toLevel($data, $data->level, 2, 'name', 'standard', 'success', $data->count);
+                return $this->toLevel($data, 2, 'name', 'standard', 'success', $data->count);
             })
             ->editColumn('count', function ($data) {
                 return $this->toBadges($data->count, 'secondary');

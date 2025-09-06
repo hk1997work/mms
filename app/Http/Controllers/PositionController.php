@@ -21,22 +21,22 @@ class PositionController extends Controller
     {
         return DataTables::of(PositionsView::select('id', 'name1', 'name2', 'name3', 'name4', 'code', 'count', 'total', 'level', 'sign'))
             ->editColumn('name1', function ($data) {
-                return $this->toLevel($data, $data->level, 1, 'name', 'position', 'dark', $data->count || !$data->sign);
+                return $this->toLevel($data, 1, 'name', 'position', 'dark', $data->sign);
             })
             ->editColumn('name2', function ($data) {
-                return $this->toLevel($data, $data->level, 2, 'name', 'position', 'warning', $data->count || !$data->sign);
+                return $this->toLevel($data, 2, 'name', 'position', 'warning', $data->sign);
             })
             ->editColumn('name3', function ($data) {
-                return $this->toLevel($data, $data->level, 3, 'name', 'position', 'success', $data->count || !$data->sign);
+                return $this->toLevel($data, 3, 'name', 'position', 'success', $data->sign);
             })
             ->editColumn('name4', function ($data) {
-                return $this->toLevel($data, $data->level, 4, 'name', 'position', 'info', $data->count || !$data->sign);
+                return $this->toLevel($data, 4, 'name', 'position', 'info', $data->sign);
             })
             ->editColumn('code', function ($data) {
                 return $this->toBadges($data->code, 'primary');
             })
             ->editColumn('count', function ($data) {
-                return $this->toValidateBadge($data->count == $data->total ? $data->total : $data->count . '/' . $data->total, 'secondary', $data->sign);
+                return $this->toValidateBadge($data->count == $data->total ? $data->total : $data->count . '/' . $data->total, 'secondary', $data->count || !$data->sign);
             })
             ->filter(function ($query) use ($request) {
                 $this->toSearch($query, $request, ['name1', 'name2', 'name3', 'name4', 'code']);

@@ -1,5 +1,6 @@
 @extends('layout.create')
 @section('content_form')
+    @include('template.table',['menu'=>'','fields'=>['','序号','岗位','器具名称','规格型号'],'class'=>'table-data'])
     <div class="col-12">
         <table id="off-sidebar-table" class="table table-hover table-data">
             <thead>

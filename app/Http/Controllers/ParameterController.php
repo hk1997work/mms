@@ -20,10 +20,10 @@ class ParameterController extends Controller
 
         return DataTables::of(ParametersView::query())
             ->editColumn('name1', function ($data) {
-                return $this->toLevel($data, $data->level, 1, 'name', 'parameter', 'warning', $data->count);
+                return $this->toLevel($data, 1, 'name', 'parameter', 'warning', $data->count);
             })
             ->editColumn('name2', function ($data) {
-                return $this->toLevel($data, $data->level, 2, 'name', 'parameter', 'success', $data->count);
+                return $this->toLevel($data, 2, 'name', 'parameter', 'success', $data->count);
             })
             ->editColumn('count', function ($data) {
                 return $this->toBadges($data->count, 'secondary');

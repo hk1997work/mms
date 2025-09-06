@@ -8,9 +8,8 @@ function initTable(table) {
         let options = {
             language: {url: '/admin/assets/vendors/js/datatables/zh.json'},
             ajax: {url: "/ajax_" + table.data('menu'), type: "POST", data: {"_token": csrf_token}},
-            serverSide: true,
             deferRender: true,
-            scrollX: true,
+            serverSide: true,
             scrollY: $(window).height() - table.offset().top - 150,
             rowId: 0,
             searchDelay: 500,
@@ -18,44 +17,32 @@ function initTable(table) {
             fixedColumns: {leftColumns: 1},
             select: {style: 'multi', selector: 'td:first-child', headerCheckbox: false},
             scroller: true,
-            columnDefs: [{orderable: false, render: DataTable.render.select(), targets: 0}, {type: 'string', targets: '_all'}],
-            rowCallback: function (row, data) {
-                if ($(row).hasClass('selected')) {
-                    this.api().row(row).select();
-                }
-            }
+            columnDefs: [{orderable: false, render: DataTable.render.select(), targets: 0}, {type: 'string', orderSequence: ['asc', 'desc'], targets: '_all'}],
         };
         if (table.hasClass('table-tree')) {
             options.ordering = false;
         }
-        if (table.hasClass('table-local')) {
+        if (table.hasClass('table-all')) {
             options.serverSide = false;
+            options.paging = false;
+            delete options.scroller;
         }
         if (table.hasClass('table-data')) {
             options.serverSide = false;
+            options.paging = false;
             delete options.ajax;
-        }
-        if (table.hasClass('table-unselect')) {
-            options.select = false;
-            options.columnDefs = [{type: 'string', orderable: false, targets: '_all'}];
-            options.order = false;
+            delete options.scroller;
         }
         let dt = table.DataTable(options);
-        let userTriggered = false;
         dt.on('xhr.dt', function () {
             let obj = $(this).closest('.table-responsive');
             let count = dt.select.cumulative().rows.length;
             btn_change(obj, count);
             $("#preloader").fadeOut();
         });
-        dt.on('user-select', function () {
-            userTriggered = true;
-        });
         dt.on('select deselect', function (e, dtApi, type, indexes) {
-            if (!userTriggered) return;
             let obj = $(this).closest('.table-responsive');
             let count = dt.select.cumulative().rows.length + (e.type === 'select' ? indexes.length : -indexes.length);
-            userTriggered = false
             btn_change(obj, count);
         });
         return dt;
@@ -86,8 +73,8 @@ function sidebar_ajax(btn, url, menu, callback) {
             url: url, success: function (data) {
                 if (data) {
                     sidebar.html(data)
-                        .find('.sidebar-btn').text(title).end()
-                        .find('.sidebar-url').attr('data-url', menu);
+                    sidebar.find('.sidebar-btn').text(title)
+                    sidebar.find('.sidebar-url').attr('data-url', menu);
                     $(window).trigger('resize');
                     if (sidebar.find('#off-sidebar-table').length > 0) {
                         offSidebarDataTable = initTable($('#off-sidebar-table')).on('xhr.dt init.dt', function () {
@@ -97,9 +84,7 @@ function sidebar_ajax(btn, url, menu, callback) {
                         void sidebar[0].offsetHeight;
                         sidebar.addClass('is-visible');
                     }
-                    if (callback) {
-                        callback();
-                    }
+                    callback?.();
                 } else {
                     notifications(title + '失败');
                 }
@@ -154,28 +139,16 @@ function submit_ajax(btn, url, show = true, callback) {
         $.ajax({
             url: url, type: 'POST', data: data, processData: false, contentType: false, success: function (result) {
                 if (result == true) {
-                    if (callback) {
-                        callback();
-                    }
+                    callback?.();
                     notifications(title + '成功');
-                    if (offSidebarDataTable && offSidebarDataTable.settings()[0].oInit.ajax) {
-                        offSidebarDataTable.context[0]._select_set = [];
-                        offSidebarDataTable.ajax.reload(null, false);
-                    }
-                    if (dataTable && dataTable.settings()[0].oInit.ajax) {
-                        dataTable.context[0]._select_set = [];
-                        dataTable.ajax.reload(null, false);
-                    }
-                    if (show) {
-                        sidebar.removeClass('is-visible');
-                    }
+                    reloadTableIfAjax(offSidebarDataTable);
+                    reloadTableIfAjax(dataTable);
+                    show && sidebar.removeClass('is-visible');
                 } else if (result == false) {
                     notifications(title + '失败');
                 } else {
                     notifications(result);
-                    if (show) {
-                        sidebar.removeClass('is-visible');
-                    }
+                    show && sidebar.removeClass('is-visible');
                 }
             }, error: function (xhr) {
                 xhr.status == 401 ? document.location.reload() : notifications(title + '失败');
@@ -266,3 +239,10 @@ $(document).ready(function () {
 $(window).resize(function () {
     $('.auto-scroll').height($(window).height() - 90);
 });
+
+function reloadTableIfAjax(table) {
+    if (table?.settings()?.[0]?.oInit?.ajax) {
+        table.context[0]._select_set = [];
+        table.ajax.reload(null, false);
+    }
+}

@@ -9,7 +9,7 @@
         <li class="nav-item"><a class="nav-link btn-open check-multiple" data-menu="nanjing" href="#">打开</a></li>
         <li class="nav-item"><a class="nav-link btn-download check-multiple" data-menu="nanjing" href="#">下载</a></li>
     </ul>
-    <table id="index-table" data-menu="nanjing" class="table table-hover table-local">
+    <table id="index-table" data-menu="nanjing" class="table table-hover table-all">
         <thead>
         <tr>
             <th></th>
