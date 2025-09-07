@@ -1,1 +1,1 @@
-@include('template.sidebar',['class'=>'submit-delete','method'=>method_field('delete'),'type'=>'submit','color'=>'danger','label'=>'删 除'])
+@include('template.sidebar',['tmp_class'=>'submit-delete','tmp_method'=>method_field('delete'),'tmp_type'=>'submit','tmp_color'=>'danger','tmp_label'=>'删 除'])

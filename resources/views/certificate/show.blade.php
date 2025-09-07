@@ -1,7 +1,7 @@
 @extends('layout.show')
 @section('content_title')
     @foreach($certificates as $certificate)
-        @include('template.nav-tab',['name'=>$certificate->id,'label'=>'','state'=>'hidden','active'=>$loop->first])
+        @include('template.nav-tab',['tmp_name'=>$certificate->id,'tmp_label'=>'','tmp_state'=>'hidden','tmp_active'=>$loop->first])
     @endforeach
 @endsection
 @section('content_form')
@@ -10,34 +10,34 @@
             <div role="tabpanel" class="tab-pane @if($certificate->id==$disable) show active @endif" id="{{$certificate->id}}-tab" aria-labelledby="{{$certificate->id}}-btn">
                 <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 row">
-                        @include('template.input',['name'=>'position_id','label'=>'岗位','value'=>$certificate->position1,'col'=>'4','state'=>'readonly'])
-                        @include('template.input',['name'=>'sn','label'=>'序号','value'=>$certificate->sn,'col'=>'4','state'=>'readonly'])
-                        @include('template.input',['name'=>'certificate_name','label'=>'证书名称','value'=>$certificate->certificate_name,'col'=>'4','state'=>'readonly'])
-                        @include('template.input',['name'=>'instrument','label'=>'器具名称','value'=>$certificate->instrument,'col'=>'4','state'=>'readonly'])
-                        @include('template.input',['name'=>'factory','label'=>'生产厂家','value'=>$certificate->factory,'col'=>'4','state'=>'readonly'])
-                        @include('template.input',['name'=>'number','label'=>'出厂编号','value'=>$certificate->number,'col'=>'4','state'=>'readonly'])
-                        @include('template.input',['name'=>'verification_date','label'=>'检定日期','value'=>$certificate->verification_date,'col'=>'4','state'=>'readonly'])
-                        @include('template.input',['name'=>'validity_date','label'=>'有效期','value'=>$certificate->validity_date,'col'=>'4','state'=>'readonly'])
-                        @include('template.input',['name'=>'department','label'=>'检定部门','value'=>$certificate->department,'col'=>'4','state'=>'readonly'])
-                        @include('template.input',['name'=>'model','label'=>'规格型号','value'=>$certificate->model,'col'=>'4','state'=>'readonly'])
-                        @include('template.input',['name'=>'limit','label'=>'测量范围','value'=>$certificate->limit,'col'=>'4','state'=>'readonly'])
-                        @include('template.input',['name'=>'accuracy','label'=>'精确度','value'=>$certificate->accuracy,'col'=>'4','state'=>'readonly'])
-                        @include('template.input',['name'=>'cycle','label'=>'检定周期','value'=>$certificate->cycle,'col'=>'4','state'=>'readonly'])
-                        @include('template.input',['name'=>'abc','label'=>'ABC','value'=>$certificate->abc,'col'=>'4','state'=>'readonly'])
-                        @include('template.input',['name'=>'plan','label'=>'检定计划','value'=>$certificate->plan,'col'=>'4','state'=>'readonly'])
-                        @include('template.input',['name'=>'certificate_no','label'=>'统一编号','value'=>$certificate->certificate_no,'col'=>'4','state'=>'readonly'])
-                        @include('template.input',['name'=>'category','label'=>'证书类型','value'=>$certificate->category,'col'=>'4','state'=>'readonly'])
-                        @include('template.input',['name'=>'standard','label'=>'检定标准','value'=>$certificate->standard,'col'=>'4','state'=>'readonly'])
-                        @include('template.input',['name'=>'start','label'=>'启用时间','value'=>$certificate->start,'col'=>'4','state'=>'readonly'])
-                        @include('template.input',['name'=>'times','label'=>'检定次数','value'=>$certificate->times,'col'=>'4','state'=>'readonly'])
-                        @include('template.input',['name'=>'remark','label'=>'备注','value'=>$certificate->remark,'col'=>'4','state'=>'readonly'])
-                        @include('template.input',['name'=>'start_date','label'=>'开始日期','value'=>$certificate->start_date,'col'=>'4','state'=>'readonly'])
-                        @include('template.input',['name'=>'end_date','label'=>'结束日期','value'=>$certificate->end_date,'col'=>'4','state'=>'readonly'])
+                        @include('template.input',['tmp_name'=>'position_id','tmp_label'=>'岗位','tmp_value'=>$certificate->position1,'tmp_col'=>'4','tmp_state'=>'readonly'])
+                        @include('template.input',['tmp_name'=>'sn','tmp_label'=>'序号','tmp_value'=>$certificate->sn,'tmp_col'=>'4','tmp_state'=>'readonly'])
+                        @include('template.input',['tmp_name'=>'certificate_name','tmp_label'=>'证书名称','tmp_value'=>$certificate->certificate_name,'tmp_col'=>'4','tmp_state'=>'readonly'])
+                        @include('template.input',['tmp_name'=>'instrument','tmp_label'=>'器具名称','tmp_value'=>$certificate->instrument,'tmp_col'=>'4','tmp_state'=>'readonly'])
+                        @include('template.input',['tmp_name'=>'factory','tmp_label'=>'生产厂家','tmp_value'=>$certificate->factory,'tmp_col'=>'4','tmp_state'=>'readonly'])
+                        @include('template.input',['tmp_name'=>'number','tmp_label'=>'出厂编号','tmp_value'=>$certificate->number,'tmp_col'=>'4','tmp_state'=>'readonly'])
+                        @include('template.input',['tmp_name'=>'verification_date','tmp_label'=>'检定日期','tmp_value'=>$certificate->verification_date,'tmp_col'=>'4','tmp_state'=>'readonly'])
+                        @include('template.input',['tmp_name'=>'validity_date','tmp_label'=>'有效期','tmp_value'=>$certificate->validity_date,'tmp_col'=>'4','tmp_state'=>'readonly'])
+                        @include('template.input',['tmp_name'=>'department','tmp_label'=>'检定部门','tmp_value'=>$certificate->department,'tmp_col'=>'4','tmp_state'=>'readonly'])
+                        @include('template.input',['tmp_name'=>'model','tmp_label'=>'规格型号','tmp_value'=>$certificate->model,'tmp_col'=>'4','tmp_state'=>'readonly'])
+                        @include('template.input',['tmp_name'=>'limit','tmp_label'=>'测量范围','tmp_value'=>$certificate->limit,'tmp_col'=>'4','tmp_state'=>'readonly'])
+                        @include('template.input',['tmp_name'=>'accuracy','tmp_label'=>'精确度','tmp_value'=>$certificate->accuracy,'tmp_col'=>'4','tmp_state'=>'readonly'])
+                        @include('template.input',['tmp_name'=>'cycle','tmp_label'=>'检定周期','tmp_value'=>$certificate->cycle,'tmp_col'=>'4','tmp_state'=>'readonly'])
+                        @include('template.input',['tmp_name'=>'abc','tmp_label'=>'ABC','tmp_value'=>$certificate->abc,'tmp_col'=>'4','tmp_state'=>'readonly'])
+                        @include('template.input',['tmp_name'=>'plan','tmp_label'=>'检定计划','tmp_value'=>$certificate->plan,'tmp_col'=>'4','tmp_state'=>'readonly'])
+                        @include('template.input',['tmp_name'=>'certificate_no','tmp_label'=>'统一编号','tmp_value'=>$certificate->certificate_no,'tmp_col'=>'4','tmp_state'=>'readonly'])
+                        @include('template.input',['tmp_name'=>'category','tmp_label'=>'证书类型','tmp_value'=>$certificate->category,'tmp_col'=>'4','tmp_state'=>'readonly'])
+                        @include('template.input',['tmp_name'=>'standard','tmp_label'=>'检定标准','tmp_value'=>$certificate->standard,'tmp_col'=>'4','tmp_state'=>'readonly'])
+                        @include('template.input',['tmp_name'=>'start','tmp_label'=>'启用时间','tmp_value'=>$certificate->start,'tmp_col'=>'4','tmp_state'=>'readonly'])
+                        @include('template.input',['tmp_name'=>'times','tmp_label'=>'检定次数','tmp_value'=>$certificate->times,'tmp_col'=>'4','tmp_state'=>'readonly'])
+                        @include('template.input',['tmp_name'=>'remark','tmp_label'=>'备注','tmp_value'=>$certificate->remark,'tmp_col'=>'4','tmp_state'=>'readonly'])
+                        @include('template.input',['tmp_name'=>'start_date','tmp_label'=>'开始日期','tmp_value'=>$certificate->start_date,'tmp_col'=>'4','tmp_state'=>'readonly'])
+                        @include('template.input',['tmp_name'=>'end_date','tmp_label'=>'结束日期','tmp_value'=>$certificate->end_date,'tmp_col'=>'4','tmp_state'=>'readonly'])
                     </div>
                     <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12">
                         <ul class="nav nav-tabs nav-fill" role="tablist">
                             @for($page=0;$page<count($certificate->files);$page++)
-                                @include('template.nav-tab',['name'=>$certificate->id.'-'.($page+1),'label'=>$page+1,'active'=>$page==0])
+                                @include('template.nav-tab',['tmp_name'=>$certificate->id.'-'.($page+1),'tmp_label'=>$page+1,'tmp_active'=>$page==0])
                             @endfor
                         </ul>
                         <div class="tab-content d-flex overflow-auto">

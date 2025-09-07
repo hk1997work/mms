@@ -1,8 +1,8 @@
 @extends('layout.edit')
 @section('content_form')
-    @include('template.input',['name'=>'name','label'=>'岗位名称','value'=>$position->name])
+    @include('template.input',['tmp_name'=>'name','tmp_label'=>'岗位名称','tmp_value'=>$position->name])
     @if($position->level==4)
-        @include('template.input',['name'=>'code','label'=>'编号','value'=>$position->code])
+        @include('template.input',['tmp_name'=>'code','tmp_label'=>'编号','tmp_value'=>$position->code])
     @endif
-    @include('template.select',['name'=>'sign','label'=>'启用','selected'=>$position->sign])
+    @include('template.select',['tmp_name'=>'sign','tmp_label'=>'启用','tmp_selected'=>$position->sign])
 @endsection

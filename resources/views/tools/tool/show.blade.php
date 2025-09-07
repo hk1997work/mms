@@ -1,14 +1,14 @@
 @extends('layout.show')
 @section('content_title')
-    @include('template.nav-tab',['name'=>'number','label'=>"{$tool->instrument}详情",'active'=>true])
+    @include('template.nav-tab',['tmp_name'=>'number','tmp_label'=>"{$tool->instrument}详情",'tmp_active'=>true])
 @endsection
 @section('content_form')
     <ul class="nav">
-        @include('template.nav-btn',['label'=>'增加','menu'=>'factory','class'=>'btn-add','id'=>$tool->id])
-        @include('template.nav-btn',['label'=>'删除','menu'=>'number','class'=>'btn-delete check-multiple'])
-        @include('template.nav-btn',['label'=>'修改','menu'=>'number','class'=>'btn-edit check-single'])
-        @include('template.nav-btn',['label'=>'查看','menu'=>'number','class'=>'btn-show check-single','pos'=>'up'])
+        @include('template.nav-btn',['tmp_label'=>'增加','tmp_menu'=>'factory','tmp_class'=>'btn-add','tmp_id'=>$tool->id])
+        @include('template.nav-btn',['tmp_label'=>'删除','tmp_menu'=>'number','tmp_class'=>'btn-delete check-multiple'])
+        @include('template.nav-btn',['tmp_label'=>'修改','tmp_menu'=>'number','tmp_class'=>'btn-edit check-single'])
+        @include('template.nav-btn',['tmp_label'=>'查看','tmp_menu'=>'number','tmp_class'=>'btn-show check-single','tmp_pos'=>'up'])
     </ul>
-    @include('template.table',['menu'=>"tool_show?id=$tool->id",'fields'=>['','生产厂家','出厂编号','使用状态','使用次数','备注'],'id'=>'off-sidebar','class'=>'table-tree table-all'])
+    @include('template.table',['tmp_menu'=>"tool_show?id=$tool->id",'tmp_fields'=>['','生产厂家','出厂编号','使用状态','使用次数','备注'],'tmp_id'=>'off-sidebar','tmp_class'=>'table-tree table-all'])
     @include('template.btn')
 @endsection

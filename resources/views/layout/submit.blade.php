@@ -1,1 +1,1 @@
-@include('template.sidebar',['class'=>'btn-submit','method'=>method_field('put')])
+@include('template.sidebar',['tmp_class'=>'btn-submit','tmp_method'=>method_field('put')])

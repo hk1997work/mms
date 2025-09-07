@@ -1,13 +1,13 @@
-<a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">{{$label}}<i class="ion-android-arrow-dropdown"></i></a>
+<a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">{{$tmp_label}}<i class="ion-android-arrow-dropdown"></i></a>
 <ul class="dropdown-menu dropdown-menu-end">
-    @if(isset($parent))
-        <a class='dropdown-item' href='?id={{$parent[$id]}}'>全部</a>
-        @foreach($items as $item)
-            <li><a class="dropdown-item" href="?id={{$parent[$id]}}&{{$path}}={{$item[$id]}}">{{$item->parent[$field]}}</a></li>
+    @if(isset($tmp_parent))
+        <a class='dropdown-item' href='?id={{$tmp_parent[$tmp_id]}}'>全部</a>
+        @foreach($tmp_items as $tmp_item)
+            <li><a class="dropdown-item" href="?id={{$tmp_parent[$tmp_id]}}&{{$tmp_path}}={{$tmp_item[$tmp_id]}}">{{$tmp_item->parent[$tmp_field]}}</a></li>
         @endforeach
     @else
-        @foreach($items as $item)
-            <li><a class="dropdown-item" href="?id={{$item[$id]}}">{{$item[$field]}}</a></li>
+        @foreach($tmp_items as $tmp_item)
+            <li><a class="dropdown-item" href="?id={{$tmp_item[$tmp_id]}}">{{$tmp_item[$tmp_field]}}</a></li>
         @endforeach
     @endif
 </ul>

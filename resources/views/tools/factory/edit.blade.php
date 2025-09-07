@@ -1,6 +1,6 @@
 @extends('layout.edit')
 @section('content_form')
     <input type="hidden" name="level" value="1">
-    @include('template.input',['name'=>'name','label'=>'生产厂家','value'=>$number->name])
-    @include('template.input',['name'=>'remark','label'=>'厂家全称','value'=>$number->remark])
+    @include('template.input',['tmp_name'=>'name','tmp_label'=>'生产厂家','tmp_value'=>$number->name])
+    @include('template.input',['tmp_name'=>'remark','tmp_label'=>'厂家全称','tmp_value'=>$number->remark])
 @endsection

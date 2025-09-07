@@ -1,1 +1,1 @@
-@include('template.sidebar',['class'=>'submit-add'])
+@include('template.sidebar',['tmp_class'=>'submit-add'])

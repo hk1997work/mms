@@ -1,5 +1,5 @@
 @extends('layout.create')
 @section('content_form')
     <input type="hidden" name="pid" value="{{$id}}">
-    @include('template.input',['name'=>'name','label'=>'参数名称'])
+    @include('template.input',['tmp_name'=>'name','tmp_label'=>'参数名称'])
 @endsection

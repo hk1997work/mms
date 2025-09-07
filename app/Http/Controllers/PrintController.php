@@ -34,7 +34,7 @@ class PrintController extends Controller
         }
         foreach ($certificates as $certificate) {
             if (isset($request->check_position)) {
-                $sheet->setCellValueByColumnAndRow($i, $j + 1, $certificate->position);
+                $sheet->setCellValueByColumnAndRow($i, $j + 1, $certificate->position1);
             }
             $sheet->setCellValueByColumnAndRow($i, $j + 2, $certificate->number);
             $sheet->setCellValueByColumnAndRow($i, $j + 3, "      " . str_replace('-', '   ', $certificate->verification_date));

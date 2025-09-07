@@ -1,17 +1,17 @@
-<table id="{{$id??'index'}}-table" data-menu="{{$menu}}" class="table table-hover {{$class??''}}">
+<table id="{{$tmp_id??'index'}}-table" data-menu="{{$tmp_menu}}" class="table table-hover {{$tmp_class??''}}">
     <thead>
     <tr>
-        @foreach($fields as $field)
-            <th>{{$field}}</th>
+        @foreach($tmp_fields as $tmp_field)
+            <th>{{$tmp_field}}</th>
         @endforeach
     </tr>
     </thead>
     <tbody>
-    @if(isset($items))
-        @foreach($items as $item)
+    @if(isset($tmp_items))
+        @foreach($tmp_items as $tmp_item)
             <tr>
-                @foreach($item->toArray() as $value)
-                    <td>{{$value}}</td>
+                @foreach($tmp_item->toArray() as $tmp_value)
+                    <td>{{$tmp_value}}</td>
                 @endforeach
             </tr>
         @endforeach

@@ -10,12 +10,12 @@
         @endif
     </ul>
     <div class="off-sidebar-content auto-scroll table-responsive">
-        <form action="" @if(($class??'')=='btn-submit') method="post" enctype="multipart/form-data" @else onsubmit="return false;" @endif>
-            {{$method??''}}
+        <form action="" @if(($tmp_class??'')=='btn-submit') method="post" enctype="multipart/form-data" @else onsubmit="return false;" @endif>
+            {{$tmp_method??''}}
             {{csrf_field()}}
             @yield('content_form')
-            @if(isset($class))
-                @include('template.btn',['color'=>$color??'primary','class'=>$class,'label'=>$label??'确 定'])
+            @if(isset($tmp_class))
+                @include('template.btn',['tmp_color'=>$tmp_color??'primary','tmp_class'=>$tmp_class,'tmp_label'=>$tmp_label??'确 定'])
             @endif
         </form>
     </div>

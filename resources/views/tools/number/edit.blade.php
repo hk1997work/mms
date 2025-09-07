@@ -1,7 +1,7 @@
 @extends('layout.edit')
 @section('content_form')
     <input type="hidden" name="level" value="2">
-    @include('template.input',['name'=>'name','label'=>'出厂编号','value'=>$number->name])
-    @include('template.select',['name'=>'state_id','label'=>'管理状态','items'=>$states,'value'=>'id','field'=>'name','selected'=>$number->state_id,'validate'=>'id'])
-    @include('template.input',['name'=>'remark','label'=>'备注','value'=>$number->remark])
+    @include('template.input',['tmp_name'=>'name','tmp_label'=>'出厂编号','tmp_value'=>$number->name])
+    @include('template.select',['tmp_name'=>'state_id','tmp_label'=>'管理状态','tmp_items'=>$states,'tmp_value'=>'id','tmp_field'=>'name','tmp_selected'=>$number->state_id,'tmp_validate'=>'id'])
+    @include('template.input',['tmp_name'=>'remark','tmp_label'=>'备注','tmp_value'=>$number->remark])
 @endsection
