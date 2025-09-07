@@ -34,7 +34,7 @@ function initTable(table) {
             delete options.scroller;
         }
         let dt = table.DataTable(options);
-        dt.on('xhr.dt', function () {
+        dt.on('init.dt', function () {
             let obj = $(this).closest('.table-responsive');
             let count = dt.select.cumulative().rows.length;
             btn_change(obj, count);
@@ -101,21 +101,21 @@ function sidebar_ajax(btn, url, menu, callback) {
 }
 
 $('.index,.off-sidebar').on('click', '.btn-add', function () {
-    let table = offSidebarDataTable ? offSidebarDataTable : dataTable;
+    let table = (offSidebarDataTable && $('#off-sidebar-table').is(':visible')) ? offSidebarDataTable : dataTable;
     let id = $(this).data('id') ? $(this).data('id') : table.select.cumulative().rows.join(',');
     let menu = $(this).data('menu');
     let url = '/' + menu + '/create' + (id ? '?id=' + id : '');
     sidebar_ajax($(this), url, menu);
 });
 $('.index,.off-sidebar').on('click', ' .btn-edit', function () {
-    let table = offSidebarDataTable ? offSidebarDataTable : dataTable;
+    let table = (offSidebarDataTable && $('#off-sidebar-table').is(':visible')) ? offSidebarDataTable : dataTable;
     let id = table.select.cumulative().rows.join(',');
     let menu = $(this).data('menu');
     let url = '/' + menu + '/' + id + '/edit';
     sidebar_ajax($(this), url, menu);
 });
 $('.index,.off-sidebar').on('click', ' .btn-show', function () {
-    let table = offSidebarDataTable ? offSidebarDataTable : dataTable;
+    let table = (offSidebarDataTable && $('#off-sidebar-table').is(':visible')) ? offSidebarDataTable : dataTable;
     let id = table.select.cumulative().rows.join(',');
     let menu = $(this).data('menu');
     let url = '/' + menu + '/' + id;
@@ -175,32 +175,32 @@ function submit_ajax(btn, url, show = true, callback) {
 }
 
 $('.index,.off-sidebar').on('click', '.submit-add', function () {
-    let table = offSidebarDataTable ? offSidebarDataTable : dataTable;
+    let table = (offSidebarDataTable && $('#off-sidebar-table').is(':visible')) ? offSidebarDataTable : dataTable;
     let id = table.select.cumulative().rows.join(',');
     let url = "/" + $(this).data('url') + (id ? '?id=' + id : '');
     submit_ajax($(this), url);
 })
 $('.index,.off-sidebar').on('click', '.submit-edit', function () {
-    let table = offSidebarDataTable ? offSidebarDataTable : dataTable;
+    let table = (offSidebarDataTable && $('#off-sidebar-table').is(':visible')) ? offSidebarDataTable : dataTable;
     let id = $(this).data('id') ? $(this).data('id') : table.select.cumulative().rows.join(',');
     let url = "/" + $(this).data('url') + '/' + id;
     submit_ajax($(this), url);
 })
 $('.index,.off-sidebar').on('click', '.submit-delete', function () {
-    let table = offSidebarDataTable ? offSidebarDataTable : dataTable;
+    let table = (offSidebarDataTable && $('#off-sidebar-table').is(':visible')) ? offSidebarDataTable : dataTable;
     let id = table.select.cumulative().rows.join(',');
     let url = '/' + $(this).data('url') + "/" + id;
     submit_ajax($(this), url);
 })
 $('.index,.off-sidebar').on('click', '.btn-move', function () {
-    let table = offSidebarDataTable ? offSidebarDataTable : dataTable;
+    let table = (offSidebarDataTable && $('#off-sidebar-table').is(':visible')) ? offSidebarDataTable : dataTable;
     let id = table.select.cumulative().rows.join(',');
     let url = '/move/' + $(this).data('menu') + '/' + id + '/' + $(this).data('type');
     submit_ajax($(this), url, false);
 })
 $('.index,.off-sidebar').on('click', '.btn-download , .btn-open', function () {
     let menu = $(this).data('menu')
-    let table = offSidebarDataTable ? offSidebarDataTable : dataTable;
+    let table = (offSidebarDataTable && $('#off-sidebar-table').is(':visible')) ? offSidebarDataTable : dataTable;
     let id = table.select.cumulative().rows.join(',');
     let type = $(this).hasClass('btn-open') ? '?type=show' : '';
     $.each(id.split(','), function (index, value) {
@@ -208,7 +208,7 @@ $('.index,.off-sidebar').on('click', '.btn-download , .btn-open', function () {
     })
 })
 $('.index,.off-sidebar').on('click', '.btn-submit', function () {
-    let table = offSidebarDataTable ? offSidebarDataTable : dataTable;
+    let table = (offSidebarDataTable && $('#off-sidebar-table').is(':visible')) ? offSidebarDataTable : dataTable;
     let id = table.select.cumulative().rows.join(',');
     let pos = $(this).closest('.off-sidebar').data('pos')
     let url = "/" + $(this).data('url') + '/' + id;

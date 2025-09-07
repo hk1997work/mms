@@ -6,5 +6,15 @@
         @endforeach
     </tr>
     </thead>
-    <tbody></tbody>
+    <tbody>
+    @if(isset($items))
+        @foreach($items as $item)
+            <tr>
+                @foreach($item->toArray() as $value)
+                    <td>{{$value}}</td>
+                @endforeach
+            </tr>
+        @endforeach
+    @endif
+    </tbody>
 </table>

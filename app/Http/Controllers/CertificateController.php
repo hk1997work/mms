@@ -125,11 +125,11 @@ class CertificateController extends Controller
         $positions = Position::where('name', $type->name)->with('children')->get();
         $tools = Tool::where('instrument', $certificate->instrument)->get();
         $standards = StandardsView::where('level', 2)->get();
-        $spares = CertificatesView::where('valid', 1)->where('position1', '备用')->where('instrument', $certificate->instrument)->orderBy('order')->get();
+        $spares = CertificatesView::select('id', 'order', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'remark')->where('valid', 1)->where('position1', '备用')->where('instrument', $certificate->instrument)->orderBy('order')->get();
         return view('certificate.edit', compact('certificate', 'categories', 'departments', 'positions', 'tools', 'standards', 'spares'));
     }
 
-    public function update(CertificateRequest $request, Certificate $certificate)
+    public function update(Request $request, Certificate $certificate)
     {
         if ($request->type == 'apply') {
             $certificate->position_id = $request->position_id;
@@ -143,8 +143,7 @@ class CertificateController extends Controller
             $certificate->valid = 0;
             $certificate->end_date = Carbon::parse(date('Y-m-d'))->min($certificate->validity_date)->max($request->verification_date)->subDay();
             $certificate->save();
-            $old_certificate = CertificatesView::find($request->id);
-            $old_number = Number::find($old_certificate->number_id);
+            $old_number = Number::find($certificate->number_id);
             $old_number->state_id = Parameter::where('name', $request->cause ? '损坏' : '待检')->first()->id;
             $old_number->save();
 
@@ -251,6 +250,9 @@ class CertificateController extends Controller
                 }
                 if (File::isDirectory("storage/jpg/$c->id")) {
                     File::deleteDirectory("storage/jpg/$c->id");
+                }
+                if (File::isDirectory("storage/check/$c->id")) {
+                    File::deleteDirectory("storage/check/$c->id");
                 }
             }
             return !!Certificate::whereIn('id', explode(',', $certificate))->delete();

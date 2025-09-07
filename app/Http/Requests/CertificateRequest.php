@@ -64,6 +64,7 @@ class CertificateRequest extends FormRequest
                 'standard_id' => 'required',
                 'start' => 'required|numeric',
                 'times' => 'required|numeric',
+                'certificate_name' => 'required',
             ];
             return $rules;
         }
@@ -91,6 +92,7 @@ class CertificateRequest extends FormRequest
             "start.numeric" => "启用时间格式不正确",
             "times.required" => "请输入检定次数",
             "times.numeric" => "检定次数格式不正确",
+            "certificate_name.required" => "请输入证书名称",
         ];
     }
 }

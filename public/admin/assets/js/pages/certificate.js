@@ -57,7 +57,7 @@ $('.off-sidebar').on('change', '[name="tool_id"]', function () {
     if (form.find('[name="tool_id"]').val() != null) {
         let path = "/certificate_factories/" + form.find('[name="tool_id"]').val();
         form.find('.factory_add').attr("hidden", false);
-        form.find('.factory_add').data('id', form.find('[name="tool_id"]').val())
+        form.find('.factory_add').data('id', form.find('[name="tool_id"]').val() + "&name=" + encodeURIComponent(form.find('.factory_pdf').text()));
         form.find('.number_add').attr("hidden", true)
         form.find('.number_add').data('id', '')
         form.find('[name="factory_id"]').empty();
@@ -67,13 +67,17 @@ $('.off-sidebar').on('change', '[name="tool_id"]', function () {
         form.find('[name="number_id"]').append("<option value='' selected disabled>请选择...</option>");
         $.ajax({
             url: path, success: function (data) {
-                if (data && data.length) {
-                    form.find('[name="factory_id"]').attr("disabled", false);
-                    for (const key in data) {
-                        form.find('[name="factory_id"]').append("<option value=" + data[key]['id'] + ">" + data[key]['name'] + "</option>");
-                        if (form.find(".ff").val() == data[key]['id']) {
-                            form.find('[name="factory_id"]').val(form.find(".ff").val()).trigger('change');
+                if (data) {
+                    if (data.length) {
+                        form.find('[name="factory_id"]').attr("disabled", false);
+                        for (const key in data) {
+                            form.find('[name="factory_id"]').append("<option value=" + data[key]['id'] + ">" + data[key]['name'] + "</option>");
+                            if (form.find(".factory_id_pdf").val() == data[key]['id']) {
+                                form.find('[name="factory_id"]').val(form.find(".factory_id_pdf").val()).trigger('change');
+                            }
                         }
+                    } else {
+                        notifications('未录入生产厂家');
                     }
                 } else {
                     form.find('[name="factory_id"]').attr("disabled", true)
@@ -96,18 +100,22 @@ $('.off-sidebar').on('change', '[name="factory_id"]', function () {
             path = path + "?number_id=" + form.find('[name="number"]').val();
         }
         form.find('.number_add').attr("hidden", false);
-        form.find('.number_add').data('id', form.find('[name="factory_id"]').val())
+        form.find('.number_add').data('id', form.find('[name="factory_id"]').val() + "&name=" + encodeURIComponent(form.find('.number_pdf').text()))
         form.find('[name="number_id"]').empty();
         form.find('[name="number_id"]').append("<option value='' selected disabled>请选择...</option>");
         $.ajax({
             url: path, success: function (data) {
-                if (data && data.length) {
-                    form.find('[name="number_id"]').attr("disabled", false);
-                    for (const key in data) {
-                        form.find('[name="number_id"]').append("<option value=" + data[key]['id'] + ">" + data[key]['name'] + "</option>");
-                        if (form.find(".nn").val() == data[key]['id']) {
-                            form.find('[name="number_id"]').val(form.find(".nn").val()).trigger('change');
+                if (data) {
+                    if (data.length) {
+                        form.find('[name="number_id"]').attr("disabled", false);
+                        for (const key in data) {
+                            form.find('[name="number_id"]').append("<option value=" + data[key]['id'] + ">" + data[key]['name'] + "</option>");
+                            if (form.find(".number_id_pdf").val() == data[key]['id']) {
+                                form.find('[name="number_id"]').val(form.find(".number_id_pdf").val()).trigger('change');
+                            }
                         }
+                    } else {
+                        notifications('未录入出厂编号');
                     }
                 } else {
                     form.find('[name="number_id"]').attr("disabled", true)
@@ -166,14 +174,14 @@ $('.off-sidebar').on('change', '[name="verification_date"],[name="cycle_id"]', f
 //上传文件
 $('.off-sidebar').on('change', '[name="file_certificate"]', function () {
     let form = $(this).closest('form')
-    form.find(".t").remove()
-    form.find(".m").remove()
-    form.find(".f").remove()
-    form.find(".n").remove()
-    form.find(".ff").remove()
-    form.find(".nn").remove()
+    form.find(".tool_pdf").remove()
+    form.find(".model_pdf").remove()
+    form.find(".factory_pdf").remove()
+    form.find(".number_pdf").remove()
+    form.find(".factory_id_pdf").remove()
+    form.find(".number_id_pdf").remove()
     if (form.find('[name="file_certificate"]').val()) {
-        $("#preloader")[0].style.display = 'block';
+        $("#preloader").show();
         $.ajax({
             url: "/pdf", type: "POST", data: new FormData(form[0]), processData: false,  // 不处理数据
             contentType: false,   // 不设置内容类型
@@ -185,12 +193,12 @@ $('.off-sidebar').on('change', '[name="file_certificate"]', function () {
                         form.find('[name="standard_id[]"]').selectpicker('refresh');
                     }
                     if (result['exist']) {
-                        form.find(".div-tool_id").find('.sidebar-heading').append(" <small class='text-warning t'>证书已录入</small>");
+                        form.find(".div-tool_id").find('.sidebar-heading').append(" <small class='text-warning tool_pdf'>证书已录入</small>");
                         form.find('[name="file_certificate"]').val('');
                     } else {
-                        form.find(".div-tool_id .sidebar-heading").append(" <small class='text-info m'>" + result['tool'] + result['model'] + "</small>");
-                        form.find(".div-factory_id .sidebar-heading").append(" <small class='text-info f'>" + result['factory'] + "</small>");
-                        form.find(".div-number_id .sidebar-heading").append(" <small class='text-info n'>" + result['number'] + "</small>");
+                        form.find(".div-tool_id .sidebar-heading").append(" <small class='text-info model_pdf'>" + result['tool'] + result['model'] + "</small>");
+                        form.find(".div-factory_id .sidebar-heading").append(" <small class='text-info factory_pdf'>" + result['factory'] + "</small>");
+                        form.find(".div-number_id .sidebar-heading").append(" <small class='text-info number_pdf'>" + result['number'] + "</small>");
                         form.find('[name="category_id"] option:contains(' + result['category'].substring(0, 4) + ")").attr("selected", true).trigger('change');
                         form.find('[name="department_id"] option:contains(' + result['department'] + ")").attr("selected", true).trigger('change');
                         form.find('[name="verification_date"]').val(result['verification_date']).trigger('change');
@@ -202,8 +210,8 @@ $('.off-sidebar').on('change', '[name="file_certificate"]', function () {
                     }).length > 0) {
                         form.find('[name="tool_id"]').val(result['tool_id']).trigger('change');
                         form.find('[name="tool_id"]').selectpicker('refresh');
-                        form.find(".div-factory_id").append("<input type='hidden' class='ff' value='" + result['factory_id'] + "'>");
-                        form.find(".div-number_id").append("<input type='hidden' class='nn' value='" + result['number_id'] + "'>");
+                        form.find(".div-factory_id").append("<input type='hidden' class='factory_id_pdf' value='" + result['factory_id'] + "'>");
+                        form.find(".div-number_id").append("<input type='hidden' class='number_id_pdf' value='" + result['number_id'] + "'>");
                     }
                 } else {
                     notifications(result)

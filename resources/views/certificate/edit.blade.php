@@ -131,57 +131,25 @@
                 </div>
                 @if($spares->count()!=0)
                     <div role="tabpanel" class="tab-pane show active" id="spare-tab" aria-labelledby="spare-btn">
-                        <div class="col-12">
-                            <table class="table table-hover">
-                                <thead>
-                                <tr>
-                                    <th>序号</th>
-                                    <th>器具名称</th>
-                                    <th>规格型号</th>
-                                    <th>出厂编号</th>
-                                    <th>检定日期</th>
-                                    <th>有效期</th>
-                                    <th>检定部门</th>
-                                    <th>备注</th>
-                                    <th></th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                @foreach($spares as $spare)
-                                    <tr @if($spare->validity_date < date("Y-m-d")) class="text-danger" @endif>
-                                        <td>{{$spare->order}}</td>
-                                        <td>{{$spare->instrument}}</td>
-                                        <td>{{$spare->model}}</td>
-                                        <td>{{$spare->number}}</td>
-                                        <td>{{$spare->verification_date}}</td>
-                                        <td>{{$spare->validity_date}}</td>
-                                        <td>{{$spare->department}}</td>
-                                        <td>{{$spare->remark}}</td>
-                                        <td>
-                                            <div class="d-flex">
-                                                <form action="" onsubmit="return false;">
-                                                    {{method_field("put")}}
-                                                    {{csrf_field()}}
-                                                    <input type="hidden" name="type" value="spare">
-                                                    <input type="hidden" name="id" value="{{$certificate->id}}">
-                                                    <input type="hidden" name="cause" value="待检">
-                                                    <button class="btn btn-outline-secondary btn-sm submit-edit sidebar-url" data-id="{{$spare->id}}">更换</button>
-                                                </form>
-                                                <form action="" onsubmit="return false;">
-                                                    {{method_field("put")}}
-                                                    {{csrf_field()}}
-                                                    <input type="hidden" name="type" value="spare">
-                                                    <input type="hidden" name="id" value="{{$certificate->id}}">
-                                                    <input type="hidden" name="cause" value="损坏">
-                                                    <button class="btn btn-outline-secondary btn-sm submit-edit sidebar-url mx-1" data-id="{{$spare->id}}">损坏</button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                                </tbody>
-                            </table>
-                        </div>
+                        <ul class="nav">
+                            <form action="" onsubmit="return false;">
+                                {{method_field("put")}}
+                                {{csrf_field()}}
+                                <input type="hidden" name="type" value="spare">
+                                <input type="hidden" name="id" value="{{$certificate->id}}">
+                                <input type="hidden" name="cause" value="待检">
+                                @include('template.nav-btn',['label'=>'更换','url'=>'certificate','class'=>'submit-edit check-single'])
+                            </form>
+                            <form action="" onsubmit="return false;">
+                                {{method_field("put")}}
+                                {{csrf_field()}}
+                                <input type="hidden" name="type" value="spare">
+                                <input type="hidden" name="id" value="{{$certificate->id}}">
+                                <input type="hidden" name="cause" value="损坏">
+                                @include('template.nav-btn',['label'=>'损坏','url'=>'certificate','class'=>'submit-edit check-single'])
+                            </form>
+                        </ul>
+                        @include('template.table',['menu'=>"certificate",'fields'=>['','序号','器具名称','规格型号','出厂编号','检定日期','有效期','检定部门','备注'],'id'=>'off-sidebar','class'=>'table-data','items'=>$spares])
                         @include('template.btn')
                     </div>
                 @endif
