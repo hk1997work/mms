@@ -16,7 +16,7 @@ Date.prototype.format = function (fmt) {
 
 //加载序号
 $('.off-sidebar').on('change', '[name="position_id"]', function () {
-    let form = $(this).closest('form')
+    let form = $(this).closest('form');
     $.ajax({
         url: "/certificate_sn/" + form.find('[name="position_id"]').val(), success: function (data) {
             if (data) {
@@ -25,14 +25,14 @@ $('.off-sidebar').on('change', '[name="position_id"]', function () {
                 notifications('序号加载失败');
             }
         }, error: function (xhr) {
-            xhr.status == 401 ? document.location.reload() : notifications('序号加载失败')
+            xhr.status == 401 ? document.location.reload() : notifications('序号加载失败');
         }
     })
 })
 
 //加载量具信息
 $('.off-sidebar').on('change', '[name="tool_id"]', function () {
-    let form = $(this).closest('form')
+    let form = $(this).closest('form');
     $.ajax({
         url: "/certificate_info/" + form.find('[name="tool_id"]').val(), success: function (data) {
             if (data) {
@@ -46,23 +46,23 @@ $('.off-sidebar').on('change', '[name="tool_id"]', function () {
                 notifications('器具名称加载失败');
             }
         }, error: function (xhr) {
-            xhr.status == 401 ? document.location.reload() : notifications('器具名称加载失败')
+            xhr.status == 401 ? document.location.reload() : notifications('器具名称加载失败');
         }
     })
 })
 
 //加载生产厂家
 $('.off-sidebar').on('change', '[name="tool_id"]', function () {
-    let form = $(this).closest('form')
+    let form = $(this).closest('form');
     if (form.find('[name="tool_id"]').val() != null) {
         let path = "/certificate_factories/" + form.find('[name="tool_id"]').val();
         form.find('.factory_add').attr("hidden", false);
         form.find('.factory_add').data('id', form.find('[name="tool_id"]').val() + "&name=" + encodeURIComponent(form.find('.factory_pdf').text()));
-        form.find('.number_add').attr("hidden", true)
-        form.find('.number_add').data('id', '')
+        form.find('.number_add').attr("hidden", true);
+        form.find('.number_add').data('id', '');
         form.find('[name="factory_id"]').empty();
         form.find('[name="factory_id"]').append("<option value='' selected disabled>请选择...</option>");
-        form.find('[name="number_id"]').attr("disabled", true)
+        form.find('[name="number_id"]').attr("disabled", true);
         form.find('[name="number_id"]').empty();
         form.find('[name="number_id"]').append("<option value='' selected disabled>请选择...</option>");
         $.ajax({
@@ -80,12 +80,12 @@ $('.off-sidebar').on('change', '[name="tool_id"]', function () {
                         notifications('未录入生产厂家');
                     }
                 } else {
-                    form.find('[name="factory_id"]').attr("disabled", true)
+                    form.find('[name="factory_id"]').attr("disabled", true);
                     notifications('生产厂家加载失败');
                 }
             }, error: function (xhr) {
-                xhr.status == 401 ? document.location.reload() : notifications('生产厂家加载失败')
-                form.find('[name="factory_id"]').attr("disabled", true)
+                xhr.status == 401 ? document.location.reload() : notifications('生产厂家加载失败');
+                form.find('[name="factory_id"]').attr("disabled", true);
             }
         })
     }
@@ -93,14 +93,14 @@ $('.off-sidebar').on('change', '[name="tool_id"]', function () {
 
 //加载出厂编号
 $('.off-sidebar').on('change', '[name="factory_id"]', function () {
-    let form = $(this).closest('form')
+    let form = $(this).closest('form');
     if (form.find('[name="factory_id"]').val() != null) {
         let path = "/certificate_numbers/" + form.find('[name="factory_id"]').val();
         if (form.find('[name="number"]').length > 0) {
             path = path + "?number_id=" + form.find('[name="number"]').val();
         }
         form.find('.number_add').attr("hidden", false);
-        form.find('.number_add').data('id', form.find('[name="factory_id"]').val() + "&name=" + encodeURIComponent(form.find('.number_pdf').text()))
+        form.find('.number_add').data('id', form.find('[name="factory_id"]').val() + "&name=" + encodeURIComponent(form.find('.number_pdf').text()));
         form.find('[name="number_id"]').empty();
         form.find('[name="number_id"]').append("<option value='' selected disabled>请选择...</option>");
         $.ajax({
@@ -118,19 +118,19 @@ $('.off-sidebar').on('change', '[name="factory_id"]', function () {
                         notifications('未录入出厂编号');
                     }
                 } else {
-                    form.find('[name="number_id"]').attr("disabled", true)
+                    form.find('[name="number_id"]').attr("disabled", true);
                     notifications('出厂编号加载失败');
                 }
             }, error: function (xhr) {
-                xhr.status == 401 ? document.location.reload() : notifications('出厂编号加载失败')
-                form.find('[name="number_id"]').attr("disabled", true)
+                xhr.status == 401 ? document.location.reload() : notifications('出厂编号加载失败');
+                form.find('[name="number_id"]').attr("disabled", true);
             }
         })
     }
 })
 
 $('.off-sidebar').on('change', '[name="number_id"]', function () {
-    let form = $(this).closest('form')
+    let form = $(this).closest('form');
     form.find('[name="start"]').val('');
     form.find('[name="times"]').val('');
     if (form.find('[name="number_id"]').val() != null) {
@@ -152,7 +152,7 @@ $('.off-sidebar').on('change', '[name="number_id"]', function () {
 
 //加载有效期
 $('.off-sidebar').on('change', '[name="verification_date"],[name="cycle_id"]', function () {
-    let form = $(this).closest('form')
+    let form = $(this).closest('form');
     let date = new Date(form.find('[name="verification_date"]').val());
     let number = Number(form.find('[name="cycle_id"]').val().match(/\d+/));
     let cycle = form.find('[name="cycle_id"]').val().substr(length - 1, 1);
@@ -173,13 +173,13 @@ $('.off-sidebar').on('change', '[name="verification_date"],[name="cycle_id"]', f
 
 //上传文件
 $('.off-sidebar').on('change', '[name="file_certificate"]', function () {
-    let form = $(this).closest('form')
-    form.find(".tool_pdf").remove()
-    form.find(".model_pdf").remove()
-    form.find(".factory_pdf").remove()
-    form.find(".number_pdf").remove()
-    form.find(".factory_id_pdf").remove()
-    form.find(".number_id_pdf").remove()
+    let form = $(this).closest('form');
+    form.find(".tool_pdf").remove();
+    form.find(".model_pdf").remove();
+    form.find(".factory_pdf").remove();
+    form.find(".number_pdf").remove();
+    form.find(".factory_id_pdf").remove();
+    form.find(".number_id_pdf").remove();
     if (form.find('[name="file_certificate"]').val()) {
         $("#preloader").show();
         $.ajax({
@@ -206,7 +206,7 @@ $('.off-sidebar').on('change', '[name="file_certificate"]', function () {
                         form.find('[name="certificate_name"]').val(result['tool']).trigger('change');
                     }
                     if (result['number_id'] && form.find('[name="tool_id"] option').filter(function () {
-                        return $(this).val() == result['tool_id']
+                        return $(this).val() == result['tool_id'];
                     }).length > 0) {
                         form.find('[name="tool_id"]').val(result['tool_id']).trigger('change');
                         form.find('[name="tool_id"]').selectpicker('refresh');
@@ -214,11 +214,11 @@ $('.off-sidebar').on('change', '[name="file_certificate"]', function () {
                         form.find(".div-number_id").append("<input type='hidden' class='number_id_pdf' value='" + result['number_id'] + "'>");
                     }
                 } else {
-                    notifications(result)
+                    notifications(result);
                 }
                 $("#preloader").fadeOut();
             }, error: function (xhr) {
-                xhr.status == 401 ? document.location.reload() : notifications('上传证书失败')
+                xhr.status == 401 ? document.location.reload() : notifications('上传证书失败');
                 $("#preloader").fadeOut();
             }
         });

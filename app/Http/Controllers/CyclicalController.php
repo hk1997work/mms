@@ -13,7 +13,7 @@ class CyclicalController extends Controller
 {
     public function index()
     {
-        $types = CertificatesView::selectRaw("unit2, unit4, SUBSTR(`validity_date`,1,7) as `date`")->where('validity_date', '>', '2020-08-01')->whereIn('unit2', ['南京钢管分公司', '防腐分公司', '科技质量中心'])->groupBy('date')->groupBy('unit2')->groupBy('unit4')->orderBy('date')->orderBy('unit2')->orderBy('unit4', 'DESC')->get();
+        $types = CertificatesView::selectRaw("position4, SUBSTR(`validity_date`,1,7) as `date`")->where('validity_date', '>', '2020-08-01')->whereIn('position4', ['南京钢管分公司', '防腐分公司', '科技质量中心'])->groupBy('date')->groupBy('position4')->orderBy('date')->orderBy('position4')->get();
         return view("cyclical.index", compact('types'));
     }
 

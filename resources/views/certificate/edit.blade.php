@@ -138,7 +138,7 @@
                                 <input type="hidden" name="type" value="spare">
                                 <input type="hidden" name="id" value="{{$certificate->id}}">
                                 <input type="hidden" name="cause" value="待检">
-                                @include('template.nav-btn',['tmp_label'=>'更换','tmp_url'=>'certificate','tmp_class'=>'submit-edit check-single'])
+                                @include('template.nav-btn',['tmp_label'=>'更换','tmp_menu'=>'','tmp_url'=>'certificate','tmp_class'=>'submit-edit check-single'])
                             </form>
                             <form action="" onsubmit="return false;">
                                 {{method_field("put")}}
@@ -146,7 +146,7 @@
                                 <input type="hidden" name="type" value="spare">
                                 <input type="hidden" name="id" value="{{$certificate->id}}">
                                 <input type="hidden" name="cause" value="损坏">
-                                @include('template.nav-btn',['tmp_label'=>'损坏','tmp_url'=>'certificate','tmp_class'=>'submit-edit check-single'])
+                                @include('template.nav-btn',['tmp_label'=>'损坏','tmp_menu'=>'','tmp_url'=>'certificate','tmp_class'=>'submit-edit check-single'])
                             </form>
                         </ul>
                         @include('template.table',['tmp_menu'=>"certificate",'tmp_fields'=>['','序号','器具名称','规格型号','出厂编号','检定日期','有效期','检定部门','备注'],'tmp_id'=>'off-sidebar','tmp_class'=>'table-data','tmp_items'=>$spares])

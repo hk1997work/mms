@@ -212,3 +212,11 @@ div.dts div.dataTables_scrollBody {
     background-color: var(--secondary);
     opacity: 1
 }
+
+.swiper-pagination-certificate .swiper-pagination-bullet,
+.swiper-pagination-position .swiper-pagination-bullet,
+.swiper-pagination-unit .swiper-pagination-bullet {
+    width: auto;
+    height: auto;
+    white-space: nowrap;
+}

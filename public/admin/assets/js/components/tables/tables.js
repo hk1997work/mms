@@ -116,7 +116,7 @@ $('.index,.off-sidebar').on('click', ' .btn-edit', function () {
 });
 $('.index,.off-sidebar').on('click', ' .btn-show', function () {
     let table = (offSidebarDataTable && $('#off-sidebar-table').is(':visible')) ? offSidebarDataTable : dataTable;
-    let id = table.select.cumulative().rows.join(',');
+    let id = $(this).data('id') ? $(this).data('id') : table.select.cumulative().rows.join(',');
     let menu = $(this).data('menu');
     let url = '/' + menu + '/' + id;
     sidebar_ajax($(this), url, menu);
@@ -242,7 +242,6 @@ $(window).resize(function () {
 
 function reloadTableIfAjax(table) {
     if (table?.settings()?.[0]?.oInit?.ajax) {
-        table.context[0]._select_set = [];
         table.ajax.reload(null, false);
     }
 }

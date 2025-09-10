@@ -1,7 +1,7 @@
 @extends('layout.show')
 @section('content_title')
     @foreach($certificates as $certificate)
-        @include('template.nav-tab',['tmp_name'=>$certificate->id,'tmp_label'=>'','tmp_state'=>'hidden','tmp_active'=>$loop->first])
+        @include('template.nav-tab',['tmp_name'=>$certificate->id,'tmp_label'=>'','tmp_state'=>'hidden','tmp_active'=>$certificate->id==$disable])
     @endforeach
 @endsection
 @section('content_form')

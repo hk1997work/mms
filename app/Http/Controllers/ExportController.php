@@ -23,28 +23,20 @@ class ExportController extends Controller
 
     public function create()
     {
-        $certificates = CertificatesView::where('valid', 1)->where('position3', '计量器具')->where('sign', 1)->orderBy('order')->get();
-        if (Setting::first()) {
-            $settings = explode(',', Setting::first()->order);
-        } else {
-            $settings = [];
-        }
+        $certificates = CertificatesView::select('id', 'order', 'position1', 'instrument', 'model')->where('valid', 1)->where('position3', '计量器具')->where('sign', 1)->orderBy('order')->get();
+        $settings = Setting::first()->order ?? '';
         return view('export.create', compact('certificates', 'settings'));
     }
 
     public function store(Request $request)
     {
-        $id = $request->id;
-        if (Setting::count()) {
-            return !!Setting::whereRaw('1=1')->update(['order' => $id]);
-        } else {
-            return !!Setting::create(['order' => $id]);
-        }
+        $orders = CertificatesView::whereIn('id', explode(',', $request->id))->pluck('order')->implode(',');
+        return Setting::count() ? !!Setting::whereRaw('1=1')->update(['order' => $orders]) : !!Setting::create(['order' => $orders]);
     }
 
     public function update(Request $request)
     {
-        $certificates = CertificatesView::whereIn('type', $request->type)->whereIn('unit', $request->position)->whereIn('class', $request->class)->whereIn('category', $request->category);
+        $certificates = CertificatesView::whereIn('position4', $request->position)->whereIn('position3', $request->type)->whereIn('position2', $request->class)->whereIn('category', $request->category);
         if (isset($request->daterange)) {
             $start_date = substr($request->daterange, 0, 10);
             $end_date = substr($request->daterange, -10);
@@ -94,25 +86,25 @@ class ExportController extends Controller
             $types = $type;
         } else {
             $types[] = $type;
-            $filename = $type;
+            $filename = '-' . $type;
         }
         if (is_array($position)) {
             $positions = $position;
         } else {
             $positions[] = $position;
-            $filename = $filename . $position;
+            $filename = $filename . '-' . $position;
         }
         if (is_array($class)) {
             $classes = $class;
         } else {
             $classes[] = $class;
-            $filename = $filename . $class;
+            $filename = $filename . '-' . $class;
         }
         if (is_array($category)) {
             $categories = $category;
         } else {
             $categories[] = $category;
-            $filename = $filename . $category;
+            $filename = $filename . '-' . $category;
         }
         $styleArray = [
             'alignment' => [
@@ -132,7 +124,7 @@ class ExportController extends Controller
                 'formatCode' => '@',
             ],
         ];
-        $certificates = $certificates->whereIn('type', $types)->whereIn('unit', $positions)->whereIn('class', $classes)->whereIn('category', $categories)->orderBy('order')->orderBy('start_date')->get();
+        $certificates = $certificates->whereIn('position4', $positions)->whereIn('position3', $types)->whereIn('position2', $classes)->whereIn('category', $categories)->orderBy('order')->orderBy('start_date')->get();
         if ($certificates->count() == 0) {
             return;
         }
@@ -146,7 +138,7 @@ class ExportController extends Controller
                 $sheet->setCellValueByColumnAndRow(1, $i, $certificate->order);
                 $sheet->setCellValueByColumnAndRow(2, $i, $certificate->category);
                 $sheet->setCellValueByColumnAndRow(3, $i, $certificate->certificate_no);
-                $sheet->setCellValueByColumnAndRow(4, $i, $certificate->position);
+                $sheet->setCellValueByColumnAndRow(4, $i, $certificate->position1);
                 $sheet->setCellValueByColumnAndRow(5, $i, $certificate->instrument);
                 $sheet->setCellValueByColumnAndRow(6, $i, $certificate->model);
                 $sheet->setCellValueByColumnAndRow(7, $i, $certificate->number);
@@ -179,7 +171,7 @@ class ExportController extends Controller
             foreach ($certificates as $certificate) {
                 $i++;
                 $sheet->setCellValueByColumnAndRow(1, $i, $certificate->order);
-                $sheet->setCellValueByColumnAndRow(2, $i, $certificate->position);
+                $sheet->setCellValueByColumnAndRow(2, $i, $certificate->position1);
                 $sheet->setCellValueByColumnAndRow(3, $i, $certificate->instrument);
                 $sheet->setCellValueByColumnAndRow(4, $i, $certificate->model);
                 $sheet->setCellValueByColumnAndRow(5, $i, $certificate->number);
@@ -205,7 +197,7 @@ class ExportController extends Controller
                 $i++;
                 $sheet->setCellValueByColumnAndRow(1, $i, $certificate->order);
                 $sheet->setCellValueByColumnAndRow(2, $i, $certificate->certificate_no);
-                $sheet->setCellValueByColumnAndRow(3, $i, $certificate->position);
+                $sheet->setCellValueByColumnAndRow(3, $i, $certificate->position1);
                 $sheet->setCellValueByColumnAndRow(4, $i, $certificate->class);
                 $sheet->setCellValueByColumnAndRow(5, $i, $certificate->instrument);
                 $sheet->setCellValueByColumnAndRow(6, $i, $certificate->model);
@@ -265,7 +257,7 @@ class ExportController extends Controller
                 $sheet->setCellValueByColumnAndRow(1, $i, $cer->order);
                 $sheet->setCellValueByColumnAndRow(2, $i, $cer->category);
                 $sheet->setCellValueByColumnAndRow(3, $i, $cer->certificate_no);
-                $sheet->setCellValueByColumnAndRow(4, $i, $cer->position);
+                $sheet->setCellValueByColumnAndRow(4, $i, $cer->position1);
                 $sheet->setCellValueByColumnAndRow(5, $i, $cer->certificate_name);
                 $sheet->setCellValueByColumnAndRow(6, $i, $cer->model);
                 $sheet->setCellValueByColumnAndRow(7, $i, $cer->number);

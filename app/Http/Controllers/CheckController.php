@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CertificatesView;
-use App\Models\PositionsView;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 
@@ -14,7 +12,7 @@ class CheckController extends Controller
 {
     public function index()
     {
-        $positions = PositionsView::select('name1','name4')->whereIn('level',[1,4])->get();
+        $positions = DB::table('positions_checks_views')->get();
         return view("check.index", compact('positions'));
     }
 
@@ -44,45 +42,25 @@ class CheckController extends Controller
                     return '上传文件重复';
                 }
             }
-            return !!Storage::put($folderPath . '/' . $fileName, $compressedImage->__toString());
+            Storage::put($folderPath . '/' . $fileName, $compressedImage->__toString());
+            return DB::table('certificate_check')->insert([
+                'certificate_id' => $request->certificate_id,
+                'filepath' => $folderPath . '/' . $fileName,
+            ]);
         }
         return '上传失败';
     }
 
     public function update($position)
     {
-        $certificates = CertificatesView::where('valid', 1)->where('position', $position)->whereIn('type', ['计量器具', '检测仪表'])->where('sign', 1)->orderBy('order')->get();
-        foreach ($certificates as $certificate) {
-            $folderPath = "storage/check/$certificate->id";
-            if (file_exists($folderPath) && is_dir($folderPath)) {
-                $files = scandir($folderPath);
-                $certificate->count = count($files) - 2;
-                if ($certificate->count > 0) {
-                    natsort($files);
-                    $fileDate = Carbon::createFromFormat('Y-m-d', substr(end($files), 0, 10));
-                    $fileAge = $fileDate->diffInDays(Carbon::now());
-                    if ($fileAge < 90) {
-                        $certificate->color = 'success';
-                    } elseif ($fileAge < 180) {
-                        $certificate->color = 'info';
-                    } else {
-                        $certificate->color = 'warning';
-                    }
-                    $certificate->last = str_replace("'", ':', pathinfo(end($files), PATHINFO_FILENAME));
-                    $certificate->hidden = '';
-                } else {
-                    $certificate->color = 'danger';
-                    $certificate->last = '待检查';
-                    $certificate->hidden = 'hidden';
-                }
-            } else {
-                $certificate->count = 0;
-                $certificate->color = 'danger';
-                $certificate->last = '待检查';
-                $certificate->hidden = 'hidden';
-            }
-        }
-        return $certificates;
+        $certificates = DB::table('certificates_checks_views')->where('position', $position)->get();
+        $position = DB::table('positions_checks_views')->where('name', $position)->where('level', 4)->first();
+        $unit = DB::table('positions_checks_views')->where('name', $position->pname)->where('level', 1)->first();
+        return [
+            'position' => $position,
+            'unit' => $unit,
+            'certificates' => $certificates,
+        ];
     }
 
     public function show($id)

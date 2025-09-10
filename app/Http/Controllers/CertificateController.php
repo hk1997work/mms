@@ -129,7 +129,7 @@ class CertificateController extends Controller
         return view('certificate.edit', compact('certificate', 'categories', 'departments', 'positions', 'tools', 'standards', 'spares'));
     }
 
-    public function update(Request $request, Certificate $certificate)
+    public function update(CertificateRequest $request, Certificate $certificate)
     {
         if ($request->type == 'apply') {
             $certificate->position_id = $request->position_id;

@@ -101,7 +101,6 @@
 
 <script src="/admin/assets/js/app/app.js"></script>
 <script src="/admin/assets/js/components/datepicker/datepicker.js"></script>
-<script src="/admin/assets/js/components/swiper/swiper.js"></script>
 <script src="/admin/assets/js/components/tables/tables.js"></script>
 <script>
     moment.locale('zh-cn');

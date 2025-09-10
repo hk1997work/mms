@@ -1,7 +1,7 @@
 (function ($) {
     'use strict';
     $(window).on("load", function () {
-        if (document.querySelectorAll('table').length == 0) {
+        if (document.querySelectorAll('table').length == 0 && document.getElementsByClassName('swiper').length == 0) {
             $("#preloader").fadeOut();
         }
     });

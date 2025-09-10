@@ -1,100 +1,92 @@
 'use strict';
-var index = 0
+let index = 0
 let swiper_certificate = new Swiper(".swiper-certificate", {
     pagination: {
-        el: ".swiper-pagination",
-        clickable: true,
-        renderBullet: function (index, className) {
-            return '<span class="' + className + ' alert-' + $('.swiper-certificate').find('.swiper-slide:eq(' + index + ')').find('[name="certificate_color"]').val() + '"></span>';
+        el: ".swiper-pagination-certificate", clickable: true, renderBullet: function (index, className) {
+            let text = $(this.slides[index]).find('.instrument').text();
+            let state = $(this.slides[index]).data('state');
+            return '<div class="badge bg-' + state + '-subtle border border-' + state + '-subtle text-' + state + '-emphasis rounded-pill my-1 ' + className + '">' + text + "</div>";
         },
+    }, navigation: {
+        nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev",
     },
-    navigation: {
-        nextEl: ".swiper-button-next",
-        prevEl: ".swiper-button-prev",
-    },
-    autoHeight: true,
 });
 let swiper_position = new Swiper(".swiper-position", {
-    on: {
+    pagination: {
+        el: ".swiper-pagination-position", clickable: true, renderBullet: function (index, className) {
+            let text = $(this.slides[index]).text();
+            let state = $(this.slides[index]).data('state');
+            return '<div class="badge bg-' + state + '-subtle border border-' + state + '-subtle text-' + state + '-emphasis rounded-pill my-1 ' + className + '">' + text + "</div>";
+        },
+    }, on: {
         slideChangeTransitionStart: function () {
-            let position = $('.swiper-position').find('.swiper-slide:eq(' + this.activeIndex + ')').text()
+            let position = $('.swiper-position .swiper-slide-active').text();
             let formData = new FormData();
             formData.append('_method', 'put');
             formData.append('_token', csrf_token);
             $.ajax({
-                url: "/check/" + encodeURIComponent(position),
-                type: "POST",
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function (result) {
+                url: "/check/" + encodeURIComponent(position), type: "POST", data: formData, processData: false, contentType: false, success: function (result) {
                     swiper_certificate.removeAllSlides();
-                    $.each(result, function (i, item) {
-                        swiper_certificate.appendSlide([
-                            `<div class="swiper-slide">
-                            <div class="row no-margin justify-content-center">
-                                <div class="col-12 col-xl-12 col-md-12 col-sm-12">
-                                    <div class="row no-margin align-items-center">
-                                        <div class="col-12 no-padding text-center">
-                                            <div class="chart-text">
-                                                <span class="heading">${item.order}</span>
-                                                <span class="number">${item.instrument}</span>
-                                                <div class="cxg">${item.model}</div>
-                                                <input type="hidden" name="certificate_id" value="${item.id}">
-                                                <input type="hidden" name="certificate_color" value="${item.color}">
-                                            </div>
-                                        </div>
-                                        <div class="col-12 no-padding text-center mt-4">
-                                            <div class="chart-text">
-                                                <span class="number">${item.number}</span>
-                                                <div class="cxg  text-${item.color}">${item.verification_date}</div>
-                                                <div class="cxg  text-${item.color}">${item.validity_date}</div>
-                                                <span class="heading">${item.department}</span>
-                                                <a href="#" data-menu="check" data-id="${item.id}" data-pos="up" class="number btn-show" ${item.hidden}><i class="la la-eye"></i></a>
-                                            </div>
-                                        </div>
+                    $.each(result.certificates, function (i, item) {
+                        swiper_certificate.appendSlide([` 
+                            <div class="swiper-slide" data-state="${item.state}">
+                                <div class="row">
+                                    <div class="col-12 text-center">
+                                        <input type="hidden" name="certificate_id" value="${item.id}">
+                                        <div>${item.order}</div>
+                                        <div class="instrument">${item.instrument}</div>
+                                        <div>${item.model}</div>
+                                        <div class="mt-4">${item.number}</div>
+                                        <div class="text-${item.state}">${item.verification_date}</div>
+                                        <div class="text-${item.state}">${item.validity_date}</div>
+                                        <div>${item.department}</div>
+                                        <a href="#" data-menu="check" data-id="${item.id}" data-pos="up" class="btn-show ${item.date || 'invisible'}" ><i class="fa-solid fa-eye"></i></a>
                                     </div>
-                                    <div class="social-stats mt-5">
-                                        <div class="row d-flex justify-content-between">
-                                            <div class="col-5 text-center">
-                                                <div class="counter certificate-count">${item.count}</div>
-                                                <div class="heading">累计检查次数</div>
-                                            </div>
-                                            <div class="col-7 text-center">
-                                                <div class="counter certificate-date text-${item.color}">${item.last}</div>
-                                                <div class="heading">最近检查日期</div>
-                                            </div>
-                                        </div>
+                                    <div class="col-5 text-center my-3">
+                                        <div class="certificate-count">${item.count}</div>
+                                        <div>累计检查次数</div>
+                                    </div>
+                                    <div class="col-7 text-center my-3">
+                                        <div class=" certificate-date text-${item.state}">${item.date || '待检查'}</div>
+                                        <div>最近检查日期</div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>`,
-                        ]);
+                            </div>`]);
                     })
+                    let position = $('.swiper-pagination-position .swiper-pagination-bullet-active')
+                    position.removeClass()
+                    position.addClass('badge bg-' + result.position.state + '-subtle border border-' + result.position.state + '-subtle text-' + result.position.state + '-emphasis rounded-pill my-1 swiper-pagination-bullet swiper-pagination-bullet-active')
+                    positions.find(item => item.name === result.position.name && item.level === 4).state = result.position.state;
+                    let unit = $('.swiper-pagination-unit .swiper-pagination-bullet-active')
+                    unit.removeClass()
+                    unit.addClass('badge bg-' + result.unit.state + '-subtle border border-' + result.unit.state + '-subtle text-' + result.unit.state + '-emphasis rounded-pill my-1 swiper-pagination-bullet swiper-pagination-bullet-active')
+                    unit.find(item => item.name === result.unit.name && item.level === 1).state = result.unit.state;
                     swiper_certificate.slideTo(index)
                     index = 0
                     $("#preloader").fadeOut();
-                },
-                error: function (xhr) {
-                    xhr.status == 401 ? document.location.reload() : notifications('加载失败')
+                }, error: function (xhr) {
+                    xhr.status == 401 ? document.location.reload() : notifications('加载失败');
                 },
             });
         },
     },
 });
 let swiper_unit = new Swiper(".swiper-unit", {
-    on: {
+    pagination: {
+        el: ".swiper-pagination-unit", clickable: true, renderBullet: function (index, className) {
+            let text = $(this.slides[index]).text();
+            let state = $(this.slides[index]).data('state');
+            return '<div class="badge bg-' + state + '-subtle border border-' + state + '-subtle text-' + state + '-emphasis rounded-pill my-1 ' + className + '">' + text + "</div>";
+        },
+    }, on: {
         init: function () {
             this.emit('slideChangeTransitionStart');
-        },
-        slideChangeTransitionStart: function () {
-            let unit = $('.swiper-unit').find('.swiper-slide:eq(' + this.activeIndex + ')').text()
+        }, slideChangeTransitionStart: function () {
+            let unit = $('.swiper-unit .swiper-slide-active').text();
             swiper_position.removeAllSlides();
             $.each(positions, function (i, item) {
-                if (item.name3 === unit) {
-                    swiper_position.appendSlide([
-                        `<div class="swiper-slide author-name">${item.name1}</div>`,
-                    ]);
+                if (item.pname === unit && item.level == 4) {
+                    swiper_position.appendSlide([`<div class="swiper-slide" data-state="${item.state}">${item.name}</div>`]);
                 }
             })
             swiper_position.emit('slideChangeTransitionStart');

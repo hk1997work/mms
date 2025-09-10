@@ -13,15 +13,15 @@ class SupervisionController extends Controller
         $position = '';
         $str = "计量器具检查：";
         foreach ($certificates as $certificate) {
-            if ($certificate->unit2 != $unit) {
-                $str = $str . "<br>" . $certificate->unit2 . "：";
+            if ($certificate->position4 != $unit) {
+                $str = $str . "<br>" . $certificate->position4 . "：";
             }
-            if ($certificate->position != $position) {
-                $str = $str . "<br>" . $certificate->position . "岗位：";
+            if ($certificate->position1 != $position) {
+                $str = $str . "<br>" . $certificate->position1 . "岗位：";
             }
             $str = $str . $certificate->instrument . "，编号：" . $certificate->number . "；";
-            $unit = $certificate->unit2;
-            $position = $certificate->position;
+            $unit = $certificate->position4;
+            $position = $certificate->position1;
         }
         $str = $str . "<br>以上计量器具满足使用要求，标签完好，与计量器具台账一致。";
         return $output ? $str : view('supervision.show', compact('str'));
