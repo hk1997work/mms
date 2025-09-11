@@ -40,7 +40,7 @@ let swiper_position = new Swiper(".swiper-position", {
                                         <div class="text-${item.state}">${item.verification_date}</div>
                                         <div class="text-${item.state}">${item.validity_date}</div>
                                         <div>${item.department}</div>
-                                        <a href="#" data-menu="check" data-id="${item.id}" data-pos="up" class="btn-show ${item.date || 'invisible'}" ><i class="fa-solid fa-eye"></i></a>
+                                        <a href="#" data-menu="check" data-id="${item.id}" data-pos="up" class="btn-show ${item.date || 'invisible'}" ><div hidden>删除</div><i class="fa-solid fa-eye"></i></a>
                                     </div>
                                     <div class="col-5 text-center my-3">
                                         <div class="certificate-count">${item.count}</div>

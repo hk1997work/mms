@@ -29,6 +29,8 @@ Route::group(['namespace' => '\App\Http\Controllers'], function () {
             Route::resource('/scrap', 'CertificateController');
             Route::resource('/invalid', 'CertificateController');
             Route::post('/ajax_certificate', 'CertificateController@list');
+            Route::get('/receive/{certificate}/edit', 'CertificateController@receive');
+            Route::put('/receive/{certificate}', 'CertificateController@updateReceive');
             Route::get('/download_certificate/{certificate}', 'CertificateController@download');
             Route::any('/pdf', 'Controller@pdf');
             //导出台账

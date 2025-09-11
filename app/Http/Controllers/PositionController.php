@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\PositionRequest;
+use App\Http\Requests\SnRequest;
 use App\Models\Certificate;
 use App\Models\CertificatesView;
 use App\Models\Position;
@@ -114,11 +115,8 @@ class PositionController extends Controller
         return view('position.sn', compact('certificate', 'positions'));
     }
 
-    public function updateSn(Request $request, Certificate $certificate)
+    public function updateSn(SnRequest $request, Certificate $certificate)
     {
-        if (Certificate::where('position_id', $request->position_id)->where('sn', $request->sn)->exists()) {
-            return response()->json(['errors' => ['sn' => ['序号重复']],], 422);
-        }
         return !!Certificate::where('position_id', $certificate->position_id)->where('sn', $certificate->sn)->update(['position_id' => $request->position_id, 'sn' => $request->sn]);
     }
 

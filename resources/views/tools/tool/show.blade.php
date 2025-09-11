@@ -10,5 +10,5 @@
         @include('template.nav-btn',['tmp_label'=>'查看','tmp_menu'=>'number','tmp_class'=>'btn-show check-single','tmp_pos'=>'up'])
     </ul>
     @include('template.table',['tmp_menu'=>"tool_show?id=$tool->id",'tmp_fields'=>['','生产厂家','出厂编号','使用状态','使用次数','备注'],'tmp_id'=>'off-sidebar','tmp_class'=>'table-tree table-all'])
-    @include('template.btn')
+    @include('template.sidebar-btn')
 @endsection

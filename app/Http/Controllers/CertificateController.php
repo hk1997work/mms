@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CertificateRequest;
+use App\Http\Requests\ReceiveRequest;
 use App\Models\Certificate;
 use App\Models\CertificatesView;
 use App\Models\Number;
@@ -32,7 +33,7 @@ class CertificateController extends Controller
     public function list(Request $request)
     {
         $path = $_GET['path'];
-        $query = CertificatesView::select('id', 'order', 'position1', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'remark')->where('type_id', $_GET['id']);
+        $query = CertificatesView::select('id', 'order', 'position1', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'receiver', 'check', 'remark')->where('type_id', $_GET['id']);
         if (isset($_GET['position'])) {
             $query->where('position_id3', $_GET['position']);
         }
@@ -60,13 +61,19 @@ class CertificateController extends Controller
                     return $data->instrument;
                 }
             })
+            ->editColumn('check', function ($data) use ($path) {
+                return $this->toValidate($data->check ? '未贴' : null, !$data->check);
+            })
+            ->editColumn('receiver', function ($data) use ($path) {
+                return $data->receiver ?? null;
+            })
             ->filter(function ($query) use ($request) {
-                $this->toSearch($query, $request, ['order', 'position1', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'remark']);
+                $this->toSearch($query, $request, ['order', 'position1', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'receiver', 'check', 'remark'], 'check', ['', '未贴']);
             })
             ->order(function ($query) use ($request) {
-                $this->toOrder($query, $request, ['id', 'order', 'position1', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'remark']);
+                $this->toOrder($query, $request, ['id', 'order', 'position1', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'receiver', 'check', 'remark']);
             })
-            ->rawColumns([4])
+            ->rawColumns([4, 10, 11])
             ->make(false);
     }
 
@@ -256,6 +263,23 @@ class CertificateController extends Controller
                 }
             }
             return !!Certificate::whereIn('id', explode(',', $certificate))->delete();
+        }
+    }
+
+    public function receive($certificate)
+    {
+        return view('certificate.receive', compact('certificate'));
+    }
+
+    public function updateReceive(ReceiveRequest $request, $certificate)
+    {
+        $ids = explode(',', $certificate);
+        $result = Certificate::whereIn('id', $ids)->whereNotNull('receiver')->where('receiver', '!=', '')->whereNotNull('receiving_date')->where('receiving_date', '!=', '')
+            ->pluck('certificate_no')->implode(',');
+        if ($result) {
+            return $result . '已经领用,无法重复领用';
+        } else {
+            return !!Certificate::whereIn('id', explode(',', $certificate))->update(['receiver' => $request->receiver, 'receiving_date' => $request->receiving_date]);
         }
     }
 

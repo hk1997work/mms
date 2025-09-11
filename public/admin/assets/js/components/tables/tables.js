@@ -182,13 +182,13 @@ $('.index,.off-sidebar').on('click', '.submit-add', function () {
 })
 $('.index,.off-sidebar').on('click', '.submit-edit', function () {
     let table = (offSidebarDataTable && $('#off-sidebar-table').is(':visible')) ? offSidebarDataTable : dataTable;
-    let id = $(this).data('id') ? $(this).data('id') : table.select.cumulative().rows.join(',');
+    let id = table.select.cumulative().rows.join(',');
     let url = "/" + $(this).data('url') + '/' + id;
     submit_ajax($(this), url);
 })
 $('.index,.off-sidebar').on('click', '.submit-delete', function () {
     let table = (offSidebarDataTable && $('#off-sidebar-table').is(':visible')) ? offSidebarDataTable : dataTable;
-    let id = table.select.cumulative().rows.join(',');
+    let id = table?.select?.cumulative?.()?.rows ?? '0';
     let url = '/' + $(this).data('url') + "/" + id;
     submit_ajax($(this), url);
 })

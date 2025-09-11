@@ -80,4 +80,12 @@ class CheckController extends Controller
         }
         return view('check.show', compact('checks'));
     }
+
+    public function destroy(Request $request)
+    {
+        if (Storage::exists($request->filepath)) {
+            Storage::delete($request->filepath);
+        }
+        return !!DB::table('certificate_check')->where('filepath', $request->filepath)->delete();
+    }
 }

@@ -28,11 +28,13 @@
                         @include('template.input',['tmp_name'=>'certificate_no','tmp_label'=>'统一编号','tmp_value'=>$certificate->certificate_no,'tmp_col'=>'4','tmp_state'=>'readonly'])
                         @include('template.input',['tmp_name'=>'category','tmp_label'=>'证书类型','tmp_value'=>$certificate->category,'tmp_col'=>'4','tmp_state'=>'readonly'])
                         @include('template.input',['tmp_name'=>'standard','tmp_label'=>'检定标准','tmp_value'=>$certificate->standard,'tmp_col'=>'4','tmp_state'=>'readonly'])
-                        @include('template.input',['tmp_name'=>'start','tmp_label'=>'启用时间','tmp_value'=>$certificate->start,'tmp_col'=>'4','tmp_state'=>'readonly'])
-                        @include('template.input',['tmp_name'=>'times','tmp_label'=>'检定次数','tmp_value'=>$certificate->times,'tmp_col'=>'4','tmp_state'=>'readonly'])
-                        @include('template.input',['tmp_name'=>'remark','tmp_label'=>'备注','tmp_value'=>$certificate->remark,'tmp_col'=>'4','tmp_state'=>'readonly'])
                         @include('template.input',['tmp_name'=>'start_date','tmp_label'=>'开始日期','tmp_value'=>$certificate->start_date,'tmp_col'=>'4','tmp_state'=>'readonly'])
                         @include('template.input',['tmp_name'=>'end_date','tmp_label'=>'结束日期','tmp_value'=>$certificate->end_date,'tmp_col'=>'4','tmp_state'=>'readonly'])
+                        @include('template.input',['tmp_name'=>'start','tmp_label'=>'启用时间','tmp_value'=>$certificate->start,'tmp_col'=>'4','tmp_state'=>'readonly'])
+                        @include('template.input',['tmp_name'=>'receiving_date','tmp_label'=>'领用日期','tmp_value'=>$certificate->receiving_date,'tmp_col'=>'4','tmp_state'=>'readonly'])
+                        @include('template.input',['tmp_name'=>'receiver','tmp_label'=>'领用人','tmp_value'=>$certificate->receiver,'tmp_col'=>'4','tmp_state'=>'readonly'])
+                        @include('template.input',['tmp_name'=>'times','tmp_label'=>'检定次数','tmp_value'=>$certificate->times,'tmp_col'=>'4','tmp_state'=>'readonly'])
+                        @include('template.input',['tmp_name'=>'remark','tmp_label'=>'备注','tmp_value'=>$certificate->remark,'tmp_col'=>'4','tmp_state'=>'readonly'])
                     </div>
                     <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12">
                         <ul class="nav nav-tabs nav-fill" role="tablist">
@@ -49,7 +51,7 @@
                         </div>
                     </div>
                 </div>
-                @include('template.btn')
+                @include('template.sidebar-btn')
             </div>
         @endforeach
         <div class="col-12 mt-2" id="timeline"></div>

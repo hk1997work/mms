@@ -47,7 +47,7 @@
                     @include('template.input',['tmp_name'=>'remark','tmp_label'=>'备注','tmp_value'=>$certificate->remark,'tmp_col'=>'6'])
                     @include('template.input',['tmp_name'=>'file_certificate','tmp_label'=>'上传证书','tmp_col'=>'6','tmp_state'=>'accept="application/pdf"','tmp_type'=>'file'])
                 </div>
-                @include('template.btn',['tmp_class'=>'submit-edit'])
+                @include('template.sidebar-btn',['tmp_class'=>'submit-edit'])
             </form>
         </div>
         @if($certificate->valid)
@@ -89,7 +89,7 @@
                             @include('template.input',['tmp_name'=>'remark','tmp_label'=>'备注','tmp_value'=>$certificate->remark,'tmp_col'=>'6'])
                             @include('template.input',['tmp_name'=>'file_certificate','tmp_label'=>'上传证书','tmp_col'=>'6','tmp_state'=>'accept="application/pdf"','tmp_type'=>'file'])
                         </div>
-                        @include('template.btn',['tmp_class'=>'submit-edit'])
+                        @include('template.sidebar-btn',['tmp_class'=>'submit-edit'])
                     </form>
                 </div>
             @else
@@ -126,7 +126,7 @@
                             @include('template.input',['tmp_name'=>'remark','tmp_label'=>'备注','tmp_value'=>$certificate->remark,'tmp_col'=>'6'])
                             @include('template.input',['tmp_name'=>'file_certificate','tmp_label'=>'上传证书','tmp_col'=>'6','tmp_state'=>'accept="application/pdf"','tmp_type'=>'file'])
                         </div>
-                        @include('template.btn',['tmp_class'=>'submit-edit'])
+                        @include('template.sidebar-btn',['tmp_class'=>'submit-edit'])
                     </form>
                 </div>
                 @if($spares->count()!=0)
@@ -150,7 +150,7 @@
                             </form>
                         </ul>
                         @include('template.table',['tmp_menu'=>"certificate",'tmp_fields'=>['','序号','器具名称','规格型号','出厂编号','检定日期','有效期','检定部门','备注'],'tmp_id'=>'off-sidebar','tmp_class'=>'table-data','tmp_items'=>$spares])
-                        @include('template.btn')
+                        @include('template.sidebar-btn')
                     </div>
                 @endif
             @endif

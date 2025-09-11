@@ -10,7 +10,7 @@ class Certificate extends Model
     use HasFactory;
 
     protected $fillable = [
-        'sn', 'certificate_name', 'position_id', 'certificate_no', 'number_id', 'verification_date', 'validity_date', 'valid', 'category_id', 'department_id', 'start', 'times', 'replacement', 'replace_date', 'remark', 'start_date', 'end_date',
+        'sn', 'certificate_name', 'position_id', 'certificate_no', 'number_id', 'verification_date', 'validity_date', 'valid', 'category_id', 'department_id', 'start', 'times', 'receiver', 'receiving_date', 'remark', 'start_date', 'end_date',
     ];
 
     public function standards()

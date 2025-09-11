@@ -91,11 +91,7 @@ th div.dt-column-header {
 
 th, td {
     vertical-align: middle !important;
-}
-
-th:first-child, td:first-child {
-    width: 1.5%;
-    text-align: center;
+    white-space: nowrap;
 }
 
 td input[type="checkbox"] {

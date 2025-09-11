@@ -9,16 +9,22 @@
             <div class="row">
                 @foreach($files as $file)
                     <div class="col-xl-3 col-md-6 col-sm-12">
-                        <div>
-                            <img src="{{str_replace('public','storage',$file['path'])}}" class="img-fluid" loading="lazy">
-                            <div class="text-center my-2">
-                                <div>{{str_replace("'",':',substr($file['path'], strrpos($file['path'], '/') + 1, 19))}}</div>
+                        <form action="" onsubmit="return false;">
+                            {{method_field('delete')}}
+                            {{csrf_field()}}
+                            <div>
+                                <img src="{{str_replace('public','storage',$file['path'])}}" class="img-fluid" loading="lazy">
+                                <div class="text-center my-2">
+                                    <div>{{str_replace("'",':',substr($file['path'], strrpos($file['path'], '/') + 1, 19))}}</div>
+                                    @include('template.btn',['tmp_class'=>'submit-delete','tmp_color'=>'danger','tmp_label'=>'删 除','tmp_id'=>'0'])
+                                    <input type="hidden" name="filepath" value="{{$file['path']}}">
+                                </div>
                             </div>
-                        </div>
+                        </form>
                     </div>
                 @endforeach
             </div>
         @endforeach
-        @include('template.btn')
+        @include('template.sidebar-btn')
     </div>
 @endsection

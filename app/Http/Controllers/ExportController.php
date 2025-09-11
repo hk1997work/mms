@@ -198,7 +198,7 @@ class ExportController extends Controller
                 $sheet->setCellValueByColumnAndRow(1, $i, $certificate->order);
                 $sheet->setCellValueByColumnAndRow(2, $i, $certificate->certificate_no);
                 $sheet->setCellValueByColumnAndRow(3, $i, $certificate->position1);
-                $sheet->setCellValueByColumnAndRow(4, $i, $certificate->class);
+                $sheet->setCellValueByColumnAndRow(4, $i, $certificate->position2);
                 $sheet->setCellValueByColumnAndRow(5, $i, $certificate->instrument);
                 $sheet->setCellValueByColumnAndRow(6, $i, $certificate->model);
                 $sheet->setCellValueByColumnAndRow(7, $i, $certificate->number);
