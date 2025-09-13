@@ -66,18 +66,11 @@ class CheckController extends Controller
     public function show($id)
     {
         $checks = [];
-        $folderPath = "public/check/$id";
-        if (Storage::exists($folderPath)) {
-            $files = Storage::files($folderPath);
-            if (!count($files)) {
-                return false;
-            }
-            foreach ($files as $file) {
-                $checks[substr(basename($file), 0, 7)][] = [
-                    'path' => $file,
-                ];
-            }
+        $files = DB::table('certificate_check')->where('certificate_id', $id)->pluck('filepath');
+        foreach ($files as $file) {
+            $checks[substr(basename($file), 0, 7)][] = $file;
         }
+        krsort($checks);
         return view('check.show', compact('checks'));
     }
 

@@ -1,8 +1,8 @@
 @extends('layout.index')
 @section('content_btn')
     @if($menu=='active'||$menu=='invalid')
-        @include('template.dropdown',['tmp_label'=>$type->name,'tmp_items'=>$types,'tmp_id'=>'id','tmp_field'=>'name'])
-        @include('template.dropdown',['tmp_label'=>$position?$position->parent->name:'全部','tmp_items'=>$positions,'tmp_id'=>'id','tmp_field'=>'name','tmp_parent'=>$type,'tmp_path'=>'position'])
+        @include('template.dropdown',['tmp_label'=>$type->name,'tmp_items'=>$types,'tmp_href_id'=>'id','tmp_field'=>'name'])
+        @include('template.dropdown',['tmp_label'=>$position?$position->parent->name:'全部','tmp_items'=>$positions,'tmp_href_id'=>'id','tmp_field'=>'name','tmp_parent'=>$type,'tmp_path'=>'position'])
     @endif
 @endsection
 @section('content_table')

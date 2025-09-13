@@ -1,31 +1,33 @@
 @extends('layout.show')
 @section('content_title')
-    <li><a class="active" data-toggle="tab" href="#number-tab" role="tab" id="number-btn">抽检详情</a></li>
+    @include('template.nav-tab',['tmp_name'=>'number','tmp_label'=>'抽检详情','tmp_active'=>true])
 @endsection
 @section('content_form')
     <div class="tab-content">
-        <div role="tabpanel" class="tab-pane show active fade" id="number-tab" aria-labelledby="number-btn">
-            @foreach($checks as $position=>$certificates)
-                <div class="date mb-5">{{$position}}</div>
-                <div class="row">
-                    @foreach($certificates as $certificate)
-                        <div class="col-xl-3 col-md-6 col-sm-12">
-                            <div class="widget has-shadow">
-                                <img src="{{str_replace('public','storage',$certificate['path'])}}" class="img-fluid" loading="lazy">
-                                <div class="widget-body text-center">
-                                    <h5>{{$certificate['certificate']->number}}</h5>
-                                    <h5>{{$certificate['certificate']->verification_date}}</h5>
-                                    <h5>{{$certificate['certificate']->validity_date}}</h5>
-                                    <h5>{{$certificate['certificate']->department}}</h5>
+        @foreach($checks as $position=>$certificates)
+            <h3 class="text-center my-3">{{$position}}</h3>
+            <div class="row">
+                @foreach($certificates as $certificate)
+                    <div class="col-xl-3 col-md-6 col-sm-12">
+                        <form action="" onsubmit="return false;">
+                            {{method_field('delete')}}
+                            {{csrf_field()}}
+                            <div>
+                                <img src="{{str_replace('public','storage',$certificate->filepath)}}" class="img-fluid" loading="lazy">
+                                <div class="text-center my-2">
+                                    <div>{{$certificate->number}}</div>
+                                    <div>{{$certificate->verification_date}}</div>
+                                    <div>{{$certificate->validity_date}}</div>
+                                    <div>{{$certificate->department}}</div>
+                                    @include('template.btn',['tmp_class'=>'submit-delete','tmp_color'=>'danger','tmp_label'=>'删 除','tmp_id'=>'true'])
+                                    <input type="hidden" name="filepath" value="{{$certificate->filepath}}">
                                 </div>
                             </div>
-                        </div>
-                    @endforeach
-                </div>
-            @endforeach
-            <div class="enter-message">
-                <button class="btn btn-outline-secondary ripple sidebar-close">返 回</button>
+                        </form>
+                    </div>
+                @endforeach
             </div>
-        </div>
+        @endforeach
+        @include('template.sidebar-btn')
     </div>
 @endsection

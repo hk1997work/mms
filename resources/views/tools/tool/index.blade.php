@@ -1,6 +1,6 @@
 @extends('layout.index')
 @section('content_btn')
-    @include('template.dropdown',['tmp_label'=>$type->name,'tmp_items'=>$types,'tmp_id'=>'id','tmp_field'=>'name'])
+    @include('template.dropdown',['tmp_label'=>$type->name,'tmp_items'=>$types,'tmp_href_id'=>'id','tmp_field'=>'name'])
 @endsection
 @section('content_table')
     <ul class="nav">

@@ -149,7 +149,7 @@
                                 @include('template.nav-btn',['tmp_label'=>'损坏','tmp_menu'=>'','tmp_url'=>'certificate','tmp_class'=>'submit-edit check-single'])
                             </form>
                         </ul>
-                        @include('template.table',['tmp_menu'=>"certificate",'tmp_fields'=>['','序号','器具名称','规格型号','出厂编号','检定日期','有效期','检定部门','备注'],'tmp_id'=>'off-sidebar','tmp_class'=>'table-data','tmp_items'=>$spares])
+                        @include('template.table',['tmp_menu'=>"certificate",'tmp_fields'=>['','序号','器具名称','规格型号','出厂编号','检定日期','有效期','检定部门','备注'],'tmp_table_id'=>'off-sidebar','tmp_class'=>'table-data','tmp_items'=>$spares])
                         @include('template.sidebar-btn')
                     </div>
                 @endif

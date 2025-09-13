@@ -14,6 +14,7 @@ use App\Models\StandardsView;
 use App\Models\Tool;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\DataTables;
@@ -246,9 +247,10 @@ class CertificateController extends Controller
 
     public function destroy($certificate)
     {
-        $certificates = Certificate::find(explode(',', $certificate));
+        $id = explode(',', $certificate);
+        $certificates = Certificate::find($id);
         if ($certificates[0]->valid) {
-            Certificate::whereIn('id', explode(',', $certificate))->update(['valid' => 0]);
+            Certificate::whereIn('id', $id)->update(['valid' => 0]);
             return !!Number::whereIn('id', $certificates->pluck('number_id'))->update(['state_id' => Parameter::where('name', '待检')->first()->id]);
         } else {
             foreach ($certificates as $c) {
@@ -262,7 +264,7 @@ class CertificateController extends Controller
                     File::deleteDirectory("storage/check/$c->id");
                 }
             }
-            return !!Certificate::whereIn('id', explode(',', $certificate))->delete();
+            return !!DB::table('certificate_standard')->whereIn('certificate_id', $id)->delete() && Certificate::whereIn('id', $id)->delete();
         }
     }
 

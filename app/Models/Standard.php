@@ -10,12 +10,12 @@ class Standard extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'pid', 'level'
+        'name', 'filename', 'pid', 'level',
     ];
 
     public function children()
     {
-        return $this->hasMany(Standard::class,'pid')->select('id', 'pid', 'name')->with('children');
+        return $this->hasMany(Standard::class, 'pid')->select('id', 'pid', 'name')->with('children');
     }
 
     public function certificate()

@@ -4,68 +4,50 @@ namespace App\Http\Controllers;
 
 use App\Models\CertificatesView;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
+use Yajra\DataTables\DataTables;
 
 class SampleController extends Controller
 {
     public function index()
     {
-        $dates = [];
-        $id = [];
-        $certificates = CertificatesView::orderBy('order')->get();
-        foreach ($certificates as $certificate) {
-            $folderPath = "public/check/$certificate->id";
-            if (Storage::exists($folderPath)) {
-                $files = Storage::files($folderPath);
-                foreach ($files as $file) {
-                    $dates[] = substr(basename($file), 0, 10);
-                    $id[substr(basename($file), 0, 10)][] = $certificate->id;
-                }
-            }
-        }
-        $dates = array_unique($dates);
-        rsort($dates);
-        return view("sample.index", compact('dates', 'id'));
+        $dates = DB::table('certificate_check')->selectRaw("SUBSTRING(SUBSTRING_INDEX(filepath, '/', -1), 1, 10) AS date")->groupBy('date')->orderBy('date', 'desc')->pluck('date');
+        return view("sample.index", compact('dates'));
     }
 
     public function list()
     {
-        $id = isset($_GET['id']) ? $_GET['id'] : '';
-        $data = CertificatesView::selectRaw("`order`,`position`,`unit1`,`instrument`,`model`,`number`,`limit`,'完好' AS `mark`,`remark`")->whereIn('id', explode(',', $id))->orderBy('order')->get()->toArray();
-        return response()->json(['data' => array_map('array_values', $data)]);
+        $date = isset($_GET['id']) ? $_GET['id'] : '';
+        $query = CertificatesView::select('order', 'position1', 'position2', 'instrument', 'model', 'number', 'limit', DB::raw("'完好' AS status"), 'remark')
+            ->leftJoin('certificate_check', 'certificates_views.id', 'certificate_check.certificate_id')
+            ->whereRaw("SUBSTRING(SUBSTRING_INDEX(filepath, '/', -1), 1, 10) = ?", [$date])->orderBy('order');
+        return DataTables::of($query)->make(false);
     }
 
     public function show($date)
     {
         $checks = [];
-        $certificates = CertificatesView::where('verification_date', '<', $date)->where('validity_date', '>', $date)->orderBy('order')->get();
+        $certificates = CertificatesView::select('position1', 'number', 'verification_date', 'validity_date', 'department', 'filepath')
+            ->leftJoin('certificate_check', 'certificates_views.id', 'certificate_check.certificate_id')
+            ->whereRaw("SUBSTRING(SUBSTRING_INDEX(filepath, '/', -1), 1, 10) = ?", [$date])->orderBy('order')->get();
         foreach ($certificates as $certificate) {
-            $folderPath = "public/check/$certificate->id";
-            if (Storage::exists($folderPath)) {
-                $files = Storage::files($folderPath);
-                foreach ($files as $file) {
-                    if (substr(basename($file), 0, 10) == $date) {
-                        $checks[$certificate->position][] = [
-                            'path' => $file,
-                            'certificate' => $certificate,
-                        ];
-                    }
-                }
-            }
+            $checks[$certificate->position1][] = $certificate;
         }
         return view('sample.show', compact('checks'));
     }
 
-    public
-    function store(Request $request)
+    public function store(Request $request)
     {
         $i = 1;
         $inputFileName = 'storage/mould/抽检记录模板.xlsx';
         $spreadsheet = IOFactory::load($inputFileName);
         $sheet = $spreadsheet->getActiveSheet();
-        $certificates = CertificatesView::whereIn('id', explode(',', $request->id))->orderBy('order')->get();
+        $certificates = CertificatesView::select('certificates_views.*')
+            ->leftJoin('certificate_check', 'certificates_views.id', 'certificate_check.certificate_id')
+            ->whereRaw("SUBSTRING(SUBSTRING_INDEX(filepath, '/', -1), 1, 10) = ?", [$request->date])->orderBy('order')->get();
         foreach ($certificates as $certificate) {
             if ($i % 24 == 23) {
                 $i = $i + 2;
@@ -91,7 +73,7 @@ class SampleController extends Controller
                         'size' => 10,
                     ],
                     'numberFormat' => [
-                        'formatCode' => '@'
+                        'formatCode' => '@',
                     ],
                 ];
                 $sheet->getStyle("A$i")->applyFromArray($styleArray);
@@ -109,7 +91,7 @@ class SampleController extends Controller
                         'bold' => true,
                     ],
                     'numberFormat' => [
-                        'formatCode' => '@'
+                        'formatCode' => '@',
                     ],
                 ];
                 $sheet->getStyle("A$i1")->applyFromArray($styleArray);
@@ -127,7 +109,7 @@ class SampleController extends Controller
                         'bold' => true,
                     ],
                     'numberFormat' => [
-                        'formatCode' => '@'
+                        'formatCode' => '@',
                     ],
                 ];
                 $sheet->getStyle("A$i2")->applyFromArray($styleArray);
@@ -144,7 +126,7 @@ class SampleController extends Controller
                         'size' => 10,
                     ],
                     'numberFormat' => [
-                        'formatCode' => '@'
+                        'formatCode' => '@',
                     ],
                 ];
                 $sheet->getStyle("A$i3")->applyFromArray($styleArray);
@@ -166,7 +148,7 @@ class SampleController extends Controller
                         'bold' => true,
                     ],
                     'numberFormat' => [
-                        'formatCode' => '@'
+                        'formatCode' => '@',
                     ],
                 ];
                 $sheet->getStyle("A$i4:J$i4")->applyFromArray($styleArray);
@@ -193,10 +175,10 @@ class SampleController extends Controller
                     ],
                     'font' => [
                         'name' => '宋体',
-                        'size' => 10
+                        'size' => 10,
                     ],
                     'numberFormat' => [
-                        'formatCode' => '@'
+                        'formatCode' => '@',
                     ],
                 ];
                 $sheet->getStyle("A$i5:J$i21")->applyFromArray($styleArray);
@@ -210,7 +192,7 @@ class SampleController extends Controller
                         'size' => 10,
                     ],
                     'numberFormat' => [
-                        'formatCode' => '@'
+                        'formatCode' => '@',
                     ],
                 ];
                 $sheet->getStyle("A$i22:J$i23")->applyFromArray($styleArray);
@@ -226,16 +208,16 @@ class SampleController extends Controller
                 $i = $i + 5;
             }
             $sheet->setCellValueByColumnAndRow(1, $i, $certificate->order);
-            $sheet->setCellValueByColumnAndRow(2, $i, $certificate->position);
-            $sheet->setCellValueByColumnAndRow(3, $i, $certificate->unit1);
+            $sheet->setCellValueByColumnAndRow(2, $i, $certificate->position1);
+            $sheet->setCellValueByColumnAndRow(3, $i, $certificate->position2);
             $sheet->setCellValueByColumnAndRow(4, $i, $certificate->instrument);
             $sheet->setCellValueByColumnAndRow(5, $i, $certificate->model);
             $sheet->setCellValueByColumnAndRow(6, $i, $certificate->number);
             $sheet->setCellValueByColumnAndRow(7, $i, $certificate->limit);
             $sheet->setCellValueByColumnAndRow(8, $i, '完好');
-            if (is_file("storage/sign/$certificate->unit4$certificate->unit2.png")) {
+            if (is_file("storage/sign/$certificate->position4.png")) {
                 $drawing = new Drawing();
-                $drawing->setPath("storage/sign/$certificate->unit4$certificate->unit2.png");
+                $drawing->setPath("storage/sign/$certificate->position4.png");
                 $drawing->setHeight(40);
                 $drawing->setCoordinates("J$i");
                 $drawing->setWorksheet($sheet);
@@ -250,5 +232,13 @@ class SampleController extends Controller
         return response(ob_get_clean())
             ->header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
             ->header('Content-Disposition', 'attachment; filename="抽检记录' . $request->date . '.xlsx"');
+    }
+
+    public function destroy(Request $request)
+    {
+        if (Storage::exists($request->filepath)) {
+            Storage::delete($request->filepath);
+        }
+        return !!DB::table('certificate_check')->where('filepath', $request->filepath)->delete();
     }
 }

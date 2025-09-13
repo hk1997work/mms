@@ -10,7 +10,7 @@ function initTable(table) {
             ajax: {url: "/ajax_" + table.data('menu'), type: "POST", data: {"_token": csrf_token}},
             deferRender: true,
             serverSide: true,
-            scrollY: $(window).height() - table.offset().top - 150,
+            scrollY: $(window).height() - table.offset().top - ($('#timeline').length > 0 ? 250 : 150),
             rowId: 0,
             searchDelay: 500,
             order: [1, 'asc'],
@@ -32,6 +32,11 @@ function initTable(table) {
             options.paging = false;
             delete options.ajax;
             delete options.scroller;
+        }
+        if (table.hasClass('table-unselect')) {
+            options.columnDefs = [{type: 'string', orderSequence: ['asc', 'desc'], targets: '_all'}];
+            delete options.order;
+            delete options.select;
         }
         let dt = table.DataTable(options);
         dt.on('init.dt', function () {
@@ -109,7 +114,7 @@ $('.index,.off-sidebar').on('click', '.btn-add', function () {
 });
 $('.index,.off-sidebar').on('click', ' .btn-edit', function () {
     let table = (offSidebarDataTable && $('#off-sidebar-table').is(':visible')) ? offSidebarDataTable : dataTable;
-    let id = table.select.cumulative().rows.join(',');
+    let id = (table?.select?.cumulative?.().rows.join(',') || 'true');
     let menu = $(this).data('menu');
     let url = '/' + menu + '/' + id + '/edit';
     sidebar_ajax($(this), url, menu);
@@ -132,7 +137,7 @@ function submit_ajax(btn, url, show = true, callback) {
     if (canSubmit) {
         canSubmit = false;
         let sidebar = $('.from-' + btn.closest('.off-sidebar').data('pos'));
-        let title = btn.hasClass('btn-move') ? btn.text() : sidebar.find('.sidebar-btn').text();
+        let title = (btn.hasClass('btn-move') || btn.hasClass('submit-delete')) ? btn.text().replaceAll(' ', '') : sidebar.find('.sidebar-btn').text();
         let form = btn.closest('form');
         let data = new FormData(form[0]);
         if (!form[0]) data.append('_token', csrf_token);
@@ -176,32 +181,32 @@ function submit_ajax(btn, url, show = true, callback) {
 
 $('.index,.off-sidebar').on('click', '.submit-add', function () {
     let table = (offSidebarDataTable && $('#off-sidebar-table').is(':visible')) ? offSidebarDataTable : dataTable;
-    let id = table.select.cumulative().rows.join(',');
+    let id = (table?.select?.cumulative?.().rows.join(',') || 'true');
     let url = "/" + $(this).data('url') + (id ? '?id=' + id : '');
     submit_ajax($(this), url);
 })
 $('.index,.off-sidebar').on('click', '.submit-edit', function () {
     let table = (offSidebarDataTable && $('#off-sidebar-table').is(':visible')) ? offSidebarDataTable : dataTable;
-    let id = table.select.cumulative().rows.join(',');
+    let id = (table?.select?.cumulative?.().rows.join(',') || 'true');
     let url = "/" + $(this).data('url') + '/' + id;
     submit_ajax($(this), url);
 })
 $('.index,.off-sidebar').on('click', '.submit-delete', function () {
     let table = (offSidebarDataTable && $('#off-sidebar-table').is(':visible')) ? offSidebarDataTable : dataTable;
-    let id = table?.select?.cumulative?.()?.rows ?? '0';
+    let id = (table?.select?.cumulative?.().rows.join(',') || 'true');
     let url = '/' + $(this).data('url') + "/" + id;
     submit_ajax($(this), url);
 })
 $('.index,.off-sidebar').on('click', '.btn-move', function () {
     let table = (offSidebarDataTable && $('#off-sidebar-table').is(':visible')) ? offSidebarDataTable : dataTable;
-    let id = table.select.cumulative().rows.join(',');
+    let id = (table?.select?.cumulative?.().rows.join(',') || 'true');
     let url = '/move/' + $(this).data('menu') + '/' + id + '/' + $(this).data('type');
     submit_ajax($(this), url, false);
 })
 $('.index,.off-sidebar').on('click', '.btn-download , .btn-open', function () {
     let menu = $(this).data('menu')
     let table = (offSidebarDataTable && $('#off-sidebar-table').is(':visible')) ? offSidebarDataTable : dataTable;
-    let id = table.select.cumulative().rows.join(',');
+    let id = (table?.select?.cumulative?.().rows.join(',') || 'true');
     let type = $(this).hasClass('btn-open') ? '?type=show' : '';
     $.each(id.split(','), function (index, value) {
         window.open('/download_' + menu + '/' + value + type);
@@ -209,7 +214,7 @@ $('.index,.off-sidebar').on('click', '.btn-download , .btn-open', function () {
 })
 $('.index,.off-sidebar').on('click', '.btn-submit', function () {
     let table = (offSidebarDataTable && $('#off-sidebar-table').is(':visible')) ? offSidebarDataTable : dataTable;
-    let id = table.select.cumulative().rows.join(',');
+    let id = (table?.select?.cumulative?.().rows.join(',') || 'true');
     let pos = $(this).closest('.off-sidebar').data('pos')
     let url = "/" + $(this).data('url') + '/' + id;
     $('.from-' + pos).find('form').attr('action', url)

@@ -20,7 +20,7 @@ class PositionController extends Controller
 
     public function list(Request $request)
     {
-        return DataTables::of(PositionsView::select('id', 'name1', 'name2', 'name3', 'name4', 'code', 'count', 'total', 'level', 'sign'))
+        return DataTables::of(PositionsView::select('id', 'name1', 'name2', 'name3', 'name4', 'code', 'valid', 'invalid', 'level', 'sign'))
             ->editColumn('name1', function ($data) {
                 return $this->toLevel($data, 1, 'name', 'position', 'dark', $data->sign);
             })
@@ -36,8 +36,8 @@ class PositionController extends Controller
             ->editColumn('code', function ($data) {
                 return $this->toBadges($data->code, 'primary');
             })
-            ->editColumn('count', function ($data) {
-                return $this->toValidateBadge($data->count == $data->total ? $data->total : $data->count . '/' . $data->total, 'secondary', $data->count || !$data->sign);
+            ->editColumn('valid', function ($data) {
+                return $this->toValidateBadge($data->invalid ? $data->valid . '/' . $data->invalid : $data->valid, 'secondary', $data->valid || !$data->sign);
             })
             ->filter(function ($query) use ($request) {
                 $this->toSearch($query, $request, ['name1', 'name2', 'name3', 'name4', 'code']);

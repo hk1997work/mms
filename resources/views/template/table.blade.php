@@ -1,4 +1,4 @@
-<table id="{{$tmp_id??'index'}}-table" data-menu="{{$tmp_menu}}" class="table table-hover {{$tmp_class??''}}">
+<table id="{{$tmp_table_id??'index'}}-table" data-menu="{{$tmp_menu}}" class="table table-hover {{$tmp_class??''}}">
     <thead>
     <tr>
         @foreach($tmp_fields as $tmp_field)
