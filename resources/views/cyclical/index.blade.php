@@ -1,39 +1,14 @@
 @extends('layout.index')
 @section('content_btn')
-    <li class="nav-item"><a class="nav-link btn-download" href="#">下载</a></li>
+    @include('template.dropdown',['tmp_label'=>'','tmp_items'=>[],'tmp_href_id'=>'','tmp_field'=>''])
+    @include('template.nav-btn',['tmp_label'=>'下载','tmp_menu'=>'cyclical','tmp_class'=>'submit-download'])
     <form id="form-download" action="/cyclical" method="post">
         {{csrf_field()}}
-        <input type="hidden" id="date-download" name="date" value="{{date('Y-m')}}">
+        <input type="hidden" id="date-download" name="date">
     </form>
 @endsection
 @section('content_table')
-    <div class="btn-group mb-3">
-        <ul class="button-nav nav nav-tabs mt-3 mb-3 ml-3" role="tablist">
-            @foreach($types->where('date',date('Y-m')) as $type)
-                <li><a @if($loop->index==0) class="active" @endif data-url="type={{$type->unit4}}&department={{$type->unit2}}&date={{date('Y-m')}}" href="#">{{$type->unit2}}{{$type->unit4}}</a></li>
-            @endforeach
-        </ul>
-    </div>
-    <table id="index-table" data-menu="cyclical?type={{$types->where('date',date('Y-m'))->first()->unit4}}&department={{$types->where('date',date('Y-m'))->first()->unit2}}&date={{date('Y-m')}}"
-           class="table table-hover mb-0 unsorted nocheck tl-100">
-        <thead>
-        <tr>
-            <th>序号</th>
-            <th>岗位</th>
-            <th>器具名称</th>
-            <th>规格型号</th>
-            <th>出厂编号</th>
-            <th>测量范围</th>
-            <th>精确度</th>
-            <th>生产厂家</th>
-            <th>检定日期</th>
-            <th>有效期</th>
-            <th>检定周期</th>
-            <th>备注</th>
-        </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+    @include('template.table',['tmp_menu'=>'cyclical?id='.$units->where('date',date('Y-m'))->first()->position4.'&date='.date('Y-m'),'tmp_fields'=>['序号','岗位','器具名称','规格型号','出厂编号','测量范围','精确度','生产厂家','检定日期','有效期','检定周期','备注'],'tmp_class'=>' table-tree table-all table-unselect'])
     <div id="timeline"></div>
 @endsection
 @push('page-js-after-1')
@@ -42,22 +17,21 @@
             let container = document.getElementById('timeline');
             let arr = []
             let btn = []
-            @foreach($types as $type)
-            @if($loop->first || $types[$loop->index]->date != $types[$loop->index-1]->date)
+            @foreach($units as $unit)
+            @if($loop->first || $units[$loop->index]->date != $units[$loop->index-1]->date)
             arr.push(
                 {
-                    id: '{{ $type->date }}',
-                    content: '{{ $type->date }}',
-                    start: "{{ $type->date }}-01 00:00:00",
-                    end: "{{date('Y-m-t',strtotime($type->date))}} 23:59:59",
+                    id: '{{ $unit->date }}',
+                    content: '{{ $unit->date }}',
+                    start: "{{ $unit->date }}-01 00:00:00",
+                    end: "{{date('Y-m-t',strtotime($unit->date))}} 23:59:59",
                 }
             )
             @endif
             btn.push(
                 {
-                    date: '{{$type->date}}',
-                    type: '{{$type->unit4}}',
-                    department: '{{$type->unit2}}',
+                    date: '{{$unit->date}}',
+                    unit: '{{$unit->position4}}',
                 }
             )
             @endforeach
@@ -65,38 +39,39 @@
             let options = {
                 height: '100px',
                 stack: false,
-                min: "{{$types->first()->date}}-01 00:00:00",
-                max: "{{date('Y-m-t',strtotime($types->last()->date))}} 23:59:59",
+                min: "{{$units->first()->date}}-01 00:00:00",
+                max: "{{date('Y-m-t',strtotime($units->last()->date))}} 23:59:59",
             };
-            let selected = "{{date('Y-m')}}"
             let timeline = new vis.Timeline(container, items, options);
+            let selected = "{{date('Y-m')}}"
             timeline.setSelection([selected]);
+            timeline.setWindow('{{now()->startOfMonth()}}', '{{now()->startOfMonth()->addYear()}}', {animation: true});
             timeline.on('select', function (properties) {
                 if (properties.items.length > 0) {
                     selected = properties.items[0]
-                    $('.button-nav').html('')
+                    $('.dropdown-menu-end').html('')
                     $.each(btn.filter(item => item.date == selected), function (key, value) {
-                        let url = 'type=' + value['type'] + '&department=' + value['department'] + '&date=' + selected
+                        let url = 'id=' + value['unit'] + '&date=' + selected
                         if (key == 0) {
-                            $('.button-nav').append('<li><a class="active" data-url="' + url + '" href="#">' + value['department'] + value['type'] + '</a></li>')
+                            $('.nav').find('.dropdown-toggle').text(value['unit'])
                             $('#index-table').attr('data-menu', 'cyclical?' + url)
-                            dataTable.ajax.url('/ajax_cyclical?' + url).load();
-                        } else {
-                            $('.button-nav').append('<li><a data-url="' + url + '" href="#">' + value['department'] + value['type'] + '</a></li>')
+                            if (properties.event) {
+                                dataTable.ajax.url('/ajax_cyclical?' + url).load();
+                            }
                         }
+                        $('.dropdown-menu-end').append('<li><a class="dropdown-item" data-url="' + url + '" href="#">' + value['unit'] + '</a></li>')
                     });
                 }
                 if (properties.items.length == 0) {
                     timeline.setSelection([selected]);
                 }
             });
-            timeline.setWindow('{{now()->startOfMonth()}}', '{{now()->startOfMonth()->addYear()}}', {animation: true});
-            $('.button-nav').on('click', 'a', function () {
-                $('.button-nav a').removeClass('active')
-                $(this).addClass('active')
+            timeline.emit('select', {items: [selected]});
+            $('.dropdown-menu-end').on('click', 'a', function () {
+                $('.nav').find('.dropdown-toggle').text($(this).text())
                 dataTable.ajax.url('/ajax_cyclical?' + $(this).data('url')).load();
             })
-            $('.btn-download').click(function () {
+            $('.submit-download').click(function () {
                 $('#date-download').val(selected)
                 $('#form-download').submit()
             })

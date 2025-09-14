@@ -8,34 +8,35 @@ use Illuminate\Support\Facades\File;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 use ZipArchive;
+use Yajra\DataTables\DataTables;
 
 class CyclicalController extends Controller
 {
     public function index()
     {
-        $types = CertificatesView::selectRaw("position4, SUBSTR(`validity_date`,1,7) as `date`")->where('validity_date', '>', '2020-08-01')->whereIn('position4', ['南京钢管分公司', '防腐分公司', '科技质量中心'])->groupBy('date')->groupBy('position4')->orderBy('date')->orderBy('position4')->get();
-        return view("cyclical.index", compact('types'));
+        $units = CertificatesView::selectRaw("position4, SUBSTR(`validity_date`,1,7) as `date`")->whereIn('position4', ['南京钢管分公司', '防腐分公司', '科技质量中心'])->where('position3', '!=', '安全仪表')->groupBy('date', 'position4')->orderBy('date')->orderBy('position4')->get();
+        return view("cyclical.index", compact('units'));
     }
 
     public function list()
     {
+        $id = isset($_GET['id']) ? $_GET['id'] : '';
         $date = isset($_GET['date']) ? $_GET['date'] : '';
-        $type = isset($_GET['type']) ? $_GET['type'] : '';
-        $department = isset($_GET['department']) ? $_GET['department'] : '';
-        $data = CertificatesView::select('order', 'position', 'instrument', 'model', 'number', 'limit', 'accuracy', 'factory', 'verification_date', 'validity_date', 'cycle', 'remark')->where('unit4', $type)->where('unit2', $department)->whereRaw("SUBSTR(`validity_date`,1,7) = '$date'")->orderBy('order')->get()->toArray();
-        return response()->json(['data' => array_map('array_values', $data)]);
+        $query = CertificatesView::select('order', 'position1', 'instrument', 'model', 'number', 'limit', 'accuracy', 'factory', 'verification_date', 'validity_date', 'cycle', 'remark')
+            ->where('position4', $id)->whereRaw("SUBSTR(`validity_date`,1,7) = '$date'")->orderBy('order');
+        return DataTables::of($query)->make(false);
     }
 
     public function store(Request $request)
     {
         $path = "storage/" . \Auth::user()->id;
-        $types = CertificatesView::select('unit2', 'unit4')->whereRaw("SUBSTR(`validity_date`,1,7) = '$request->date'")->whereIn('unit2', ['南京钢管分公司', '防腐分公司', '科技质量中心'])->groupBy('unit2', 'unit4')->get();
-        foreach ($types as $type) {
+        $units = CertificatesView::select('position4')->whereRaw("SUBSTR(`validity_date`,1,7) = '$request->date'")->whereIn('position4', ['南京钢管分公司', '防腐分公司', '科技质量中心'])->where('position3', '!=', '安全仪表')->groupBy('position4')->get();
+        foreach ($units as $unit) {
             $i = 1;
             $inputFileName = 'storage/mould/周检通知单模板.xlsx';
             $spreadsheet = IOFactory::load($inputFileName);
             $sheet = $spreadsheet->getActiveSheet();
-            $certificates = CertificatesView::where('unit2', $type->unit2)->where('unit4', $type->unit4)->whereRaw("SUBSTR(`validity_date`,1,7) = '$request->date'")->orderBy('order')->get();
+            $certificates = CertificatesView::where('position4', $unit->position4)->where('position3', '!=', '安全仪表')->whereRaw("SUBSTR(`validity_date`,1,7) = '$request->date'")->orderBy('order')->get();
             foreach ($certificates as $certificate) {
                 if ($i % 25 == 0) {
                     $i++;
@@ -59,7 +60,7 @@ class CyclicalController extends Controller
                             'bold' => true,
                         ],
                         'numberFormat' => [
-                            'formatCode' => '@'
+                            'formatCode' => '@',
                         ],
                     ];
                     $sheet->getStyle("A$i")->applyFromArray($styleArray);
@@ -77,11 +78,11 @@ class CyclicalController extends Controller
                             'bold' => true,
                         ],
                         'numberFormat' => [
-                            'formatCode' => '@'
+                            'formatCode' => '@',
                         ],
                     ];
                     $sheet->getStyle("A$i1")->applyFromArray($styleArray);
-                    $sheet->setCellValueByColumnAndRow(1, $i1, "编号:$type->unit2-$type->unit4-$request->date");
+                    $sheet->setCellValueByColumnAndRow(1, $i1, "编号:$unit->position4-$request->date");
                     //第三行
                     $styleArray = [
                         'alignment' => [
@@ -99,7 +100,7 @@ class CyclicalController extends Controller
                             'bold' => true,
                         ],
                         'numberFormat' => [
-                            'formatCode' => '@'
+                            'formatCode' => '@',
                         ],
                     ];
                     $sheet->getStyle("A$i2:L$i2")->applyFromArray($styleArray);
@@ -128,10 +129,10 @@ class CyclicalController extends Controller
                         ],
                         'font' => [
                             'name' => '宋体',
-                            'size' => 10
+                            'size' => 10,
                         ],
                         'numberFormat' => [
-                            'formatCode' => '@'
+                            'formatCode' => '@',
                         ],
                     ];
                     $sheet->getStyle("A$i3:L$i23")->applyFromArray($styleArray);
@@ -145,7 +146,7 @@ class CyclicalController extends Controller
                             'size' => 10,
                         ],
                         'numberFormat' => [
-                            'formatCode' => '@'
+                            'formatCode' => '@',
                         ],
                     ];
                     $sheet->getStyle("A$i24:L$i24")->applyFromArray($styleArray);
@@ -159,9 +160,9 @@ class CyclicalController extends Controller
                         $drawing->setCoordinates("C$i24");
                         $drawing->setWorksheet($sheet);
                     }
-                    if (is_file("storage/sign/$type->unit4$type->unit2.png")) {
+                    if (is_file("storage/sign/$unit->position4.png")) {
                         $drawing = new Drawing();
-                        $drawing->setPath("storage/sign/$type->unit4$type->unit2.png");
+                        $drawing->setPath("storage/sign/$unit->position4.png");
                         $drawing->setHeight(50);
                         $drawing->setCoordinates("F$i24");
                         $drawing->setWorksheet($sheet);
@@ -169,7 +170,7 @@ class CyclicalController extends Controller
                     $i = $i + 3;
                 }
                 $sheet->setCellValueByColumnAndRow(1, $i, $certificate->order);
-                $sheet->setCellValueByColumnAndRow(2, $i, $certificate->position);
+                $sheet->setCellValueByColumnAndRow(2, $i, $certificate->position1);
                 $sheet->setCellValueByColumnAndRow(3, $i, $certificate->instrument);
                 $sheet->setCellValueByColumnAndRow(4, $i, $certificate->model);
                 $sheet->setCellValueByColumnAndRow(5, $i, $certificate->number);
@@ -191,11 +192,11 @@ class CyclicalController extends Controller
                 if (File::isDirectory($path . '/周检通知单') == false) {
                     File::makeDirectory($path . '/周检通知单', 0777, true, true);
                 }
-                $writer->save($path . "/周检通知单/周检通知单" . $type->unit2 . $type->unit4 . $request->date . ".xlsx");
+                $writer->save($path . "/周检通知单/周检通知单" . $unit->position4 . '-' . $request->date . ".xlsx");
             }
         }
         $zip = new ZipArchive();
-        if ($zip->open($path . '/周检通知单' . $request->date . '.zip', ZipArchive::CREATE) == TRUE) {
+        if ($zip->open($path . '/周检通知单' . $request->date . '.zip', ZipArchive::CREATE) == true) {
             $this->addFileToZip($path . '/周检通知单', $zip);
             $zip->close();
         }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CertificatesView;
+use Yajra\DataTables\DataTables;
 
 class ConfirmController extends Controller
 {
@@ -13,13 +14,7 @@ class ConfirmController extends Controller
 
     public function list()
     {
-        $data = CertificatesView::select('id', 'order', 'position', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'standard','remark')->where('valid', 1)->where('category', '校准证书')->where('sign', 0)->get()->toArray();
-        foreach ($data as $key => $value) {
-            $data[$key]['id'] = "<div class='styled-checkbox'>
-                        <input type='checkbox' name='cb' class='cb' id='$value[id]' data-url='/storage/certificate/$value[id].pdf'>
-                        <label for='$value[id]'></label>
-                    </div>";
-        }
-        return response()->json(['data' => array_map('array_values', $data)]);
+        $query = CertificatesView::select('id', 'order', 'position1', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'standard', 'remark')->where('valid', 1)->where('sign', 1)->where('category', '校准证书');
+        return DataTables::of($query)->make(false);
     }
 }
