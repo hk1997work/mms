@@ -18,6 +18,10 @@ main {
     padding-top: 50px;
 }
 
+a:link, a:visited, a:hover, a:active {
+    text-decoration: none;
+}
+
 /* 提示框 */
 .popover {
     max-width: 500px !important;

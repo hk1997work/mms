@@ -1,34 +1,15 @@
 @extends('layout.index')
 @section('content_btn')
-    <li class="nav-item"><a class="nav-link btn-show" data-menu="jiangsu" data-pos="left" href="#">屏蔽列表</a></li>
+    @include('template.nav-btn',['tmp_label'=>'屏蔽列表','tmp_menu'=>'jiangsu','tmp_class'=>'btn-show','tmp_pos'=>'left','tmp_id'=>'true'])
 @endsection
 @section('content_table')
-    <div class="btn-group mb-3">
-        <ul class="button-nav nav nav-tabs mt-3 mb-3 ml-3" role="tablist">
-            <li><a class="btn-add check-multiple" data-menu="jiangsu" data-pos="left" data-cb="load" href="#">录入</a></li>
-            <li><a class="btn-edit check-multiple" data-menu="jiangsu" data-pos="right" href="#">屏蔽</a></li>
-            <li><a class="btn-download check-multiple" data-menu="jiangsu" href="#">打开</a></li>
-            <li><a class="btn-open check-multiple" data-menu="jiangsu" href="#">下载</a></li>
-        </ul>
-    </div>
-    <table id="index-table" data-menu="jiangsu" class="table table-hover mb-0">
-        <thead>
-        <tr>
-            <th style="width:5%;">
-                <div class="styled-checkbox">
-                    <input type="checkbox" name="check-all" class="check-all" id="check-all">
-                    <label for="check-all"></label>
-                </div>
-            </th>
-            <th>检定日期</th>
-            <th>证书编号</th>
-            <th>器具名称</th>
-            <th>规格型号</th>
-            <th>出厂编号</th>
-        </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+    <ul class="nav">
+        @include('template.nav-btn',['tmp_label'=>'录入','tmp_menu'=>'jiangsu','tmp_class'=>'btn-add check-multiple','tmp_pos'=>'left'])
+        @include('template.nav-btn',['tmp_label'=>'屏蔽','tmp_menu'=>'jiangsu','tmp_class'=>'btn-edit check-multiple'])
+        @include('template.nav-btn',['tmp_label'=>'打开','tmp_menu'=>'jiangsu','tmp_class'=>'btn-open check-multiple'])
+        @include('template.nav-btn',['tmp_label'=>'下载','tmp_menu'=>'jiangsu','tmp_class'=>'btn-download check-multiple'])
+    </ul>
+    @include('template.table',['tmp_menu'=>'jiangsu','tmp_fields'=>['','检定日期','证书编号','器具名称','规格型号','出厂编号'],'tmp_class'=>'table-all'])
 @endsection
 @push('page-js-after-1')
     <script src="/admin/assets/js/pages/jiangsu.js"></script>
