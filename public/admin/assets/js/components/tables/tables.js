@@ -89,6 +89,9 @@ function sidebar_ajax(btn, url, menu, callback) {
                         void sidebar[0].offsetHeight;
                         sidebar.addClass('is-visible');
                     }
+                    if (btn.attr('data-reload')) {
+                        sidebar.find('.sidebar-url').attr('data-reload', btn.attr('data-reload'));
+                    }
                     callback?.();
                 } else {
                     notifications(title + '失败');
@@ -149,6 +152,9 @@ function submit_ajax(btn, url, show = true, callback) {
                     reloadTableIfAjax(offSidebarDataTable);
                     reloadTableIfAjax(dataTable);
                     show && sidebar.removeClass('is-visible');
+                    if (btn.attr('data-reload')) {
+                        $('[name="' + btn.attr('data-reload') + '"]').trigger('change');
+                    }
                 } else if (result == false) {
                     notifications(title + '失败');
                 } else {
