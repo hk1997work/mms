@@ -9,6 +9,6 @@
                 @endforeach
             @endif
         </select>
-        <span class="btn btn-outline-secondary btn-add {{$tmp_class??''}}" data-pos='right' data-menu='{{$tmp_menu}}' {{isset($tmp_show)&&$tmp_show?'':'hidden'}}>增加</span>
+        <span class="btn btn-outline-secondary btn-add {{$tmp_class??''}}" data-pos='right' data-menu='{{$tmp_menu}}' {{isset($tmp_id)&&$tmp_id?'data-id='.$tmp_id:''}} {{isset($tmp_reload)&&$tmp_reload?'data-reload='.$tmp_reload:''}} {{isset($tmp_show)&&$tmp_show?'':'hidden'}}>增加</span>
     </div>
 </div>

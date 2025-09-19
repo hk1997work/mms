@@ -16,7 +16,7 @@ class Position extends Model
 
     public function children()
     {
-        return $this->hasMany(Position::class, 'pid')->select('id', 'pid', 'name', 'code')->with('children');
+        return $this->hasMany(Position::class, 'pid')->select('id', 'pid', 'name', 'code')->orderBy('sort')->with('children');
     }
 
     public function parent()

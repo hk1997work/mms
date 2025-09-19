@@ -159,7 +159,7 @@ class NanjingController extends Controller
 
     public function update(Request $request, $nanjing)
     {
-        if (request()->session()->missing('nanjing_session')) {
+        if (request()->session()->missing('nanjing_certificate')) {
             return '登录失效,请刷新';
         }
         $check = explode(',', $nanjing);
