@@ -150,7 +150,7 @@ function submit_ajax(btn, url, show = true, callback) {
                     callback?.();
                     notifications(title + '成功');
                     reloadTableIfAjax(offSidebarDataTable);
-                    if ($('.off-sidebar-container:visible').length == 1) {
+                    if ($('.off-sidebar-container:visible').length < 2) {
                         reloadTableIfAjax(dataTable);
                     }
                     show && sidebar.removeClass('is-visible');
