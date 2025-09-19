@@ -15,7 +15,7 @@ class LoginController extends Controller
     {
         $user = request(['username', 'password']);
         if (\Auth::attempt($user)) {
-            return redirect('/');
+            return redirect('/active');
         }
         return back()->withErrors("用户名密码错误");
     }
