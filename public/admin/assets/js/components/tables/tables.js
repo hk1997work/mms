@@ -214,9 +214,10 @@ $('.index,.off-sidebar').on('click', '.btn-move', function () {
 $('.index,.off-sidebar').on('click', '.btn-download , .btn-open', function () {
     let table = (offSidebarDataTable && $('#off-sidebar-table').is(':visible')) ? offSidebarDataTable : dataTable;
     let id = (table?.select?.cumulative?.().rows.join(',') || 'true');
+    let menu = $(this).data('menu')
     let type = $(this).hasClass('btn-open') ? '?type=show' : '';
     $.each(id.split(','), function (index, value) {
-        window.open('/download_' + $(this).data('menu') + '/' + value + type);
+        window.open('/download_' + menu + '/' + value + type);
     })
 })
 $('.index,.off-sidebar').on('click', '.btn-submit', function () {

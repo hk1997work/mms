@@ -2,11 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Certificate;
 use App\Models\CertificatesView;
 use App\Models\Position;
-use App\Models\Tool;
-use App\Models\ToolsView;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
