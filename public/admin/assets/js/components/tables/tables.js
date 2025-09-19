@@ -150,7 +150,9 @@ function submit_ajax(btn, url, show = true, callback) {
                     callback?.();
                     notifications(title + '成功');
                     reloadTableIfAjax(offSidebarDataTable);
-                    reloadTableIfAjax(dataTable);
+                    if ($('.off-sidebar-container:visible').length == 1) {
+                        reloadTableIfAjax(dataTable);
+                    }
                     show && sidebar.removeClass('is-visible');
                     if (btn.attr('data-reload')) {
                         $('[name="' + btn.attr('data-reload') + '"]').trigger('change');
@@ -210,12 +212,11 @@ $('.index,.off-sidebar').on('click', '.btn-move', function () {
     submit_ajax($(this), url, false);
 })
 $('.index,.off-sidebar').on('click', '.btn-download , .btn-open', function () {
-    let menu = $(this).data('menu')
     let table = (offSidebarDataTable && $('#off-sidebar-table').is(':visible')) ? offSidebarDataTable : dataTable;
     let id = (table?.select?.cumulative?.().rows.join(',') || 'true');
     let type = $(this).hasClass('btn-open') ? '?type=show' : '';
     $.each(id.split(','), function (index, value) {
-        window.open('/download_' + menu + '/' + value + type);
+        window.open('/download_' + $(this).data('menu') + '/' + value + type);
     })
 })
 $('.index,.off-sidebar').on('click', '.btn-submit', function () {
@@ -253,6 +254,7 @@ $(window).resize(function () {
 
 function reloadTableIfAjax(table) {
     if (table?.settings()?.[0]?.oInit?.ajax) {
+        dataTable.context[0]._select_set = [];
         table.ajax.reload(null, false);
     }
 }

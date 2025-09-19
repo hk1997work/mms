@@ -8,7 +8,7 @@
 @section('content_table')
     <ul class="nav">
         @if($menu=='active')
-            @include('template.nav-btn',['tmp_label'=>'增加','tmp_menu'=>'certificate','tmp_class'=>'btn-add','tmp_id'=>$type->id,'tmp_pos'=>'left'])
+            @include('template.nav-btn',['tmp_label'=>'增加','tmp_menu'=>'certificate','tmp_class'=>'btn-add','tmp_pos'=>'left','tmp_id'=>$type->id])
         @endif
         @include('template.nav-btn',['tmp_label'=>'删除','tmp_menu'=>'certificate','tmp_class'=>'btn-delete check-multiple'])
         @include('template.nav-btn',['tmp_label'=>'打开','tmp_menu'=>'certificate','tmp_class'=>'btn-open check-multiple'])
