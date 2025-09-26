@@ -24,14 +24,14 @@ class MainController extends Controller
             'month_total' => 0,
             'day' => 0,
         ];
-        $positions = Position::select('name')->whereIn('name', ['南京钢管分公司', '防腐分公司', '科技质量中心'])->groupBy('name')->orderByRaw('MIN(sort)')->get();
+        $positions = Position::where('level', 1)->whereIn('name', ['南京钢管分公司', '防腐分公司', '科技质量中心'])->orderBy('sort')->pluck('name');
         foreach ($positions as $position) {
-            $check_count['month'][$position->name]['count'] = 0;
-            $check_count[$position->name]['success'] = 0;
-            $check_count[$position->name]['info'] = 0;
-            $check_count[$position->name]['warning'] = 0;
-            $check_count[$position->name]['danger'] = 0;
-            $check_count[$position->name]['total'] = 0;
+            $check_count['month'][$position]['count'] = 0;
+            $check_count[$position]['success'] = 0;
+            $check_count[$position]['info'] = 0;
+            $check_count[$position]['warning'] = 0;
+            $check_count[$position]['danger'] = 0;
+            $check_count[$position]['total'] = 0;
         }
         //证书数量
         $certificates = CertificatesView::orderBy('order')->get();
@@ -53,8 +53,8 @@ class MainController extends Controller
                         if ($date > $start_year && $date < $end_year) {
                             $check_count['year'] += 1;
                             if ($date > $start_month && $date < $end_month) {
-                                if (isset($check_count[$certificate->unit2])) {
-                                    $check_count['month'][$certificate->unit2]['count'] += 1;
+                                if (isset($check_count[$certificate->position4])) {
+                                    $check_count['month'][$certificate->position4]['count'] += 1;
                                 }
                                 $check_count['month_total'] += 1;
                             }
@@ -66,9 +66,9 @@ class MainController extends Controller
                     }
                 }
             }
-            if ($certificate->valid == 1 && $certificate->sign == 0 && ($certificate->type == '计量器具' || $certificate->type == '检测仪表')) {
+            if ($certificate->valid == 1 && $certificate->sign == 1 && ($certificate->position3 == '计量器具' || $certificate->position3 == '检测仪表')) {
                 $folderPath = "storage/check/$certificate->id";
-                if (isset($check_count[$certificate->unit2])) {
+                if (isset($check_count[$certificate->position4])) {
                     if (file_exists($folderPath) && is_dir($folderPath)) {
                         $files = scandir($folderPath);
                         $certificate->count = count($files) - 2;
@@ -77,19 +77,19 @@ class MainController extends Controller
                             $fileDate = Carbon::createFromFormat('Y-m-d', substr(end($files), 0, 10));
                             $fileAge = $fileDate->diffInDays(Carbon::now());
                             if ($fileAge < 90) {
-                                $check_count[$certificate->unit2]['success'] += 1;
+                                $check_count[$certificate->position4]['success'] += 1;
                             } elseif ($fileAge < 180) {
-                                $check_count[$certificate->unit2]['info'] += 1;
+                                $check_count[$certificate->position4]['info'] += 1;
                             } else {
-                                $check_count[$certificate->unit2]['warning'] += 1;
+                                $check_count[$certificate->position4]['warning'] += 1;
                             }
                         } else {
-                            $check_count[$certificate->unit2]['danger'] += 1;
+                            $check_count[$certificate->position4]['danger'] += 1;
                         }
                     } else {
-                        $check_count[$certificate->unit2]['danger'] += 1;
+                        $check_count[$certificate->position4]['danger'] += 1;
                     }
-                    $check_count[$certificate->unit2]['total'] += 1;
+                    $check_count[$certificate->position4]['total'] += 1;
                 }
             }
         }

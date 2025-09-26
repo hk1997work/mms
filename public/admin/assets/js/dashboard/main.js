@@ -92,7 +92,7 @@
         lineCap: 'round',
         emptyFill: 'rgba(255, 255, 255, 0.15)',
         fill: {
-            gradient: ['#fff', '#fff']
+            gradient: ['#333', '#333']
         }
     }).on('circle-animation-progress', function (event, progress) {
         $(this).find('.percent').html(((pdf_count / pdf_total) * progress * 100).toFixed(2) + '<i>%</i>');

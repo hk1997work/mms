@@ -152,6 +152,7 @@ function submit_ajax(btn, url, show = true, callback) {
                     reloadTableIfAjax(offSidebarDataTable);
                     if ($('.off-sidebar-container:visible').length < 2) {
                         reloadTableIfAjax(dataTable);
+                        btn_change($('#index-table').closest('.table-responsive'), 0);
                     }
                     show && sidebar.removeClass('is-visible');
                     if (btn.attr('data-reload')) {
@@ -255,7 +256,7 @@ $(window).resize(function () {
 
 function reloadTableIfAjax(table) {
     if (table?.settings()?.[0]?.oInit?.ajax) {
-        dataTable.context[0]._select_set = [];
+        table.context[0]._select_set = [];
         table.ajax.reload(null, false);
     }
 }

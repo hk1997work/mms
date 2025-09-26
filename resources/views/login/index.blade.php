@@ -5,11 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>计量管理系统</title>
 
-    <!-- 网站图标 -->
     <link rel="apple-touch-icon" sizes="180x180" href="/admin/assets/img/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/admin/assets/img/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/admin/assets/img/favicon-16x16.png">
-    <!-- CSS样式 -->
+
     <link rel="stylesheet" href="/admin/assets/vendors/css/base/bootstrap.css">
     <link rel="stylesheet" href="/admin/assets/vendors/css/base/elisyam-1.2.css">
 

@@ -79,13 +79,13 @@
                                         <div class="col-4 text-center no-padding">
                                             <div class="progress mt-2 ml-2 mr-2">
                                                 <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar"
-                                                     style="width: {{$check_count[$position->name]['success']/$check_count[$position->name]['total']*100}}%">{{$check_count[$position->name]['success']}}</div>
-                                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" style="width: {{$check_count[$position->name]['info']/$check_count[$position->name]['total']*100}}%">{{$check_count[$position->name]['info']}}</div>
+                                                     style="width: {{$check_count[$position]['success']/$check_count[$position]['total']*100}}%">{{$check_count[$position]['success']}}</div>
+                                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" style="width: {{$check_count[$position]['info']/$check_count[$position]['total']*100}}%">{{$check_count[$position]['info']}}</div>
                                                 <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning" role="progressbar"
-                                                     style="width: {{$check_count[$position->name]['warning']/$check_count[$position->name]['total']*100}}%">{{$check_count[$position->name]['warning']}}</div>
-                                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger" role="progressbar" style="width: {{$check_count[$position->name]['danger']/$check_count[$position->name]['total']*100}}%">{{$check_count[$position->name]['danger']}}</div>
+                                                     style="width: {{$check_count[$position]['warning']/$check_count[$position]['total']*100}}%">{{$check_count[$position]['warning']}}</div>
+                                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger" role="progressbar" style="width: {{$check_count[$position]['danger']/$check_count[$position]['total']*100}}%">{{$check_count[$position]['danger']}}</div>
                                             </div>
-                                            <div class="heading">{{$position->name}}</div>
+                                            <div class="heading">{{$position}}</div>
                                         </div>
                                     @endforeach
                                 </div>
@@ -117,8 +117,8 @@
                                     <div class="row d-flex justify-content-between mt-2">
                                         @foreach($positions as $position)
                                             <div class="col-4 text-center no-padding">
-                                                <div class="counter">{{$check_count['month'][$position->name]['count']}}</div>
-                                                <div class="heading">{{$position->name}}</div>
+                                                <div class="counter">{{$check_count['month'][$position]['count']}}</div>
+                                                <div class="heading">{{$position}}</div>
                                             </div>
                                         @endforeach
                                     </div>
@@ -146,8 +146,8 @@
                                     <div class="row d-flex justify-content-between mt-2">
                                         @foreach($positions as $position)
                                             <div class="col-4 text-center no-padding">
-                                                <div class="counter">{{$certificates->where('verification_date', '>=', $start_month)->where('verification_date', '<=', $end_month)->where('unit2',$position->name)->count()}}</div>
-                                                <div class="heading">{{$position->name}}</div>
+                                                <div class="counter">{{$certificates->where('verification_date', '>=', $start_month)->where('verification_date', '<=', $end_month)->where('unit2',$position)->count()}}</div>
+                                                <div class="heading">{{$position}}</div>
                                             </div>
                                         @endforeach
                                     </div>
