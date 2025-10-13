@@ -10,7 +10,6 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/admin/assets/img/favicon-16x16.png">
 
     <link rel="stylesheet" href="/admin/assets/vendors/css/base/bootstrap.css">
-    <link rel="stylesheet" href="/admin/assets/vendors/css/base/elisyam-1.2.css">
     <link rel="stylesheet" href="/admin/assets/vendors/css/animate/animate.css">
     <link rel="stylesheet" href="/admin/assets/vendors/css/bootstrap-select/bootstrap-select.css">
     <link rel="stylesheet" href="/admin/assets/vendors/css/vis-timeline/vis-timeline-graph2d.css">
@@ -21,6 +20,7 @@
     <link rel="stylesheet" href="/admin/assets/vendors/css/datepicker/daterangepicker.css">
     <link rel="stylesheet" href="/admin/assets/vendors/css/noty/noty.css">
     <link rel="stylesheet" href="/admin/assets/icons/css/all.min.css">
+    <link rel="stylesheet" href="/admin/assets/vendors/css/base/style.css">
     @stack('page-css')
 </head>
 <body>

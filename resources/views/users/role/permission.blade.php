@@ -1,7 +1,7 @@
 @extends('layout.edit')
 @section('content_title')
     @include('template.nav-tab',['tmp_name'=>'permission','tmp_label'=>'权限配置','tmp_active'=>true])
-    @include('template.nav-tab',['tmp_name'=>'position','tmp_label'=>'岗位配置'])
+    @include('template.nav-tab',['tmp_name'=>'position','tmp_label'=>'岗位配置','tmp_active'=>false])
 @endsection
 @section('content_form')
     <div class="tab-content">

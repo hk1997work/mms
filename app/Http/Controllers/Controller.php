@@ -269,7 +269,7 @@ class Controller extends BaseController
         $ids = explode(',', $str);
         return $items->map(function ($item) use ($ids, $field) {
             if (in_array($item->id, $ids)) {
-                $html = '<a class="badge btn btn-outline-secondary text-secondary-emphasis" href="#" data-bs-html="true" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-placement="top" data-bs-content="';
+                $html = '<a class="badge btn btn-outline-secondary text-secondary-emphasis" href="#" data-bs-html="true" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-placement="right" data-bs-content="';
                 $html .= $item->children->map(function ($item) use ($ids, $field) {
                     $html = in_array($item->id, $ids)
                         ? "<span class='badge bg-primary-subtle border border-primary-subtle text-primary-emphasis my-1'>" . e($item->{$field}) . "</span> "
