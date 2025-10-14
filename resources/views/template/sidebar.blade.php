@@ -10,13 +10,15 @@
         @endif
     </ul>
     <div class="off-sidebar-content auto-scroll table-responsive">
-        <form action="" @if(($tmp_class??'')=='btn-submit') method="post" enctype="multipart/form-data" @else onsubmit="return false;" @endif>
-            {{$tmp_method??''}}
-            {{csrf_field()}}
-            @yield('content_form')
-            @if(isset($tmp_class))
+        @if(isset($tmp_class))
+            <form action="" @if($tmp_class=='btn-submit') method="post" enctype="multipart/form-data" @else onsubmit="return false;" @endif>
+                {{$tmp_method??''}}
+                {{csrf_field()}}
+                @yield('content_form')
                 @include('template.sidebar-btn',['tmp_color'=>$tmp_color??'primary','tmp_class'=>$tmp_class,'tmp_label'=>$tmp_label??'确 定'])
-            @endif
-        </form>
+            </form>
+        @else
+            @yield('content_form')
+        @endif
     </div>
 </div>

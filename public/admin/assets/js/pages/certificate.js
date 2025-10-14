@@ -187,14 +187,11 @@ $('.off-sidebar').on('change', '[name="file_certificate"]', function () {
             contentType: false,   // 不设置内容类型
             success: function (result) {
                 if (typeof result === 'object') {
-                    if (result['standard_id']) {
-                        form.find('[name="standard_id[]"] option').prop("selected", '');
-                        form.find('[name="standard_id[]"]').val(result['standard_id'].split(',')).trigger('change');
-                        form.find('[name="standard_id[]"]').selectpicker('refresh');
-                    }
                     if (result['exist']) {
                         form.find(".div-tool_id").find('.sidebar-heading').append(" <small class='text-warning tool_pdf'>证书已录入</small>");
                         form.find('[name="file_certificate"]').val('');
+                        $("#preloader").fadeOut();
+                        return;
                     } else {
                         form.find(".div-tool_id .sidebar-heading").append(" <small class='text-info model_pdf'>" + result['tool'] + result['model'] + "</small>");
                         form.find(".div-factory_id .sidebar-heading").append(" <small class='text-info factory_pdf'>" + result['factory'] + "</small>");
@@ -212,6 +209,11 @@ $('.off-sidebar').on('change', '[name="file_certificate"]', function () {
                         form.find('[name="tool_id"]').selectpicker('refresh');
                         form.find(".div-factory_id").append("<input type='hidden' class='factory_id_pdf' value='" + result['factory_id'] + "'>");
                         form.find(".div-number_id").append("<input type='hidden' class='number_id_pdf' value='" + result['number_id'] + "'>");
+                    }
+                    if (result['standard_id']) {
+                        form.find('[name="standard_id[]"] option').prop("selected", '');
+                        form.find('[name="standard_id[]"]').val(result['standard_id'].split(',')).trigger('change');
+                        form.find('[name="standard_id[]"]').selectpicker('refresh');
                     }
                 } else {
                     notifications(result);
