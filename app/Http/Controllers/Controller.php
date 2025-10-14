@@ -256,7 +256,7 @@ class Controller extends BaseController
 
     function toValidate($str, $validate)
     {
-        return $validate ? e($str) : "<span class='badge bg-danger-subtle border border-danger-subtle text-danger-emphasis'>" . e($str) . "</span>";
+        return "<span class='badge " . ($validate ? 'text-dark' : 'bg-danger-subtle border border-danger-subtle text-danger-emphasis') . "'>" . e($str) . "</span>";
     }
 
     function toValidateBadge($str, $type, $validate)
@@ -298,7 +298,7 @@ class Controller extends BaseController
         } elseif ($data->level == $column - 1) {
             return "<span class='badge btn btn-outline-secondary text-secondary-emphasis btn-add' data-pos='right' data-menu='" . e($menu) . "' data-id='" . e($data->id) . "'>增加</span>";
         } elseif ($data->level > ($column - 2)) {
-            return "<span class='badge text-dark-emphasis'>" . e($data->{$text}) . "</span>";
+            return "<span class='badge text-dark'>" . e($data->{$text}) . "</span>";
         }
     }
 

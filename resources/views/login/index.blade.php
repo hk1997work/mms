@@ -10,7 +10,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/admin/assets/img/favicon-16x16.png">
 
     <link rel="stylesheet" href="/admin/assets/vendors/css/base/bootstrap.css">
-    <link rel="stylesheet" href="/admin/assets/vendors/css/base/elisyam-1.2.css">
+    <link rel="stylesheet" href="/admin/assets/vendors/css/base/style.css">
 
 </head>
 <body>

@@ -59,7 +59,7 @@ class CertificateController extends Controller
                 } elseif ($data->validity_date < Carbon::now()->subMonth(-1)->format('Y-m-d') && ($path == 'active')) {
                     return $this->toBadges($data->instrument, 'warning');
                 } else {
-                    return $data->instrument;
+                    return $this->toValidate($data->instrument, 1);
                 }
             })
             ->editColumn('check', function ($data) use ($path) {
