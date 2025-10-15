@@ -31,7 +31,7 @@ $('.off-sidebar').on('change', '[name^="group["][name$="][tool_id]"]', function 
                     notifications('生产厂家加载失败');
                 }
             }, error: function (xhr) {
-                xhr.status == 401 ? document.location.reload() : notifications('生产厂家加载失败');
+                xhr.status === 401 ? document.location.reload() : notifications('生产厂家加载失败');
                 form_group.find('[name^="group["][name$="][factory_id]"]').attr("disabled", true);
             }
         })
@@ -66,7 +66,7 @@ $('.off-sidebar').on('change', '[name^="group["][name$="][factory_id]"]', functi
                     notifications('出厂编号加载失败');
                 }
             }, error: function (xhr) {
-                xhr.status == 401 ? document.location.reload() : notifications('出厂编号加载失败');
+                xhr.status === 401 ? document.location.reload() : notifications('出厂编号加载失败');
                 form_group.find('[name^="group["][name$="][number_id]"]').attr("disabled", true);
             }
         })

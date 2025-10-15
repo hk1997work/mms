@@ -1,5 +1,5 @@
 <div class="col-{{$tmp_col??'12'}} div-{{$tmp_name}}">
-    <div class="sidebar-heading mt-3 mb-2">{{$tmp_label}}</div>
+    <div class="form-label mt-3 mb-2">{{$tmp_label}}</div>
     <select name="{{$tmp_name}}" class="form-control form-select">
         <option value="" selected disabled>请选择...</option>
         @if(isset($tmp_items))

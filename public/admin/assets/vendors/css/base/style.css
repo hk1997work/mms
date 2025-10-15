@@ -1,6 +1,8 @@
 :root {
     --primary: #5d5386;
     --secondary: #e76c90;
+    --bs-primary-rgb: #5d5386;
+    --bs-secondary-rgb: #e76c90;
     --dt-row-selected: #fff;
     --dt-row-selected-text: #212925;
 }
@@ -48,7 +50,7 @@ a:link, a:visited, a:hover, a:active {
     text-decoration: none;
 }
 
-/* 提示框 */
+/* 弹出框 */
 .popover {
     max-width: 500px;
 }
@@ -67,6 +69,7 @@ input:focus, select, textarea, button {
     background-color: #e9ecef;
 }
 
+/* 文件上传 */
 input[type="file"] {
     width: 100%;
 }

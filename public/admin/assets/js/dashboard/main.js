@@ -3,45 +3,21 @@
 
     $("#preloader").fadeOut();
 
-    //日期控件
-    function getDate() {
-        var date = new Date();
-        var weekday = date.getDay();
-        var month = date.getMonth();
-        var day = date.getDate();
-        var year = date.getFullYear();
-        var hour = date.getHours();
-        var minutes = date.getMinutes();
-        var seconds = date.getSeconds();
+    let swiper = new Swiper("#swiper-main", {loop: "true",});
 
-        if (hour < 10) hour = "0" + hour;
-        if (minutes < 10) minutes = "0" + minutes;
-        if (seconds < 10) seconds = "0" + seconds;
+    //电子证书
+    $('.certificate_circle').circleProgress({
+        value: (pdf_count / pdf_total),
+        size: 120,
+        startAngle: -Math.PI / 2,
+        thickness: 6,
+        lineCap: 'round',
+        emptyFill: '#e4e8f0',
+        fill: {
+            gradient: ['#e76c90', '#5d5386']
+        }
+    })
 
-        var monthNames = ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"];
-        var weekdayNames = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"]
-
-        var showDay = weekdayNames[weekday];
-        var showDate = day;
-        var showYear = year + " " + monthNames[month];
-        var showTime = hour + ":" + minutes + ":" + seconds;
-        document.getElementById('events-day').innerHTML = showDay;
-        document.getElementById('events-date').innerHTML = showDate;
-        document.getElementById('events-year').innerHTML = showYear;
-        document.getElementById('events-time').innerHTML = showTime;
-        requestAnimationFrame(getDate);
-    }
-    getDate();
-
-    //调整窗口尺寸
-    let container_fluid_height = window.innerHeight - $('.navbar-holder').height() - parseInt($('.container-fluid').css('padding-top')) - parseInt($('.container-fluid').css('padding-bottom'))
-    $('#swiper-main').height(container_fluid_height)
-    $('.list-group').height(container_fluid_height - document.querySelector('.today').getBoundingClientRect().height - parseInt($('.widget-body').css('padding-top')) - parseInt($('.widget-body').css('padding-bottom')))
-    $('#swiper-main .swiper-slide >.row:eq(0)').css('min-height', container_fluid_height / 3 * 2)
-
-    let swiper = new Swiper("#swiper-main", {
-        loop: "true",
-    });
 
     //今日抽检-复制
     $('.btn-copy').click(function () {
@@ -76,27 +52,14 @@
                 $("#preloader").fadeOut();
             },
             error: function (xhr) {
-                xhr.status == 401 ? document.location.reload() : notifications('查看失败')
+                xhr.status === 401 ? document.location.reload() : notifications('查看失败')
                 $("#preloader").fadeOut();
             },
         });
         event.preventDefault()
     });
 
-    //电子证书
-    $('.certificate_per').circleProgress({
-        value: (pdf_count / pdf_total),
-        size: 140,
-        startAngle: -Math.PI / 2,
-        thickness: 6,
-        lineCap: 'round',
-        emptyFill: 'rgba(255, 255, 255, 0.15)',
-        fill: {
-            gradient: ['#333', '#333']
-        }
-    }).on('circle-animation-progress', function (event, progress) {
-        $(this).find('.percent').html(((pdf_count / pdf_total) * progress * 100).toFixed(2) + '<i>%</i>');
-    });
+
 
     $('.circle-orders').circleProgress({
         value: (month_plan - (parseInt(year_plan[0]['sj']) + parseInt(year_plan[0]['bj']))) / month_plan,

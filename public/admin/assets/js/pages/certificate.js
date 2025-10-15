@@ -25,7 +25,7 @@ $('.off-sidebar').on('change', '[name="position_id"]', function () {
                 notifications('序号加载失败');
             }
         }, error: function (xhr) {
-            xhr.status == 401 ? document.location.reload() : notifications('序号加载失败');
+            xhr.status === 401 ? document.location.reload() : notifications('序号加载失败');
         }
     })
 })
@@ -46,7 +46,7 @@ $('.off-sidebar').on('change', '[name="tool_id"]', function () {
                 notifications('器具名称加载失败');
             }
         }, error: function (xhr) {
-            xhr.status == 401 ? document.location.reload() : notifications('器具名称加载失败');
+            xhr.status === 401 ? document.location.reload() : notifications('器具名称加载失败');
         }
     })
 })
@@ -84,7 +84,7 @@ $('.off-sidebar').on('change', '[name="tool_id"]', function () {
                     notifications('生产厂家加载失败');
                 }
             }, error: function (xhr) {
-                xhr.status == 401 ? document.location.reload() : notifications('生产厂家加载失败');
+                xhr.status === 401 ? document.location.reload() : notifications('生产厂家加载失败');
                 form.find('[name="factory_id"]').attr("disabled", true);
             }
         })
@@ -122,7 +122,7 @@ $('.off-sidebar').on('change', '[name="factory_id"]', function () {
                     notifications('出厂编号加载失败');
                 }
             }, error: function (xhr) {
-                xhr.status == 401 ? document.location.reload() : notifications('出厂编号加载失败');
+                xhr.status === 401 ? document.location.reload() : notifications('出厂编号加载失败');
                 form.find('[name="number_id"]').attr("disabled", true);
             }
         })
@@ -144,7 +144,7 @@ $('.off-sidebar').on('change', '[name="number_id"]', function () {
                     notifications('启动时间、检定次数加载失败');
                 }
             }, error: function (xhr) {
-                xhr.status == 401 ? document.location.reload() : notifications('启动时间、检定次数加载失败');
+                xhr.status === 401 ? document.location.reload() : notifications('启动时间、检定次数加载失败');
             }
         })
     }
@@ -188,14 +188,14 @@ $('.off-sidebar').on('change', '[name="file_certificate"]', function () {
             success: function (result) {
                 if (typeof result === 'object') {
                     if (result['exist']) {
-                        form.find(".div-tool_id").find('.sidebar-heading').append(" <small class='text-warning tool_pdf'>证书已录入</small>");
+                        form.find(".div-tool_id").find('.form-label').append(" <small class='text-warning tool_pdf'>证书已录入</small>");
                         form.find('[name="file_certificate"]').val('');
                         $("#preloader").fadeOut();
                         return;
                     } else {
-                        form.find(".div-tool_id .sidebar-heading").append(" <small class='text-info model_pdf'>" + result['tool'] + result['model'] + "</small>");
-                        form.find(".div-factory_id .sidebar-heading").append(" <small class='text-info factory_pdf'>" + result['factory'] + "</small>");
-                        form.find(".div-number_id .sidebar-heading").append(" <small class='text-info number_pdf'>" + result['number'] + "</small>");
+                        form.find(".div-tool_id .form-label").append(" <small class='text-info model_pdf'>" + result['tool'] + result['model'] + "</small>");
+                        form.find(".div-factory_id .form-label").append(" <small class='text-info factory_pdf'>" + result['factory'] + "</small>");
+                        form.find(".div-number_id .form-label").append(" <small class='text-info number_pdf'>" + result['number'] + "</small>");
                         form.find('[name="category_id"] option:contains(' + result['category'].substring(0, 4) + ")").attr("selected", true).trigger('change');
                         form.find('[name="department_id"] option:contains(' + result['department'] + ")").attr("selected", true).trigger('change');
                         form.find('[name="verification_date"]').val(result['verification_date']).trigger('change');
@@ -220,7 +220,7 @@ $('.off-sidebar').on('change', '[name="file_certificate"]', function () {
                 }
                 $("#preloader").fadeOut();
             }, error: function (xhr) {
-                xhr.status == 401 ? document.location.reload() : notifications('上传证书失败');
+                xhr.status === 401 ? document.location.reload() : notifications('上传证书失败');
                 $("#preloader").fadeOut();
             }
         });

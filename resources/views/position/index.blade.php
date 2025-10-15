@@ -20,7 +20,7 @@
                     data ? form.find('[name="sn"]').val(data).trigger('change') : notifications('序号加载失败');
                 },
                 error: function (xhr) {
-                    xhr.status == 401 ? document.location.reload() : notifications('序号加载失败');
+                    xhr.status === 401 ? document.location.reload() : notifications('序号加载失败');
                 }
             })
         })

@@ -16,6 +16,16 @@ class MainController extends Controller
         $end_year = now()->month(12)->day(26);
         $start_month = now()->startOfMonth()->subMonth()->day(26);
         $end_month = now()->startOfMonth()->day(26);
+
+
+
+
+
+
+
+
+
+
         $check_id = [];
         $checks = [];
         $check_count = [

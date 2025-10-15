@@ -27,6 +27,5 @@
     <script>
         let positions = {!! $positions !!};
     </script>
-    <script src="/admin/assets/js/components/swiper/swiper.js"></script>
     <script src="/admin/assets/js/pages/check.js"></script>
 @endpush

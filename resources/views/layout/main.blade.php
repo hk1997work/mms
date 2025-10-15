@@ -40,15 +40,13 @@
             </button>
             <div class="collapse navbar-collapse" id="navbar">
                 <ul class="navbar-nav">
-                    <li class="nav-item">
+                    <li class="nav-item mx-2">
                         <a class="nav-link" href="/">主页</a>
                     </li>
                     @foreach($permissions->where('level',1) as $permission)
                         @can($permission->name)
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">
-                                    {{$permission->description}}
-                                </a>
+                            <li class="nav-item dropdown mx-2">
+                                <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">{{$permission->description}}</a>
                                 <ul class="dropdown-menu">
                                     @foreach($permissions->where('pid',$permission->id) as $p)
                                         @can($p->name)
@@ -66,11 +64,11 @@
 </header>
 <main class="container-fluid">
     @yield("content")
+    <div class="off-sidebar from-left" data-pos="left"></div>
+    <div class="off-sidebar from-right" data-pos="right"></div>
+    <div class="off-sidebar from-up" data-pos="up"></div>
 </main>
 
-<div class="off-sidebar from-left" data-pos="left"></div>
-<div class="off-sidebar from-right" data-pos="right"></div>
-<div class="off-sidebar from-up" data-pos="up"></div>
 <script>
     const csrf_token = '{{csrf_token()}}'
     const menu = '{{$menu}}'
@@ -100,11 +98,7 @@
 <script src="/admin/assets/vendors/js/progress/circle-progress.js"></script>
 
 <script src="/admin/assets/js/app/app.js"></script>
-<script src="/admin/assets/js/components/datepicker/datepicker.js"></script>
 <script src="/admin/assets/js/components/tables/tables.js"></script>
-<script>
-    moment.locale('zh-cn');
-</script>
 @stack('page-js-after')
 
 </body>

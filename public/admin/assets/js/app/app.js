@@ -1,3 +1,4 @@
+moment.locale('zh-cn');
 (function ($) {
     'use strict';
     $(window).on("load", function () {
@@ -23,4 +24,3 @@ function notifications(text) {
         }
     }).show()
 }
-

@@ -1,63 +1,61 @@
 @extends("layout.main")
 @section("content")
     <div class="swiper" id="swiper-main">
-        <div class="swiper-wrapper mt-4">
-            <div class="swiper-slide" style="overflow:auto;">
+        <div class="swiper-wrapper">
+            <div class="swiper-slide">
                 <div class="row flex-row">
-                    <div class="col-xl-4 col-md-4">
-                        <div class="widget-32 widget-image bg-image has-shadow ">
-                            <div class="overlay"></div>
-                            <div class="content">
-                                <div id="events-day"></div>
-                                <div id="events-date"></div>
-                                <div id="events-year"></div>
-                            </div>
-                            <div class="real-time">
-                                <div id="events-time"></div>
+                    <div class="col-xl-3 col-md-3">
+                        <div class="bg-body-tertiary rounded-4 shadow-sm p-3 my-3">
+                            <div class="container-fluid" title="{{$check_pdf}}">
+                                <div class="text-primary">电子证书</div>
+                                <div class="certificate_circle">
+                                    <div class="percent"></div>
+                                </div>
+                                <b class="value-progress certificate_count">{{$pdf_count}}/{{$certificates->count()}}</b>
                             </div>
                         </div>
-                        <div class="widget widget-22 bg-gradient-03 has-shadow" title="{{$check_pdf}}">
-                            <div class="widget-body h-100 d-flex align-items-center">
-                                <div class="section-title">
-                                    <h3>电子证书</h3>
-                                </div>
-                                <div class="home_per certificate_per">
+                        <div class="bg-body-tertiary rounded-4 shadow-sm p-3 my-3">
+                            <div class="container-fluid" title="{{$check_pdf}}">
+                                <h5 class="text-primary">电子证书</h5>
+                                <div class="certificate_circle">
                                     <div class="percent"></div>
                                 </div>
                                 <b class="value-progress certificate_count">{{$pdf_count}}/{{$certificates->count()}}</b>
                             </div>
                         </div>
                     </div>
-                    <div class="col-xl-8 col-md-8">
-                        <div class="widget widget-09 has-shadow">
-                            <div class="widget-body">
-                                <div class="today">
-                                    <div class="title">{{date('Y')}}</div>
-                                    <div class="new-tasks mt-2"><span class="nb">周检计划</span></div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-xl-10 col-12">
-                                        <div>
-                                            <canvas id="orders"></canvas>
-                                        </div>
+                    <div class="col-xl-6 col-md-6">
+                        <div class="bg-body-tertiary rounded-4 shadow-sm p-3 my-3">
+                            <div class="widget widget-09 has-shadow">
+                                <div class="widget-body">
+                                    <div class="today">
+                                        <div class="title">{{date('Y')}}</div>
+                                        <div class="new-tasks mt-2"><span class="nb">周检计划</span></div>
                                     </div>
-                                    <div class="col-xl-2 col-12 my-auto no-padding text-center row">
-                                        <div class="col-xl-12 col-lg-7 col-md-7 col-sm-7 no-padding">
-                                            <div class="new-orders">
-                                                <div class="circle-orders">
-                                                    <div class="percent-orders"></div>
-                                                </div>
-                                                <div class="title">{{date('m')}}月<br>完成率</div>
+                                    <div class="row">
+                                        <div class="col-xl-10 col-12">
+                                            <div>
+                                                <canvas id="orders"></canvas>
                                             </div>
                                         </div>
-                                        <div class="col-xl-12 col-lg-5 col-md-5 col-sm-5 no-padding">
-                                            <div class="some-stats mt-5">
-                                                <div class="number text-danger" id="sj">{{$year_plan[0]->sj}}</div>
-                                                <div class="title">待送检</div>
+                                        <div class="col-xl-2 col-12 my-auto no-padding text-center row">
+                                            <div class="col-xl-12 col-lg-7 col-md-7 col-sm-7 no-padding">
+                                                <div class="new-orders">
+                                                    <div class="circle-orders">
+                                                        <div class="percent-orders"></div>
+                                                    </div>
+                                                    <div class="title">{{date('m')}}月<br>完成率</div>
+                                                </div>
                                             </div>
-                                            <div class="some-stats mt-3">
-                                                <div class="number text-danger" id="bj">{{$year_plan[0]->bj}}</div>
-                                                <div class="title">待报检</div>
+                                            <div class="col-xl-12 col-lg-5 col-md-5 col-sm-5 no-padding">
+                                                <div class="some-stats mt-5">
+                                                    <div class="number text-danger" id="sj">{{$year_plan[0]->sj}}</div>
+                                                    <div class="title">待送检</div>
+                                                </div>
+                                                <div class="some-stats mt-3">
+                                                    <div class="number text-danger" id="bj">{{$year_plan[0]->bj}}</div>
+                                                    <div class="title">待报检</div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -67,89 +65,101 @@
                     </div>
                 </div>
                 <div class="row flex-row">
-                    <div class="col-xl-4 col-md-4">
-                        <div class="widget widget-13 has-shadow">
-                            <div class="widget-body">
-                                <div class="author-name">
-                                    <span>今日抽检</span>
-                                    {{$check_count['day']}}
-                                </div>
-                                <div class="row">
-                                    @foreach($positions as $position)
-                                        <div class="col-4 text-center no-padding">
-                                            <div class="progress mt-2 ml-2 mr-2">
-                                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar"
-                                                     style="width: {{$check_count[$position]['success']/$check_count[$position]['total']*100}}%">{{$check_count[$position]['success']}}</div>
-                                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" style="width: {{$check_count[$position]['info']/$check_count[$position]['total']*100}}%">{{$check_count[$position]['info']}}</div>
-                                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning" role="progressbar"
-                                                     style="width: {{$check_count[$position]['warning']/$check_count[$position]['total']*100}}%">{{$check_count[$position]['warning']}}</div>
-                                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger" role="progressbar" style="width: {{$check_count[$position]['danger']/$check_count[$position]['total']*100}}%">{{$check_count[$position]['danger']}}</div>
-                                            </div>
-                                            <div class="heading">{{$position}}</div>
+                    <div class="col-xl-3 col-md-3">
+                        <div class="bg-body-tertiary rounded-4 shadow-sm p-3 my-3">
+                            <div class="container-fluid">
+                                <div class="widget widget-13 has-shadow">
+                                    <div class="widget-body">
+                                        <div class="author-name">
+                                            <span>今日抽检</span>
+                                            {{$check_count['day']}}
                                         </div>
-                                    @endforeach
-                                </div>
-                                <div class="text-center mt-3">
-                                    <a class="btn btn-outline-primary btn-copy" href="#" @if($check_count['day']==0) hidden @endif>复 制</a>
-                                    <a class="btn btn-outline-primary btn-show" href="#" data-id="{{date('Y-m-d')}}" @if($check_count['day']==0) hidden @endif>查 看</a>
-                                    <div id="text-copy" hidden>{!! $copy !!}</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-4 col-md-4">
-                        <div class="widget widget-13 has-shadow">
-                            <div class="widget-body">
-                                <div class="author-name">
-                                    <span>抽检详情</span>
-                                    <div class="row">
-                                        <div class="col-6">
-                                            {{$check_count['year']}}
-                                            <span>{{date('Y')}}年</span>
+                                        <div class="row">
+                                            @foreach($positions as $position)
+                                                <div class="col-4 text-center no-padding">
+                                                    <div class="progress mt-2 ml-2 mr-2">
+                                                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar"
+                                                             style="width: {{$check_count[$position]['success']/$check_count[$position]['total']*100}}%">{{$check_count[$position]['success']}}</div>
+                                                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" style="width: {{$check_count[$position]['info']/$check_count[$position]['total']*100}}%">{{$check_count[$position]['info']}}</div>
+                                                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning" role="progressbar"
+                                                             style="width: {{$check_count[$position]['warning']/$check_count[$position]['total']*100}}%">{{$check_count[$position]['warning']}}</div>
+                                                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger" role="progressbar" style="width: {{$check_count[$position]['danger']/$check_count[$position]['total']*100}}%">{{$check_count[$position]['danger']}}</div>
+                                                    </div>
+                                                    <div class="heading">{{$position}}</div>
+                                                </div>
+                                            @endforeach
                                         </div>
-                                        <div class="col-6">
-                                            {{$check_count['month_total']}}
-                                            <span>{{date('m')}}月</span>
+                                        <div class="text-center mt-3">
+                                            <a class="btn btn-outline-primary btn-copy" href="#" @if($check_count['day']==0) hidden @endif>复 制</a>
+                                            <a class="btn btn-outline-primary btn-show" href="#" data-id="{{date('Y-m-d')}}" @if($check_count['day']==0) hidden @endif>查 看</a>
+                                            <div id="text-copy" hidden>{!! $copy !!}</div>
                                         </div>
-                                    </div>
-                                </div>
-                                <div class="social-stats">
-                                    <div class="row d-flex justify-content-between mt-2">
-                                        @foreach($positions as $position)
-                                            <div class="col-4 text-center no-padding">
-                                                <div class="counter">{{$check_count['month'][$position]['count']}}</div>
-                                                <div class="heading">{{$position}}</div>
-                                            </div>
-                                        @endforeach
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-xl-4 col-md-4">
-                        <div class="widget widget-13 has-shadow">
-                            <div class="widget-body">
-                                <div class="author-name">
-                                    <span>周检详情</span>
-                                    <div class="row">
-                                        <div class="col-6">
-                                            {{$certificates->where('verification_date', '>=', $start_year)->where('verification_date', '<=', $end_year)->count()}}
-                                            <span>{{date('Y')}}年</span>
+                    <div class="col-xl-3 col-md-3">
+                        <div class="bg-body-tertiary rounded-4 shadow-sm p-3 my-3">
+                            <div class="container-fluid">
+                                <div class="widget widget-13 has-shadow">
+                                    <div class="widget-body">
+                                        <div class="author-name">
+                                            <span>抽检详情</span>
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    {{$check_count['year']}}
+                                                    <span>{{date('Y')}}年</span>
+                                                </div>
+                                                <div class="col-6">
+                                                    {{$check_count['month_total']}}
+                                                    <span>{{date('m')}}月</span>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="col-6">
-                                            {{$certificates->where('verification_date', '>=',$start_month)->where('verification_date', '<=',$end_month)->whereIn('unit2',$positions->pluck('name'))->count()}}
-                                            <span>{{date('m')}}月</span>
+                                        <div class="social-stats">
+                                            <div class="row d-flex justify-content-between mt-2">
+                                                @foreach($positions as $position)
+                                                    <div class="col-4 text-center no-padding">
+                                                        <div class="counter">{{$check_count['month'][$position]['count']}}</div>
+                                                        <div class="heading">{{$position}}</div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="social-stats">
-                                    <div class="row d-flex justify-content-between mt-2">
-                                        @foreach($positions as $position)
-                                            <div class="col-4 text-center no-padding">
-                                                <div class="counter">{{$certificates->where('verification_date', '>=', $start_month)->where('verification_date', '<=', $end_month)->where('unit2',$position)->count()}}</div>
-                                                <div class="heading">{{$position}}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-3">
+                        <div class="bg-body-tertiary rounded-4 shadow-sm p-3 my-3">
+                            <div class="container-fluid">
+                                <div class="widget widget-13 has-shadow">
+                                    <div class="widget-body">
+                                        <div class="author-name">
+                                            <span>周检详情</span>
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    {{$certificates->where('verification_date', '>=', $start_year)->where('verification_date', '<=', $end_year)->count()}}
+                                                    <span>{{date('Y')}}年</span>
+                                                </div>
+                                                <div class="col-6">
+                                                    {{$certificates->where('verification_date', '>=',$start_month)->where('verification_date', '<=',$end_month)->whereIn('unit2',$positions->pluck('name'))->count()}}
+                                                    <span>{{date('m')}}月</span>
+                                                </div>
                                             </div>
-                                        @endforeach
+                                        </div>
+                                        <div class="social-stats">
+                                            <div class="row d-flex justify-content-between mt-2">
+                                                @foreach($positions as $position)
+                                                    <div class="col-4 text-center no-padding">
+                                                        <div class="counter">{{$certificates->where('verification_date', '>=', $start_month)->where('verification_date', '<=', $end_month)->where('unit2',$position)->count()}}</div>
+                                                        <div class="heading">{{$position}}</div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -157,7 +167,7 @@
                     </div>
                 </div>
             </div>
-            <div class="swiper-slide" style="overflow:auto;">
+            <div class="swiper-slide">
                 <div class="row flex-row">
                     <div class="col-xl-4 col-md-4">
                         <div class="widget widget-14 has-shadow">
