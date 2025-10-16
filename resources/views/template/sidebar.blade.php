@@ -15,7 +15,7 @@
                 {{$tmp_method??''}}
                 {{csrf_field()}}
                 @yield('content_form')
-                @include('template.sidebar-btn',['tmp_color'=>$tmp_color??'primary','tmp_class'=>$tmp_class,'tmp_label'=>$tmp_label??'确 定'])
+                @include('template.sidebar-btn',['tmp_class'=>$tmp_class,'tmp_label'=>$tmp_label??'确 定','tmp_color'=>$tmp_color??'primary'])
             </form>
         @else
             @yield('content_form')

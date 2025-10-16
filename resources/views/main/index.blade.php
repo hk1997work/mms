@@ -316,5 +316,5 @@
         let year_plan = {!! json_encode($year_plan) !!};
         let month_plan = {{$month_plan}};
     </script>
-    <script src="/admin/assets/js/dashboard/main.js"></script>
+    <script src="/admin/assets/js/pages/main.js"></script>
 @endpush
