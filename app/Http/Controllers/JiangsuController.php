@@ -33,7 +33,7 @@ class JiangsuController extends Controller
         $list = [];
         $certificates = [];
         foreach ($result as $value) {
-            if (!$jiangsu->contains($value->zsZsh) && !$certificate->contains($value->zsZsh)) {
+            if (!$jiangsu->contains($value->zsZsh) && !$certificate->contains($value->zsZsh) && $value->zsJdrq) {
                 $value->zsCcbh = ((!isset($value->zsCcbh) || $value->zsCcbh == '/') ? '' : $value->zsCcbh) . ((!isset($value->zsSbbh) || $value->zsSbbh == '/') ? '' : $value->zsSbbh);
                 $list[] = $value;
                 $certificates[] = [$value->zsZsh, $value->zsJdrq, $value->zsZsh, $value->zsQjmc, $value->zsXhgg, $value->zsCcbh,];
