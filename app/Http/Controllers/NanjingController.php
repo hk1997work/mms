@@ -233,8 +233,10 @@ class NanjingController extends Controller
                 $list_str['mindParam2'] = md5($list_json . "&njmindToken");
                 $get_list_res = $client->request('GET', 'https://www.njsnjl.cn/cmiims/a/sys/adminECertQuery/listenceInfo?' . $this->nanjing_encode(json_encode($list_str)), $headers);
                 $get_list_result = json_decode($this->nanjing_decode((string)$get_list_res->getBody()));
-                if ($get_list_result->success) {
+                if (isset($get_list_result->success)) {
                     return $get_list_result->data->list;
+                } else {
+                    session()->forget('nanjing_headers');
                 }
             }
             #获取验证码
