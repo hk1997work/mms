@@ -155,7 +155,7 @@ function submit_ajax(btn, url, show = true) {
         url: url, type: 'POST', data: data, processData: false, contentType: false, success: function (result) {
             if (result == true) {
                 notifications(title + '成功');
-                if (dataTable['sidebar']) {
+                if (dataTable['sidebar'] && $('.off-sidebar.is-visible').length >= 2) {
                     reloadTable(dataTable['sidebar'], true);
                     reloadTable(dataTable['index'], false);
                 } else {
