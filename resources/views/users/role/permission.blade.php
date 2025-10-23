@@ -5,7 +5,7 @@
 @endsection
 @section('content_form')
     <div class="tab-content">
-        @include('template.checklist',['tmp_items'=>$permissions,'tmp_name'=>'permission','tmp_field'=>'description','tmp_checked'=>$myPermissions,'tmp_show'=>true])
+        @include('template.checklist',['tmp_items'=>$permissions,'tmp_name'=>'permission','tmp_field'=>'description','tmp_checked'=>$myPermissions,'tmp_active'=>true])
         @include('template.checklist',['tmp_items'=>$positions,'tmp_name'=>'position','tmp_field'=>'name','tmp_checked'=>$myPositions])
     </div>
     <script src="/admin/assets/js/pages/permission.js"></script>

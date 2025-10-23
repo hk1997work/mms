@@ -1,5 +1,5 @@
 import sys
-import fitz  # PyMuPDF
+import fitz
 import pytesseract
 import mysql.connector
 import requests
@@ -97,23 +97,18 @@ def is_valid_json(text):
         return False, text
 
 
-def main():
-    text = sys.argv[1]
-    arr_category = {"检定证": "检定证书", "检定结": "检定证书", "校准证": "校准证书", "检测报": "检测报告", "测试报": "检测报告"}
-    database_data = get_data_from_database()
-    is_json, arr = is_valid_json(text)
-    json_array = []
-    if not is_json:
-        arr = {'0': text}
-    for key, value in arr.items():
-        one_text, pdf_text = extract_text_from_pdf(value)
-        pdf_standard = []
-        for record in database_data:
-            if record[1] in pdf_text:
-                pdf_standard.append(str(record[0]))
-        json_array.append({'key': key.replace('key', ''), 'category': find_matching_keywords(one_text, arr_category), 'standards': ','.join(pdf_standard)})
-    print(json.dumps(json_array))
-
-
-if __name__ == "__main__":
-    main()
+text = sys.argv[1]
+arr_category = {"检定证": "检定证书", "检定结": "检定证书", "校准证": "校准证书"}
+database_data = get_data_from_database()
+is_json, arr = is_valid_json(text)
+json_array = []
+if not is_json:
+    arr = {'0': text}
+for key, value in arr.items():
+    one_text, pdf_text = extract_text_from_pdf(value)
+    pdf_standard = []
+    for record in database_data:
+        if record[1] in pdf_text:
+            pdf_standard.append(str(record[0]))
+    json_array.append({'key': key.replace('key', ''), 'category': find_matching_keywords(one_text, arr_category), 'standards': ','.join(pdf_standard)})
+print(json.dumps(json_array))

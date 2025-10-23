@@ -1,4 +1,15 @@
-<div class="col-{{$tmp_col??'12'}} div-{{$tmp_name}}">
+@php
+    # $tmp_name
+    # $tmp_label
+    # $tmp_items
+    # $tmp_selected
+    # $tmp_validate
+    # $tmp_value
+    # $tmp_field
+    $tmp_col=$tmp_col??'12';
+@endphp
+
+<div class="col-{{$tmp_col}} div-{{$tmp_name}}">
     <div class="form-label mt-3 mb-2">{{$tmp_label}}</div>
     <select name="{{$tmp_name}}" class="form-control form-select">
         <option value="" selected disabled>请选择...</option>

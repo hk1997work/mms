@@ -34,15 +34,9 @@ class NanjingController extends Controller
         $certificates = [];
         foreach ($result as $value) {
             if (!$nanjing->contains($value->zsbh) && !$certificate->contains($value->zsbh)) {
+                $value->ccbh = ((!isset($value->ccbh) || $value->ccbh == '/') ? '' : $value->ccbh) . ((!isset($value->sbbh) || $value->sbbh == '/') ? '' : $value->sbbh);
                 $list[] = $value;
-                $certificates[] = [
-                    $value->zsbh,
-                    $value->jdrq,
-                    $value->zsbh,
-                    $value->name,
-                    $value->xhgg,
-                    (isset($value->ccbh) ? ($value->ccbh == '/' ? '' : $value->ccbh) : '') . (isset($value->sbbh) ? ($value->sbbh == '/' ? '' : $value->sbbh) : ''),
-                ];
+                $certificates[] = [$value->zsbh, $value->jdrq, $value->zsbh, $value->name, $value->xhgg, $value->ccbh,];
             }
         }
         request()->session()->put('nanjing_certificate', $list);
@@ -51,44 +45,42 @@ class NanjingController extends Controller
 
     public function create(Request $request)
     {
-        $certificates = [];
-        $check = explode(',', $request->id);
-        $tools = Tool::orderBy('instrument')->get();
-        $standards = StandardsView::where('level', 2)->get();
         $client = new GuzzleHttp\Client(['verify' => false]);
         $headers = request()->session()->get('nanjing_headers');
         $list = request()->session()->get('nanjing_certificate');
+        $certificates = [];
+        $ids = explode(',', $request->id);
+        $tools = Tool::orderBy('instrument')->get();
+        $standards = StandardsView::where('level', 2)->get();
         foreach ($list as $key => $value) {
-            if (in_array($value->zsbh, $check)) {
+            if (in_array($value->zsbh, $ids)) {
                 #获取证书地址
                 $str = $this->nanjing_encode('{"eCert":' . json_encode($value) . '}');
-                $res = $client->request('GET', "http://58.213.156.66/cmiims/a/sys/adminECertQuery/downloadInfoByPath?$str", $headers);
+                $res = $client->request('GET', "http://lims.njsjly.com/cmiims/a/sys/adminECertQuery/downloadInfoByPath?$str", $headers);
                 $json = json_decode($this->nanjing_decode((string)$res->getBody()));
-                $certificates[$key]['path'] = 'http://58.213.156.66' . $json->data;
-                #获取出厂编号
-                $value->ccbh = isset($value->ccbh) ? $value->ccbh == '/' ? '' : $value->ccbh : '';
-                $value->sbbh = isset($value->sbbh) ? $value->sbbh == '/' ? '' : $value->sbbh : '';
-                $numbers = Number::where('name', $value->ccbh . $value->sbbh)->get();
-                #获取生产厂家
-                $str = $this->nanjing_encode('{"id":"' . $value->id . '"}');
-                $res = $client->request('GET', "http://lims.njsjly.com/cmiims/f/sys/webQuery/inquiryByIdInfo?$str", $headers);
-                if (str_contains($this->nanjing_decode((string)$res->getBody()), '"zzcs":"')) {
-                    $certificates[$key]['factory'] = explode('","', explode('"zzcs":"', $this->nanjing_decode((string)$res->getBody()))[1])[0];
-                } else {
-                    $certificates[$key]['factory'] = '未录入生产厂家';
-                }
+                $certificates[$key] = (array)$value;
                 $certificates[$key]['key'] = 'key' . $key;
-                $certificates[$key]['json'] = $value;
+                $certificates[$key]['path'] = "http://lims.njsjly.com$json->data";
+                #获取生产厂家
+                $str = $this->nanjing_encode("{'id':'$value->id'}");
+                $res = $client->request('GET', "http://lims.njsjly.com/cmiims/f/sys/webQuery/inquiryByIdInfo?$str", $headers);
+                $json = json_decode($this->nanjing_decode((string)$res->getBody()));
+                $certificates[$key]['factory'] = $json->certificateInfo->zzcs;
+
+                $numbers = Number::where('name', $value->ccbh)->get();
                 if ($numbers->count() == 1) {
-                    $certificates[$key]['info'] = 1;
-                    $factory = Number::where('id', $numbers->first()->pid)->first();
+                    $factory = Number::find($numbers->first()->pid);
                     $certificates[$key]['number_id'] = $numbers->first()->id;
                     $certificates[$key]['factory_id'] = $factory->id;
                     $certificates[$key]['tool_id'] = $factory->pid;
                     $certificates[$key]['numbers'] = $this->getNumbers($factory->id, $_GET['number_id'] = 0);
                     $certificates[$key]['factories'] = $this->getFactories($factory->pid);
                 } else {
-                    $certificates[$key]['info'] = 0;
+                    $certificates[$key]['number_id'] = null;
+                    $certificates[$key]['factory_id'] = null;
+                    $certificates[$key]['tool_id'] = null;
+                    $certificates[$key]['numbers'] = null;
+                    $certificates[$key]['factories'] = null;
                 }
             }
         }
@@ -143,7 +135,7 @@ class NanjingController extends Controller
                 $number->save();
                 $standards = Standard::find($r['standard_id']);
                 $certificate->standards()->sync($standards);
-                Storage::put("/public/certificate/" . $certificate->id . ".pdf", file_get_contents($r['path']));
+                Storage::put("/public/certificate/$certificate->id.pdf", file_get_contents($r['path']));
                 $this->pdf2jpg($certificate->id);
             } else {
                 return false;
@@ -162,17 +154,17 @@ class NanjingController extends Controller
         if (request()->session()->missing('nanjing_certificate')) {
             return '登录失效,请刷新';
         }
-        $check = explode(',', $nanjing);
+        $ids = explode(',', $nanjing);
         $list = request()->session()->get('nanjing_certificate');
         foreach ($list as $value) {
-            if (in_array($value->zsbh, $check)) {
+            if (in_array($value->zsbh, $ids)) {
                 $arr['certificate_no'] = $value->zsbh;
                 $arr['instrument'] = $value->name;
                 $arr['model'] = $value->xhgg;
-                $arr['number'] = (isset($value->ccbh) ? $value->ccbh == '/' ? '' : $value->ccbh : '') . (isset($value->sbbh) ? $value->sbbh == '/' ? '' : $value->sbbh : '');
+                $arr['number'] = $value->ccbh;
                 $arr['verification_date'] = $value->jdrq;
-                $arr['remark'] = isset($request->remark) ? $request->remark : '';
-                $arr['pdf'] = json_encode($value, JSON_UNESCAPED_UNICODE);
+                $arr['remark'] = $request->remark ?? '';
+                $arr['pdf'] = json_encode($value);
                 Nanjing::create($arr);
             }
         }
@@ -211,11 +203,11 @@ class NanjingController extends Controller
         foreach ($list as $value) {
             if ($value->zsbh == $nanjing) {
                 $str = $this->nanjing_encode('{"eCert":' . json_encode($value) . '}');
-                $res = $client->request('GET', "http://58.213.156.66/cmiims/a/sys/adminECertQuery/downloadInfoByPath?$str", $headers);
+                $res = $client->request('GET', "http://lims.njsjly.com/cmiims/a/sys/adminECertQuery/downloadInfoByPath?$str", $headers);
                 $json = json_decode($this->nanjing_decode((string)$res->getBody()));
             }
         }
-        $res = $client->request('GET', 'http://58.213.156.66' . $json->data);
+        $res = $client->request('GET', 'http://lims.njsjly.com' . $json->data);
         if (isset($_GET['type'])) {
             return response($res->getBody())->header('Content-Type', 'application/pdf');
         } else {
@@ -229,14 +221,13 @@ class NanjingController extends Controller
         for ($i = 1; $i < 3; $i++) {
             if (request()->session()->has('nanjing_headers')) {
                 $headers = request()->session()->get('nanjing_headers');
-                $confirm_res = $client->request('GET', 'http://58.213.156.66/cmiims/a/checkList/page?' . $this->nanjing_encode('{"pageNo":1,"pageSize":50}'), $headers);
-                $confirm_result = $this->nanjing_decode((string)$confirm_res->getBody());
+                $confirm_res = $client->request('GET', 'http://lims.njsjly.com/cmiims/a/checkList/page?' . $this->nanjing_encode('{"pageNo":1,"pageSize":50}'), $headers);
+                $confirm_result = json_decode($this->nanjing_decode((string)$confirm_res->getBody()));
                 $confirm_list = [];
                 $confirm_order = [];
                 $confirm_price = 0;
-                if (substr($confirm_result, 0, 7) == '{"data"') {
-                    $confirm_data = json_decode('[{"' . explode('":[{"', explode('"}],"', $confirm_result)[0])[1] . '"}]');
-                    foreach ($confirm_data as $value) {
+                if ($confirm_result->success) {
+                    foreach ($confirm_result->data->list as $value) {
                         if ($value->feeConfirm == 0) {
                             $value->checked = true;
                             $confirm_list[] = $value;
@@ -258,10 +249,10 @@ class NanjingController extends Controller
                             "tax_type" => "2",
                             "tax_payer" => "91320191667351423J",
                         ];
-                        $confirm_json = json_encode($confirm_str, JSON_UNESCAPED_UNICODE);
+                        $confirm_json = json_encode($confirm_str);
                         $confirm_str['mindParam1'] = $this->nanjing_encode($confirm_json);
                         $confirm_str['mindParam2'] = md5($confirm_json . "&njmindToken");
-                        $client->post('http://58.213.156.66/cmiims/a/sys/payOnline/applyPayOnlineAndBatchVerify', ['body' => $this->nanjing_encode(json_encode($confirm_str, JSON_UNESCAPED_UNICODE)), 'headers' => ['Cookie' => $headers['headers']['Cookie'] . ';cmiims_login_name=13155555418;']]);
+                        $client->post('http://lims.njsjly.com/cmiims/a/sys/payOnline/applyPayOnlineAndBatchVerify', ['body' => $this->nanjing_encode(json_encode($confirm_str)), 'headers' => ['Cookie' => $headers['headers']['Cookie'] . ';cmiims_login_name=13155555418;']]);
                     }
                     $list_str = [
                         "pageNo" => "1",
@@ -270,18 +261,18 @@ class NanjingController extends Controller
                         "beginTime" => "2025-01-01",
                         "searchConditionFilter" => [],
                     ];
-                    $list_json = json_encode($list_str, JSON_UNESCAPED_UNICODE);
+                    $list_json = json_encode($list_str);
                     $list_str['mindParam1'] = $this->nanjing_encode($list_json);
                     $list_str['mindParam2'] = md5($list_json . "&njmindToken");
-                    $get_list_res = $client->request('GET', 'http://58.213.156.66/cmiims/a/sys/adminECertQuery/listenceInfo?' . $this->nanjing_encode(json_encode($list_str, JSON_UNESCAPED_UNICODE)), $headers);
-                    $get_list_result = $this->nanjing_decode((string)$get_list_res->getBody());
-                    if (substr($get_list_result, 0, 7) == '{"data"') {
-                        return json_decode('[{"' . explode('":[{"', explode('"}],"', $get_list_result)[0])[1] . '"}]');
+                    $get_list_res = $client->request('GET', 'http://lims.njsjly.com/cmiims/a/sys/adminECertQuery/listenceInfo?' . $this->nanjing_encode(json_encode($list_str)), $headers);
+                    $get_list_result = json_decode($this->nanjing_decode((string)$get_list_res->getBody()));
+                    if ($get_list_result->success) {
+                        return $get_list_result->data->list;
                     }
                 }
             }
             #获取验证码
-            $res = $client->get('http://58.213.156.66/cmiims/servlet/validateCodeServlet?' . (int)Carbon::now()->valueOf());
+            $res = $client->get('http://lims.njsjly.com/cmiims/servlet/validateCodeServlet?' . (int)Carbon::now()->valueOf());
             $session = str_replace('; Path=/cmiims; HttpOnly', '', $res->getHeaders()['Set-Cookie'][0]);
             if (File::isDirectory("storage/" . \Auth::user()->id . "/orc") == false) {
                 File::makeDirectory("storage/" . \Auth::user()->id . "/orc", 0777, true, true);
@@ -296,8 +287,11 @@ class NanjingController extends Controller
                     "validateCode" => $out[count($out) - 1],
                     "type" => "2",
                     "codeType" => "",
-                ], JSON_UNESCAPED_UNICODE);;
-                $client->post('http://58.213.156.66/cmiims/a/api/ajaxLogin', ['body' => $this->nanjing_encode($login_str), 'headers' => ['Cookie' => $session]]);
+                ]);
+                $client->post('http://lims.njsjly.com/cmiims/a/api/ajaxLogin', [
+                    'body' => $this->nanjing_encode($login_str),
+                    'headers' => ['Cookie' => $session],
+                ]);
                 request()->session()->put('nanjing_headers', ['headers' => ['Cookie' => $session]]);
             }
         }

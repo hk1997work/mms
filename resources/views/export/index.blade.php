@@ -1,6 +1,6 @@
 @extends("layout.index")
 @section('content_btn')
-    @include('template.nav-btn',['tmp_label'=>'设置','tmp_menu'=>'export','tmp_class'=>'btn-add','tmp_pos'=>'left','tmp_id'=>'true'])
+    @include('template.nav-btn',['tmp_menu'=>'export','tmp_id'=>'true','tmp_class'=>'btn-add','tmp_label'=>'设置','tmp_pos'=>'left'])
 @endsection
 @section('content_table')
     <form action="/export/1" method="post" enctype="multipart/form-data">

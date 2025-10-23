@@ -34,22 +34,20 @@ class Controller extends BaseController
 
     function getFactories($tool_id)
     {
-        $factories = Number::where('pid', $tool_id)->where('level', 1)->orderBy('name')->get();
-        return $factories;
+        return Number::where('pid', $tool_id)->where('level', 1)->orderBy('name')->get();
     }
 
     function getNumbers($factory_id)
     {
-        $numbers = Number::where('pid', $factory_id)->where(function ($query) {
+        return Number::where('pid', $factory_id)->where(function ($query) {
             if (isset($_GET['number_id']) && $_GET['number_id'] == 0) {
                 $query->where('state_id', Parameter::where('name', '待检')->first()->id)
                     ->orWhere('state_id', Parameter::where('name', '在用')->first()->id);
             } else {
                 $query->where('state_id', Parameter::where('name', '待检')->first()->id)
-                    ->orWhere('id', isset($_GET['number_id']) ? $_GET['number_id'] : 0);
+                    ->orWhere('id', $_GET['number_id'] ?? 0);
             }
         })->orderBy('name')->get();
-        return $numbers;
     }
 
     function getNumber($number_id)

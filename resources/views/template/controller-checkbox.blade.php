@@ -1,3 +1,12 @@
+@php
+    # $tmp_name
+    # $tmp_label
+    # $tmp_items
+    # $tmp_selected
+    # $tmp_input
+    # $tmp_check
+@endphp
+
 <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12">
     <div class="mt-3 mb-2">{{$tmp_label}}</div>
     @if(isset($tmp_input))

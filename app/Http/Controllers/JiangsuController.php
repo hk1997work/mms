@@ -34,15 +34,9 @@ class JiangsuController extends Controller
         $certificates = [];
         foreach ($result as $value) {
             if (!$jiangsu->contains($value->zsZsh) && !$certificate->contains($value->zsZsh)) {
+                $value->zsCcbh = ((!isset($value->zsCcbh) || $value->zsCcbh == '/') ? '' : $value->zsCcbh) . ((!isset($value->zsSbbh) || $value->zsSbbh == '/') ? '' : $value->zsSbbh);
                 $list[] = $value;
-                $certificates[] = [
-                    $value->zsZsh,
-                    $value->zsJdrq,
-                    $value->zsZsh,
-                    $value->zsQjmc,
-                    $value->zsXhgg,
-                    (isset($value->zsCcbh) ? ($value->zsCcbh == '/' ? '' : $value->zsCcbh) : '') . (isset($value->zsSbbh) ? ($value->zsSbbh == '/' ? '' : $value->zsSbbh) : ''),
-                ];
+                $certificates[] = [$value->zsZsh, $value->zsJdrq, $value->zsZsh, $value->zsQjmc, $value->zsXhgg, $value->zsCcbh,];
             }
         }
         request()->session()->put('jiangsu_certificate', $list);
@@ -51,32 +45,33 @@ class JiangsuController extends Controller
 
     public function create(Request $request)
     {
+        $client = new GuzzleHttp\Client(['verify' => false]);
         $certificates = [];
-        $check = explode(',', $request->id);
+        $ids = explode(',', $request->id);
         $tools = Tool::orderBy('instrument')->get();
         $standards = StandardsView::where('level', 2)->get();
-        $client = new GuzzleHttp\Client(['verify' => false]);
-        foreach ($check as $key => $value) {
+        foreach ($ids as $key => $value) {
             #获取证书地址
             $res = $client->request('GET', 'https://serv.jsmi.com.cn/admin/zs/getByZshEwm/' . base64_encode($value));
             $json = json_decode((string)$res->getBody())->data;
-            $certificates[$key]['path'] = 'https://app.jsmi.com.cn/file/sys-file/downLoadFile//' . $json->zsZsh . '.pdf?bucket=document&fileName=' . $json->zsZsdz;
-            #获取出厂编号
-            $json->zsCcbh = isset($json->zsCcbh) ? $json->zsCcbh == '/' ? '' : $json->zsCcbh : '';
-            $json->zsSbbh = isset($json->zsSbbh) ? $json->zsSbbh == '/' ? '' : $json->zsSbbh : '';
-            $number = Number::where('name', $json->zsCcbh . $json->zsSbbh)->get();
+            $certificates[$key] = (array)$json;
             $certificates[$key]['key'] = 'key' . $key;
-            $certificates[$key]['json'] = $json;
-            if ($number->count() == 1) {
-                $certificates[$key]['info'] = 1;
-                $factory = Number::where('id', $number->first()->pid)->first();
-                $certificates[$key]['number_id'] = $number->first()->id;
+            $certificates[$key]['path'] = 'https://app.jsmi.com.cn/file/sys-file/downLoadFile//' . $json->zsZsh . '.pdf?bucket=document&fileName=' . $json->zsZsdz;
+
+            $numbers = Number::where('name', $json->zsCcbh)->get();
+            if ($numbers->count() == 1) {
+                $factory = Number::find($numbers->first()->pid);
+                $certificates[$key]['number_id'] = $numbers->first()->id;
                 $certificates[$key]['factory_id'] = $factory->id;
                 $certificates[$key]['tool_id'] = $factory->pid;
                 $certificates[$key]['numbers'] = $this->getNumbers($factory->id, $_GET['number_id'] = 0);
                 $certificates[$key]['factories'] = $this->getFactories($factory->pid);
             } else {
-                $certificates[$key]['info'] = 0;
+                $certificates[$key]['number_id'] = null;
+                $certificates[$key]['factory_id'] = null;
+                $certificates[$key]['tool_id'] = null;
+                $certificates[$key]['numbers'] = null;
+                $certificates[$key]['factories'] = null;
             }
         }
         $result = $this->getStandards(collect($certificates)->pluck('path', 'key'));
@@ -130,7 +125,7 @@ class JiangsuController extends Controller
                 $number->save();
                 $standards = Standard::find($r['standard_id']);
                 $certificate->standards()->sync($standards);
-                Storage::put("/public/certificate/" . $certificate->id . ".pdf", file_get_contents($r['path']));
+                Storage::put("/public/certificate/$certificate->id.pdf", file_get_contents($r['path']));
                 $this->pdf2jpg($certificate->id);
             } else {
                 return false;
@@ -149,17 +144,17 @@ class JiangsuController extends Controller
         if (request()->session()->missing('jiangsu_certificate')) {
             return '登录失效,请刷新';
         }
-        $check = explode(',', $jiangsu);
+        $ids = explode(',', $jiangsu);
         $list = request()->session()->get('jiangsu_certificate');
         foreach ($list as $value) {
-            if (in_array($value->zsZsh, $check)) {
+            if (in_array($value->zsZsh, $ids)) {
                 $arr['certificate_no'] = $value->zsZsh;
                 $arr['instrument'] = $value->zsQjmc;
                 $arr['model'] = $value->zsXhgg;
-                $arr['number'] = (isset($value->zsCcbh) ? $value->zsCcbh == '/' ? '' : $value->zsCcbh : '') . (isset($value->zsSbbh) ? $value->zsSbbh == '/' ? '' : $value->zsSbbh : '');
+                $arr['number'] = $value->zsCcbh;
                 $arr['verification_date'] = $value->zsJdrq;
-                $arr['remark'] = isset($request->remark) ? $request->remark : '';
-                $arr['pdf'] = json_encode($value, JSON_UNESCAPED_UNICODE);
+                $arr['remark'] = $request->remark ?? '';
+                $arr['pdf'] = json_encode($value);
                 Jiangsu::create($arr);
             }
         }
@@ -191,7 +186,7 @@ class JiangsuController extends Controller
         $client = new GuzzleHttp\Client(['verify' => false]);
         $res = $client->request('GET', 'https://serv.jsmi.com.cn/admin/zs/getByZshEwm/' . base64_encode($jiangsu));
         $json = json_decode((string)$res->getBody())->data;
-        $res = $client->request('GET', 'https://app.jsmi.com.cn/file/sys-file/downLoadFile//' . $json->zsZsh . '.pdf?bucket=document&fileName=' . $json->zsZsdz);
+        $res = $client->request('GET', "https://app.jsmi.com.cn/file/sys-file/downLoadFile//$json->zsZsh.pdf?bucket=document&fileName=$json->zsZsdz");
         if (isset($_GET['type'])) {
             return response($res->getBody())->header('Content-Type', 'application/pdf');
         } else {
@@ -207,7 +202,7 @@ class JiangsuController extends Controller
                 if (request()->session()->has('jiangsu_Authorization')) {
                     $Authorization = request()->session()->get('jiangsu_Authorization');
                     $JSESSIONID = request()->session()->get('jiangsu_JSESSIONID');
-                    $result = $client->request('GET', 'https://serv.jsmi.com.cn/forms/zs/list?current=1&size=9999&zsZsh=&zsDdh=&zsWyxh=&zsQjmc=&zsZsdwmc=南京巨龙钢管有限公司&zsXhgg=&zsCcbh=&zsClfw=&zsZqd=&zsSbbh=&zsDyrqStart=2025-01-01', [
+                    $get_list_res = $client->request('GET', 'https://serv.jsmi.com.cn/forms/zs/list?current=1&size=9999&zsZsh=&zsDdh=&zsWyxh=&zsQjmc=&zsZsdwmc=南京巨龙钢管有限公司&zsXhgg=&zsCcbh=&zsClfw=&zsZqd=&zsSbbh=&zsDyrqStart=2025-01-01', [
                         'cookie' => [
                             'Authorization' => $Authorization,
                             'JSESSIONID' => $JSESSIONID,
@@ -217,19 +212,19 @@ class JiangsuController extends Controller
                             'TENANT-ID' => '2',
                         ],
                     ]);
-                    return json_decode((string)$result->getBody())->data->records;
+                    return json_decode((string)$get_list_res->getBody())->data->records;
                 }
             } catch (RequestException  $exception) {
                 session()->forget('jiangsu_Authorization');
             }
             exec("python F:/phpstudy_pro/WWW/laravel8/python/get_coordinate_form_path.py  2>&1 https://serv.jsmi.com.cn/code", $out, $status);
-            $client->request('POST', 'https://serv.jsmi.com.cn/code/check?captchaType=blockPuzzle&pointJson=' . urlencode($this->jiangsu_encode($out[2], $out[0])) . '&token=' . $out[1], [
+            $client->post('https://serv.jsmi.com.cn/code/check?captchaType=blockPuzzle&pointJson=' . urlencode($this->jiangsu_encode($out[2], $out[0])) . '&token=' . $out[1], [
                 'headers' => [
                     'Authorization' => 'Basic cGlnOnBpZw==',
                     'TENANT-ID' => '2',
                 ],
             ]);
-            $res = $client->request('POST', 'https://serv.jsmi.com.cn/auth/oauth/token?randomStr=blockPuzzle&code=' . urlencode($this->jiangsu_encode($out[1] . '---' . $out[2], $out[0])) . '&grant_type=password', [
+            $res = $client->post('https://serv.jsmi.com.cn/auth/oauth/token?randomStr=blockPuzzle&code=' . urlencode($this->jiangsu_encode($out[1] . '---' . $out[2], $out[0])) . '&grant_type=password', [
                 'form_params' => [
                     'username' => '13155555418',
                     'password' => 'RBWv3JtZKCI=',

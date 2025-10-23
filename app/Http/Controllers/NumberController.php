@@ -12,7 +12,7 @@ class NumberController extends Controller
 {
     public function create()
     {
-        $states = Parameter::where('pid', Parameter::where('name', '管理状态')->first()->id)->orderBy('sort')->get();
+        $states = Parameter::where('pid', Parameter::where('name', '管理状态')->first()->id)->where('name','!=','在用')->orderBy('sort')->get();
         $pid = $_GET['id'];
         $name = isset($_GET['name']) ? $_GET['name'] : null;
         return view('tools.number.create', compact('states', 'pid', 'name'));

@@ -4,9 +4,9 @@
     @include('template.input',['tmp_name'=>'model','tmp_label'=>'规格型号','tmp_value'=>$tool->model])
     @include('template.input',['tmp_name'=>'limit','tmp_label'=>'测量范围','tmp_value'=>$tool->limit])
     @include('template.input',['tmp_name'=>'accuracy','tmp_label'=>'精确度','tmp_value'=>$tool->accuracy])
-    @include('template.select',['tmp_name'=>'cycle_id','tmp_label'=>'检定周期','tmp_items'=>$cycles,'tmp_value'=>'id','tmp_field'=>'name','tmp_selected'=>$tool->cycle_id,'tmp_validate'=>'id'])
-    @include('template.select',['tmp_name'=>'abc_id','tmp_label'=>'ABC类','tmp_items'=>$abcs,'tmp_value'=>'id','tmp_field'=>'name','tmp_selected'=>$tool->abc_id,'tmp_validate'=>'id'])
-    @include('template.select',['tmp_name'=>'plan_id','tmp_label'=>'检定计划','tmp_items'=>$plans,'tmp_value'=>'id','tmp_field'=>'name','tmp_selected'=>$tool->plan_id,'tmp_validate'=>'id'])
+    @include('template.select',['tmp_name'=>'cycle_id','tmp_label'=>'检定周期','tmp_items'=>$cycles,'tmp_selected'=>$tool->cycle_id,'tmp_validate'=>'id','tmp_value'=>'id','tmp_field'=>'name'])
+    @include('template.select',['tmp_name'=>'abc_id','tmp_label'=>'ABC类','tmp_items'=>$abcs,'tmp_selected'=>$tool->abc_id,'tmp_validate'=>'id','tmp_value'=>'id','tmp_field'=>'name'])
+    @include('template.select',['tmp_name'=>'plan_id','tmp_label'=>'检定计划','tmp_items'=>$plans,'tmp_selected'=>$tool->plan_id,'tmp_validate'=>'id','tmp_value'=>'id','tmp_field'=>'name'])
     @include('template.select',['tmp_name'=>'vulnerable','tmp_label'=>'易损','tmp_selected'=>$tool->vulnerable])
     @include('template.input',['tmp_name'=>'requirement','tmp_label'=>'检定要求','tmp_value'=>$tool->requirement])
 @endsection
