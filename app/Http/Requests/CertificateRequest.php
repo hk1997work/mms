@@ -38,10 +38,10 @@ class CertificateRequest extends FormRequest
                         $regex = '/^\d{12}$/';
                         break;
                     default:
-                        $regex = '/^\d{12}$/';
+                        $regex = '/.+/';
                 }
             } else {
-                $regex = '/^\d{12}$/';
+                $regex = '/.+/';
             }
             $rules = [
                 'position_id' => 'required',
