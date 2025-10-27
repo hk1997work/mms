@@ -11,18 +11,5 @@
     @include('template.table',['tmp_menu'=>'position','tmp_headers'=>['','岗位','','','','编号','数量'],'tmp_class'=>'table-tree'])
 @endsection
 @push('page-js-after-1')
-    <script>
-        $('.off-sidebar').on('change', '[name="position_id"]', function () {
-            let form = $(this).closest('form')
-            $.ajax({
-                url: "/certificate_sn/" + form.find('[name="position_id"]').val(),
-                success: function (data) {
-                    data ? form.find('[name="sn"]').val(data).trigger('change') : notifications('序号加载失败');
-                },
-                error: function (xhr) {
-                    xhr.status === 401 ? document.location.reload() : notifications('序号加载失败');
-                }
-            })
-        })
-    </script>
+    <script src="/admin/assets/js/pages/position.js"></script>
 @endpush

@@ -33,10 +33,12 @@ class NanjingController extends Controller
         $list = [];
         $certificates = [];
         foreach ($result as $value) {
-            if (!$nanjing->contains($value->zsbh) && !$certificate->contains($value->zsbh)) {
+            if (!$certificate->contains($value->zsbh)) {
                 $value->ccbh = ((!isset($value->ccbh) || $value->ccbh == '/') ? '' : $value->ccbh) . ((!isset($value->sbbh) || $value->sbbh == '/') ? '' : $value->sbbh);
+                if (!$nanjing->contains($value->zsbh)) {
+                    $certificates[] = [$value->zsbh, $value->jdrq, $value->zsbh, $value->name, $value->xhgg, $value->ccbh,];
+                }
                 $list[] = $value;
-                $certificates[] = [$value->zsbh, $value->jdrq, $value->zsbh, $value->name, $value->xhgg, $value->ccbh,];
             }
         }
         request()->session()->put('nanjing_certificate', $list);
@@ -197,21 +199,16 @@ class NanjingController extends Controller
             return '登录失效,请刷新';
         }
         $client = new GuzzleHttp\Client(['verify' => false]);
-        $headers = request()->session()->get('nanjing_headers');
         $list = request()->session()->get('nanjing_certificate');
-        $json = '';
         foreach ($list as $value) {
             if ($value->zsbh == $nanjing) {
-                $str = $this->nanjing_encode('{"eCert":' . json_encode($value) . '}');
-                $res = $client->request('GET', "https://www.njsnjl.cn/cmiims/a/sys/adminECertQuery/downloadInfoByPath?$str", $headers);
-                $json = json_decode($this->nanjing_decode((string)$res->getBody()));
+                $res = $client->request('GET', 'https://www.njsnjl.cn' . $value->filePath);
+                if (isset($_GET['type'])) {
+                    return response($res->getBody())->header('Content-Type', 'application/pdf');
+                } else {
+                    return response((string)$res->getBody())->header('Content-Type', 'application/pdf')->header('Content-Disposition', 'attachment; filename="' . $value->name . '-' . $value->ccbh . $value->sbbh . '.pdf"');
+                }
             }
-        }
-        $res = $client->request('GET', 'https://www.njsnjl.cn' . $json->data);
-        if (isset($_GET['type'])) {
-            return response($res->getBody())->header('Content-Type', 'application/pdf');
-        } else {
-            return response((string)$res->getBody())->header('Content-Type', 'application/pdf')->header('Content-Disposition', 'attachment; filename="' . $nanjing . '.pdf"');
         }
     }
 

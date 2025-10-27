@@ -19,7 +19,7 @@
                                     <div>{{$certificate->verification_date}}</div>
                                     <div>{{$certificate->validity_date}}</div>
                                     <div>{{$certificate->department}}</div>
-                                    @include('template.btn',['tmp_class'=>'submit-delete','tmp_color'=>'danger','tmp_label'=>'删 除','tmp_id'=>'true'])
+                                    @include('template.btn',['tmp_class'=>'submit-delete btn-sm','tmp_color'=>'danger','tmp_label'=>'删 除','tmp_id'=>'true'])
                                     <input type="hidden" name="filepath" value="{{$certificate->filepath}}">
                                 </div>
                             </div>

@@ -13,7 +13,7 @@
         @include('template.input',['tmp_name'=>'cycle_id','tmp_label'=>'检定周期','tmp_state'=>'readonly','tmp_col'=>'6'])
         @include('template.select',['tmp_name'=>'category_id','tmp_label'=>'证书类型','tmp_items'=>$categories,'tmp_value'=>'id','tmp_field'=>'name','tmp_col'=>'6'])
         @include('template.input',['tmp_name'=>'abc_id','tmp_label'=>'ABC','tmp_state'=>'readonly','tmp_col'=>'6'])
-        @include('template.input',['tmp_name'=>'verification_date','tmp_label'=>'检定日期','tmp_col'=>'6'])
+        @include('template.input',['tmp_name'=>'verification_date','tmp_class'=>'single-date','tmp_label'=>'检定日期','tmp_col'=>'6'])
         @include('template.input',['tmp_name'=>'validity_date','tmp_label'=>'有效期','tmp_state'=>'readonly','tmp_col'=>'6'])
         @include('template.input',['tmp_name'=>'certificate_no','tmp_label'=>'统一编号','tmp_col'=>'6'])
         @include('template.input',['tmp_name'=>'start','tmp_label'=>'启用时间','tmp_state'=>'readonly','tmp_col'=>'6'])
@@ -24,13 +24,5 @@
         @include('template.input',['tmp_name'=>'remark','tmp_label'=>'备注','tmp_col'=>'6'])
         @include('template.input',['tmp_name'=>'file_certificate','tmp_label'=>'上传证书','tmp_state'=>'accept="application/pdf"','tmp_type'=>'file','tmp_col'=>'6'])
     </div>
-    <script>
-        $('[name="tool_id"],[name="standard_id[]"]').selectpicker();
-        $('[name="verification_date"]').daterangepicker({
-            singleDatePicker: true,
-            autoApply: true,
-            parentEl: $('.off-sidebar-container'),
-            container: '[name="verification_date"]',
-        });
-    </script>
+    <script src="/admin/assets/js/pages/control.js"></script>
 @endsection

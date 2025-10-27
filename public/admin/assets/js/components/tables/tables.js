@@ -56,6 +56,8 @@ function initTable(table) {
             btn_change(obj, count);
         });
         return dt;
+    } else if ($('.swiper').length == 0) {
+        $("#preloader").fadeOut();
     }
 }
 

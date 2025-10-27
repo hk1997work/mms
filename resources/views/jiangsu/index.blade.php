@@ -12,5 +12,5 @@
     @include('template.table',['tmp_menu'=>'jiangsu','tmp_headers'=>['','检定日期','证书编号','器具名称','规格型号','出厂编号'],'tmp_class'=>'table-all'])
 @endsection
 @push('page-js-after-1')
-    <script src="/admin/assets/js/pages/jiangsu.js"></script>
+    <script src="/admin/assets/js/pages/organ.js"></script>
 @endpush

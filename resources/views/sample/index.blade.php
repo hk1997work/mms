@@ -13,48 +13,7 @@
 @endsection
 @push('page-js-after-1')
     <script>
-        $(document).ready(function () {
-            let container = document.getElementById('timeline');
-            let arr = [];
-            @foreach($dates as $date)
-            arr.push(
-                {
-                    id: '{{ $date }}',
-                    content: '{{ $date }}',
-                    start: "{{ $date }} 00:00:00",
-                    end: "{{ $date }} 23:59:59",
-                }
-            )
-            @endforeach
-            let items = new vis.DataSet(arr);
-            let options = {
-                height: '100px',
-                stack: false,
-                min: "{{$dates[count($dates)-1]}} 00:00:00",
-                max: "{{$dates[0]}} 23:59:59",
-            };
-            let timeline = new vis.Timeline(container, items, options);
-            let selected = "{{$dates[0]}}";
-            $('.btn-download').data('id', selected);
-            $('.btn-show').data('id', selected);
-            timeline.setSelection([selected]);
-            timeline.setWindow('{{date('Y-m-d',strtotime($dates[0].'-1 month'))}}', '{{$dates[0]}} 23:59:59', {animation: true});
-            timeline.on('select', function (properties) {
-                if (properties.items.length > 0) {
-                    selected = properties.items[0];
-                    $('#index-table').attr('data-menu', 'sample?id=' + selected);
-                    $('.btn-download').data('id', selected);
-                    $('.btn-show').data('id', selected);
-                    dataTable.ajax.url('/ajax_sample?id=' + selected).load();
-                }
-                if (properties.items.length == 0) {
-                    timeline.setSelection([selected]);
-                }
-            });
-            $('.submit-download').click(function () {
-                $('#date-download').val(selected)
-                $('#form-download').submit()
-            })
-        });
+        var dates = {!! $dates->toJson() !!};
     </script>
+    <script src="/admin/assets/js/pages/sample.js"></script>
 @endpush

@@ -6,7 +6,7 @@ let swiper_certificate = new Swiper(".swiper-certificate", {
         el: ".swiper-pagination-certificate", clickable: true, renderBullet: function (index, className) {
             let text = $(this.slides[index]).find('.instrument').text();
             let state = $(this.slides[index]).data('state');
-            return '<div class="badge bg-' + state + '-subtle border border-' + state + '-subtle text-' + state + '-emphasis rounded-pill my-1 ' + className + '">' + text + "</div>";
+            return `<div class="badge bg-${state}-subtle border border-${state}-subtle text-${state}-emphasis rounded-pill my-1 ${className}">${text}</div>`;
         },
     }, navigation: {
         nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev",
@@ -18,7 +18,7 @@ let swiper_position = new Swiper(".swiper-position", {
         el: ".swiper-pagination-position", clickable: true, renderBullet: function (index, className) {
             let text = $(this.slides[index]).text();
             let state = $(this.slides[index]).data('state');
-            return '<div class="badge bg-' + state + '-subtle border border-' + state + '-subtle text-' + state + '-emphasis rounded-pill my-1 ' + className + '">' + text + "</div>";
+            return `<div class="badge bg-${state}-subtle border border-${state}-subtle text-${state}-emphasis rounded-pill my-1 ${className}">${text}</div>`;
         },
     }, on: {
         slideChangeTransitionStart: function () {
@@ -27,7 +27,7 @@ let swiper_position = new Swiper(".swiper-position", {
             formData.append('_method', 'put');
             formData.append('_token', csrf_token);
             $.ajax({
-                url: "/check/" + encodeURIComponent(position), type: "POST", data: formData, processData: false, contentType: false, success: function (result) {
+                url: `/check/${encodeURIComponent(position)}`, type: "POST", data: formData, processData: false, contentType: false, success: function (result) {
                     swiper_certificate.removeAllSlides();
                     $.each(result.certificates, function (i, item) {
                         swiper_certificate.appendSlide([` 
@@ -57,11 +57,11 @@ let swiper_position = new Swiper(".swiper-position", {
                     })
                     let position = $('.swiper-pagination-position .swiper-pagination-bullet-active')
                     position.removeClass()
-                    position.addClass('badge bg-' + result.position.state + '-subtle border border-' + result.position.state + '-subtle text-' + result.position.state + '-emphasis rounded-pill my-1 swiper-pagination-bullet swiper-pagination-bullet-active')
+                    position.addClass(`badge bg-${result.position.state}-subtle border border-${result.position.state}-subtle text-${result.position.state}-emphasis rounded-pill my-1 swiper-pagination-bullet swiper-pagination-bullet-active`)
                     positions.find(item => item.name === result.position.name && item.level === 4).state = result.position.state;
                     let unit = $('.swiper-pagination-unit .swiper-pagination-bullet-active')
                     unit.removeClass()
-                    unit.addClass('badge bg-' + result.unit.state + '-subtle border border-' + result.unit.state + '-subtle text-' + result.unit.state + '-emphasis rounded-pill my-1 swiper-pagination-bullet swiper-pagination-bullet-active')
+                    unit.addClass(`badge bg-${result.unit.state}-subtle border border-${result.unit.state}-subtle text-${result.unit.state}-emphasis rounded-pill my-1 swiper-pagination-bullet swiper-pagination-bullet-active`)
                     unit.find(item => item.name === result.unit.name && item.level === 1).state = result.unit.state;
                     swiper_certificate.slideTo(index)
                     index = 0
@@ -79,7 +79,7 @@ let swiper_unit = new Swiper(".swiper-unit", {
         el: ".swiper-pagination-unit", clickable: true, renderBullet: function (index, className) {
             let text = $(this.slides[index]).text();
             let state = $(this.slides[index]).data('state');
-            return '<div class="badge bg-' + state + '-subtle border border-' + state + '-subtle text-' + state + '-emphasis rounded-pill my-1 ' + className + '">' + text + "</div>";
+            return `<div class="badge bg-${state}-subtle border border-${state}-subtle text-${state}-emphasis rounded-pill my-1 ${className}">${text}</div>`;
         },
     }, on: {
         init: function () {
@@ -107,7 +107,7 @@ $('#file-upload').on('change', function () {
         let formData = new FormData();
         formData.append('file', $('#file-upload')[0].files[0]);
         formData.append('_token', csrf_token);
-        formData.append('certificate_id', $('.swiper-certificate').find('.swiper-slide:eq(' + swiper_certificate.activeIndex + ')').find('[name="certificate_id"]').val());
+        formData.append('certificate_id', $('.swiper-certificate').find(`.swiper-slide:eq(${swiper_certificate.activeIndex})`).find('[name="certificate_id"]').val());
         $.ajax({
             url: "/check", type: "POST", data: formData, processData: false, contentType: false, success: function (result) {
                 index = swiper_certificate.activeIndex;

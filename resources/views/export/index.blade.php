@@ -20,9 +20,5 @@
     </form>
 @endsection
 @push('page-js-after')
-    <script>
-        $('#check_daterange').change(function () {
-            $('#daterange').prop('disabled', !this.checked);
-        });
-    </script>
+    <script src="/admin/assets/js/pages/export.js"></script>
 @endpush

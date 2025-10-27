@@ -36,7 +36,7 @@
                     @include('template.input',['tmp_name'=>'cycle_id','tmp_label'=>'检定周期','tmp_value'=>$certificate->cycle,'tmp_state'=>'readonly','tmp_col'=>'6'])
                     @include('template.select',['tmp_name'=>'category_id','tmp_label'=>'证书类型','tmp_items'=>$categories,'tmp_selected'=>$certificate->category_id,'tmp_validate'=>'id','tmp_value'=>'id','tmp_field'=>'name','tmp_col'=>'6'])
                     @include('template.input',['tmp_name'=>'abc_id','tmp_label'=>'ABC','tmp_value'=>$certificate->abc,'tmp_state'=>'readonly','tmp_col'=>'6'])
-                    @include('template.input',['tmp_name'=>'verification_date','tmp_label'=>'检定日期','tmp_value'=>$certificate->verification_date,'tmp_col'=>'6'])
+                    @include('template.input',['tmp_name'=>'verification_date','tmp_class'=>'single-date','tmp_label'=>'检定日期','tmp_value'=>$certificate->verification_date,'tmp_col'=>'6'])
                     @include('template.input',['tmp_name'=>'validity_date','tmp_label'=>'有效期','tmp_value'=>$certificate->validity_date,'tmp_state'=>'readonly','tmp_col'=>'6'])
                     @include('template.input',['tmp_name'=>'certificate_no','tmp_label'=>'统一编号','tmp_value'=>$certificate->certificate_no,'tmp_col'=>'6'])
                     @include('template.input',['tmp_name'=>'start','tmp_label'=>'启用时间','tmp_value'=>$certificate->start,'tmp_col'=>'6','tmp_state'=>'readonly'])
@@ -115,7 +115,7 @@
                             @include('template.input',['tmp_name'=>'cycle_id','tmp_label'=>'检定周期','tmp_col'=>'6','tmp_state'=>'readonly'])
                             @include('template.select',['tmp_name'=>'category_id','tmp_label'=>'证书类型','tmp_items'=>$categories,'tmp_value'=>'id','tmp_field'=>'name','tmp_col'=>'6'])
                             @include('template.input',['tmp_name'=>'abc_id','tmp_label'=>'ABC','tmp_col'=>'6','tmp_state'=>'readonly'])
-                            @include('template.input',['tmp_name'=>'verification_date','tmp_label'=>'检定日期','tmp_col'=>'6'])
+                            @include('template.input',['tmp_name'=>'verification_date','tmp_class'=>'single-date','tmp_label'=>'检定日期','tmp_col'=>'6'])
                             @include('template.input',['tmp_name'=>'validity_date','tmp_label'=>'有效期','tmp_col'=>'6','tmp_state'=>'readonly'])
                             @include('template.input',['tmp_name'=>'certificate_no','tmp_label'=>'统一编号','tmp_col'=>'6'])
                             @include('template.input',['tmp_name'=>'start','tmp_label'=>'启用时间','tmp_col'=>'6','tmp_state'=>'readonly'])
@@ -156,13 +156,5 @@
             @endif
         @endif
     </div>
-    <script>
-        $('[name="tool_id"],[name="standard_id[]"]').selectpicker();
-        $('[name="verification_date"]:not(:read-only)').daterangepicker({
-            singleDatePicker: true,
-            autoApply: true,
-            parentEl: $('.off-sidebar-container'),
-            container: '[name="verification_date"]',
-        });
-    </script>
+    <script src="/admin/assets/js/pages/control.js"></script>
 @endsection

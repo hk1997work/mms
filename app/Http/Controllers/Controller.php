@@ -85,6 +85,7 @@ class Controller extends BaseController
                     default:
                         return '识别成功,未接入API,请联系管理员.';
                 }
+                $result['category'] = mb_substr($result['category'], 0, 4);
                 $result['standard_id'] = $this->getStandards($file->path())[0]->standards;
                 if (Certificate::where('certificate_no', $result['certificate_no'])->where('certificate_no', '<>', $request->certificate_no)->count()) {
                     $result['exist'] = 1;

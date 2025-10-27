@@ -57,40 +57,10 @@
         <div class="col-12 mt-2" id="timeline"></div>
     </div>
     <script>
-        $(document).ready(function () {
-            let container = document.getElementById('timeline');
-            let arr = []
-            @foreach($certificates as $certificate)
-            arr.push(
-                {
-                    id: {{ $certificate->id }},
-                    content: '{{ $certificate->number }}',
-                    start: "{{ $certificate->start_date }} 00:00:00",
-                    end: "{{ $certificate->end_date }} 23:59:59",
-                })
-            @endforeach
-            let items = new vis.DataSet(arr);
-            let options = {
-                height: '100px',
-                stack: false,
-                min: "{{ $min }}",
-                max: "{{ $max }}",
-            };
-            let selected
-            let timeline = new vis.Timeline(container, items, options);
-            timeline.setSelection([{{$disable}}]);
-            timeline.on('select', function (properties) {
-                if (properties.items.length > 0) {
-                    $('#' + properties.items[0] + '-btn').click()
-                    selected = properties.items[0]
-                }
-                if (properties.items.length == 0) {
-                    timeline.setSelection([selected]);
-                }
-            });
-            if ($(window).height() < $(window).width()) {
-                $('.tab-content').height($('.off-sidebar-content').height() - 160)
-            }
-        });
+        var certificates = {!! $certificates->toJson() !!};
+        var max = '{{$max}}';
+        var min = '{{$min}}';
+        var disable = '{{$disable}}';
     </script>
+    <script src="/admin/assets/js/pages/certificate.show.js"></script>
 @endsection

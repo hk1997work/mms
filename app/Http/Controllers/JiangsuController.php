@@ -190,7 +190,7 @@ class JiangsuController extends Controller
         if (isset($_GET['type'])) {
             return response($res->getBody())->header('Content-Type', 'application/pdf');
         } else {
-            return response((string)$res->getBody())->header('Content-Type', 'application/pdf')->header('Content-Disposition', 'attachment; filename="' . $jiangsu . '.pdf"');
+            return response((string)$res->getBody())->header('Content-Type', 'application/pdf')->header('Content-Disposition', 'attachment; filename="' . $json->zsQjmc . '-' . $json->zsCcbh . $json->zsSbbh . '.pdf"');
         }
     }
 
