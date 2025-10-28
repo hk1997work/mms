@@ -8,7 +8,7 @@ function initTable(table) {
         //服务器模式配置
         let options = {
             language: {url: '/admin/assets/vendors/js/datatables/zh.json'},
-            ajax: {url: "/ajax_" + table.data('menu'), type: "POST", data: {"_token": csrf_token}},
+            ajax: {url: `/ajax_${table.data('menu')}`, type: "POST", data: {"_token": csrf_token}},
             deferRender: true,
             serverSide: true,
             scrollY: $(window).height() - table.offset().top - ($('#timeline').length > 0 ? 250 : 150),
@@ -56,7 +56,7 @@ function initTable(table) {
             btn_change(obj, count);
         });
         return dt;
-    } else if ($('.swiper').length == 0) {
+    } else if ($('.swiper').length === 0) {
         $("#preloader").fadeOut();
     }
 }
@@ -83,7 +83,7 @@ function sidebar_ajax(btn, url, menu) {
     }
     canSubmit = false;
     let title = btn.text();
-    let sidebar = $('.from-' + btn.data('pos'));
+    let sidebar = $(`.from-${btn.data('pos')}`);
     $.ajax({
         url: url, success: function (data) {
             if (data) {
@@ -103,10 +103,10 @@ function sidebar_ajax(btn, url, menu) {
                     sidebar.find('.sidebar-url').attr('data-reload', btn.attr('data-reload'));
                 }
             } else {
-                notifications(title + '失败');
+                notifications(`${title}失败`);
             }
         }, error: function (xhr) {
-            xhr.status === 401 ? document.location.reload() : notifications(title + '失败');
+            xhr.status === 401 ? document.location.reload() : notifications(`${title}失败`);
         },
     });
     setTimeout(() => {
@@ -118,21 +118,21 @@ $(main).on('click', '.btn-add', function () {
     let table = dataTable['sidebar'] ?? dataTable['index'];
     let id = $(this).data('id') ?? table.select.cumulative().rows.join(',');
     let menu = $(this).data('menu');
-    let url = '/' + menu + '/create' + (id ? '?id=' + id : '');
+    let url = `/${menu}/create${id ? `?id=${id}` : ''}`;
     sidebar_ajax($(this), url, menu);
 });
 $(main).on('click', '.btn-edit', function () {
     let table = dataTable['sidebar'] ?? dataTable['index'];
     let id = $(this).data('id') ?? table.select.cumulative().rows.join(',');
     let menu = $(this).data('menu');
-    let url = '/' + menu + '/' + id + '/edit';
+    let url = `/${menu}/${id}/edit`;
     sidebar_ajax($(this), url, menu);
 });
 $(main).on('click', '.btn-show', function () {
     let table = dataTable['sidebar'] ?? dataTable['index'];
     let id = $(this).data('id') ?? table.select.cumulative().rows.join(',');
     let menu = $(this).data('menu');
-    let url = '/' + menu + '/' + id;
+    let url = `/${menu}/${id}`;
     sidebar_ajax($(this), url, menu);
 });
 $(main).on('click', '.btn-delete', function () {
@@ -148,7 +148,7 @@ function submit_ajax(btn, url, show = true) {
         return;
     }
     canSubmit = false;
-    let sidebar = $('.from-' + btn.closest('.off-sidebar').data('pos'));
+    let sidebar = $(`.from-${btn.closest('.off-sidebar').data('pos')}`);
     let title = (btn.hasClass('btn-move') || btn.hasClass('submit-delete')) ? btn.text().replaceAll(' ', '') : sidebar.find('.sidebar-btn').text();
     let form = btn.closest('form');
     let data = new FormData(form[0]);
@@ -156,7 +156,7 @@ function submit_ajax(btn, url, show = true) {
     $.ajax({
         url: url, type: 'POST', data: data, processData: false, contentType: false, success: function (result) {
             if (result == true) {
-                notifications(title + '成功');
+                notifications(`${title}成功`);
                 if (dataTable['sidebar'] && $('.off-sidebar.is-visible').length >= 2) {
                     reloadTable(dataTable['sidebar'], true);
                     reloadTable(dataTable['index'], false);
@@ -165,26 +165,26 @@ function submit_ajax(btn, url, show = true) {
                 }
                 show && sidebar.removeClass('is-visible');
                 if (btn.attr('data-reload')) {
-                    $('[name="' + btn.attr('data-reload') + '"]').trigger('change');
+                    $(`[name="${btn.attr('data-reload')}"]`).trigger('change');
                 }
             } else if (result == false) {
-                notifications(title + '失败');
+                notifications(`${title}失败`);
             } else {
                 notifications(result);
                 show && sidebar.removeClass('is-visible');
             }
         }, error: function (xhr) {
-            xhr.status === 401 ? document.location.reload() : notifications(title + '失败');
+            xhr.status === 401 ? document.location.reload() : notifications(`${title}失败`);
             form.find(".invalid-text").remove();
             form.find('.form-control:not([readonly], [disabled])').removeClass('is-invalid').addClass('is-valid');
             $.each(JSON.parse(xhr.responseText).errors, function (idx, obj) {
                 if (idx.includes('.')) {
                     let parts = idx.split('.');
-                    idx = parts[0] + "[" + parts[1] + "][" + parts[2] + "]";
+                    idx = `${parts[0]}[${parts[1]}][${parts[2]}]`;
                 }
-                let str = " <small class='text-danger invalid-text'>" + obj + "</small>";
-                form.find('[class~="div-' + idx + '"]').find('.form-label').append(str);
-                form.find('[class~="div-' + idx + '"]').find('.form-control').removeClass('is-valid').addClass('is-invalid');
+                let str = ` <small class='text-danger invalid-text'>${obj}</small>`;
+                form.find(`[class~="div-${idx}"]`).find('.form-label').append(str);
+                form.find(`[class~="div-${idx}"]`).find('.form-control').removeClass('is-valid').addClass('is-invalid');
             });
         }
     });
@@ -195,32 +195,32 @@ function submit_ajax(btn, url, show = true) {
 
 // 修改输入时,去掉错误提示
 $(main).on('change', '.is-valid,.is-invalid', function () {
-    $(this).closest(('[class~="div-' + $(this).attr('name') + '"]').replace('[]', '')).find(".invalid-text").remove();
-    $(this).closest(('[class~="div-' + $(this).attr('name') + '"]').replace('[]', '')).find(".form-control").removeClass('is-valid').removeClass('is-invalid');
+    $(this).closest(`[class~="div-${$(this).attr('name').replace('[]', '')}"]`).find(".invalid-text").remove();
+    $(this).closest(`[class~="div-${$(this).attr('name').replace('[]', '')}"]`).find(".form-control").removeClass('is-valid').removeClass('is-invalid');
 })
 
 $(main).on('click', '.submit-add', function () {
     let table = dataTable['sidebar'] ?? dataTable['index'];
     let id = (table?.select?.cumulative?.().rows.join(',') || 'true');
-    let url = "/" + $(this).data('url') + (id ? '?id=' + id : '');
+    let url = `/${$(this).data('url')}${id ? `?id=${id}` : ''}`;
     submit_ajax($(this), url);
 })
 $(main).on('click', '.submit-edit', function () {
     let table = dataTable['sidebar'] ?? dataTable['index'];
     let id = (table?.select?.cumulative?.().rows.join(',') || 'true');
-    let url = "/" + $(this).data('url') + '/' + id;
+    let url = `/${$(this).data('url')}/${id}`;
     submit_ajax($(this), url);
 })
 $(main).on('click', '.submit-delete', function () {
     let table = dataTable['sidebar'] ?? dataTable['index'];
     let id = (table?.select?.cumulative?.().rows.join(',') || 'true');
-    let url = '/' + $(this).data('url') + "/" + id;
+    let url = `/${$(this).data('url')}/${id}`;
     submit_ajax($(this), url);
 })
 $(main).on('click', '.btn-move', function () {
     let table = dataTable['sidebar'] ?? dataTable['index'];
     let id = (table?.select?.cumulative?.().rows.join(',') || 'true');
-    let url = '/move/' + $(this).data('menu') + '/' + id + '/' + $(this).data('type');
+    let url = `/move/${$(this).data('menu')}/${id}/${$(this).data('type')}`;
     submit_ajax($(this), url, false);
 })
 $(main).on('click', '.btn-download,.btn-open', function () {
@@ -229,15 +229,15 @@ $(main).on('click', '.btn-download,.btn-open', function () {
     let menu = $(this).data('menu');
     let type = $(this).hasClass('btn-open') ? '?type=show' : '';
     $.each(id.split(','), function (index, value) {
-        window.open('/download_' + menu + '/' + value + type);
+        window.open(`/download_${menu}/${value}${type}`);
     })
 })
 $(main).on('click', '.btn-submit', function () {
     let table = dataTable['sidebar'] ?? dataTable['index'];
     let id = (table?.select?.cumulative?.().rows.join(',') || 'true');
     let pos = $(this).closest('.off-sidebar').data('pos');
-    let url = "/" + $(this).data('url') + '/' + id;
-    let sidebar = $('.from-' + pos);
+    let url = `/${$(this).data('url')}/${id}`;
+    let sidebar = $(`.from-${pos}`);
     sidebar.find('form').attr('action', url);
     sidebar.removeClass('is-visible');
     sidebar.find('form').submit();
