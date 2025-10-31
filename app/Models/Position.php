@@ -11,7 +11,7 @@ class Position extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'code', 'pid', 'level', 'sort', 'sign',
+        'name', 'code', 'pid', 'level', 'sort', 'sign', 'check',
     ];
 
     public function children()

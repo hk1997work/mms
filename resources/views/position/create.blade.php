@@ -6,4 +6,5 @@
         @include('template.input',['tmp_name'=>'code','tmp_label'=>'编号'])
     @endif
     @include('template.select',['tmp_name'=>'sign','tmp_label'=>'启用','tmp_selected'=>'1'])
+    @include('template.select',['tmp_name'=>'check','tmp_label'=>'检查'])
 @endsection

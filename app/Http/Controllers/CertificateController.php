@@ -63,7 +63,7 @@ class CertificateController extends Controller
                 }
             })
             ->editColumn('check', function ($data) use ($path) {
-                return $this->toValidate($data->check ? '未贴' : null, !$data->check);
+                return $this->toValidate($data->tag ? '未贴' : null, !$data->tag);
             })
             ->editColumn('receiver', function ($data) use ($path) {
                 return $data->receiver ?? null;
@@ -118,6 +118,10 @@ class CertificateController extends Controller
                 $file = $request->file('file_certificate');
                 $file->storeAs('public/certificate', "$certificate->id.pdf");
                 $this->pdf2jpg($certificate->id);
+                DB::table('certificate_pdf')->insertOrIgnore([
+                    'certificate_id' => $certificate->id,
+                    'filepath' => "public/certificate/$certificate->id.pdf",
+                ]);
             }
             return true;
         } else {
@@ -180,6 +184,10 @@ class CertificateController extends Controller
                     $file = $request->file('file_certificate');
                     $file->storeAs('public/certificate', "$new_certificate->id.pdf");
                     $this->pdf2jpg($new_certificate->id);
+                    DB::table('certificate_pdf')->insertOrIgnore([
+                        'certificate_id' => $new_certificate->id,
+                        'filepath' => "public/certificate/$new_certificate->id.pdf",
+                    ]);
                 }
                 return true;
             } else {
@@ -217,6 +225,10 @@ class CertificateController extends Controller
                     $file = $request->file('file_certificate');
                     $file->storeAs('public/certificate', "$certificate->id.pdf");
                     $this->pdf2jpg($certificate->id);
+                    DB::table('certificate_pdf')->insertOrIgnore([
+                        'certificate_id' => $certificate->id,
+                        'filepath' => "public/certificate/$certificate->id.pdf",
+                    ]);
                 }
                 return true;
             } else {

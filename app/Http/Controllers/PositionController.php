@@ -20,18 +20,24 @@ class PositionController extends Controller
 
     public function list(Request $request)
     {
-        return DataTables::of(PositionsView::select('id', 'name1', 'name2', 'name3', 'name4', 'code', 'valid', 'invalid', 'level', 'sign'))
+        return DataTables::of(PositionsView::select('id', 'name1', 'name2', 'name3', 'name4', 'code', 'sign', 'check', 'valid', 'invalid', 'level'))
             ->editColumn('name1', function ($data) {
-                return $this->toLevel($data, 1, 'name', 'position', 'dark', $data->sign);
+                return $this->toLevel($data, 1, 'name', 'position', 'dark');
             })
             ->editColumn('name2', function ($data) {
-                return $this->toLevel($data, 2, 'name', 'position', 'warning', $data->sign);
+                return $this->toLevel($data, 2, 'name', 'position', 'warning');
             })
             ->editColumn('name3', function ($data) {
-                return $this->toLevel($data, 3, 'name', 'position', 'success', $data->sign);
+                return $this->toLevel($data, 3, 'name', 'position', 'success');
             })
             ->editColumn('name4', function ($data) {
-                return $this->toLevel($data, 4, 'name', 'position', 'info', $data->sign);
+                return $this->toLevel($data, 4, 'name', 'position', 'info');
+            })
+            ->editColumn('check', function ($data) {
+                return $this->toValidateBadge($data->check ? '检查' : null, 'primary', $data->check);
+            })
+            ->editColumn('sign', function ($data) {
+                return $this->toValidate($data->sign ? null : '停用', $data->sign);
             })
             ->editColumn('code', function ($data) {
                 return $this->toBadges($data->code, 'primary');
@@ -43,8 +49,8 @@ class PositionController extends Controller
                 $this->toSearch($query, $request, ['name1', 'name2', 'name3', 'name4', 'code']);
             })
             ->setTotalRecords(Position::count())
-            ->rawColumns([1, 2, 3, 4, 5, 6])
-            ->removeColumn('total', 'level', 'sign')
+            ->rawColumns([1, 2, 3, 4, 5, 6, 7, 8])
+            ->removeColumn('total', 'level', 'invalid')
             ->make(false);
     }
 
@@ -64,6 +70,7 @@ class PositionController extends Controller
         $arr['level'] = isset($parent->level) ? $parent->level + 1 : 1;
         $arr['sort'] = Position::max('id') + 1;
         $arr['sign'] = $request->sign;
+        $arr['check'] = $request->check;
         return !!Position::create($arr);
     }
 
@@ -77,6 +84,7 @@ class PositionController extends Controller
         $position->name = $request->name;
         $position->code = $request->code;
         $position->sign = $request->sign;
+        $position->check = $request->check;
         return !!$position->save();
     }
 

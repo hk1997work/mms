@@ -28,7 +28,8 @@ class StandardController extends Controller
                 return $this->toBadges($data->department, 'secondary');
             })
             ->editColumn('count', function ($data) {
-                return $this->toBadges($data->level == 1 ? '' : $data->count, 'secondary');
+                $count = $data->level == 1 ? '' : $data->count;
+                return $this->toBadges($count, 'secondary');
             })
             ->filter(function ($query) use ($request) {
                 $this->toSearch($query, $request, ['name1', 'name2']);

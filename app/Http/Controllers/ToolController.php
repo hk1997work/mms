@@ -25,19 +25,24 @@ class ToolController extends Controller
     {
         return DataTables::of(ToolsView::where('type_id', $_GET['id']))
             ->editColumn('active', function ($data) {
-                return $this->toBadges($data->active ?: null, 'success');
+                $active = $data->active ?: null;
+                return $this->toBadges($active, 'success');
             })
             ->editColumn('inactive', function ($data) {
-                return $this->toBadges($data->inactive ?: null, 'warning');
+                $inactive = $data->inactive ?: null;
+                return $this->toBadges($inactive, 'warning');
             })
             ->editColumn('deactive', function ($data) {
-                return $this->toBadges($data->deactive ?: null, 'info');
+                $deactive = $data->deactive ?: null;
+                return $this->toBadges($deactive, 'info');
             })
             ->editColumn('broken', function ($data) {
-                return $this->toBadges($data->broken ?: null, 'danger');
+                $broken = $data->broken ?: null;
+                return $this->toBadges($broken, 'danger');
             })
             ->editColumn('scrap', function ($data) {
-                return $this->toBadges($data->scrap ?: null, 'dark');
+                $scrap = $data->scrap ?: null;
+                return $this->toBadges($scrap, 'dark');
             })
             ->editColumn('total', function ($data) {
                 return $this->toValidateBadge($data->total, 'primary', $data->total && !$data->mistake);

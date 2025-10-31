@@ -260,7 +260,8 @@ class Controller extends BaseController
 
     function toValidateBadge($str, $type, $validate)
     {
-        return $this->toBadges($str, $validate ? $type : 'danger');
+        $type = $validate ? $type : 'danger';
+        return $this->toBadges($str, $type);
     }
 
     function toManyBadges($str, $items, $field)
@@ -270,13 +271,11 @@ class Controller extends BaseController
             if (in_array($item->id, $ids)) {
                 $html = '<a class="badge btn btn-outline-secondary text-secondary-emphasis" href="#" data-bs-html="true" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-placement="right" data-bs-content="';
                 $html .= $item->children->map(function ($item) use ($ids, $field) {
-                    $html = in_array($item->id, $ids)
-                        ? "<span class='badge bg-primary-subtle border border-primary-subtle text-primary-emphasis my-1'>" . e($item->{$field}) . "</span> "
-                        : "<span class='badge bg-light-subtle border border-light-subtle text-light-emphasis my-1'>" . e($item->{$field}) . "</span> ";
+                    $type = in_array($item->id, $ids) ? 'primary' : 'light';
+                    $html = "<span class='badge bg-" . e($type) . "-subtle border border-" . e($type) . "-subtle text-" . e($type) . "-emphasis my-1'>" . e($item->{$field}) . "</span> ";
                     $html .= $item->children->map(function ($item) use ($ids, $field) {
-                        return in_array($item->id, $ids)
-                            ? "<span class='badge bg-primary-subtle border border-primary-subtle text-primary-emphasis my-1'>" . e($item->{$field}) . "</span>"
-                            : "<span class='badge bg-light-subtle border border-light-subtle text-light-emphasis my-1'>" . e($item->{$field}) . "</span>";
+                        $type = in_array($item->id, $ids) ? 'primary' : 'light';
+                        return "<span class='badge bg-" . e($type) . "-subtle border border-" . e($type) . "-subtle text-" . e($type) . "-emphasis my-1'>" . e($item->{$field}) . "</span>";
                     })->implode(' ');
                     return $html;
                 })->implode('<br>');

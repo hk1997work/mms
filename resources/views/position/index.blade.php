@@ -8,7 +8,7 @@
         @include('template.nav-btn',['tmp_menu'=>'position','tmp_class'=>'btn-move check-single','tmp_label'=>'上移','tmp_type'=>1])
         @include('template.nav-btn',['tmp_menu'=>'position','tmp_class'=>'btn-move check-single','tmp_label'=>'下移','tmp_type'=>0])
     </ul>
-    @include('template.table',['tmp_menu'=>'position','tmp_headers'=>['','岗位','','','','编号','数量'],'tmp_class'=>'table-tree'])
+    @include('template.table',['tmp_menu'=>'position','tmp_headers'=>['','岗位','','','','编号','','','数量'],'tmp_class'=>'table-tree'])
 @endsection
 @push('page-js-after-1')
     <script src="/admin/assets/js/pages/position.js"></script>
