@@ -1,6 +1,6 @@
 @php
     # $tmp_menu
-    $tmp_id=isset($tmp_id)?"data-id=$tmp_id":'';
+    $tmp_id=($tmp_id??'')?"data-id=$tmp_id":'';
     # $tmp_name
     $tmp_class=$tmp_class??'';
     # $tmp_label
@@ -9,7 +9,7 @@
     # $tmp_validate
     # $tmp_value
     # $tmp_field
-    $tmp_reload=isset($tmp_reload)?"data-reload=$tmp_reload":'';
+    $tmp_reload=($tmp_reload??'')?"data-reload=$tmp_reload":'';
     $tmp_col=$tmp_col??'12';
     $tmp_show=$tmp_selected??'hidden';
 @endphp
@@ -21,7 +21,7 @@
             <option value="" selected disabled>请选择...</option>
             @if(isset($tmp_items))
                 @foreach($tmp_items as $tmp_item)
-                    <option value='{{$tmp_item[$tmp_value]}}' {{isset($tmp_selected, $tmp_validate)&&$tmp_selected==$tmp_item[$tmp_validate]?'selected':''}}>{{$tmp_item[$tmp_field]}}</option>
+                    <option value='{{$tmp_item[$tmp_value]}}' {{isset($tmp_selected,$tmp_validate)&&$tmp_selected==$tmp_item[$tmp_validate]?'selected':''}}>{{$tmp_item[$tmp_field]}}</option>
                 @endforeach
             @endif
         </select>

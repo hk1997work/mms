@@ -2,7 +2,7 @@
     # $tmp_name
     $tmp_class=$tmp_class??'';
     # $tmp_label
-    $tmp_value=(isset($tmp_value)&&$tmp_value!='')?"value=$tmp_value":'';
+    $tmp_value=($tmp_value??'')?"value=$tmp_value":'';
     $tmp_state=$tmp_state??'';
     $tmp_type=$tmp_type??'text';
     $tmp_col=$tmp_col??'12';

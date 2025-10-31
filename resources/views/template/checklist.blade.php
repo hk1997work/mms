@@ -3,7 +3,7 @@
     # $tmp_items
     # $tmp_field
     # $tmp_checked
-     $tmp_active=isset($tmp_active)?'show active':'';
+     $tmp_active=($tmp_active??'')?'show active':'';
 @endphp
 
 

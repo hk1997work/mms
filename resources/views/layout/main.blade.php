@@ -43,14 +43,14 @@
                     <li class="nav-item mx-2">
                         <a class="nav-link" href="/">主页</a>
                     </li>
-                    @foreach($permissions->where('level',1) as $permission)
-                        @can($permission->name)
+                    @foreach($permissions->where('level',1) as $p1)
+                        @can($p1->name)
                             <li class="nav-item dropdown mx-2">
-                                <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">{{$permission->description}}</a>
+                                <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">{{$p1->description}}</a>
                                 <ul class="dropdown-menu">
-                                    @foreach($permissions->where('pid',$permission->id) as $p)
-                                        @can($p->name)
-                                            <li><a class="dropdown-item" href="/{{$p->name}}" id="{{$p->name}}">{{$p->description}}</a></li>
+                                    @foreach($permissions->where('pid',$p1->id) as $p2)
+                                        @can($p2->name)
+                                            <li><a class="dropdown-item" href="/{{$p2->name}}" id="{{$p2->name}}">{{$p2->description}}</a></li>
                                         @endcan
                                     @endforeach
                                 </ul>

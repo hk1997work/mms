@@ -1,5 +1,5 @@
 @php
-    $tmp_id=isset($tmp_id)?"data-id=$tmp_id":'';
+    $tmp_id=($tmp_id??'')?"data-id=$tmp_id":'';
     # $tmp_class
     $tmp_label=$tmp_label??'确 定';
     $tmp_color=$tmp_color??'primary';

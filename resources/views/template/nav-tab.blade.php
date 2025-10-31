@@ -2,7 +2,7 @@
     # $tmp_name
     # $tmp_label
     $tmp_state=$tmp_state??'';
-    $tmp_active=isset($tmp_active)&&$tmp_active?'active':'';
+    $tmp_active=($tmp_active??'')?'active':'';
 @endphp
 
 <li class="nav-item">

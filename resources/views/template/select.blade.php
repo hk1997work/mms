@@ -15,7 +15,7 @@
         <option value="" selected disabled>请选择...</option>
         @if(isset($tmp_items))
             @foreach($tmp_items as $tmp_item)
-                <option value='{{$tmp_item[$tmp_value]}}' {{isset($tmp_selected, $tmp_validate) && $tmp_selected == $tmp_item[$tmp_validate]?'selected':''}}>{{$tmp_item[$tmp_field]}}</option>
+                <option value='{{$tmp_item[$tmp_value]}}' {{isset($tmp_selected,$tmp_validate)&&$tmp_selected==$tmp_item[$tmp_validate]?'selected':''}}>{{$tmp_item[$tmp_field]}}</option>
             @endforeach
         @else
             <option value="1" {{($tmp_selected ?? null)=='1'?'selected':''}}>是</option>
