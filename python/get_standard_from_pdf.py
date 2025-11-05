@@ -98,7 +98,7 @@ def is_valid_json(text):
 
 
 text = sys.argv[1]
-arr_category = {"检定证": "检定证书", "检定结": "检定证书", "校准证": "校准证书"}
+arr_category = {"检定证": "检定证书", "检定结": "检定证书", "校准证": "校准证书", "测试报告": "检测报告"}
 database_data = get_data_from_database()
 is_json, arr = is_valid_json(text)
 json_array = []

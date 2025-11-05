@@ -69,10 +69,10 @@ class CertificateController extends Controller
                 return $data->receiver ?? null;
             })
             ->filter(function ($query) use ($request) {
-                $this->toSearch($query, $request, ['order', 'position1', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'receiver', 'check', 'remark'], 'check', ['', '未贴']);
+                $this->toSearch($query, $request, ['order', 'position1', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'receiver', 'tag', 'remark'], 'tag', ['', '未贴']);
             })
             ->order(function ($query) use ($request) {
-                $this->toOrder($query, $request, ['id', 'order', 'position1', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'receiver', 'check', 'remark']);
+                $this->toOrder($query, $request, ['id', 'order', 'position1', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'receiver', 'tag', 'remark']);
             })
             ->rawColumns([4, 10, 11])
             ->make(false);

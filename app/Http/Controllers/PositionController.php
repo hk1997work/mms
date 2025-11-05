@@ -22,16 +22,16 @@ class PositionController extends Controller
     {
         return DataTables::of(PositionsView::select('id', 'name1', 'name2', 'name3', 'name4', 'code', 'sign', 'check', 'valid', 'invalid', 'level'))
             ->editColumn('name1', function ($data) {
-                return $this->toLevel($data, 1, 'name', 'position', 'dark');
+                return $this->toLevel($data, 1, 'name', 'position', 'dark', $data->check);
             })
             ->editColumn('name2', function ($data) {
-                return $this->toLevel($data, 2, 'name', 'position', 'warning');
+                return $this->toLevel($data, 2, 'name', 'position', 'warning', $data->check);
             })
             ->editColumn('name3', function ($data) {
-                return $this->toLevel($data, 3, 'name', 'position', 'success');
+                return $this->toLevel($data, 3, 'name', 'position', 'success', $data->check);
             })
             ->editColumn('name4', function ($data) {
-                return $this->toLevel($data, 4, 'name', 'position', 'info');
+                return $this->toLevel($data, 4, 'name', 'position', 'info', $data->check);
             })
             ->editColumn('check', function ($data) {
                 return $this->toValidateBadge($data->check ? '检查' : null, 'primary', $data->check);

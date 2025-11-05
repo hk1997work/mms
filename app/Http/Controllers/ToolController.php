@@ -16,7 +16,7 @@ class ToolController extends Controller
     public function index()
     {
         $pid = Position::where('level', 1)->where('name', '备用')->first()->id;
-        $type = Position::find(isset($_GET['id']) ? $_GET['id'] : Position::where('pid', $pid)->orderBy('sort')->first()->id);
+        $type = Position::find($_GET['id'] ?? Position::where('pid', $pid)->orderBy('sort')->first()->id);
         $types = Position::where('pid', $pid)->orderBy('sort')->get();
         return view('tools.tool.index', compact('type', 'types'));
     }
@@ -25,30 +25,26 @@ class ToolController extends Controller
     {
         return DataTables::of(ToolsView::where('type_id', $_GET['id']))
             ->editColumn('active', function ($data) {
-                $active = $data->active ?: null;
-                return $this->toBadges($active, 'success');
+                return $this->toBadge($data->active, 'success', 1);
             })
             ->editColumn('inactive', function ($data) {
-                $inactive = $data->inactive ?: null;
-                return $this->toBadges($inactive, 'warning');
+
+                return $this->toBadge($data->inactive, 'warning', 1);
             })
             ->editColumn('deactive', function ($data) {
-                $deactive = $data->deactive ?: null;
-                return $this->toBadges($deactive, 'info');
+                return $this->toBadge($data->deactive, 'info', 1);
             })
             ->editColumn('broken', function ($data) {
-                $broken = $data->broken ?: null;
-                return $this->toBadges($broken, 'danger');
+                return $this->toBadge($data->broken, 'danger', 1);
             })
             ->editColumn('scrap', function ($data) {
-                $scrap = $data->scrap ?: null;
-                return $this->toBadges($scrap, 'dark');
+                return $this->toBadge($data->scrap, 'dark', 1);
             })
             ->editColumn('total', function ($data) {
-                return $this->toValidateBadge($data->total, 'primary', $data->total && !$data->mistake);
+                return $this->toValidateBadge($data->total, 'primary', !$data->mistake);
             })
             ->editColumn('vulnerable', function ($data) {
-                return $this->toValidate($data->vulnerable ? '易损' : null, !$data->vulnerable);
+                return $this->toBadge($data->vulnerable, 'danger', 1, '易损');
             })
             ->filter(function ($query) use ($request) {
                 $this->toSearch($query, $request, ['instrument', 'model', 'limit', 'accuracy', 'cycle', 'abc', 'vulnerable', 'requirement'], 'vulnerable', ['', '易损']);

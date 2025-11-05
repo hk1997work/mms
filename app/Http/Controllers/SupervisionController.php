@@ -12,15 +12,15 @@ class SupervisionController extends Controller
         $arr = [];
         $str = "计量器具检查：";
         foreach ($certificates as $certificate) {
-            $arr[$certificate->position4][$certificate->position1][] = $certificate->instrument . "，编号：" . $certificate->number;
+            $arr[$certificate->position4][$certificate->position1][] = "{$certificate->instrument}，编号：$certificate->number";
         }
         foreach ($arr as $key => $value) {
-            $str = $str . "<br>" . $key . "：";
+            $str .= "<br>{$key}：";
             foreach ($value as $key1 => $value1) {
-                $str = $str . "<br>" . $key1 . "岗位：" . implode('；', $value1) . "；";
+                $str .= "<br>{$key1}岗位：" . implode('；', $value1) . "；";
             }
         }
-        $str = $str . "<br>以上计量器具满足使用要求，标签完好，与计量器具台账一致。";
+        $str .= "<br>以上计量器具满足使用要求，标签完好，与计量器具台账一致。";
         return $output ? $str : view('supervision.show', compact('str'));
     }
 }

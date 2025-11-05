@@ -28,8 +28,7 @@ class StandardController extends Controller
                 return $this->toBadges($data->department, 'secondary');
             })
             ->editColumn('count', function ($data) {
-                $count = $data->level == 1 ? '' : $data->count;
-                return $this->toBadges($count, 'secondary');
+                return $this->toBadge($data->level == 2, 'secondary', 1, $data->count);
             })
             ->filter(function ($query) use ($request) {
                 $this->toSearch($query, $request, ['name1', 'name2']);
@@ -42,7 +41,7 @@ class StandardController extends Controller
 
     public function create()
     {
-        $id = isset($_GET['id']) ? $_GET['id'] : 0;
+        $id = $_GET['id'] ?? 0;
         return view('standard.create', compact('id'));
     }
 

@@ -20,7 +20,7 @@ class SampleController extends Controller
 
     public function list()
     {
-        $date = isset($_GET['id']) ? $_GET['id'] : '';
+        $date = $_GET['id'] ?? '';
         $query = CertificatesView::select('order', 'position1', 'position2', 'instrument', 'model', 'number', 'limit', DB::raw("'完好' AS status"), 'remark')
             ->leftJoin('certificate_check', 'certificates_views.id', 'certificate_check.certificate_id')
             ->whereRaw("SUBSTRING(SUBSTRING_INDEX(filepath, '/', -1), 1, 10) = ?", [$date])->orderBy('order');

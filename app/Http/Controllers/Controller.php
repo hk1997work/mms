@@ -243,6 +243,12 @@ class Controller extends BaseController
         return $str;
     }
 
+    function toBadge($str, $type, $hide = false, $text = null)
+    {
+        $hide && $str = $str ? ($text ?? $str) : null;
+        return "<span class='badge bg-" . e($type) . "-subtle border border-" . e($type) . "-subtle text-" . e($type) . "-emphasis'>" . e($str) . "</span>";
+    }
+
     function toBadges($str, $type)
     {
         $texts = explode(',', $str);
@@ -255,13 +261,14 @@ class Controller extends BaseController
 
     function toValidate($str, $validate)
     {
-        return "<span class='badge " . ($validate ? 'text-dark' : 'bg-danger-subtle border border-danger-subtle text-danger-emphasis') . "'>" . e($str) . "</span>";
+        $type = $validate ? 'text-dark' : 'bg-danger-subtle border border-danger-subtle text-danger-emphasis';
+        return "<span class='badge " . e($type) . "'>" . e($str) . "</span>";
     }
 
     function toValidateBadge($str, $type, $validate)
     {
         $type = $validate ? $type : 'danger';
-        return $this->toBadges($str, $type);
+        return $this->toBadge($str, $type);
     }
 
     function toManyBadges($str, $items, $field)

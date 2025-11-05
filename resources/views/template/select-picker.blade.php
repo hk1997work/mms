@@ -17,9 +17,9 @@
     <select name="{{$tmp_name}}" class="form-control form-select" data-live-search="true" title="请选择..." {{$tmp_state}}>
         @foreach($tmp_items as $tmp_item)
             @php
-                $tmp_title=($tmp_title??'')?"title=$tmp_item[$tmp_title]":'';
+                $tmp_title_text=($tmp_title??'')?"title=$tmp_item[$tmp_title]":'';
             @endphp
-            <option {{$tmp_title}} value='{{$tmp_item[$tmp_value]}}' {{isset($tmp_selected,$tmp_validate)&&((is_int($tmp_selected)||is_string($tmp_selected))?($tmp_selected==$tmp_item[$tmp_validate]):($tmp_selected->contains($tmp_item[$tmp_validate])))?'selected':''}}>
+            <option {{$tmp_title_text}} value='{{$tmp_item[$tmp_value]}}' {{isset($tmp_selected,$tmp_validate)&&((is_int($tmp_selected)||is_string($tmp_selected))?($tmp_selected==$tmp_item[$tmp_validate]):($tmp_selected->contains($tmp_item[$tmp_validate])))?'selected':''}}>
                 {{$tmp_item[$tmp_field1]}}-{{Str::limit($tmp_item[$tmp_field2],35)}}</option>
         @endforeach
     </select>

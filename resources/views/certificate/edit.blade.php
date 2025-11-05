@@ -137,7 +137,7 @@
                                 {{csrf_field()}}
                                 <input type="hidden" name="type" value="spare">
                                 <input type="hidden" name="id" value="{{$certificate->id}}">
-                                <input type="hidden" name="cause" value="待检">
+                                <input type="hidden" name="cause" value="0">
                                 @include('template.nav-btn',['tmp_menu'=>'','tmp_class'=>'submit-edit check-single','tmp_label'=>'更换','tmp_url'=>'certificate'])
                             </form>
                             <form action="" onsubmit="return false;">
@@ -145,7 +145,7 @@
                                 {{csrf_field()}}
                                 <input type="hidden" name="type" value="spare">
                                 <input type="hidden" name="id" value="{{$certificate->id}}">
-                                <input type="hidden" name="cause" value="损坏">
+                                <input type="hidden" name="cause" value="1">
                                 @include('template.nav-btn',['tmp_menu'=>'','tmp_class'=>'submit-edit check-single','tmp_label'=>'损坏','tmp_url'=>'certificate'])
                             </form>
                         </ul>
