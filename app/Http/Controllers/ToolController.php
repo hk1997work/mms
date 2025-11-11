@@ -138,7 +138,7 @@ class ToolController extends Controller
                         $tag = "dark";
                         break;
                 }
-                return $this->toBadges($data->state, $tag);
+                return $this->toBadge($data->state, $tag);
             })
             ->editColumn('count', function ($data) {
                 return $this->toValidateBadge($data->count, 'secondary', $data->count);

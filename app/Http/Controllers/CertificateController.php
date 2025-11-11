@@ -55,9 +55,9 @@ class CertificateController extends Controller
         return DataTables::of($query)
             ->editColumn('instrument', function ($data) use ($path) {
                 if ($data->validity_date < Carbon::now()->format('Y-m-d') && ($path == 'active')) {
-                    return $this->toBadges($data->instrument, 'danger');
+                    return $this->toBadge($data->instrument, 'danger');
                 } elseif ($data->validity_date < Carbon::now()->subMonth(-1)->format('Y-m-d') && ($path == 'active')) {
-                    return $this->toBadges($data->instrument, 'warning');
+                    return $this->toBadge($data->instrument, 'warning');
                 } else {
                     return $this->toValidate($data->instrument, 1);
                 }
