@@ -33,7 +33,7 @@ class NanjingController extends Controller
         $list = [];
         $certificates = [];
         foreach ($result as $value) {
-            if (!$certificate->contains($value->zsbh)) {
+            if (!$certificate->contains($value->zsbh) && $value->zsType != '检定结果通知书') {
                 $value->ccbh = ((!isset($value->ccbh) || $value->ccbh == '/') ? '' : $value->ccbh) . ((!isset($value->sbbh) || $value->sbbh == '/') ? '' : $value->sbbh);
                 if (!$nanjing->contains($value->zsbh)) {
                     $certificates[] = [$value->zsbh, $value->jdrq, $value->zsbh, $value->name, $value->xhgg, $value->ccbh,];
@@ -218,6 +218,45 @@ class NanjingController extends Controller
         for ($i = 1; $i < 3; $i++) {
             if (request()->session()->has('nanjing_headers')) {
                 $headers = request()->session()->get('nanjing_headers');
+                $confirm_str = [
+                    "pageNo" => 1,
+                    "pageSize" => 50,
+                    "isSearchAll" => false,
+                    "feeConfirm" => "0"
+                ];
+                $confirm_json = json_encode($confirm_str);
+                $confirm_str['mindParam1'] = $this->nanjing_encode($confirm_json);
+                $confirm_str['mindParam2'] = md5($confirm_json . "&njmindToken");
+                $get_confirm_res = $client->request('GET', 'https://www.njsnjl.cn/cmiims/a/checkList/page?' . $this->nanjing_encode(json_encode($confirm_str)), $headers);
+                $get_confirm_result = json_decode($this->nanjing_decode((string)$get_confirm_res->getBody()));
+                if (isset($get_confirm_result->success) && $get_confirm_result->data->count > 0) {
+                    $confirm_list = [];
+                    $confirm_order = [];
+                    $confirm_price = 0;
+                    foreach ($get_confirm_result->data->list as $value) {
+                        $value->check = true;
+                        $confirm_list[] = $value;
+                        $confirm_order[] = $value->orderNo;
+                        $confirm_price = $confirm_price + $value->totalActual;
+                    }
+                    $confirm_str = [
+                        "type" => "1",
+                        "orders" => implode($confirm_order, ','),
+                        "checkedOrderList" => json_encode($confirm_list),
+                        "total_prince" => number_format($confirm_price, 2),
+                        "dw_id" => "11740",
+                        "apply_company" => "南京巨龙钢管有限公司",
+                        "contacts" => "刘迪龙",
+                        "telphone_num" => "13155555418",
+                        "tax_header" => "南京巨龙钢管有限公司",
+                        "tax_type" => "82",
+                        "tax_payer" => "91320191667351423J",
+                    ];
+                    $confirm_json = json_encode($confirm_str);
+                    $confirm_str['mindParam1'] = $this->nanjing_encode($confirm_json);
+                    $confirm_str['mindParam2'] = md5($confirm_json . "&njmindToken");
+                    $client->post('https://www.njsnjl.cn/cmiims/a/sys/payOnline/applyPayOnlineAndBatchVerify', ['body' => $this->nanjing_encode(json_encode($confirm_str)), 'headers' => ['Cookie' => $headers['headers']['Cookie'] . ';cmiims_login_name=13155555418;']]);
+                }
                 $list_str = [
                     "pageNo" => "1",
                     "pageSize" => "9999",

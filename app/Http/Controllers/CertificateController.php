@@ -34,7 +34,7 @@ class CertificateController extends Controller
     public function list(Request $request)
     {
         $path = $_GET['path'];
-        $query = CertificatesView::select('id', 'order', 'position1', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'receiver', 'check', 'remark')->where('type_id', $_GET['id']);
+        $query = CertificatesView::select('id', 'order', 'position1', 'certificate_no', 'instrument', 'model', 'number', 'verification_date', 'validity_date', 'department', 'receiver', 'tag', 'remark')->where('type_id', $_GET['id']);
         if (isset($_GET['position'])) {
             $query->where('position_id3', $_GET['position']);
         }
@@ -62,7 +62,7 @@ class CertificateController extends Controller
                     return $this->toValidate($data->instrument, 1);
                 }
             })
-            ->editColumn('check', function ($data) use ($path) {
+            ->editColumn('tag', function ($data) use ($path) {
                 return $this->toValidate($data->tag ? '未贴' : null, !$data->tag);
             })
             ->editColumn('receiver', function ($data) use ($path) {
