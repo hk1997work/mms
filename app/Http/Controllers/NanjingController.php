@@ -62,13 +62,13 @@ class NanjingController extends Controller
                 $json = json_decode($this->nanjing_decode((string)$res->getBody()));
                 $certificates[$key] = (array)$value;
                 $certificates[$key]['key'] = 'key' . $key;
-                $certificates[$key]['path'] = "https://www.njsnjl.cn$json->data";
                 #获取生产厂家
                 $str = $this->nanjing_encode("{'id':'$value->id'}");
                 $res = $client->request('GET', "https://www.njsnjl.cn/cmiims/f/sys/webQuery/inquiryByIdInfo?$str", $headers);
                 $json = json_decode($this->nanjing_decode((string)$res->getBody()));
-                $certificates[$key]['factory'] = $json->certificateInfo->zzcs;
 
+                $certificates[$key]['factory'] = $json->certificateInfo->zzcs;
+                $certificates[$key]['path'] = $this->pdfStreamToTempPath(base64_decode($json->certificateInfo->zsdata));
                 $numbers = Number::where('name', $value->ccbh)->get();
                 if ($numbers->count() == 1) {
                     $factory = Number::find($numbers->first()->pid);

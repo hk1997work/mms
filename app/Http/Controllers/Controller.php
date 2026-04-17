@@ -380,5 +380,12 @@ class Controller extends BaseController
             return !!$model::whereIn('id', $ids)->delete();
         }
     }
+
+    function pdfStreamToTempPath($pdfStream)
+    {
+        $path = tempnam(sys_get_temp_dir(), 'pdf_');
+        file_put_contents($path, $pdfStream);
+        return $path;
+    }
 }
 
