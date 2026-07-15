@@ -4,7 +4,7 @@
     # $tmp_class
     # $tmp_label
     $tmp_url=($tmp_url??'')?"data-url=$tmp_url":'';
-    $tmp_type=($tmp_type??'')?"data-type=$tmp_type":'';
+    $tmp_type=(isset($tmp_type)&&$tmp_type!==null)?"data-type=$tmp_type":'';
     $tmp_pos=$tmp_pos??'right';
 @endphp
 

@@ -1,7 +1,7 @@
 @extends('layout.show')
 @section('content_title')
     @if($certificate->valid)
-        @if($certificate->position1=='备用')
+        @if($certificate->position1=='备用'||$certificate->position1=='借用')
             @include('template.nav-tab',['tmp_name'=>'apply','tmp_label'=>'使用','tmp_active'=>true])
         @else
             @if($spares->count()!=0)
@@ -51,7 +51,7 @@
             </form>
         </div>
         @if($certificate->valid)
-            @if($certificate->position1=='备用')
+            @if($certificate->position1=='备用'||$certificate->position1=='借用')
                 <div role="tabpanel" class="tab-pane show active" id="apply-tab" aria-labelledby="apply-btn">
                     <form action="" onsubmit="return false;">
                         {{method_field("put")}}
